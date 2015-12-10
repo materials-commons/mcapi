@@ -13,11 +13,11 @@ baseurl = os.getenv('MCURL', 'https://materialscommons.org/api/v2')
 
 
 class Sample(object):
-    def __init__(self, project_id, name):
+    def __init__(self, project_id, name, manufacturer):
         self.project_id = project_id
         self.name = name
         self.description = ''
-        self.manufacturer = ''
+        self.manufacturer = manufacturer
 
 
 class Process(object):
