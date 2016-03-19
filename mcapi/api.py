@@ -7,10 +7,37 @@ import json
 class NoAPIKey(Exception):
     pass
 
-
 params = {'apikey': ''}
 baseurl = os.getenv('MCURL', 'https://materialscommons.org/api/v2')
 
+
+class MCObject(object):
+    """
+    Attributes
+    ----------
+      id: str
+        ID of the object
+        
+      name: str      
+        Name of the object
+      
+      description: str
+        Description of the object
+      
+      ctime: int
+        Creation time of the object
+        
+      mtime: int
+        Last modification time
+        
+    """
+    def __init__(self):
+        self.id
+        self.name
+        self.description
+        self.ctime
+        self.mtime
+    
 
 def init():
     global params

@@ -1,7 +1,8 @@
 import api
+from api import MCObject
 
 
-class Sample(object):
+class Sample(MCObject):
     def __init__(self, project_id, name, manufacturer):
         self.project_id = project_id
         self.name = name
@@ -30,4 +31,3 @@ def create_sample(sample):
             ]
         })
     return api.post('projects/' + sample.project_id + '/processes', p.__dict__)
-
