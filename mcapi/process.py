@@ -21,3 +21,5 @@ class Process(object):
         self.transformed_samples = []
         self.what = ''
         self.why = ''
+
+
