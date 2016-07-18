@@ -61,6 +61,10 @@ class Remote(object):
     def make_url(self, restpath):
         p = self.mcurl + '/' + restpath
         return p
+    
+    def make_url_v2(self, restpath):
+        p = self.mcurl + '/v2/' + restpath
+        return p
 
 def disable_warnings():
   """Temporary fix to disable requests' InsecureRequestWarning"""
@@ -79,7 +83,7 @@ def mcorg():
     Returns
     ---------
       mcorg: mcapi.Remote
-        Default Materials Commons at 'https://materialscommons.org/api/v2'
+        Default Materials Commons at 'https://materialscommons.org/api'
     """
     return _mcorg
 
@@ -113,21 +117,21 @@ class MCObject(object):
            
 
 def get(restpath, remote=mcorg()):
-    r = requests.get(remote.make_url(restpath), params=remote.params, verify=False)
+    r = requests.get(restpath, params=remote.params, verify=False)
     if r.status_code == requests.codes.ok:
         return r.json()
     r.raise_for_status()
 
 
 def post(restpath, data, remote=mcorg()):
-    r = requests.post(remote.make_url(restpath), params=remote.params, verify=False, json=data)
+    r = requests.post(restpath, params=remote.params, verify=False, json=data)
     if r.status_code == requests.codes.ok:
         return r.json()
     r.raise_for_status()
 
 
 def put(restpath, data, remote=mcorg()):
-    r = requests.put(remote.make_url(restpath), params=remote.params, verify=False, json=data)
+    r = requests.put(restpath, params=remote.params, verify=False, json=data)
     if r.status_code == requests.codes.ok:
         return r.json()
     r.raise_for_status()
@@ -151,25 +155,25 @@ def projects(remote=mcorg()):
         Data from: GET '/projects'
     
     """
-    return get('projects', remote=remote)
+    return get(remote.make_url_v2('projects'), remote=remote)
 
 
 # Datadir
 
 def top(projectid, remote=mcorg()):
-    return get('projects/' + projectid + '/directories', remote=remote)
+    return get(remote.make_url_v2('projects/' + projectid + '/directories'), remote=remote)
 
 def datadir(projectid, datadirid, remote=mcorg()):
-    return get('projects/' + projectid + '/directories/' + datadirid, remote=remote)
+    return get(remote.make_url_v2('projects/' + projectid + '/directories/' + datadirid), remote=remote)
 
 def create_datadir(projectid, path, remote=mcorg()):
     data = {'path':path}
-    return post('projects/' + projectid + '/directories', data, remote=remote)
+    return post(remote.make_url_v2('projects/' + projectid + '/directories'), data, remote=remote)
 
 # Datafile
 
 def datafiles_by_id(projectid, ids, remote=mcorg()):
-    basepath = 'projects/' + projectid + '/files'
+    basepath = remote.make_url_v2('projects/' + projectid + '/files')
     data = {'file_ids': ids}
     return post(basepath, data, remote=remote)
             
