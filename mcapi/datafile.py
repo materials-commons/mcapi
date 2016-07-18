@@ -31,6 +31,8 @@ class Datafile(api.MCObject):
     
     ToDo: datadirs, processes, samples, atime, usesid, owner, usesid
     
+    Note: right now Datafile.id is the 'datafile_id', not 'id' which corresponds to a particular version
+    
     """
     
     def __init__(self, project, parent, data=dict()):
@@ -44,6 +46,10 @@ class Datafile(api.MCObject):
         self.project = project
         self.parent = parent
         self.path = os.path.join(parent.path, self.name)
+        
+        # 'current' version only
+        #Note: right now Datafile.id is the 'datafile_id', not 'id' which corresponds to a particular version
+        self.id = data.get('datafile_id', None)
         
         attr = ['size', 'uploaded', 'checksum', 'current', 'owner']
         for a in attr:
@@ -60,18 +66,12 @@ class Datafile(api.MCObject):
         # other attributes:
         #   datadirs, processes, samples, atime, usesid, owner, usesid
         
-        
-    
-    def create(self):
-        """
-        Create this as new Datafile object on Materials Commons. 
-        
-        
-        Note
-        ----------
-        Upload file separately using Datafile.upload.
-        """
-        return
+    @property
+    def localpath(self):
+        if self.project.localpath is None:
+            return None
+        else:
+            return join(self.project.localpath, relpath(self.path, self.project.name))
     
     
     def upload(self):
@@ -119,58 +119,4 @@ class Datafile(api.MCObject):
         
         """
         return
-
-
-def get_datafile(project, parent, id):
-    """
-    Get Datafile object from Materials Commons by path. 
-    
-    Arguments
-    ----------
-      project: mcapi.Project instance
-        the MC Project containing the Datafile
-      
-      parent: mcapi.Datadir instance
-        the Datadir containing the Datafile
-      
-      id: str
-        the Datafile id
-      
-    Returns
-    ----------
-      datafile: mcapi.Datafile instance
-    
-    Note
-    ----------
-      Download file separately using Datafile.download.
-    """
-    return Datafile(project, parent, data=api.get('projects/' + project.id + '/files/' + id))
-
-
-def get_datafile_by_name(project, parent, name):
-    """
-    Get Datafile object from Materials Commons by path. (latest version)
-    
-    Arguments
-    ----------
-      project: mcapi.Project instance
-        the MC Project containing the Datafile
-      
-      parent: mcapi.Datadir instance
-        the Datadir containing the Datafile
-      
-      name: str
-        the name of the Datafile 
-      
-    Returns
-    ----------
-      datafile: mcapi.Datafile instance
-    
-    Note
-    ----------
-      Download file separately using Datafile.download.
-    """
-    basepath = 'projects/' + project.id + '/files_by_path'
-    params = {'file_path': parent.path + '/' + name}
-    return Datafile(project, parent, data=api.put(basepath, params=params))
 

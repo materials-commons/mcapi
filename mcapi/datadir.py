@@ -10,6 +10,17 @@ class Datadir(api.MCObject):
     project: mcapi.Project
       Project containing this Datadir
     
+    localpath: str or None
+      absolute path to Datadir on local machine. None if project.localpath is None.
+      A directory may not exist locally even if it does exist in the project.
+    
+    path:
+      path to directory from (and including) the top-level directory, 
+      ex. 'MyProj/path/to/mydir')
+    
+    parent: mcapi.Datadir or None
+      the Datadir containing this Datadir. If top level Datadir, value is None 
+    
     children: List[mcapi.Datadir and mcapi.Datafile] 
       sub-Datadir and Datafiles contained in this Datadir
     
@@ -21,7 +32,8 @@ class Datadir(api.MCObject):
     
     """
     
-    def __init__(self, project, data=dict()):
+    def __init__(self, project, parent, data=dict()):
+        
         super(Datadir, self).__init__(data)
         
 #        print "Constructing Datadir"
@@ -30,14 +42,21 @@ class Datadir(api.MCObject):
 #        print ""
         
         self.project = project
+        self.parent = parent
         
         attr = ['path']
         for a in attr:
           setattr(self, a, data.get(a,None)) 
         
+        # ids of all children
         self._children = data.get('children', [])
-        self._datadirs = None
-        self._datafiles = None
+        
+    @property
+    def localpath(self):
+        if self.project.localpath is None:
+            return None
+        else:
+            return join(self.project.localpath, relpath(self.path, self.project.name))
     
     @property
     def children(self):
@@ -45,21 +64,13 @@ class Datadir(api.MCObject):
     
     @property
     def datadirs(self):
-        if self._datadirs is None:
-            self._datadirs = []
-            for child in self._children:
-                if child['_type'] == 'directory':
-                    self._datadirs.append(get_datadir(self.project, child['id']))
-        return self._datadirs
+        ids = [child['id'] for child in self._children if child['_type'] == 'directory'] 
+        return self.project.datadirs(ids)
     
     @property
     def datafiles(self):
-        if self._datafiles is None:
-            self._datafiles = []
-            for child in self._children:
-                if child['_type'] == 'file':
-                    self._datafiles.append(datafile.get_datafile(self.project, self, child['id']))
-        return self._datafiles
+        ids = [child['id'] for child in self._children if child['_type'] == 'file'] 
+        return self.project.datafiles(ids, type='id', parent=self)
     
     def walk(self, topdown=True):
         """
@@ -79,11 +90,5 @@ class Datadir(api.MCObject):
         
         if not topdown:
           yield self, self.datadirs, self.datafiles
-
-
-def get_datadir(project, id):
-    result = api.get('/projects/' + project.id + '/directories/' + id)
-    return Datadir(project, result)
-
 
                     
