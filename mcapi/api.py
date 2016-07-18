@@ -1,6 +1,7 @@
 import requests
 import getpass
 import os
+from os.path import join
 import json
 
 
@@ -10,45 +11,55 @@ class NoAPIKey(Exception):
 
 def mcdatapath():
     user = getpass.getuser()
-    return os.path.join(os.path.expanduser('~' + user), '.materialscommons')
+    return join(os.path.expanduser('~' + user), '.materialscommons')
 
 class Remote(object):
     """
     Attributes:
     -----------
       params: dict
-        Holds 'apikey' value.
+        Holds 'apikey': (string) the user API key value for REST calls
       
-      baseurl: str
-        Holds base url for Materials Commons.
+      mcurl: str
+        Holds base url for Materials Commons instance
+      
+      config: dict
+        All configuration variables, as from environ or '~/.materialscommons/config.json'
+        Expected values are:
+          'apikey'
+          'mcurl'
+      
     """
-    def __init__(self, baseurl=None, params=None):
+    def __init__(self, config=None):
         """
         Arguments
         -----------
-          params: dict, optional, default read from '~/.mcapikey'
-            the 'apikey' value.
-          
-          baseurl: str, optional, default 'https://materialscommons.org/api/v2'
-            the base url for Materials Commons.
+          config: dict, optional 
+            Defaults read from environment or '~/.materialscommons/config.json'.
+            Possible values are:
+              'apikey'
+              'mcurl'
+            
         """
-        if baseurl is None:
-            #baseurl = os.getenv('MCURL', 'https://materialscommons.org/api/v2')
-            baseurl = os.getenv('MCURL', 'https://materialscommons.org/api/v2')
-        self.baseurl = baseurl
         
-        if params is None:
-            params = {'apikey': ''}
-            user = getpass.getuser()
-            mcapi_key_path = os.path.join(os.path.expanduser('~' + user), '.mcapikey')
-            if os.path.exists(mcapi_key_path):
-                with open(mcapi_key_path, 'r') as fd:
-                    userapikey = fd.read()
-                    params['apikey'] = userapikey.strip()
-        self.params = params
+        # get configuration values from 'config.json' or environment variables
+        configfile = join(mcdatapath(), 'config.json')
+        
+        if os.path.exists(configfile):
+            with open(configfile, 'r') as f:
+                config = json.load(f)
+        else:
+            raise Exception('No ~/.materialscommons/config.json file found: Run \'mc setup c\'')
+        
+        self.config = config
+        for key in config:
+            self.config[key] = os.getenv(key.upper(), config[key])
+        
+        self.mcurl = config['mcurl']
+        self.params = {'apikey' : config['apikey']}
     
     def make_url(self, restpath):
-        p = self.baseurl + '/' + restpath
+        p = self.mcurl + '/' + restpath
         return p
 
 def disable_warnings():

@@ -4,7 +4,7 @@ from os.path import join, splitext, dirname, basename, exists
 from glob import glob
 
 import mcapi.api as api
-from mcapi.api import mcdatapath, mcorg
+from mcapi.api import mcdatapath, mcorg, Remote
 from mcapi.datadir import Datadir
 from mcapi.datafile import Datafile
 
@@ -363,9 +363,7 @@ def _local_projects():
     localnames = [splitext(basename(f))[0] for f in localdbs]
     
     # currently only one remote at a time
-    with open( join(mcdatapath(), 'config.json'), 'r') as f:
-        conf = json.load(f)
-    remote = conf['mcurl']
+    remote = Remote().mcurl
     
     projects = []
     for name in localnames:
@@ -424,11 +422,11 @@ def list_projects(remote=mcorg()):
           name = r['name']
           proj = None
           for p in locals:
-              if p['name'] == name and p['remote'] == remote.baseurl:
+              if p['name'] == name and p['remote'] == remote.mcurl:
                   proj = p
                   break
           if proj is None:
-              proj = {'name':name, 'remote':remote.baseurl, 'id':r['id']}
+              proj = {'name':name, 'remote':remote.mcurl, 'id':r['id']}
           projects.append(proj)
       return projects
 
