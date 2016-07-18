@@ -1,5 +1,5 @@
 import string, sqlite3, json, subprocess
-from os import makedirs
+from os import makedirs, remove
 from os.path import join, splitext, dirname, basename, exists
 from glob import glob
 
@@ -47,7 +47,7 @@ class Project(api.MCObject):
         
         projs = api.projects(self.remote)
         if localpath is not None:
-            data = filter(lambda p: p['name'] == basename(path), projs)[0]
+            data = filter(lambda p: p['name'] == basename(localpath), projs)[0]
             self.localpath = localpath
         elif id is not None:
             data = filter(lambda p: p['id'] == id, projs)[0]
@@ -510,15 +510,15 @@ def clone_project(path, remote=mcorg(), download=False, parallel=3, mc="mc"):
         raise Exception("Error cloning project")
 
 
-def delete_project(path):
+def delete_project(proj):
     """
     Delete database record of project. (Does not delete any files or directories)
     
     Arguments
     ----------
-      path: str
-        location of project. 
+      proj: mcapi.Project instance
+        Project to be deleted from local database 
     
     """
-    os.remove(join(mcdatapath(), basename(path)+'.db'))
+    remove(join(mcdatapath(), proj.name+'.db'))
 
