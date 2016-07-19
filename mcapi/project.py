@@ -4,7 +4,7 @@ from os.path import join, splitext, dirname, basename, exists
 from glob import glob
 
 import mcapi.api as api
-from mcapi.api import mcdatapath, mcorg, Remote
+from mcapi.api import mcdatapath, mcorg, Remote, mccli, set_cli_remote
 from mcapi.datadir import Datadir
 from mcapi.datafile import Datafile
 
@@ -45,7 +45,7 @@ class Project(api.MCObject):
         self.remote = remote
         self.localpath = None
         
-        projs = api.projects(self.remote)
+        projs = list_projects(self.remote)
         if localpath is not None:
             data = filter(lambda p: p['name'] == basename(localpath), projs)[0]
             self.localpath = localpath
@@ -54,7 +54,7 @@ class Project(api.MCObject):
                   
         super(Project, self).__init__(data)
         
-        attr = []
+        attr = ['localpath']
         for a in attr:
           setattr(self, a, data.get(a,None)) 
         
@@ -347,7 +347,7 @@ def _local_projects():
         Ex: 
         [{
            'name':'MyProjA', 
-           'path':'/path/to/MyProjA', 
+           'localpath':'/path/to/MyProjA', 
            'id':'abc123', 
            'lastupload':'0001-01-01 00:00:00+00:00', 
            'lastdownload':'0001-01-01 00:00:00+00:00',
@@ -379,12 +379,15 @@ def _local_projects():
         
         p = {'remote':remote}
         for col, value in zip(columns, proj):
-            if col[1] is 'id':
+            if col[1] == 'id':
                 # skip SQL id
                 continue
             elif col[1] == 'projectid':
                 # rename 'projectid' to 'id'
                 p['id'] = value
+            elif col[1] == 'path':
+                # rename 'path' to 'localpath'
+                p['localpath'] = value
             else:
                 p[col[1]] = value
         projects.append(p)
@@ -431,15 +434,19 @@ def list_projects(remote=mcorg()):
       return projects
 
 
-def create_project(path, remote=mcorg(), upload=False, parallel=3, mc="mc"):
+def create_project(projname, localpath, remote=mcorg(), upload=False, parallel=3, mc=mccli(), verbose=True):
     """
     Create remote project from local directory.
     
     Arguments
     ----------
-      path: str
-        location of directory used to create the project. The name of the 
-        directory will be used for the project name.
+      projname: str
+        name of the Project to create. The name of the directory must be the same 
+        as the project name.
+      
+      localpath: str
+        location of directory used to create the project. The name of the directory 
+        must be the same as the project name.
       
       remote: mcapi.Remote, optional, default mcapi.mcorg()
         where to create the Project. Default uses materialscommons.org.
@@ -457,32 +464,45 @@ def create_project(path, remote=mcorg(), upload=False, parallel=3, mc="mc"):
     ----------
       Raises Exception if could not create Project
     """
-    cmd = mc + " c p --dir " + path + " -n " + str(parallel)
+    if projname != basename(localpath):
+        print "projname:", projname
+        print "localpath:", localpath, basename(localpath)
+        raise Exception("Error creating project: directory name and project name must be the same")
+    
+    cmd = mc + " c p --dir " + localpath + " -n " + str(parallel)
     if upload:
         cmd += " --up"
-    cmd += " " + basename(path)
+    cmd += " " + projname
+    
+    set_cli_remote(mc, remote)
     
     child = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = child.communicate()
-    print out
     if child.returncode:
-        print err
+        print cmd
+        print out.strip()
         raise Exception("Error creating project")
+    if verbose:
+        print out.strip()
+    
 
 
-def clone_project(path, remote=mcorg(), download=False, parallel=3, mc="mc"):
+def clone_project(proj, localpath, remote=mcorg(), download=False, parallel=3, mc=mccli(), verbose=True):
     """
     Clone remote project to local directory.
     
     Arguments
     ----------
-      path: str
+      proj: mcapi.Project instance
+        the Project to be cloned. 
+      
+      localpath: str
         where to clone the project. The name of the directory must be the same as 
         the project name. The directory must already exist. A project can only 
         be cloned to one location locally.
       
       remote: mcapi.Remote, optional, default mcapi.mcorg()
-        where to clone the Project from. Default uses materialscommons.org.
+        where to clone the Project from
       
       download: boolean, optional, default False
         if True, upload files from the new project directory
@@ -497,17 +517,26 @@ def clone_project(path, remote=mcorg(), download=False, parallel=3, mc="mc"):
     ----------
       Raises Exception if could not clone Project
     """
-    cmd = mc + " c p --dir " + path + " -n " + str(parallel)
+    if proj.name != basename(localpath):
+        print "project name:", proj.name
+        print "directory name:", basename(localpath)
+        raise Exception("Error cloning project: directory name and project name must be the same")
+    
+    cmd = mc + " c p --dir " + localpath + " -n " + str(parallel)
     if download:
         cmd += " --down"
-    cmd += " " + basename(path)
+    cmd += " " + basename(localpath)
+    
+    set_cli_remote(mc, remote)
     
     child = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = child.communicate()
-    print out
     if child.returncode:
-        print err
+        print cmd
+        print out.strip()
         raise Exception("Error cloning project")
+    if verbose:
+        print out.strip()
 
 
 def delete_project(proj):

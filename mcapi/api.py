@@ -2,7 +2,7 @@ import requests
 import getpass
 import os
 from os.path import join
-import json
+import json, subprocess
 
 
 class NoAPIKey(Exception):
@@ -53,7 +53,7 @@ class Remote(object):
         
         self.config = config
         for key in config:
-            self.config[key] = os.getenv(key.upper(), config[key])
+            self.config[key] = os.getenv(key, config[key])
         
         self.mcurl = config['mcurl']
         self.params = {'apikey' : config['apikey']}
@@ -87,6 +87,52 @@ def mcorg():
     """
     return _mcorg
 
+
+def mccli():
+    """
+    Default 'mc' cli application
+    
+    Returns
+    ---------
+      mc: str
+        The program name "mc"
+    """
+    return "mc"
+
+
+def set_cli_remote(mc, remote):
+    """
+    Set the Remote instance the cli executable is communicating with
+    
+    Arguments
+    -----------
+      mc: str
+        The cli executable
+      
+      remote: mcapi.Remote instance
+        The Materials Commons instance to use
+    
+    Returns
+    -----------
+      For now, just raise an Exception if there is a mismatch.
+    """
+    #if True: return
+    
+    child = subprocess.Popen((mc + " show config").split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    out, err = child.communicate()
+    
+    if child.returncode:
+        raise Exception("Error checking cli remote")
+    
+    cli_url = out.splitlines()[1].split()[1]
+    
+    if cli_url != remote.mcurl:
+        print "cli:", mc
+        print "cli url:", cli_url
+        print "remote url:", remote.mcurl
+        raise Exception("Error checking cli remote: url mismatch")
+    
+    
 
 class MCObject(object):
     """
