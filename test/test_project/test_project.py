@@ -34,7 +34,7 @@ class TestProject(unittest.TestCase):
   def clear_local_projects(self):
     # checking if test projects already exist locally
     projs = mcapi.list_projects(self.remote)
-    for case in self.cases["create_project"]:
+    for case in self.cases["project"]:
       id = get_id(case["proj"], projs)
       if id is not None:
         proj = mcapi.Project(id=id)
@@ -48,12 +48,11 @@ class TestProject(unittest.TestCase):
     projs = mcapi.list_projects(self.remote)
     self.assertTrue(len(projs))
   
-  
-  def test_create_project(self):
+  def test_project(self):
     """
-    Test mcapi.create_project
+    Test mcapi.project
     """
-    cases = self.cases["create_project"]
+    cases = self.cases["project"]
     
     # test creating, deleting project by localpath
     # test creating Project object by localpath
@@ -77,36 +76,85 @@ class TestProject(unittest.TestCase):
       # clone project, with download
       proj = mcapi.Project(id=get_id(projname, projs))
       mkdir(localpath)
-      mcapi.clone_project(proj, localpath, download=True, verbose=self._verbose)
+      proj, status = mcapi.clone_project(proj, localpath, download=True, verbose=self._verbose)
       
       # check that one downloaded directory / file exists
       dirname = join(localpath,"dir_1")
       self.assertTrue(exists(dirname))
       self.assertTrue(exists(join(dirname,"file1.txt")))
       
+      if self._verbose:
+        print status.out
+      
       mcapi.delete_project(proj)
       
+    # test individual file download
+    self.clear_tmp()
+    for case in cases:
+      # get a Project
+      projname = case["proj"]
+      projdir = join(fixtures.tmp_dir, projname)
+      proj = mcapi.Project(id=get_id(projname, projs))
+      
+      # clone Project
+      mkdir(projdir)
+      proj, status = mcapi.clone_project(proj, projdir, verbose=self._verbose)
+      
+      if not status:
+        raise Exception("Error cloning project: " + projdir)
+      
+      if self._verbose:
+        print status.out
+      
+      # download file-by-file
+      for root, dirs, files in proj.top.walk():
+        for f in files:
+          status = f.download()
+          self.assertTrue(status)
+          self.assertTrue(exists(f.localpath))
+          if self._verbose:
+            print status.out
+    
+    # test individual file upload
+    for case in cases:
+      # get a Project
+      projname = case["proj"]
+      projdir = join(fixtures.tmp_dir, projname)
+      proj = mcapi.Project(localpath=projdir)
+      
+      # upload file-by-file
+      for root, dirs, files in proj.top.walk():
+        for f in files:
+          status = f.upload()
+          self.assertTrue(status)
+          if self._verbose:
+            print status.out
+      
+      # upload by directory
+      for root, dirs, files in proj.top.walk():
+        for d in dirs:
+          status = d.upload()
+          self.assertTrue(status)
+          if self._verbose:
+            print status.out
+    
+    #clean up
     self.clear_tmp()
   
   def test_project_walk(self):
     projs = mcapi.list_projects(self.remote)
     
-    # walk at least 3 projects with 1 dir & 1 file
+    # walk 3 projects with 1 dir & 1 file (if possible)
     N_proj = 0
     for p in projs:
       proj = mcapi.Project(id=p["id"])
       N_file = 0
       N_dir = 0
       for root, dirs, files in proj.top.walk():
-        #print root.path, root.id
-        #print "  dirs:" 
         for d in dirs:
           N_dir += 1
-          #print "    ", d.name, d.path, d.localpath
-        #print "  files:"
         for f in files:
           N_file += 1
-          #print "    ", f.name, f.path, f.localpath
         if N_dir > 1 and N_file > 1:
           N_proj += 1
       if N_proj > 2:

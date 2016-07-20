@@ -1,5 +1,8 @@
-import os
-import api, datadir
+from os.path import join, relpath
+
+import mcapi.api as api
+from api import mccli, set_cli_remote, CLIResult
+import subprocess
 
 
 class Datafile(api.MCObject):
@@ -45,7 +48,7 @@ class Datafile(api.MCObject):
         
         self.project = project
         self.parent = parent
-        self.path = os.path.join(parent.path, self.name)
+        self.path = join(parent.path, self.name)
         
         # 'current' version only
         #Note: right now Datafile.id is the 'datafile_id', not 'id' which corresponds to a particular version
@@ -80,7 +83,7 @@ class Datafile(api.MCObject):
         
         Returns
         ----------
-          status: mcapi.APIResult instance
+          status: mcapi.CLIResult instance
             Evaluates as True if successful
         
         Notes
@@ -88,7 +91,13 @@ class Datafile(api.MCObject):
         If the file differs from the latest version on Materials Commons a new 
         version is stored.
         """
-        return
+        cmd = mccli() + " u f " + self.localpath + " -p " + self.project.name
+        
+        set_cli_remote(self.project.remote)
+        
+        child = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        out, err = child.communicate()
+        return CLIResult(out, err, child.returncode)
     
     
     def download(self):
@@ -97,17 +106,19 @@ class Datafile(api.MCObject):
         
         Returns
         ----------
-          status: mcapi.APIResult instance
+          status: mcapi.CLIResult instance
             Evaluates as True if successful
         
-        Arguments
-        ----------
-          force: Boolean, optional, default=True
-            If True, overwrite existing file. If False, prompt. 
         
         """
-        return
-    
+        cmd = mccli() + " d f " + self.localpath + " -p " + self.project.name
+        
+        set_cli_remote(self.project.remote)
+        
+        child = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        out, err = child.communicate()
+        return CLIResult(out, err, child.returncode)
+        
     
     def versions(self):
         """
@@ -118,5 +129,5 @@ class Datafile(api.MCObject):
           version_list: List[Datafile]
         
         """
-        return
+        raise Exception("mcapi.Datafile.versions is not implemented")
 

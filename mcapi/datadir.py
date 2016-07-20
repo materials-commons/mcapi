@@ -1,4 +1,9 @@
-import api, datafile
+import datafile
+from os.path import join, relpath
+
+import mcapi.api as api
+from api import mccli, set_cli_remote, CLIResult
+import subprocess
 
 
 class Datadir(api.MCObject):
@@ -90,5 +95,27 @@ class Datadir(api.MCObject):
         
         if not topdown:
           yield self, self.datadirs, self.datafiles
-
+    
+    def upload(self):
+        """
+        Upload the current local version of all files in the datadir to Materials Commons. 
+        
+        Returns
+        ----------
+          status: mcapi.CLIResult instance
+            Evaluates as True if successful
+        
+        Notes
+        ----------
+        If the file differs from the latest version on Materials Commons a new 
+        version is stored.
+        """
+        cmd = mccli() + " u d " + self.localpath + " -p " + self.project.name
+        
+        set_cli_remote(self.project.remote)
+        
+        child = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        out, err = child.communicate()
+        return CLIResult(out, err, child.returncode)
+    
                     

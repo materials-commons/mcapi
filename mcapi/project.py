@@ -4,7 +4,7 @@ from os.path import join, splitext, dirname, basename, exists
 from glob import glob
 
 import mcapi.api as api
-from mcapi.api import mcdatapath, mcorg, Remote, mccli, set_cli_remote
+from mcapi.api import mcdatapath, mcorg, Remote, mccli, set_cli_remote, CLIResult
 from mcapi.datadir import Datadir
 from mcapi.datafile import Datafile
 
@@ -434,7 +434,7 @@ def list_projects(remote=mcorg()):
       return projects
 
 
-def create_project(projname, localpath, remote=mcorg(), upload=False, parallel=3, mc=mccli(), verbose=True):
+def create_project(projname, localpath, remote=mcorg(), upload=False, parallel=3, verbose=True):
     """
     Create remote project from local directory.
     
@@ -460,34 +460,40 @@ def create_project(projname, localpath, remote=mcorg(), upload=False, parallel=3
       mc: str, optional, default "mc"
         cli program to use 
     
-    Notes
+    Returns
     ----------
-      Raises Exception if could not create Project
+      (proj, status)
+      
+      proj: mcapi.Project instance or None
+        the Project created, if successful
+      
+      status: mcapi.CLIResult instance
+        Evaluates as True if successful
     """
     if projname != basename(localpath):
         print "projname:", projname
         print "localpath:", localpath, basename(localpath)
         raise Exception("Error creating project: directory name and project name must be the same")
     
-    cmd = mc + " c p --dir " + localpath + " -n " + str(parallel)
+    cmd = mccli() + " c p --dir " + localpath + " -n " + str(parallel)
     if upload:
         cmd += " --up"
     cmd += " " + projname
     
-    set_cli_remote(mc, remote)
+    set_cli_remote(remote)
     
     child = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = child.communicate()
-    if child.returncode:
-        print cmd
-        print out.strip()
-        raise Exception("Error creating project")
-    if verbose:
-        print out.strip()
     
+    status = CLIResult(out, err, child.returncode)
+    
+    if not status:
+      return (None, status)
+    else:
+      return (Project(localpath=localpath), status)
 
 
-def clone_project(proj, localpath, remote=mcorg(), download=False, parallel=3, mc=mccli(), verbose=True):
+def clone_project(proj, localpath, remote=mcorg(), download=False, parallel=3, verbose=True):
     """
     Clone remote project to local directory.
     
@@ -513,30 +519,37 @@ def clone_project(proj, localpath, remote=mcorg(), download=False, parallel=3, m
       mc: str, optional, default "mc"
         cli program to use 
     
-    Notes
+    Returns
     ----------
-      Raises Exception if could not clone Project
+      (proj, status)
+      
+      proj: mcapi.Project instance
+        the Project, updated to include localpath if clone successful
+      
+      status: mcapi.CLIResult instance
+        Evaluates as True if successful
     """
     if proj.name != basename(localpath):
         print "project name:", proj.name
         print "directory name:", basename(localpath)
         raise Exception("Error cloning project: directory name and project name must be the same")
     
-    cmd = mc + " c p --dir " + localpath + " -n " + str(parallel)
+    cmd = mccli() + " c p --dir " + localpath + " -n " + str(parallel)
     if download:
         cmd += " --down"
     cmd += " " + basename(localpath)
     
-    set_cli_remote(mc, remote)
+    set_cli_remote(remote)
     
     child = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = child.communicate()
-    if child.returncode:
-        print cmd
-        print out.strip()
-        raise Exception("Error cloning project")
-    if verbose:
-        print out.strip()
+    
+    status = CLIResult(out, err, child.returncode)
+    
+    if not status:
+      return (proj, status)
+    else:
+      return (Project(localpath=localpath), status)
 
 
 def delete_project(proj):

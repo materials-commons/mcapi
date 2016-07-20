@@ -12,7 +12,7 @@
         }
       }
     ],
-    "create_project" : [
+    "project" : [
       {
         "proj" : "TestProjA"
       },

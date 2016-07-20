@@ -100,7 +100,7 @@ def mccli():
     return "mc"
 
 
-def set_cli_remote(mc, remote):
+def set_cli_remote(remote):
     """
     Set the Remote instance the cli executable is communicating with
     
@@ -118,7 +118,7 @@ def set_cli_remote(mc, remote):
     """
     #if True: return
     
-    child = subprocess.Popen((mc + " show config").split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    child = subprocess.Popen((mccli() + " show config").split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = child.communicate()
     
     if child.returncode:
@@ -160,7 +160,32 @@ class MCObject(object):
         attr = ['id', 'name', 'description', 'birthtime', 'mtime', '_type', 'owner']
         for a in attr:
           setattr(self, a, data.get(a,None))    
-           
+
+
+class CLIResult(object):
+    """
+    Attributes:
+    -----------
+      out: str
+        stdout from Materials Commons CLI program, mc
+      
+      out: str
+        stdout from Materials Commons CLI program, mc
+      
+      returncode: int
+        return code from calling Materials Commons CLI program, mc
+      
+    """
+    def __init__(self, out, err, returncode):
+        self.out = out
+        self.err = err
+        self.returncode = returncode
+    
+    def __bool__(self):
+        return not self.returncode
+    
+    __nonzero__ = __bool__
+               
 
 def get(restpath, remote=mcorg()):
     r = requests.get(restpath, params=remote.params, verify=False)
