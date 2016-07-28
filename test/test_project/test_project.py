@@ -61,8 +61,8 @@ class TestProject(unittest.TestCase):
       projname = case["proj"]
       localpath = join(fixtures.projects_dir, projname)
       
-      mcapi.create_project(projname, localpath, upload=True, verbose=self._verbose)
-      proj = mcapi.Project(localpath=localpath)
+      proj, status = mcapi.create_project(projname, localpath, upload=True, verbose=self._verbose)
+      self.assertTrue(status)
       mcapi.delete_project(proj)
     
     # test if project is listed
