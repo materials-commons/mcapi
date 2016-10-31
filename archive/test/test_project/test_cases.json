@@ -1,0 +1,24 @@
+{
+  "project" : {
+    "Project_constructor_by_id" : [
+      {
+        "input" : {
+          "kwargs" : {
+            "id" : "7024b425-0ede-45c1-8f36-4606a71badd5"
+          }
+        },
+        "output" : {
+          "name" : "BrianTest"
+        }
+      }
+    ],
+    "project" : [
+      {
+        "proj" : "TestProjA"
+      },
+      {
+        "proj" : "TestProjB"
+      }
+    ]
+  }
+}
