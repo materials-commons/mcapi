@@ -22,5 +22,6 @@ class Config(object):
         for key in config:
             self.config[key] = os.getenv(key, config[key])
 
+        self.mcapikey = config['apikey']
         self.mcurl = config['mcurl']
-        self.params = {'apikey': config['apikey']}
+        self.params = {'apikey': self.mcapikey}

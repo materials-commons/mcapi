@@ -1,6 +1,5 @@
-from api import Remote, mcorg
-from project import list_projects, create_project, clone_project, delete_project, \
-    Project
+from api import mcorg
 from config import Config
+from remote import Remote
 
 __all__ = dir()
