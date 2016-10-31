@@ -16,7 +16,7 @@ class Config(object):
             with open(config_file, 'r') as f:
                 config = json.load(f)
         else:
-            raise Exception('No config file found, " + config_file + ": Run \'mc setup c\'')
+            raise Exception("No config file found, " + config_file + ": Run \'mc setup c\'")
 
         self.config = config
         for key in config:
