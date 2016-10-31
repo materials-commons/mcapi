@@ -42,30 +42,13 @@ class TestProject(unittest.TestCase):
         if proj.localpath is not None:
           mcapi.delete_project(proj)
 
+  @unittest.skip("Skipping test - test_list_projects")
   def test_list_projects(self):
     """
     Test mcapi.project.list_projects
     """
     projs = mcapi.list_projects(self.remote)
     self.assertTrue(len(projs))
-
-  def test_crete_projects_no_upload(self):
-    """
-    Test mcapi.project
-    """
-    cases = self.cases["project"]
-
-    # test creating, deleting project by localpath
-    # test creating Project object by localpath
-    self.clear_local_projects()
-    for case in cases:
-      projname = case["proj"]
-      localpath = join(fixtures.projects_dir, projname)
-
-      proj = mcapi.create_project(projname, localpath, upload=False, verbose=self._verbose)
-      self.assertIsNotNone(proj)
-      self.assertEqual(projname,proj.name)
-#      mcapi.delete_project(proj) - no delete, for now!
 
   @unittest.skip("Skipping test - test_crete_projects_no_load")
   def test_crete_projects_no_load(self):
