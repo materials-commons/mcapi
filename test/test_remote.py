@@ -22,4 +22,3 @@ class TestRemote(unittest.TestCase):
     def test_with_config_settings(self):
         config = Config(config_file_path="test/test_config_data/", config_file_name="config.json")
         remote = Remote(config=config)
-

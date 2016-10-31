@@ -36,6 +36,7 @@ class Remote(object):
 
         self.config = config
         self.mcurl = config.mcurl
+        self.params = config.params
 
     def make_url(self, restpath):
         p = self.mcurl + '/' + restpath

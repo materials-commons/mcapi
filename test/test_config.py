@@ -3,11 +3,6 @@ from mcapi import Config
 
 class TestConfigProject(unittest.TestCase):
 
-    def setup(self):
-        test_data_dir = "test/test_config_data/"
-        if (not exists(test_data_dir)):
-            Exception("No test data for TestRemote. Can not find directory: " + test_data_dir);
-
     def test_default_config(self):
         config = Config()
         self.assertIsNotNone(config)
