@@ -1,4 +1,3 @@
-import string
 from mcapi import api, MCObject
 
 class Project(MCObject):
