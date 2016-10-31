@@ -1,13 +1,7 @@
 from remote import Remote
 import requests
 
-def disable_warnings():
-  """Temporary fix to disable requests' InsecureRequestWarning"""
-  from requests.packages.urllib3.exceptions import InsecureRequestWarning
-  requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
-
 # Defaults
-disable_warnings()
 _mcorg = Remote()
 
 def mcorg():
@@ -36,6 +30,11 @@ def put(self, restpath, data, remote=mcorg()):
         return r.json()
     r.raise_for_status()
 
+def disable_warnings():
+  """Temporary fix to disable requests' InsecureRequestWarning"""
+  from requests.packages.urllib3.exceptions import InsecureRequestWarning
+  requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
+disable_warnings()
 
 
