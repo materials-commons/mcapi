@@ -87,6 +87,7 @@ def create_project(name, description, remote=use_remote()):
     }
     return post(remote.make_url("/projects"), data)
 
+# Experiment
 
 def create_experiment(project_id, name, description, remote=use_remote()):
     """
@@ -103,3 +104,12 @@ def create_experiment(project_id, name, description, remote=use_remote()):
         "description": description
     }
     return post(remote.make_url_v2("/projects/" + project_id + "/experiments"), data)
+
+# Process
+
+def create_process_from_template(project_id, experiment_id, template_id, remote=use_remote()):
+    data = {
+        "template_id": template_id
+    }
+    url = "/projects/" + project_id + "/experiments/" + experiment_id + "/processes/templates/" + template_id
+    return post(remote.make_url_v2(url), data)
