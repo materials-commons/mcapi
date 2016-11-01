@@ -39,11 +39,11 @@ class TestWorkflow(unittest.TestCase):
         self.assertEqual(project_description,project.description)
 
         # create an experiment within the project
-#        experiment_name = "Experiment 1"
-#        experiment_description = "a test experiment generated from api"
-#        experiment = create_experiment(project.id,experiment_name,experiment_description)
-#        print "experiment_id", experiment.id
-#        sys.stdout.flush()
+         experiment_name = "Experiment 1"
+         experiment_description = "a test experiment generated from api"
+         experiment = create_experiment(project.id,experiment_name,experiment_description)
+         print "experiment_id", experiment.id
+         sys.stdout.flush()
 
         ### add files to the project (*)
         # add a sample to the experiment with a create sample process (*)
