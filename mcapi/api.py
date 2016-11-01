@@ -88,7 +88,7 @@ def create_project(name, description, remote=use_remote()):
     return post(remote.make_url("/projects"), data)
 
 
-def cerate_experiment(project_id, name, description, remote=use_remote()):
+def create_experiment(project_id, name, description, remote=use_remote()):
     """
         create a project
 
@@ -102,4 +102,4 @@ def cerate_experiment(project_id, name, description, remote=use_remote()):
         "name": name,
         "description": description
     }
-    return post(remote.make_url("/projects/" + project_id + "/experiments"), data)
+    return post(remote.make_url_v2("/projects/" + project_id + "/experiments"), data)
