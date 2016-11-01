@@ -15,7 +15,7 @@ def fake_name(prefix):
 class TestProject(unittest.TestCase):
     def setup(self):
         config = Config()
-        api.set_remote(Remote(config=Config({'mcurl': url})))
+        api.set_remote(Remote(config=Config(config={'mcurl': url})))
 
     def test_is_setup_correctly(self):
         self.assertEqual(api.use_remote().mcurl,url)

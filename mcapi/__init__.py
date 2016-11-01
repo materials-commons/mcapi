@@ -1,4 +1,4 @@
-from api import mcorg, get, post, put
+import api
 from config import Config
 from remote import Remote
 from mcobject import MCObject
