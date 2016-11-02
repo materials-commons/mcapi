@@ -51,11 +51,9 @@ class TestProcess(unittest.TestCase):
         samples = create_samples(self.base_project_id, self.base_process_id, sample_names)
         self.assertIsNotNone(samples)
         sample = samples[0]
-        print "sample: ",sample.id, sample.name, sample.property_set_id
         self.assertIsNotNone(sample)
         self.assertIsNotNone(sample.name)
         self.assertIsNotNone(sample.property_set_id)
         self.assertEqual(sample.name,sample_names[0])
-        self.assertTrue(False)
 
 
