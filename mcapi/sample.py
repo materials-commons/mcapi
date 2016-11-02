@@ -1,120 +1,23 @@
-import api
-from api import MCObject
-
-
-#class Sample(MCObject):
-#    def __init__(self, project_id, name, manufacturer):
-#        self.project_id = project_id
-#        self.name = name
-#        self.description = ''
-#        self.manufacturer = manufacturer
-#
-#
-#def create_sample(sample):
-#    p = Process(sample.project_id, 'as_received', 'As Received', 'As Received')
-#    p.output_samples.append({'name': sample.name})
-#    if sample.manufacturer != '':
-#        p.setup['settings'].append({
-#            'attribute': 'instrument',
-#            'name': 'Instrument',
-#            'properties': [
-#                {
-#                    'property': {
-#                        '_type': 'string',
-#                        'attribute': 'manufacturer',
-#                        'name': 'Manufacturer',
-#                        'description': '',
-#                        'unit': '',
-#                        'value': sample.manufacturer
-#                    }
-#                }
-#            ]
-#        })
-#    return api.post('projects/' + sample.project_id + '/processes', p.__dict__)
-
+from mcapi import MCObject, api
 
 class Sample(MCObject):
-    """
-    Materials Commons Sample provenance object.
-    
-    Attributes
-    ----------
-    project: mcapi.Project instance  (? should be list of...)
-      the MC Project containing the sample
-    
-    path: str
-      the relative path to the Datafile in the project directory
-    
-    """
-    
-    def __init__(self):
-        super(MCObject, self).__init__()
-        self.project = None
-        self.path = None
-        
-    
-    def create(self):
-        """
-        Create this as new Sample object on Materials Commons. 
-        
-        Returns
-        ----------
-          status: boolean
-            Returns True if successfully created
-        
-        """
-        return False
-    
-    
-    def versions(self):
-        """
-        Returns a list with all versions of this Sample.
-        
-        Returns
-        ----------
-          version_list: (List[Sample])
-        
-        """
-        return []
+    def __init__(self,name=None, data=None):
+        self.pproperty_set_id = ''
 
+        if (not data): data = {}
 
-def get_sample(project, id):
-    """
-    Get Sample object from Materials Commons by id. 
-    
-    Arguments
-    ----------
-      project: mcapi.Project instance
-        the MC Project containing the Datafile
-      
-      id: str
-        the Sample id
-      
-      
-    Returns
-    ----------
-      sample: mcapi.Sample instance
-    
-    """
-    return
+        # attr = ['id', 'name', 'description', 'birthtime', 'mtime', '_type', 'owner']
+        super(Sample, self).__init__(data)
 
+        attr = ['property_set_id']
+        for a in attr:
+            setattr(self, a, data.get(a, None))
 
-def get_sample_by_name(project, name):
-    """
-    Get Sample object from Materials Commons by name. 
-    
-    Arguments
-    ----------
-      project: mcapi.Project instance
-        the MC Project containing the Sample
-      
-      name: str
-        the name of the Sample
-      
-      
-    Returns
-    ----------
-      sample: mcapi.Sample instance
-    
-    """
-    return 
+def create_samples(project_id, process_id, sample_names):
+    samples_array_dict = api.create_samples(project_id, process_id, sample_names)
+    samples_array = samples_array_dict['samples']
+    return map((lambda x: Sample(data=x)), samples_array)
+
+__samples_example__ = {u'samples': [
+    {u'property_set_id': u'702de353-739a-445f-b687-8479bb73a492', u'name': u'Test Sample 1',
+     u'id': u'4d3d997e-22c5-4036-9365-64cf910f715e'}]}
