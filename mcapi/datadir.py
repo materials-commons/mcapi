@@ -55,14 +55,7 @@ class Datadir(api.MCObject):
         
         # ids of all children
         self._children = data.get('children', [])
-        
-    @property
-    def localpath(self):
-        if self.project.localpath is None:
-            return None
-        else:
-            return join(self.project.localpath, relpath(self.path, self.project.name))
-    
+
     @property
     def children(self):
         return self.datadirs + self.datafiles
@@ -110,12 +103,12 @@ class Datadir(api.MCObject):
         If the file differs from the latest version on Materials Commons a new 
         version is stored.
         """
-        cmd = mccli() + " u d " + self.localpath + " -p " + self.project.name
+#        cmd = mccli() + " u d " + self.localpath + " -p " + self.project.name
         
-        set_cli_remote(self.project.remote)
+#        set_cli_remote(self.project.remote)
         
-        child = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        out, err = child.communicate()
-        return CLIResult(out, err, child.returncode)
-    
+#        child = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+#        out, err = child.communicate()
+#        return CLIResult(out, err, child.returncode)
+        return None
                     

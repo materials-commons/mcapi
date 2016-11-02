@@ -91,14 +91,14 @@ class Datafile(api.MCObject):
         If the file differs from the latest version on Materials Commons a new 
         version is stored.
         """
-        cmd = mccli() + " u f " + self.localpath + " -p " + self.project.name
+#        cmd = mccli() + " u f " + self.localpath + " -p " + self.project.name
         
-        set_cli_remote(self.project.remote)
+#        set_cli_remote(self.project.remote)
         
-        child = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        out, err = child.communicate()
-        return CLIResult(out, err, child.returncode)
-    
+#        child = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+#        out, err = child.communicate()
+#        return CLIResult(out, err, child.returncode)
+        return None
     
     def download(self):
         """
@@ -111,14 +111,14 @@ class Datafile(api.MCObject):
         
         
         """
-        cmd = mccli() + " d f " + self.localpath + " -p " + self.project.name
+#        cmd = mccli() + " d f " + self.localpath + " -p " + self.project.name
         
-        set_cli_remote(self.project.remote)
+#        set_cli_remote(self.project.remote)
         
-        child = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        out, err = child.communicate()
-        return CLIResult(out, err, child.returncode)
-        
+#        child = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+#        out, err = child.communicate()
+#        return CLIResult(out, err, child.returncode)
+        return None
     
     def versions(self):
         """
