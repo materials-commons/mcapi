@@ -62,7 +62,7 @@ class TestProcess(unittest.TestCase):
         self.assertIsNotNone(self.base_experiment.id)
         self.assertEqual(self.base_experiment_id, self.base_experiment.id)
 
-    def test_process_from_template_create_samaple(self):
+    def test_process_from_template_for_create_samaple(self):
         template_id = "global_Create Samples"
         process = create_process_from_template(self.base_project_id,self.base_experiment_id,template_id)
         self.assertIsNotNone(process)
@@ -70,3 +70,5 @@ class TestProcess(unittest.TestCase):
         self.assertIsNotNone(process.process_type)
         self.assertEqual(process.process_type, 'create')
         self.assertTrue(process.does_transform)
+
+    def test_sample(self):
