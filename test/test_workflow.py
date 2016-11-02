@@ -58,7 +58,7 @@ class TestWorkflow(unittest.TestCase):
         self.assertTrue(create_sample_process.does_transform)
 
         sample_names = ['Test Sample 1']
-        samples = create_samples(self.base_project_id, self.base_process_id, sample_names)
+        samples = create_samples(project.id, create_sample_process.id, sample_names)
         self.assertIsNotNone(samples)
         sample = samples[0]
         self.assertIsNotNone(sample)
