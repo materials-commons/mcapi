@@ -31,3 +31,8 @@ To Test
 cd to the top level directory of the mcapi repo
 pytest -rap --setup-show test
 ```
+
+And to run test using an individual test class, for example:
+```
+pytest -rap --setup-show -s test/test_sample_associate.py::TestSampleAssociate  
+```
