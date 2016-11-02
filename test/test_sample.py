@@ -56,5 +56,6 @@ class TestProcess(unittest.TestCase):
         self.assertIsNotNone(sample.name)
         self.assertIsNotNone(sample.property_set_id)
         self.assertEqual(sample.name,sample_names[0])
+        self.assertTrue(False)
 
 
