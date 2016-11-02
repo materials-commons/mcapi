@@ -12,7 +12,7 @@ def fake_name(prefix):
     number="%05d" % randint(0,99999)
     return prefix+number
 
-class TestProject(unittest.TestCase):
+class TestExperiment(unittest.TestCase):
 
     @classmethod
     def setUpClass(self):

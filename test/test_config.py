@@ -1,7 +1,7 @@
 import unittest
 from mcapi import Config
 
-class TestConfigProject(unittest.TestCase):
+class TestConfig(unittest.TestCase):
 
     def test_default_config(self):
         config = Config()

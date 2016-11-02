@@ -1,5 +1,4 @@
 import unittest
-import sys
 from random import randint
 from mcapi import api
 from mcapi import Remote
@@ -7,6 +6,8 @@ from mcapi import Config
 # from mcapi import list_projects
 from mcapi import create_project
 from mcapi import create_experiment
+from mcapi import create_process_from_template
+from mcapi import create_samples
 
 url = 'http://mctest.localhost/api'
 
@@ -27,13 +28,12 @@ class TestWorkflow(unittest.TestCase):
 
     def test_workflow(self):
         # # # # DEMO SCRIPT # # # #
-        ### login
+        ### login (done externally for now, via apikey)
+
         # create a project
         project_name = fake_name("Test_Project_")
         project_description = "a test project generated from the api"
         project = create_project(project_name,project_description)
-        print "project_id = ", project.id
-        sys.stdout.flush()
         self.assertIsNotNone(project.id)
         self.assertEqual(project_name,project.name)
         self.assertEqual(project_description,project.description)
@@ -42,40 +42,38 @@ class TestWorkflow(unittest.TestCase):
         experiment_name = "Experiment 1"
         experiment_description = "a test experiment generated from api"
         experiment = create_experiment(project.id,experiment_name,experiment_description)
-        print "experiment_id", experiment.id
-        sys.stdout.flush()
+        self.assertIsNotNone(experiment.id)
+        self.assertEqual(experiment_name,experiment.name)
+        self.assertEqual(experiment_description,experiment.description)
 
-        ### add files to the project (*)
+        ### add files to the project (*) -- not done yet
+
         # add a sample to the experiment with a create sample process (*)
-        # http://mctest.localhost/api/v2/projects/80f7991c-df55-4eee-b2c0-e455e26bd34a/experiments/4e170b90-069f-4205-a4bb-dc02d3f00654/processes/templates/global_Create%20Samples?apikey=949045af40e942b69f5b32d15b0fb8e5
-        # POST with data {id: "global_Create Samples"}
-        # --> returns process
-        # http://mctest.localhost/api/v2/projects/80f7991c-df55-4eee-b2c0-e455e26bd34a/samples?apikey=949045af40e942b69f5b32d15b0fb8e5
-        # POST with data {process_id: "d12be2fb-cb04-4948-9031-3817c344e956", samples: [{name: "Sample Name"}]}
-        # --> returns samples
-        # http://mctest.localhost/api/v2/projects/80f7991c-df55-4eee-b2c0-e455e26bd34a/experiments/a831c0b1-6185-4a63-a6c4-89caaec83a57/samples?apikey=949045af40e942b69f5b32d15b0fb8e5
-        # PUT with data {process_id: "d12be2fb-cb04-4948-9031-3817c344e956", samples: [{id: "d9be4d95-27db-4024-9523-95d8fd12473b", name: "Sample"}]
-        ### need to expand steps for creating process properties !!!
-        # template_id = "global_Create Samples"
-        # process = create_process_from_template(project_id, experiment_id,template_id)
-        # process_id = process["id"]
-        # sample_names = ["Sample A"]
-        # samples = create_samples(project_id,process_id,sample_names)
-        # sample_ids = [sample["id"] for sample in samples["samples"] ]
-        # ids_list = add_samples_to_process(project_id,experiment_id,process_id,sample_ids)
-        # ids = ids_list[0]
-        # experiment_id = ids['experiment_id']
-        # sample_id = ids['sample_id']
-        # print "experiment_id", experiment_id
-        # print "sample_id", sample_id
-        # sys.stdout.flush()
+        template_id = "global_Create Samples"
+        create_sample_process = create_process_from_template(project.id,experiment.id,template_id)
+        self.assertIsNotNone(create_sample_process)
+        self.assertIsNotNone(create_sample_process.id)
+        self.assertIsNotNone(create_sample_process.process_type)
+        self.assertEqual(create_sample_process.process_type, 'create')
+        self.assertTrue(create_sample_process.does_transform)
+
+        sample_names = ['Test Sample 1']
+        samples = create_samples(self.base_project_id, self.base_process_id, sample_names)
+        self.assertIsNotNone(samples)
+        sample = samples[0]
+        self.assertIsNotNone(sample)
+        self.assertIsNotNone(sample.name)
+        self.assertIsNotNone(sample.property_set_id)
+        self.assertEqual(sample.name,sample_names[0])
 
         ### associate previously added file(s) with the create sample process
         ### associate measurements with the sample
         ### fetch previously added file(s) from the experiment/project (*)
         # fetch sample description(s) from the experiment/project
         # fetch measurement(s) from the experiment/project
+
         # perform a computation on those files, samples, measurements and record that as a computation process (*)
+
         ### add measures resulting from the computation to the sample/process
         # add the new file from the computation to the project (*)
         # create a Computation process and associate the create-sample version of the sample and some files with that computation

@@ -11,7 +11,7 @@ def fake_name(prefix):
     number="%05d" % randint(0,99999)
     return prefix+number
 
-class TestProcess(unittest.TestCase):
+class TestSampleCreate(unittest.TestCase):
 
     @classmethod
     def setUpClass(self):
@@ -55,5 +55,3 @@ class TestProcess(unittest.TestCase):
         self.assertIsNotNone(sample.name)
         self.assertIsNotNone(sample.property_set_id)
         self.assertEqual(sample.name,sample_names[0])
-
-
