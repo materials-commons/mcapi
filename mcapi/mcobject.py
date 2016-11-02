@@ -1,3 +1,5 @@
+from datetime import utcnow
+
 class MCObject(object):
     """
     Base class for Materials Commons objects.
@@ -22,6 +24,13 @@ class MCObject(object):
     """
 
     def __init__(self, data=dict()):
+        _type = "unknown"
+        owner = ""
+        name = ""
+        description = ""
+        id = ""
+        birthtime = utcnow()
+        mtime = utcnow()
         attr = ['id', 'name', 'description', 'birthtime', 'mtime', '_type', 'owner']
         for a in attr:
             setattr(self, a, data.get(a, None))
