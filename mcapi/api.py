@@ -129,13 +129,15 @@ def create_samples(project_id, process_id, sample_names, remote=use_remote()):
 
 # Create sample process
 
-# def add_samples_to_process(project_id,experiment_id,process_id,sample_ids):
-#     print "sample_ids",sample_ids
-#     sys.stdout.flush()
-#     data = {
-#         "process_id": process_id,
-#         "samples": sample_ids
-#     }
-#     api_url = "/projects/" + project_id + \
-#         "/experiments/" + experiment_id + "/samples"
-#     return post(header_v2_api + api_url, data)
+def add_samples_to_process(project_id,experiment_id,process,samples, remote=use_remote()):
+    samples_data = map((lambda s: {'command': 'add', 'id':s.id, 'property_set_id': s.property_set_id}),samples)
+    print "samples_data",samples_data
+    data = {
+        "template_id": process.template_id,
+        "process_id": process.id,
+        "samples": samples_data
+    }
+    api_url = "/projects/" + project_id + \
+              "/experiments/" + experiment_id + \
+              "/processes/" + process.id
+    return put(remote.make_url_v2(api_url), data)
