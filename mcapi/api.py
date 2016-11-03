@@ -85,7 +85,7 @@ def create_project(name, description, remote=use_remote()):
         "name": name,
         "description": description
     }
-    return post(remote.make_url("/projects"), data)
+    return post(remote.make_url("projects"), data)
 
 # Experiment
 
@@ -103,7 +103,7 @@ def create_experiment(project_id, name, description, remote=use_remote()):
         "name": name,
         "description": description
     }
-    return post(remote.make_url_v2("/projects/" + project_id + "/experiments"), data)
+    return post(remote.make_url_v2("projects/" + project_id + "/experiments"), data)
 
 # Process
 
@@ -111,7 +111,7 @@ def create_process_from_template(project_id, experiment_id, template_id, remote=
     data = {
         "id" : template_id
     }
-    api_url = "/projects/" + project_id + \
+    api_url = "projects/" + project_id + \
         "/experiments/" + experiment_id + \
         "/processes/templates/" + template_id
     return post(remote.make_url_v2(api_url), data)
@@ -124,7 +124,7 @@ def create_samples(project_id, process_id, sample_names, remote=use_remote()):
         "process_id" : process_id,
         "samples" : sample_names_data
     }
-    api_url = "/projects/" + project_id + "/samples"
+    api_url = "projects/" + project_id + "/samples"
     return post(remote.make_url_v2(api_url), data)
 
 # Create sample process
@@ -136,7 +136,7 @@ def add_samples_to_process(project_id,experiment_id,process,samples, remote=use_
         "process_id": process.id,
         "samples": samples_data
     }
-    api_url = "/projects/" + project_id + \
+    api_url = "projects/" + project_id + \
               "/experiments/" + experiment_id + \
               "/processes/" + process.id
     return put(remote.make_url_v2(api_url), data)
