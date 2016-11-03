@@ -3,7 +3,6 @@ from random import randint
 from mcapi import api
 from mcapi import Remote
 from mcapi import Config
-# from mcapi import list_projects
 from mcapi import create_project
 from mcapi import create_experiment
 from mcapi import create_process_from_template

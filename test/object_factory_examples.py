@@ -1,5 +1,9 @@
 # see data_examples at end of file
 
+__samples_example__ = {u'samples': [
+    {u'property_set_id': u'702de353-739a-445f-b687-8479bb73a492', u'name': u'Test Sample 1',
+     u'id': u'4d3d997e-22c5-4036-9365-64cf910f715e'}]}
+
 __example_experiment__ = \
     {u'status': u'active',
      u'_type': u'experiment',
