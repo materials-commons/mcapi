@@ -1,4 +1,8 @@
-from mcapi import MCObject, Project, Experiment, Process, Sample
+from mcobject import MCObject
+from project import Project
+from experiment import Experiment
+from process import Process
+from sample import Sample
 #from datetime import utcfromtimestamp
 
 def make_object(data):

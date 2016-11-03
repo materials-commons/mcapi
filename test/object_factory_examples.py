@@ -134,8 +134,57 @@ __process_example_compute__ = \
      u'input_files': []
      }
 
+__added_sample_results__ = \
+    {u'files': [], u'_type': u'process', u'name': u'Computation', u'output_samples': [], u'setup': [
+        {u'_type': u'settings', u'name': u'Job Settings', u'attribute': u'job_settings', u'properties': [
+            {u'_type': u'number', u'description': u'', u'attribute': u'memory_per_processor', u'value': u'',
+             u'setup_id': u'9a8bfeac-124e-462e-ba89-c83e37380024', u'id': u'4f346cb1-9de8-48df-92a7-c1e1575334da',
+             u'unit': u'', u'name': u'Memory per Processor'},
+            {u'_type': u'number', u'description': u'', u'attribute': u'number_of_processors', u'value': u'',
+             u'setup_id': u'9a8bfeac-124e-462e-ba89-c83e37380024', u'id': u'c35d71d2-dc9a-44b6-94c9-41ab97b1055a',
+             u'unit': u'', u'name': u'Number of Processors'},
+            {u'_type': u'string', u'description': u'', u'attribute': u'submit_script', u'value': u'',
+             u'setup_id': u'9a8bfeac-124e-462e-ba89-c83e37380024', u'id': u'717f9f64-8c55-4216-bb8e-5b36cab92884',
+             u'unit': u'', u'name': u'Submit Script'},
+            {u'_type': u'number', u'description': u'', u'attribute': u'walltime', u'value': u'',
+             u'setup_id': u'9a8bfeac-124e-462e-ba89-c83e37380024', u'id': u'53be1d96-cc84-40fd-8c5c-b126f295dbe9',
+             u'unit': u's', u'name': u'Walltime'}], u'setup_id': u'9a8bfeac-124e-462e-ba89-c83e37380024',
+         u'process_id': u'b21d4346-d33d-4ad5-8096-a9e7392cee6a',
+         u'birthtime': {u'timezone': u'+00:00', u'$reql_type$': u'TIME', u'epoch_time': 1478100133.808},
+         u'id': u'9a8bfeac-124e-462e-ba89-c83e37380024'}], u'does_transform': False, u'process_type': u'analysis',
+     u'template_id': u'global_Computation', u'note': u'', u'input_samples': [
+        {u'files': [], u'property_set_id': u'433e5e15-16a6-400b-b526-df1769ccb86e', u'_type': u'sample',
+         u'description': u'', u'name': u'Test Sample 1', u'processes': [
+            {u'_type': u'process', u'name': u'Create Samples', u'template_name': u'Create Samples',
+             u'sample_id': u'67a8d27a-026e-4c0b-8b0d-6805ede722fe', u'does_transform': True, u'process_type': u'create',
+             u'template_id': u'global_Create Samples', u'note': u'',
+             u'process_id': u'63af6b82-8bde-4110-ba73-4c413cc333ba',
+             u'mtime': {u'timezone': u'+00:00', u'$reql_type$': u'TIME', u'epoch_time': 1478100133.467},
+             u'owner': u'terry.weymouth@gmail.com',
+             u'birthtime': {u'timezone': u'+00:00', u'$reql_type$': u'TIME', u'epoch_time': 1478100133.467},
+             u'id': u'63af6b82-8bde-4110-ba73-4c413cc333ba'},
+            {u'_type': u'process', u'name': u'Computation', u'template_name': u'Computation',
+             u'sample_id': u'67a8d27a-026e-4c0b-8b0d-6805ede722fe', u'does_transform': False,
+             u'process_type': u'analysis', u'template_id': u'global_Computation', u'note': u'',
+             u'process_id': u'b21d4346-d33d-4ad5-8096-a9e7392cee6a',
+             u'mtime': {u'timezone': u'+00:00', u'$reql_type$': u'TIME', u'epoch_time': 1478100133.769},
+             u'owner': u'terry.weymouth@gmail.com',
+             u'birthtime': {u'timezone': u'+00:00', u'$reql_type$': u'TIME', u'epoch_time': 1478100133.769},
+             u'id': u'b21d4346-d33d-4ad5-8096-a9e7392cee6a'}], u'sample_id': u'67a8d27a-026e-4c0b-8b0d-6805ede722fe',
+         u'direction': u'in', u'id': u'67a8d27a-026e-4c0b-8b0d-6805ede722fe',
+         u'process_id': u'b21d4346-d33d-4ad5-8096-a9e7392cee6a', u'properties': [], u'is_grouped': False,
+         u'mtime': {u'timezone': u'+00:00', u'$reql_type$': u'TIME', u'epoch_time': 1478100133.663},
+         u'owner': u'terry.weymouth@gmail.com',
+         u'birthtime': {u'timezone': u'+00:00', u'$reql_type$': u'TIME', u'epoch_time': 1478100133.663},
+         u'has_group': False, u'group_size': 0}], u'template_name': u'Computation',
+     u'mtime': {u'timezone': u'+00:00', u'$reql_type$': u'TIME', u'epoch_time': 1478100133.769},
+     u'owner': u'terry.weymouth@gmail.com',
+     u'birthtime': {u'timezone': u'+00:00', u'$reql_type$': u'TIME', u'epoch_time': 1478100133.769},
+     u'output_files': [], u'id': u'b21d4346-d33d-4ad5-8096-a9e7392cee6a', u'input_files': []}
+
 data_examples = {
     'experiment': __example_experiment__,
     'process_create': __process_example_create__,
     'process_compute': __process_example_compute__,
+    'process_add_sample': __added_sample_results__
 }

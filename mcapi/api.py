@@ -131,7 +131,6 @@ def create_samples(project_id, process_id, sample_names, remote=use_remote()):
 
 def add_samples_to_process(project_id,experiment_id,process,samples, remote=use_remote()):
     samples_data = map((lambda s: {'command': 'add', 'id':s.id, 'property_set_id': s.property_set_id}),samples)
-    print "samples_data",samples_data
     data = {
         "template_id": process.template_id,
         "process_id": process.id,
