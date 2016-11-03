@@ -1,5 +1,8 @@
 import mcapi, os
 
+## this needs to be revised
+# TODO: revise this file
+
 # list local projects
 print "\nLocal projects:"
 locals = mcapi.list_projects(remote=None)

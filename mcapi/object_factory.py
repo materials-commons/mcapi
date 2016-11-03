@@ -1,5 +1,5 @@
 from mcapi import MCObject, Project, Experiment, Process, Sample
-from datetime import utcfromtimestamp
+#from datetime import utcfromtimestamp
 
 def make_object(data):
     holder = make_base_object_for_type(data)
@@ -31,7 +31,7 @@ def make_base_object_for_type(data):
             return MCObject(data=data)
     else:
         if (has_key('timezone',data)):
-            return utcfromtimestamp(data['time'])
+#            return utcfromtimestamp(data['time'])
             return MCObject(data=data)
         if (has_key('unit',data)):
             # print ("Unit not implemented")

@@ -1,4 +1,4 @@
-from datetime import utcnow
+# from datetime import utcnow
 
 class MCObject(object):
     """
@@ -29,8 +29,8 @@ class MCObject(object):
         name = ""
         description = ""
         id = ""
-        birthtime = utcnow()
-        mtime = utcnow()
+        # birthtime = utcnow()
+        # mtime = utcnow()
         attr = ['id', 'name', 'description', 'birthtime', 'mtime', '_type', 'owner']
         for a in attr:
             setattr(self, a, data.get(a, None))
