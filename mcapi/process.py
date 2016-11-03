@@ -1,6 +1,6 @@
-from mcapi import api, MCObject
+import api
+from mcobject import MCObject
 # from object_factory import make_object
-
 
 class Process(MCObject):
     def __init__(self, name=None, description=None, project_id=None, process_type=None, process_name=None, data=None):
@@ -44,5 +44,5 @@ def add_samples_to_process(project_id, experiment_id, process, samples):
     results = api.add_samples_to_process(project_id, experiment_id, process, samples)
     print results
     return process
-#    return make_object(results)
+    # return make_object(results)
 

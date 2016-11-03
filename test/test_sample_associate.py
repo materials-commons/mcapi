@@ -57,4 +57,4 @@ class TestSampleAssociate(unittest.TestCase):
         self.assertEqual(process_with_sample.name,'Computation')
         # self.assertEqual(len(process_with_sample.input_samples),1)
         # self.assertEqual(process_with_sample.input_samples[0].name,self.base_sample.name)
-        #self.assertTrue(False)
+        # self.assertTrue(False)

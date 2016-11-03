@@ -1,4 +1,5 @@
-from mcapi import api, MCObject
+import api
+from mcobject import MCObject
 
 class Project(MCObject):
     """

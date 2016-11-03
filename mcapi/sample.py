@@ -1,4 +1,5 @@
-from mcapi import MCObject, api
+import api
+from mcobject import MCObject
 
 class Sample(MCObject):
     def __init__(self,name=None, data=None):

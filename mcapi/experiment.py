@@ -1,5 +1,5 @@
-from mcapi import api, MCObject
-
+import api
+from mcobject import MCObject
 
 class Experiment(MCObject):
     def __init__(self, project_id=None, name=None, description=None, id=None, goals=None, aims=None, tasks=None,
