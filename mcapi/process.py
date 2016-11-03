@@ -43,5 +43,6 @@ def create_process_from_template(project_id, experiment_id, template_id):
 def add_samples_to_process(project_id, experiment_id, process, samples):
     results = api.add_samples_to_process(project_id, experiment_id, process, samples)
     print results
-    return process # make_object(results)
+    return process
+#    return make_object(results)
 
