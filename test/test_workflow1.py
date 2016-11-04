@@ -7,6 +7,7 @@ from mcapi import create_project
 from mcapi import create_experiment
 from mcapi import create_process_from_template
 from mcapi import create_samples
+from mcapi import add_samples_to_process
 
 url = 'http://mctest.localhost/api'
 
@@ -14,7 +15,7 @@ def fake_name(prefix):
     number="%05d" % randint(0,99999)
     return prefix+number
 
-class TestWorkflow(unittest.TestCase):
+class TestWorkflow1(unittest.TestCase):
 
     @classmethod
     def setUpClass(self):
@@ -40,7 +41,7 @@ class TestWorkflow(unittest.TestCase):
         # create an experiment within the project
         experiment_name = "Experiment 1"
         experiment_description = "a test experiment generated from api"
-        experiment = create_experiment(project.id,experiment_name,experiment_description)
+        experiment = create_experiment(project,experiment_name,experiment_description)
         self.assertIsNotNone(experiment.id)
         self.assertEqual(experiment_name,experiment.name)
         self.assertEqual(experiment_description,experiment.description)
@@ -49,7 +50,7 @@ class TestWorkflow(unittest.TestCase):
 
         # add a sample to the experiment with a create sample process (*)
         template_id = "global_Create Samples"
-        create_sample_process = create_process_from_template(project.id,experiment.id,template_id)
+        create_sample_process = create_process_from_template(project,experiment,template_id)
         self.assertIsNotNone(create_sample_process)
         self.assertIsNotNone(create_sample_process.id)
         self.assertIsNotNone(create_sample_process.process_type)
@@ -57,7 +58,7 @@ class TestWorkflow(unittest.TestCase):
         self.assertTrue(create_sample_process.does_transform)
 
         sample_names = ['Test Sample 1']
-        samples = create_samples(project.id, create_sample_process.id, sample_names)
+        samples = create_samples(project, create_sample_process, sample_names)
         self.assertIsNotNone(samples)
         sample = samples[0]
         self.assertIsNotNone(sample)
@@ -71,7 +72,11 @@ class TestWorkflow(unittest.TestCase):
         # fetch sample description(s) from the experiment/project
         # fetch measurement(s) from the experiment/project
 
-        # perform a computation on those files, samples, measurements and record that as a computation process (*)
+        ### perform a computation on those files, samples, measurements and
+        ### record that as a computation process (*)
+        template_id = "global_Computation"
+        compute_process = create_process_from_template(project,experiment,template_id)
+        compute_process = add_samples_to_process(project,experiment,compute_process,[sample])
 
         ### add measures resulting from the computation to the sample/process
         # add the new file from the computation to the project (*)

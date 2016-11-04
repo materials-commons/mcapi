@@ -1,3 +1,5 @@
+import api
+
 class MCObject(object):
     """
     Base class for Materials Commons objects.
@@ -49,6 +51,11 @@ class Project(MCObject):
 
     """
 
+    @staticmethod
+    def from_json(data):
+        if (data['_type'] == 'project'): return make_object(data)
+        return None
+
     def __init__(self, name=None, description=None, id=None, remote_url=None, data=dict()):
         """
         Arguments
@@ -62,6 +69,10 @@ class Project(MCObject):
         data:
             generally, data in dictionary form, as returned from the rest api
         """
+        self.id = None
+        self.name = ""
+        self.description = ""
+
         self.source = remote_url
 
         if (name):
@@ -73,12 +84,8 @@ class Project(MCObject):
         if (id):
             data['id'] = id
 
+        # attr = ['id', 'name', 'description', 'birthtime', 'mtime', '_type', 'owner']
         super(Project, self).__init__(data)
-
-        #        print "Constructing Project"
-        #        for k in data.keys():
-        #          print k
-        #        print ""
 
         self._top = None
 
@@ -88,14 +95,47 @@ class Project(MCObject):
         # holds Datafile, using id for key;  initally empty, additional calls needed to fill
         self._datafile = dict()
 
+    def create_experiment(self, name, description):
+        return create_experiment(self,name,description)
+
 class Experiment(MCObject):
+
+    @staticmethod
+    def from_json(data):
+        if (data['_type'] == 'experiment'): return make_object(data)
+        return None
+
     def __init__(self, project_id=None, name=None, description=None, id=None, goals=None, aims=None, tasks=None,
-                 data={}):
+                 data=None):
+
+        self.id = None
+        self.name = ""
+        self.description = ""
+
+        self.project_id = None
+        self.project = None
+
+        self.status = None
+        self.funding = ''
+        self.note = ''
+
+        self.tasks = None
+        self.publications = None
+        self.notes = None
+        self.papers = None
+        self.collaborators = None
+        self.citations = None
+        self.goals = None
+        self.aims = None
+
+        if (not data): data = {}
+
         # attr = ['id', 'name', 'description', 'birthtime', 'mtime', '_type', 'owner']
         super(Experiment, self).__init__(data)
 
-        attr = ['status', 'tasks', 'funding', 'publications', 'notes', 'papers',
-                'collaborators', 'note', 'citations', 'goals', 'aims']
+        attr = ['project_id', 'status', 'tasks', 'funding', 'publications',
+                'notes', 'papers','collaborators', 'note', 'citations',
+                'goals', 'aims']
         for a in attr:
             setattr(self, a, data.get(a, None))
 
@@ -104,22 +144,23 @@ class Experiment(MCObject):
         if (project_id): self.project_id = project_id
         if (id): self.id = id
 
-        if (goals):
-            self.goals = goals
-        else:
-            self.goals = []
+        attr = ['tasks', 'publications', 'notes', 'collaborators', 'citations',
+                'goals', 'aims']
+        for a in attr:
+            array = getattr(self,a)
+            if (not array): array = []
+            setattr(self,a,array)
 
-        if (aims):
-            self.aims = aims
-        else:
-            self.aims = []
-
-        if (tasks):
-            self.tasks = tasks
-        else:
-            self.tasks = []
+    def create_process_from_template(self,template_id):
+        return create_process_from_template(self.project, self, template_id)
 
 class Process(MCObject):
+
+    @staticmethod
+    def from_json(data):
+        if (data['_type'] == 'process'): return make_object(data)
+        return None
+
     def __init__(self, name=None, description=None, project_id=None, process_type=None, process_name=None, data=None):
         self.does_transform = False
         self.input_files = []
@@ -134,6 +175,9 @@ class Process(MCObject):
         self.transformed_samples = []
         self.what = ''
         self.why = ''
+
+        self.project = None
+        self.experiment = None
 
         if (not data): data = {}
 
@@ -151,9 +195,25 @@ class Process(MCObject):
         if (name): self.name = name
         if (description): self.description = description
 
+    def create_samples(self, sample_names):
+        return create_samples(self.project,self,sample_names)
+
+    def add_samples_to_process(self, sample_names):
+        return add_samples_to_process(self.project,self.experiment,self,sample_names)
+
 class Sample(MCObject):
+
+    @staticmethod
+    def from_json(data):
+        return Sample(data=data) # no _type attrubute in Sample JSON
+
     def __init__(self, name=None, data=None):
-        self.pproperty_set_id = ''
+        self.id = None
+        self.name = ""
+
+        self.property_set_id = ''
+        self.project = None
+        self.process = None
 
         if (not data): data = {}
 
@@ -163,6 +223,13 @@ class Sample(MCObject):
         attr = ['property_set_id']
         for a in attr:
             setattr(self, a, data.get(a, None))
+
+        if (name): self.name = name
+
+
+class Template():
+    create = "global_Create Samples"
+    compute = "global_Computation"
 
 def make_object(data):
     holder = make_base_object_for_type(data)
@@ -216,3 +283,57 @@ def has_key(key, data):
 
 def data_has_type(data):
     return has_key('_type', data)
+
+# -- project --
+def list_projects():
+    results = api.projects()
+    projects = []
+    for r in results:
+        projects.append(Project(r))
+    return projects
+
+def create_project(name,description):
+    ids = api.create_project(name,description)
+    project_id = ids['project_id']
+    project = Project(name=name, description=description, id=project_id,data=ids)
+    return project
+
+# -- Experiment --
+
+def create_experiment(project, name, description):
+    experiment_json = api.create_experiment(project.id, name, description)
+    experiment = Experiment(data=experiment_json)
+    experiment.project = project
+    return experiment
+
+# -- Process --
+
+def create_process_from_template(project, experiment, template_id):
+    results = api.create_process_from_template(project.id, experiment.id, template_id)
+    process = Process.from_json(results)
+    process.project = project
+    process.experiment = experiment
+    return process
+
+
+def add_samples_to_process(project, experiment, process, samples):
+    results = api.add_samples_to_process(project.id, experiment.id, process, samples)
+    process = Process.from_json(results)
+    process.project = project
+    process.experiment = experiment
+    return process
+
+# -- Sample --
+
+def create_samples(project, process, sample_names):
+    samples_array_dict = api.create_samples(project.id, process.id, sample_names)
+    print "smaples json",samples_array_dict
+    samples_array = samples_array_dict['samples']
+    samples = map((lambda x: Sample.from_json(x)), samples_array)
+    samples = map((lambda x: decorate_sample_with(x, 'project', project)), samples)
+    samples = map((lambda x: decorate_sample_with(x, 'process', process)), samples)
+    return samples
+
+def decorate_sample_with(sample, attr_name, attr_value):
+    setattr(sample, attr_name, attr_value)
+    return sample

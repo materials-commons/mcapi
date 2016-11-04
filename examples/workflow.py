@@ -1,0 +1,14 @@
+project_name = "ThisProject"
+project_description = "is amazing"
+project = create_project(project_name, project_description)
+experiment_name = "Experiment 1"
+experiment_description = "a test experiment generated from api"
+experiment = create_experiment(project.id, experiment_name, experiment_description)
+template_id = "global_Create Samples"
+create_sample_process = create_process_from_template(project.id, experiment.id, template_id)
+sample_names = ['Test Sample 1']
+samples = create_samples(project.id, create_sample_process.id, sample_names)
+sample = samples[0]
+template_id = "global_Computation"
+compute_process = create_process_from_template(project.id, experiment.id, template_id)
+compute_process = add_samples_to_process(project.id, experiment.id, compute_process, [sample])

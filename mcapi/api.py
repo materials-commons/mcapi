@@ -1,4 +1,5 @@
 from remote import Remote
+from config import Config
 import requests
 
 # Defaults
@@ -140,3 +141,9 @@ def add_samples_to_process(project_id, experiment_id, process, samples, remote=u
               "/experiments/" + experiment_id + \
               "/processes/" + process.id
     return put(remote.make_url_v2(api_url), data)
+
+def set_remote_config_url(url):
+    set_remote(Remote(config=Config(config={'mcurl': url})))
+
+def get_remote_config_url():
+    return use_remote().mcurl

@@ -1,6 +1,6 @@
 import unittest
-from object_factory_examples import data_examples
-from mcapi import make_object
+from test_object_create_input_examples import data_examples
+from mcapi import mc
 
 class TestObjectFactory(unittest.TestCase):
 
@@ -8,7 +8,7 @@ class TestObjectFactory(unittest.TestCase):
         name = 'TestExperiment-from-data'
         description = 'Test experiment from data'
         experiment_data = data_examples['experiment']
-        experiment = make_object(experiment_data)
+        experiment = mc.make_object(experiment_data)
         self.assertIsNotNone(experiment.id)
         self.assertIsNotNone(experiment.name)
         self.assertEqual(name, experiment.name)
@@ -20,7 +20,7 @@ class TestObjectFactory(unittest.TestCase):
 
     def test_process_create(self):
         process_create_data = data_examples['process_create']
-        process = make_object(process_create_data)
+        process = mc.make_object(process_create_data)
         self.assertIsNotNone(process)
         self.assertIsNotNone(process.id)
         self.assertIsNotNone(process.process_type)
@@ -31,7 +31,7 @@ class TestObjectFactory(unittest.TestCase):
 
     def test_process_compute(self):
         process_create_data = data_examples['process_compute']
-        process = make_object(process_create_data)
+        process = mc.make_object(process_create_data)
         self.assertIsNotNone(process)
         self.assertIsNotNone(process.id)
         self.assertIsNotNone(process.process_type)
