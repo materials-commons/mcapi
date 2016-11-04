@@ -31,7 +31,7 @@ To Compile
 
 ```
   cd to the top level directory of the mcapi repo
-  sudo python setup.py install
+  python setup.py install --user
 ```
 
 To Test

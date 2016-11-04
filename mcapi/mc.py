@@ -98,6 +98,9 @@ class Project(MCObject):
     def create_experiment(self, name, description):
         return create_experiment(self,name,description)
 
+    def file_upload(self, path):
+        return file_upload(self, path)
+
 class Experiment(MCObject):
 
     @staticmethod
@@ -337,3 +340,10 @@ def create_samples(project, process, sample_names):
 def decorate_sample_with(sample, attr_name, attr_value):
     setattr(sample, attr_name, attr_value)
     return sample
+
+# -- file --
+def file_upload(project,input_path,output_path):
+    project_id = project.id
+    results = api.file_upload(project_id,input_path,output_path)
+    print results
+    return project

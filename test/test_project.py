@@ -3,6 +3,7 @@ from random import randint
 from mcapi import api
 from mcapi import Remote
 from mcapi import Config
+from mcapi import Project
 from mcapi import list_projects
 from mcapi import create_project
 
@@ -23,13 +24,13 @@ class TestProject(unittest.TestCase):
 
     def test_list_projects_api(self):
         projects = api.projects()
-        print "number of project ",(len(projects))
         self.assertTrue(len(projects))
 
     def test_list_projects_object(self):
         projects = list_projects()
         one_project = projects[0]
         self.assertIsNotNone(one_project.name)
+        self.assertTrue(isinstance(one_project,Project))
 
     def test_create_project_api(self):
         name = fake_name("TestProject-")

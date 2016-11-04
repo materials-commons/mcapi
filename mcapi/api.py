@@ -142,6 +142,21 @@ def add_samples_to_process(project_id, experiment_id, process, samples, remote=u
               "/processes/" + process.id
     return put(remote.make_url_v2(api_url), data)
 
+# upload file
+
+def file_upload(project_id,input_path,output_path,remote=use_remote()):
+    print project_id, input_path, output_path
+    with open(input_path, 'rb') as f:
+        params = remote.params.copy()
+        params['file_path'] = output_path
+        api_url = "projects/" + project_id + "/files/single_upload"
+        restpath = remote.make_url_v2(api_url)
+#        r = requests.post(restpath, params=params, verify=False, data=f)
+#        if r.status_code == requests.codes.ok:
+#            return r.json()
+#        r.raise_for_status()
+    return {}
+
 def set_remote_config_url(url):
     set_remote(Remote(config=Config(config={'mcurl': url})))
 
