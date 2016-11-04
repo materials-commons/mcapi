@@ -1,4 +1,4 @@
-import datetime
+from random import randint
 from mcapi import create_project, Template, get_remote_config_url
 
 print "This example is running on the REST interface at " + get_remote_config_url()
