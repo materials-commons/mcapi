@@ -73,33 +73,34 @@ class Project(MCObject):
         self.id = ""
         self.name = ""
         self.description = ""
-        self.dataset = ""
-        self.events = []
-        self.experiments = 0
-        self.files = 0
-        self.permissions = ""
-        self.processes = 0
-        self.project_id = ""
-        self.project_name = ""
-        self.samples = 0
         self.size = 0
-        self.status = ""
+        self.mediatypes = {}
+
+        self.__all_db_Fields__ = ['id', 'name', 'description', 'birthtime', 'mtime', '_type', 'owner',
+                             'size','mediatypes']
 
         # additional fields
+        # counts
+        self._count_of = {
+            'directory':-1,
+            'file':-1,
+            'experiment'
+            'process':-1,
+            'sample':-1
+        }
         self._top = None
         self._top_id = ""
         self.source = remote_url
         # holds Datadir, using id for key; initally empty, additional calls needed to fill
-        self._datadir = dict()
+        self._directories = dict()
         # holds Datafile, using id for key;  initally empty, additional calls needed to fill
-        self._datafile = dict()
+        self._files = dict()
+        #
 
         # attr = ['id', 'name', 'description', 'birthtime', 'mtime', '_type', 'owner']
         super(Project, self).__init__(data)
 
-        attr = ['dataset', 'events', 'experiments', 'files', 'mediatypes',
-                'permissions', 'processes','project_id', 'project_name', 'samples',
-                'size', 'status']
+        attr = ['size','mediatypes']
         for a in attr:
             setattr(self, a, data.get(a, None))
 
@@ -112,17 +113,18 @@ class Project(MCObject):
         if (id):
             data['id'] = id
 
-        if (self._top_id):
-            self._top = fetch_directory(self._top_id)
-
     def create_experiment(self, name, description):
         return create_experiment(self,name,description)
 
-    def file_upload(self, path):
-        return file_upload(self, path)
+    def set_top_directory(self,directory):
+        self._top = directory
+        return directory
 
     def get_top_directory(self):
         return self._top
+
+    def file_upload(self, path):
+        return file_upload(self, path)
 
 class Experiment(MCObject):
 
@@ -131,7 +133,8 @@ class Experiment(MCObject):
         if (data['_type'] == 'experiment'): return make_object(data)
         return None
 
-    def __init__(self, project_id=None, name=None, description=None, id=None, goals=None, aims=None, tasks=None,
+    def __init__(self, project_id=None, name=None, description=None, id=None,
+                 goals=None, aims=None, tasks=None,
                  data=None):
 
         self.id = None
