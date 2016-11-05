@@ -88,6 +88,10 @@ def create_project(name, description, remote=use_remote()):
     }
     return post(remote.make_url("projects"), data)
 
+def fetch_project(id, remote=use_remote()):
+    api_url = "projects/" + id
+    return get(remote.make_url_v2(api_url), remote=remote)
+
 # Experiment
 
 def create_experiment(project_id, name, description, remote=use_remote()):

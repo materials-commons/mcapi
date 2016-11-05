@@ -24,13 +24,13 @@ class MCObject(object):
     """
 
     def __init__(self, data=dict()):
-        _type = "unknown"
-        owner = ""
-        name = ""
-        description = ""
-        id = ""
-        birthtime = None
-        mtime = None
+        self._type = "unknown"
+        self.owner = ""
+        self.name = ""
+        self.description = ""
+        self.id = ""
+        self.birthtime = None
+        self.mtime = None
         attr = ['id', 'name', 'description', 'birthtime', 'mtime', '_type', 'owner']
         for a in attr:
             setattr(self, a, data.get(a, None))
@@ -56,7 +56,7 @@ class Project(MCObject):
         if (data['_type'] == 'project'): return make_object(data)
         return None
 
-    def __init__(self, name=None, description=None, id=None, remote_url=None, data=dict()):
+    def __init__(self, name="", description="", id="", remote_url="", data=dict()):
         """
         Arguments
         ----------
@@ -69,11 +69,39 @@ class Project(MCObject):
         data:
             generally, data in dictionary form, as returned from the rest api
         """
-        self.id = None
+        # normally, from the data base
+        self.id = ""
         self.name = ""
         self.description = ""
+        self.dataset = ""
+        self.events = []
+        self.experiments = 0
+        self.files = 0
+        self.permissions = ""
+        self.processes = 0
+        self.project_id = ""
+        self.project_name = ""
+        self.samples = 0
+        self.size = 0
+        self.status = ""
 
+        # additional fields
+        self._top = None
+        self._top_id = ""
         self.source = remote_url
+        # holds Datadir, using id for key; initally empty, additional calls needed to fill
+        self._datadir = dict()
+        # holds Datafile, using id for key;  initally empty, additional calls needed to fill
+        self._datafile = dict()
+
+        # attr = ['id', 'name', 'description', 'birthtime', 'mtime', '_type', 'owner']
+        super(Project, self).__init__(data)
+
+        attr = ['dataset', 'events', 'experiments', 'files', 'mediatypes',
+                'permissions', 'processes','project_id', 'project_name', 'samples',
+                'size', 'status']
+        for a in attr:
+            setattr(self, a, data.get(a, None))
 
         if (name):
             data['name'] = name
@@ -84,22 +112,17 @@ class Project(MCObject):
         if (id):
             data['id'] = id
 
-        # attr = ['id', 'name', 'description', 'birthtime', 'mtime', '_type', 'owner']
-        super(Project, self).__init__(data)
-
-        self._top = None
-
-        # holds Datadir, using id for key; initally empty, additional calls needed to fill
-        self._datadir = dict()
-
-        # holds Datafile, using id for key;  initally empty, additional calls needed to fill
-        self._datafile = dict()
+        if (self._top_id):
+            self._top = fetch_directory(self._top_id)
 
     def create_experiment(self, name, description):
         return create_experiment(self,name,description)
 
     def file_upload(self, path):
         return file_upload(self, path)
+
+    def get_top_directory(self):
+        return self._top
 
 class Experiment(MCObject):
 
@@ -229,6 +252,42 @@ class Sample(MCObject):
 
         if (name): self.name = name
 
+class Directory(MCObject):
+
+    @staticmethod
+    def from_json(data):
+        return Sample(data=data) # no _type attrubute in Sample JSON
+
+    def __init__(self, name=None, parent=None, data=None):
+        self.id = None
+        self.name = None
+        self.parent_id = None
+        self.parent = None
+        self.project_id = None
+        self.project = None
+
+        if (not data): data = {}
+
+        # attr = ['id', 'name', 'description', 'birthtime', 'mtime', '_type', 'owner']
+        super(Sample, self).__init__(data)
+
+        attr = ['project','project_id', 'parent', 'parent_id']
+        for a in attr:
+            setattr(self, a, data.get(a, None))
+
+        if (self.project): # in database project and not project_id !!
+            self.project_id = self.project
+            self.project = None
+
+        if (self.parent): # in database parent and not parent_datadir_id or parent_id !!
+            self.parent_id = self.parent
+            self.parent = None
+
+        # kw args
+        if (name): self.name = name
+        if (parent):
+            self.parent_id = parent.id
+            self.parent = parent
 
 class Template():
     create = "global_Create Samples"
@@ -292,14 +351,22 @@ def list_projects():
     results = api.projects()
     projects = []
     for r in results:
-        projects.append(Project(r))
+        projects.append(Project(data=r))
     return projects
 
 def create_project(name,description):
     ids = api.create_project(name,description)
     project_id = ids['project_id']
-    project = Project(name=name, description=description, id=project_id,data=ids)
+    datadir_id = ids['datadir_id']
+    print project_id, datadir_id
+    project = fetch_project_by_id(project_id)
+    print project
     return project
+
+def fetch_project_by_id(project_id):
+    results = api.fetch_project(project_id)
+    print results
+    return Project(data=results)
 
 # -- Experiment --
 
@@ -340,6 +407,12 @@ def create_samples(project, process, sample_names):
 def decorate_sample_with(sample, attr_name, attr_value):
     setattr(sample, attr_name, attr_value)
     return sample
+
+# -- directory --
+def fetch_directory(project, id):
+    results = api.directory_by_id(project.id,id)
+    print results
+    return None
 
 # -- file --
 def file_upload(project,input_path,output_path):
