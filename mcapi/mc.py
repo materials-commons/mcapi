@@ -77,16 +77,16 @@ class Project(MCObject):
         self.mediatypes = {}
 
         self.__all_db_Fields__ = ['id', 'name', 'description', 'birthtime', 'mtime', '_type', 'owner',
-                             'size','mediatypes']
+                                  'size', 'mediatypes']
 
         # additional fields
         # counts
         self._count_of = {
-            'directory':-1,
-            'file':-1,
+            'directory': -1,
+            'file': -1,
             'experiment'
-            'process':-1,
-            'sample':-1
+            'process': -1,
+            'sample': -1
         }
         self._top = None
         self.source = remote_url
@@ -99,7 +99,7 @@ class Project(MCObject):
         # attr = ['id', 'name', 'description', 'birthtime', 'mtime', '_type', 'owner']
         super(Project, self).__init__(data)
 
-        attr = ['size','mediatypes']
+        attr = ['size', 'mediatypes']
         for a in attr:
             setattr(self, a, data.get(a, None))
 
@@ -113,22 +113,21 @@ class Project(MCObject):
             data['id'] = id
 
     def create_experiment(self, name, description):
-        return create_experiment(self,name,description)
+        return create_experiment(self, name, description)
 
-    def set_top_directory(self,directory):
+    def set_top_directory(self, directory):
         self._top = directory
         return directory
 
     def get_top_directory(self):
         if (not self._top):
-            self.set_top_directory(fetch_directory(self,"top"))
+            self.set_top_directory(fetch_directory(self, "top"))
         return self._top
 
     def file_upload(self, path):
         return file_upload(self, path)
 
 class Experiment(MCObject):
-
     @staticmethod
     def from_json(data):
         if (data['_type'] == 'experiment'): return make_object(data)
@@ -137,7 +136,6 @@ class Experiment(MCObject):
     def __init__(self, project_id=None, name=None, description=None, id=None,
                  goals=None, aims=None, tasks=None,
                  data=None):
-
         self.id = None
         self.name = ""
         self.description = ""
@@ -164,7 +162,7 @@ class Experiment(MCObject):
         super(Experiment, self).__init__(data)
 
         attr = ['project_id', 'status', 'tasks', 'funding', 'publications',
-                'notes', 'papers','collaborators', 'note', 'citations',
+                'notes', 'papers', 'collaborators', 'note', 'citations',
                 'goals', 'aims']
         for a in attr:
             setattr(self, a, data.get(a, None))
@@ -177,15 +175,14 @@ class Experiment(MCObject):
         attr = ['tasks', 'publications', 'notes', 'collaborators', 'citations',
                 'goals', 'aims']
         for a in attr:
-            array = getattr(self,a)
+            array = getattr(self, a)
             if (not array): array = []
-            setattr(self,a,array)
+            setattr(self, a, array)
 
-    def create_process_from_template(self,template_id):
+    def create_process_from_template(self, template_id):
         return create_process_from_template(self.project, self, template_id)
 
 class Process(MCObject):
-
     @staticmethod
     def from_json(data):
         if (data['_type'] == 'process'): return make_object(data)
@@ -226,16 +223,15 @@ class Process(MCObject):
         if (description): self.description = description
 
     def create_samples(self, sample_names):
-        return create_samples(self.project,self,sample_names)
+        return create_samples(self.project, self, sample_names)
 
     def add_samples_to_process(self, sample_names):
-        return add_samples_to_process(self.project,self.experiment,self,sample_names)
+        return add_samples_to_process(self.project, self.experiment, self, sample_names)
 
 class Sample(MCObject):
-
     @staticmethod
     def from_json(data):
-        return Sample(data=data) # no _type attrubute in Sample JSON
+        return Sample(data=data)  # no _type attrubute in Sample JSON
 
     def __init__(self, name=None, data=None):
         self.id = None
@@ -257,14 +253,12 @@ class Sample(MCObject):
         if (name): self.name = name
 
 class Directory(MCObject):
-
     @staticmethod
     def from_json(data):
         if (data['_type'] == 'directory'): return make_object(data)
         return None
 
     def __init__(self, name="", path="", data=None):
-
         # normally, from the data base
         self.id = ""
         self.name = ""
@@ -273,7 +267,7 @@ class Directory(MCObject):
         self.children = []
         self.size = 0
 
-        #additional fields
+        # additional fields
         self._project = None
         self._parent = None
 
@@ -282,13 +276,106 @@ class Directory(MCObject):
         # attr = ['id', 'name', 'description', 'birthtime', 'mtime', '_type', 'owner']
         super(Directory, self).__init__(data)
 
-        attr = ['checksum','path', 'children', 'size']
+        attr = ['checksum', 'path', 'children', 'size']
         for a in attr:
             setattr(self, a, data.get(a, None))
 
         # kw args
         if (name): self.name = name
         if (path): self.path = path
+
+class File(MCObject):
+    """
+    Materials Commons Datafile provenance object.
+
+    Attributes
+    ----------
+    project: mcapi.Project instance
+      the MC Project containing the datafile
+
+    parent: mcapi.Datadir instance
+      the Datadir containing the datafile
+
+    path: str
+      the path to the Datafile in the project directory (including the project
+      directory)
+
+    size
+    uploaded
+    checkum
+    current
+    owner
+
+    tags
+    notes
+
+    mediatype
+
+    ToDo: datadirs, processes, samples, atime, usesid, owner, usesid
+
+    Note: right now Datafile.id is the 'datafile_id', not 'id' which corresponds to a particular version
+
+    """
+
+    def __init__(self, project=None, parent=None, data=dict()):
+        super(Datafile, self).__init__(data)
+
+        self.project = project
+        self.parent = parent
+        self.path = join(parent.path, self.name)
+
+        # 'current' version only
+        # Note: right now Datafile.id is the 'datafile_id', not 'id' which corresponds to a particular version
+        self.id = data.get('datafile_id', None)
+
+        attr = ['size', 'uploaded', 'checksum', 'current', 'owner']
+        for a in attr:
+            setattr(self, a, data.get(a, None))
+
+        attr = ['tags', 'notes']
+        for a in attr:
+            setattr(self, a, data.get(a, []))
+
+        attr = ['mediatype']
+        for a in attr:
+            setattr(self, a, data.get(a, dict()))
+
+            # other attributes:
+            #   datadirs, processes, samples, atime, usesid, owner, usesid
+
+    @property
+    def localpath(self):
+        if self.project.localpath is None:
+            return None
+        else:
+            return join(self.project.localpath, relpath(self.path, self.project.name))
+
+    def upload(self):
+        """
+        Upload the current local version to Materials Commons.
+
+        Returns
+        ----------
+          status: mcapi.CLIResult instance
+            Evaluates as True if successful
+
+        Notes
+        ----------
+        If the file differs from the latest version on Materials Commons a new
+        version is stored.
+        """
+
+    def download(self):
+        """
+        Download the datafile from Materials Common.
+
+        Returns
+        ----------
+          status: mcapi.CLIResult instance
+            Evaluates as True if successful
+
+
+        """
 
 class Template():
     create = "global_Create Samples"
@@ -357,8 +444,8 @@ def list_projects():
         projects.append(Project(data=r))
     return projects
 
-def create_project(name,description):
-    ids = api.create_project(name,description)
+def create_project(name, description):
+    ids = api.create_project(name, description)
     project_id = ids['project_id']
     datadir_id = ids['datadir_id']
     print project_id, datadir_id
@@ -388,7 +475,6 @@ def create_process_from_template(project, experiment, template_id):
     process.experiment = experiment
     return process
 
-
 def add_samples_to_process(project, experiment, process, samples):
     results = api.add_samples_to_process(project.id, experiment.id, process, samples)
     process = Process.from_json(results)
@@ -400,7 +486,7 @@ def add_samples_to_process(project, experiment, process, samples):
 
 def create_samples(project, process, sample_names):
     samples_array_dict = api.create_samples(project.id, process.id, sample_names)
-    print "smaples json",samples_array_dict
+    print "smaples json", samples_array_dict
     samples_array = samples_array_dict['samples']
     samples = map((lambda x: Sample.from_json(x)), samples_array)
     samples = map((lambda x: decorate_sample_with(x, 'project', project)), samples)
@@ -413,14 +499,14 @@ def decorate_sample_with(sample, attr_name, attr_value):
 
 # -- directory --
 def fetch_directory(project, id):
-    results = api.directory_by_id(project.id,id)
+    results = api.directory_by_id(project.id, id)
     directory = Directory.from_json(results)
     directory._project = project
     return directory
 
 # -- file --
-def file_upload(project,input_path,output_path):
+def file_upload(project, input_path, output_path):
     project_id = project.id
-    results = api.file_upload(project_id,input_path,output_path)
+    results = api.file_upload(project_id, input_path, output_path)
     print results
     return project
