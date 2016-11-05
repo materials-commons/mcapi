@@ -9,7 +9,7 @@ def fake_name(prefix):
     number="%05d" % randint(0,99999)
     return prefix+number
 
-class TestWorkflow1(unittest.TestCase):
+class TestWorkflow(unittest.TestCase):
 
     @classmethod
     def setUpClass(self):
@@ -20,7 +20,7 @@ class TestWorkflow1(unittest.TestCase):
 
     def test_workflow(self):
 
-        project_name = "ThisProject"
+        project_name = "Project - test001"
         project_description = "is amazing"
         experiment_name = fake_name("Experiment-")
         experiment_description = "a test experiment generated from api"

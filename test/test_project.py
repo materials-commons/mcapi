@@ -51,3 +51,4 @@ class TestProject(unittest.TestCase):
         self.assertEqual(name,project.name)
         self.assertEqual(description,project.description)
 
+
