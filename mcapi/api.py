@@ -146,7 +146,14 @@ def add_samples_to_process(project_id, experiment_id, process, samples, remote=u
               "/processes/" + process.id
     return put(remote.make_url_v2(api_url), data)
 
-# upload file
+# directory
+
+def directory_by_id(project_id, directory_id, remote=use_remote()):
+    api_url = "projects/" + project_id + \
+              "/directories/" + directory_id
+    return get(remote.make_url_v2(api_url))
+
+# file
 
 def file_upload(project_id,input_path,output_path,remote=use_remote()):
     print project_id, input_path, output_path

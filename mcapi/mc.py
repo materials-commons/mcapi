@@ -89,7 +89,6 @@ class Project(MCObject):
             'sample':-1
         }
         self._top = None
-        self._top_id = ""
         self.source = remote_url
         # holds Datadir, using id for key; initally empty, additional calls needed to fill
         self._directories = dict()
@@ -121,6 +120,8 @@ class Project(MCObject):
         return directory
 
     def get_top_directory(self):
+        if (not self._top):
+            self.set_top_directory(fetch_directory(self,"top"))
         return self._top
 
     def file_upload(self, path):
@@ -259,38 +260,35 @@ class Directory(MCObject):
 
     @staticmethod
     def from_json(data):
-        return Sample(data=data) # no _type attrubute in Sample JSON
+        if (data['_type'] == 'directory'): return make_object(data)
+        return None
 
-    def __init__(self, name=None, parent=None, data=None):
-        self.id = None
-        self.name = None
-        self.parent_id = None
-        self.parent = None
-        self.project_id = None
-        self.project = None
+    def __init__(self, name="", path="", data=None):
+
+        # normally, from the data base
+        self.id = ""
+        self.name = ""
+        self.checksum = ""
+        self.path = ""
+        self.children = []
+        self.size = 0
+
+        #additional fields
+        self._project = None
+        self._parent = None
 
         if (not data): data = {}
 
         # attr = ['id', 'name', 'description', 'birthtime', 'mtime', '_type', 'owner']
-        super(Sample, self).__init__(data)
+        super(Directory, self).__init__(data)
 
-        attr = ['project','project_id', 'parent', 'parent_id']
+        attr = ['checksum','path', 'children', 'size']
         for a in attr:
             setattr(self, a, data.get(a, None))
 
-        if (self.project): # in database project and not project_id !!
-            self.project_id = self.project
-            self.project = None
-
-        if (self.parent): # in database parent and not parent_datadir_id or parent_id !!
-            self.parent_id = self.parent
-            self.parent = None
-
         # kw args
         if (name): self.name = name
-        if (parent):
-            self.parent_id = parent.id
-            self.parent = parent
+        if (path): self.path = path
 
 class Template():
     create = "global_Create Samples"
@@ -318,6 +316,8 @@ def make_base_object_for_type(data):
             return Experiment(data=data)
         if (type == 'sample'):
             return Sample(data=data)
+        if (type == 'directory'):
+            return Directory(data=data)
         if (type == 'experiment_task'):
             # print ("Experiment task not implemented")
             return MCObject(data=data)
@@ -414,8 +414,9 @@ def decorate_sample_with(sample, attr_name, attr_value):
 # -- directory --
 def fetch_directory(project, id):
     results = api.directory_by_id(project.id,id)
-    print results
-    return None
+    directory = Directory.from_json(results)
+    directory._project = project
+    return directory
 
 # -- file --
 def file_upload(project,input_path,output_path):
