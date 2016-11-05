@@ -363,7 +363,7 @@ def create_project(name,description):
     datadir_id = ids['datadir_id']
     print project_id, datadir_id
     project = fetch_project_by_id(project_id)
-    print project
+    print project.id
     return project
 
 def fetch_project_by_id(project_id):
