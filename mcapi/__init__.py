@@ -5,7 +5,7 @@ from mc import create_process_from_template, add_samples_to_process
 from mc import create_experiment
 from mc import create_samples
 from mc import fetch_directory as __fetch_directory
-from mc import file_upload
+from mc import create_file_with_upload
 from config import Config
 from remote import Remote
 

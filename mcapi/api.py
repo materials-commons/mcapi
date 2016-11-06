@@ -1,6 +1,7 @@
 from remote import Remote
 from config import Config
 import requests
+import magic
 
 # Defaults
 _mcorg = Remote()
@@ -155,18 +156,17 @@ def directory_by_id(project_id, directory_id, remote=use_remote()):
 
 # file
 
-def file_upload(project_id,input_path,output_path,remote=use_remote()):
-    print project_id, input_path, output_path
+def file_upload(project_id, directory_id, file_name, input_path, remote=use_remote()):
+    print project_id,directory_id, file_name, input_path
     with open(input_path, 'rb') as f:
-        params = remote.params.copy()
-        params['file_path'] = output_path
-        api_url = "projects/" + project_id + "/files/single_upload"
+        api_url = "projects/" + project_id + "/directories/" + directory_id +"/fileupload"
+        mime_type = magic.Magic(mime=True).from_file(input_path)
+        files = {'file': (file_name,f,mime_type)}
         restpath = remote.make_url_v2(api_url)
-#        r = requests.post(restpath, params=params, verify=False, data=f)
-#        if r.status_code == requests.codes.ok:
-#            return r.json()
-#        r.raise_for_status()
-    return {}
+        r = requests.post(restpath, params=remote.params, files=files)
+        if r.status_code == requests.codes.ok:
+            return r.json()
+        r.raise_for_status()
 
 def set_remote_config_url(url):
     set_remote(Remote(config=Config(config={'mcurl': url})))
