@@ -26,6 +26,12 @@ access to all the data that you have access to. If you wish to reset your key,
 there is an option to do so on this same page. When you reset you key, remember to
 also update it in the .materialscommons/config.jason file.
 
+Libraries
+---------
+pip install --user python-magic
+pip install --user pathlib
+
+
 To Compile
 ----------
 
