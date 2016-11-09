@@ -157,7 +157,6 @@ def directory_by_id(project_id, directory_id, remote=use_remote()):
 # file
 
 def file_upload(project_id, directory_id, file_name, input_path, remote=use_remote()):
-    print project_id,directory_id, file_name, input_path
     with open(input_path, 'rb') as f:
         api_url = "projects/" + project_id + "/directories/" + directory_id +"/fileupload"
         mime_type = magic.Magic(mime=True).from_file(input_path)

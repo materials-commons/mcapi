@@ -39,16 +39,7 @@ class TestFileUpload(unittest.TestCase):
         path = Path(self.filepath)
         file_name = path.parts[-1]
         input_path = str(path.absolute())
-
-        byte_count = self.get_byte_count_for(input_path)
-        print byte_count
-        print self.base_project.id
-
+        byte_count = getsize(input_path)
         file = create_file_with_upload(project, directory, file_name, input_path)
         self.assertIsNotNone(file)
-        self.assertEqual(file.size,byte_count)
-
-        self.assertTrue(False)
-
-    def get_byte_count_for(self, path):
-        return getsize(path)
+        self.assertEqual(file['size'],byte_count)

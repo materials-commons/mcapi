@@ -509,5 +509,4 @@ def create_file_with_upload(project, directory, file_name, input_path):
     project_id = project.id
     directory_id = directory.id
     results = api.file_upload(project_id, directory_id, file_name, input_path)
-    print "results", results
-    return project
+    return results
