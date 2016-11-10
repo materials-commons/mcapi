@@ -51,8 +51,6 @@ class TestFileDownload(unittest.TestCase):
         file = self.file
         download_file_path = tempfile.gettempdir() + "/" + file.name
 
-        print(download_file_path)
-
         filepath = download_data_to_file(project, file, download_file_path)
 
         print(filepath)

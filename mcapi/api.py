@@ -169,15 +169,16 @@ def file_upload(project_id, directory_id, file_name, input_path, remote=use_remo
 
 def file_download(project_id, file_id, output_file_path, remote=use_remote()):
 
-    print("file_download: project_id = " + project_id)
-    print("file_download: file_id = " + file_id)
-    print("file_download: output_file_path = " + output_file_path)
-    print(remote)
+    print("file_download:")
+    print("  project_id = " + project_id)
+    print("  file_id = " + file_id)
+    print("  output_file_path = " + output_file_path)
 
     with open(output_file_path, 'wb') as f:
         api_url = "projects/" + project_id + "/files/" + file_id + "/download"
         restpath = remote.make_url_v2(api_url)
-        r = requests.get(restpath, stream=True)
+        print ("  " + restpath)
+        r = requests.get(restpath, params=remote.params, stream=True)
 
         if not r.ok:
             r.raise_for_status()
