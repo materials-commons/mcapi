@@ -1,5 +1,6 @@
 import unittest
-from random import randint
+import tempfile
+import filecmp
 from os.path import getsize
 from pathlib import Path
 from mcapi import set_remote_config_url, get_remote_config_url, create_project
@@ -18,6 +19,7 @@ class TestFileUpload(unittest.TestCase):
         self.base_project_id = project.id
         self.base_project = project
 
+    @unittest.skip("")
     def test_is_setup_correctly(self):
         self.assertEqual(get_remote_config_url(), url)
         self.assertTrue(Path(self.filepath).is_file())
@@ -32,6 +34,7 @@ class TestFileUpload(unittest.TestCase):
         directory = project.get_top_directory()
         self.assertEqual(directory._project, self.base_project)
 
+    @unittest.skip("")
     def test_upload_raw(self):
         project = self.base_project
         directory = project.get_top_directory()
@@ -43,3 +46,21 @@ class TestFileUpload(unittest.TestCase):
         file = create_file_with_upload(project, directory, file_name, input_path)
         self.assertIsNotNone(file)
         self.assertEqual(file['size'],byte_count)
+
+    def test_download_raw(self):
+        project = self.base_project
+        directory = project.get_top_directory()
+
+        path = Path(self.filepath)
+        file_name = path.parts[-1]
+
+        with tempfile.NamedTemporaryFile() as collection_file:
+            collectionPath = file.name
+            print(collection_path)
+            self.assertTrue(filecmp.cmp(self.filepath, collection_path))
+
+            # download_file_to(project,directory,file_name,collection_file)
+
+
+
+
