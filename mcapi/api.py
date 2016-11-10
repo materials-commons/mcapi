@@ -167,6 +167,26 @@ def file_upload(project_id, directory_id, file_name, input_path, remote=use_remo
             return r.json()
         r.raise_for_status()
 
+def file_download(project_id, file_id, output_file_path, remote=use_remote()):
+
+    print("file_download: project_id = " + project_id)
+    print("file_download: file_id = " + file_id)
+    print("file_download: output_file_path = " + output_file_path)
+    print(remote)
+
+    with open(output_file_path, 'wb') as f:
+        api_url = "projects/" + project_id + "/files/" + file_id + "/download"
+        restpath = remote.make_url_v2(api_url)
+        r = requests.get(restpath, stream=True)
+
+        if not r.ok:
+            r.raise_for_status()
+
+        for block in r.iter_content(1024):
+            f.write(block)
+
+    return {'filepath': output_file_path}
+
 def set_remote_config_url(url):
     set_remote(Remote(config=Config(config={'mcurl': url})))
 

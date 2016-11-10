@@ -6,6 +6,7 @@ from mc import create_experiment
 from mc import create_samples
 from mc import fetch_directory as __fetch_directory
 from mc import create_file_with_upload
+from mc import download_data_to_file
 from config import Config
 from remote import Remote
 

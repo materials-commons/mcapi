@@ -316,19 +316,41 @@ class File(MCObject):
     Note: right now Datafile.id is the 'datafile_id', not 'id' which corresponds to a particular version
 
     """
+    @staticmethod
+    def from_json(data):
+        if (data['_type'] == 'datafile'): return make_object(data)
+        return None
 
-    def __init__(self, project=None, parent=None, data=dict()):
-        super(Datafile, self).__init__(data)
+    def __init__(self, project=None, parent=None, data={}):
 
-        self.project = project
-        self.parent = parent
-        self.path = join(parent.path, self.name)
+        # normally, from the data base
+        self.id = ""
+        self.name = ""
+        self.description = ""
+        self.owner = ""
 
-        # 'current' version only
-        # Note: right now Datafile.id is the 'datafile_id', not 'id' which corresponds to a particular version
-        self.id = data.get('datafile_id', None)
+        self.size = 0
+        self.uploaded = 0
+        self.checksum = ""
+        self.current = True
+        self.mediatype = {}
+        self.tags = []
+        self.notes = []
 
-        attr = ['size', 'uploaded', 'checksum', 'current', 'owner']
+        # from database, not inserted now, additional code needed
+        self.samples = []
+        self.processes = []
+
+        # additional fields, not inserted now, additional code needed
+        self._project = None
+        self._parent = None
+
+        if (not data): data = {}
+
+        # attr = ['id', 'name', 'description', 'birthtime', 'mtime', '_type', 'owner']
+        super(File, self).__init__(data)
+
+        attr = ['size', 'uploaded', 'checksum', 'current', 'owner', 'usesid']
         for a in attr:
             setattr(self, a, data.get(a, None))
 
@@ -339,43 +361,6 @@ class File(MCObject):
         attr = ['mediatype']
         for a in attr:
             setattr(self, a, data.get(a, dict()))
-
-            # other attributes:
-            #   datadirs, processes, samples, atime, usesid, owner, usesid
-
-    @property
-    def localpath(self):
-        if self.project.localpath is None:
-            return None
-        else:
-            return join(self.project.localpath, relpath(self.path, self.project.name))
-
-    def upload(self):
-        """
-        Upload the current local version to Materials Commons.
-
-        Returns
-        ----------
-          status: mcapi.CLIResult instance
-            Evaluates as True if successful
-
-        Notes
-        ----------
-        If the file differs from the latest version on Materials Commons a new
-        version is stored.
-        """
-
-    def download(self):
-        """
-        Download the datafile from Materials Common.
-
-        Returns
-        ----------
-          status: mcapi.CLIResult instance
-            Evaluates as True if successful
-
-
-        """
 
 class Template():
     create = "global_Create Samples"
@@ -405,6 +390,8 @@ def make_base_object_for_type(data):
             return Sample(data=data)
         if (type == 'directory'):
             return Directory(data=data)
+        if (type == 'datafile'):
+            return File(data=data)
         if (type == 'experiment_task'):
             # print ("Experiment task not implemented")
             return MCObject(data=data)
@@ -506,4 +493,12 @@ def create_file_with_upload(project, directory, file_name, input_path):
     project_id = project.id
     directory_id = directory.id
     results = api.file_upload(project_id, directory_id, file_name, input_path)
-    return results
+    print(results)
+    file = File.from_json(results)
+    return file
+
+def download_data_to_file(project, file, output_file_path):
+    project_id = project.id
+    file_id = file.id
+    output_file_path = api.file_download(project_id, file_id, output_file_path)
+    return output_file_path
