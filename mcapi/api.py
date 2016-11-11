@@ -159,6 +159,7 @@ def directory_by_path(project_id,directory_id,path, remote=use_remote()):
         "from_dir": directory_id,
         "path": path
     }
+    print ("directory_by_path: from_dir(id) = " + directory_id + ", path = " + path)
     api_url = "projects/" + project_id + \
               "/directories/"
     return post(remote.make_url_v2(api_url), data)

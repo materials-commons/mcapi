@@ -53,3 +53,24 @@ class TestDirectory(unittest.TestCase):
         if path2.endswith("/"): path2 = path2[:-1]
         self.assertEqual(path1,path2);
 
+    def test_add_directory_to_project(self):
+        testpath = "/A/B/C"
+        dirctory = self.base_project.add_directory(testpath)
+        path1 = "/" + dirctory.name.split("/", 1)[1]
+        path2 = testpath
+        if path2.endswith("/"): path2 = path2[:-1]
+        self.assertEqual(path1, path2);
+
+    def test_add_dupliate_directory_to_project(self):
+        testpath = "/c/b/a"
+        dirctory = self.base_project.add_directory(testpath)
+        path1 = "/" + dirctory.name.split("/", 1)[1]
+        path2 = testpath
+        if path2.endswith("/"): path2 = path2[:-1]
+        self.assertEqual(path1, path2);
+
+        dirctory = self.base_project.add_directory(testpath)
+        path1 = "/" + dirctory.name.split("/", 1)[1]
+        path2 = testpath
+        if path2.endswith("/"): path2 = path2[:-1]
+        self.assertEqual(path1, path2);

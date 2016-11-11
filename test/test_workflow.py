@@ -20,13 +20,17 @@ class TestWorkflow(unittest.TestCase):
 
     def test_workflow(self):
 
-        project_name = "Project - test001"
-        project_description = "is amazing"
+        project_name = "Workflow Project - test001"
+        project_description = "a test project generated from api"
         experiment_name = fake_name("Experiment-")
         experiment_description = "a test experiment generated from api"
         sample_name = 'Test Sample 1'
-        process1_name = "Create Simulation Sample"
-        process2_name = "Monte Carlo Simulation"
+        # process1_name = "Create Simulation Sample"
+        # process2_name = "Monte Carlo Simulation"
+        filepath_for_sample = 'test/test_upload_data/sem.tif'
+        filepath_for_compute = 'test/test_upload_data/fractal.jpg'
+        filename_for_sample = "SampleFile.tif"
+        filename_for_compute = "ResultsFile.jpg"
 
         ## the workflow ##
         project = create_project(
@@ -46,10 +50,16 @@ class TestWorkflow(unittest.TestCase):
             create_process_from_template(Template.compute).\
             add_samples_to_process([sample])
 
+        # sample_file = project.add_file_using_directory(
+        #     project.add_directory("/FilesForSample"),
+        #     filename_for_sample,
+        #     filepath_for_sample
+        # )
+
         ## tests ##
         self.assertIsNotNone(project.id)
         self.assertEqual(project_name,project.name)
-        self.assertEqual(project_description,project.description)
+        self.assertTrue(project_description in project.description)
 
         self.assertIsNotNone(experiment.id)
         self.assertEqual(experiment_name,experiment.name)
@@ -65,3 +75,8 @@ class TestWorkflow(unittest.TestCase):
         self.assertIsNotNone(sample.name)
         self.assertIsNotNone(sample.property_set_id)
         self.assertEqual(sample.name, sample_name)
+
+        # self.assertIsNotNone(sample_file)
+        # self.assertIsNotNone(sample_file.name)
+        # self.assertEqual(sample_file.name, filename_for_sample)
+

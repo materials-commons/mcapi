@@ -81,18 +81,8 @@ class Project(MCObject):
                                   'size', 'mediatypes']
 
         # additional fields
-        # counts
-        self._count_of = {
-            'directory': -1,
-            'file': -1,
-            'experiment': -1,
-            'process': -1,
-            'sample': -1
-        }
         self._top = None
         self.source = remote_url
-        # holds Datadir, using id for key; initally empty, additional calls needed to fill
-        self._directories = dict()
         # holds Datafile, using id for key;  initally empty, additional calls needed to fill
         self._files = dict()
         #
@@ -130,13 +120,17 @@ class Project(MCObject):
         if (path == "/"):
             return [directory]
         if path.endswith("/"): path = path[0:-1]
-        return directory.get_child_list_by_path(path)
+        return directory.get_descendant_list_by_path(path)
 
     def add_directory(self,path):
-        return None
+        return self.get_directory_list(path)[-1]
 
-    def add_file(self, dir_path, file_name, input_path):
-        pass
+    def get_directory(self,path):
+        return self.get_directory_list(path)[-1]
+
+    def add_file_using_directory(self, directory, file_name, input_path):
+        file = create_file_with_upload(self, directory, file_name, input_path)
+        return file
 
     def get_file(self,dir_path, file_name):
         pass
@@ -307,7 +301,7 @@ class Directory(MCObject):
     def get_file(self,name):
         return None
 
-    def get_child_list_by_path(self,path):
+    def get_descendant_list_by_path(self,path):
         print ("get_child: path = " + path)
         results = api.directory_by_path(self._project.id,self.id,path)
         print (results)

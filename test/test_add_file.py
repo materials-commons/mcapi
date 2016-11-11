@@ -17,47 +17,35 @@ class TestFileInProject(unittest.TestCase):
         self.project_description = "Test project, " + self.project_name
         self.filepath = 'test/test_upload_data/fractal.jpg'
 
-        self.rootDirPath = "/"
-        self.testDirPath = "/testDir"
+        self.testDirPath = "/testDir1/testdir2/testdir3"
 
         self.project = create_project(
             name = self.project_name,
             description = self.project_description)
 
-    @unittest.skip("")
+        self.rootDir = self.project.get_top_directory()
+        self.testDir = self.project.add_directory(self.testDirPath)
+
     def test_is_setup_correctly(self):
         self.assertIsNotNone(self.project.id)
         self.assertEqual(self.project_name,self.project.name)
         self.assertEqual(self.project_description,self.project.description)
+        path1 = "/" + self.testDir.name.split("/", 1)[1]
+        path2 = self.testDirPath
+        if path2.endswith("/"): path2 = path2[:-1]
+        self.assertEqual(path1, path2);
 
-    @unittest.skip("")
     def test_add_file_to_project_root(self):
-
         path = Path(self.filepath)
         file_name = path.parts[-1]
         input_path = str(path.absolute())
         byte_count = getsize(input_path)
 
-        file = self.project.add_file(self.rootDirPath, file_name, input_path)
-
+        file = self.project.add_file_using_directory(self.rootDir, file_name, input_path)
         self.assertIsNotNone(file)
         self.assertEqual(file.size, byte_count)
 
-        # dir = self.project.get_dir(self.rootDirPath)
-        # file1 = dir.get_file(file_name)
+        file = self.project.add_file_using_directory(self.testDir, file_name, input_path)
+        self.assertIsNotNone(file)
+        self.assertEqual(file.size, byte_count)
 
-        # self.assertIsNotNone(file1)
-        # self.assertEqual(file1.size, byte_count)
-        # self.assertEqual(file1, file)
-
-        # file2 = self.project.get_file(self.rootDirPath, file_name)
-
-        # self.assertIsNotNone(file2)
-        # self.assertEqual(file2.size, byte_count)
-        # self.assertEqual(file2, file)
-
-        # file3 = self.project.add_file(self.rootDirPath, file_name, input_path)
-
-        # self.assertIsNotNone(file3)
-        # self.assertEqual(file3.size, byte_count)
-        # self.assertEqual(file3, file)
