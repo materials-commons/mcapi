@@ -1,6 +1,7 @@
 import unittest
 import tempfile
 import filecmp
+from os import remove
 from os.path import getsize, exists, isfile
 from pathlib import Path
 from mcapi import set_remote_config_url, get_remote_config_url, create_project
@@ -45,18 +46,16 @@ class TestFileDownload(unittest.TestCase):
         self.assertEqual(self.file.size, self.byte_count)
         self.assertEqual(self.file.name, self.file_name)
 
-    @unittest.skip("Skiping non-working test for push to archvie")
     def test_download_raw(self):
         project = self.base_project
         directory = project.get_top_directory()
         file = self.file
         download_file_path = tempfile.gettempdir() + "/" + file.name
+        if (exists(download_file_path)):
+            remove(download_file_path)
 
         filepath = download_data_to_file(project, file, download_file_path)
 
-        print(filepath)
-
         self.assertTrue(exists(filepath))
-        self.assertTure(isfile(filepath))
-        self.assertTrue(filecmp.cmp(self.filepath1, file.name))
-
+        self.assertTrue(isfile(filepath))
+        self.assertTrue(filecmp.cmp(self.filepath1, filepath))

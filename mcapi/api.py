@@ -186,7 +186,7 @@ def file_download(project_id, file_id, output_file_path, remote=use_remote()):
         for block in r.iter_content(1024):
             f.write(block)
 
-    return {'filepath': output_file_path}
+    return output_file_path
 
 def set_remote_config_url(url):
     set_remote(Remote(config=Config(config={'mcurl': url})))
