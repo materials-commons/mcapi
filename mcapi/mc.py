@@ -1,5 +1,6 @@
 import api
 
+
 class MCObject(object):
     """
     Base class for Materials Commons objects.
@@ -84,7 +85,7 @@ class Project(MCObject):
         self._count_of = {
             'directory': -1,
             'file': -1,
-            'experiment'
+            'experiment': -1,
             'process': -1,
             'sample': -1
         }
@@ -115,17 +116,30 @@ class Project(MCObject):
     def create_experiment(self, name, description):
         return create_experiment(self, name, description)
 
-    def set_top_directory(self, directory):
+    def _set_top_directory(self, directory):
         self._top = directory
         return directory
 
     def get_top_directory(self):
         if (not self._top):
-            self.set_top_directory(fetch_directory(self, "top"))
+            self._set_top_directory(fetch_directory(self, "top"))
         return self._top
 
-    def file_upload(self, path):
-        return file_upload(self, path)
+    def get_directory_list(self,path):
+        directory = self.get_top_directory()
+        if (path == "/"):
+            return [directory]
+        if path.endswith("/"): path = path[0:-1]
+        return directory.get_child_list_by_path(path)
+
+    def add_directory(self,path):
+        return None
+
+    def add_file(self, dir_path, file_name, input_path):
+        pass
+
+    def get_file(self,dir_path, file_name):
+        pass
 
 class Experiment(MCObject):
     @staticmethod
@@ -256,6 +270,7 @@ class Directory(MCObject):
     @staticmethod
     def from_json(data):
         if (data['_type'] == 'directory'): return make_object(data)
+        if (data['_type'] == 'datadir'): return make_object(data)
         return None
 
     def __init__(self, name="", path="", data=None):
@@ -264,19 +279,21 @@ class Directory(MCObject):
         self.name = ""
         self.checksum = ""
         self.path = ""
-        self.children = []
         self.size = 0
 
         # additional fields
         self._project = None
         self._parent = None
 
+        # NOTE: children are not stored locally, but always fetch from remote!
+        # see self.getChild(name)
+
         if (not data): data = {}
 
         # attr = ['id', 'name', 'description', 'birthtime', 'mtime', '_type', 'owner']
         super(Directory, self).__init__(data)
 
-        attr = ['checksum', 'path', 'children', 'size']
+        attr = ['checksum', 'path', 'size']
         for a in attr:
             setattr(self, a, data.get(a, None))
 
@@ -284,38 +301,23 @@ class Directory(MCObject):
         if (name): self.name = name
         if (path): self.path = path
 
+    def add_file(self,file):
+        return None
+
+    def get_file(self,name):
+        return None
+
+    def get_child_list_by_path(self,path):
+        print ("get_child: path = " + path)
+        results = api.directory_by_path(self._project.id,self.id,path)
+        print (results)
+        dir_list = []
+        for dir_data in results['dirs']:
+            dir_list.append(Directory.from_json(dir_data))
+        return dir_list
+
 class File(MCObject):
-    """
-    Materials Commons Datafile provenance object.
 
-    Attributes
-    ----------
-    project: mcapi.Project instance
-      the MC Project containing the datafile
-
-    parent: mcapi.Datadir instance
-      the Datadir containing the datafile
-
-    path: str
-      the path to the Datafile in the project directory (including the project
-      directory)
-
-    size
-    uploaded
-    checkum
-    current
-    owner
-
-    tags
-    notes
-
-    mediatype
-
-    ToDo: datadirs, processes, samples, atime, usesid, owner, usesid
-
-    Note: right now Datafile.id is the 'datafile_id', not 'id' which corresponds to a particular version
-
-    """
     @staticmethod
     def from_json(data):
         if (data['_type'] == 'datafile'): return make_object(data)
@@ -388,6 +390,8 @@ def make_base_object_for_type(data):
             return Experiment(data=data)
         if (type == 'sample'):
             return Sample(data=data)
+        if (type == 'datadir'):
+            return Directory(data=data)
         if (type == 'directory'):
             return Directory(data=data)
         if (type == 'datafile'):
@@ -484,6 +488,12 @@ def decorate_sample_with(sample, attr_name, attr_value):
 # -- directory --
 def fetch_directory(project, id):
     results = api.directory_by_id(project.id, id)
+    directory = Directory.from_json(results)
+    directory._project = project
+    return directory
+
+def fetch_directory_by_path(project,path):
+    results = api.directory_by_path(project,path)
     directory = Directory.from_json(results)
     directory._project = project
     return directory

@@ -154,6 +154,15 @@ def directory_by_id(project_id, directory_id, remote=use_remote()):
               "/directories/" + directory_id
     return get(remote.make_url_v2(api_url))
 
+def directory_by_path(project_id,directory_id,path, remote=use_remote()):
+    data = {
+        "from_dir": directory_id,
+        "path": path
+    }
+    api_url = "projects/" + project_id + \
+              "/directories/"
+    return post(remote.make_url_v2(api_url), data)
+
 # file
 
 def file_upload(project_id, directory_id, file_name, input_path, remote=use_remote()):

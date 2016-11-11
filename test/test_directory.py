@@ -19,6 +19,7 @@ class TestDirectory(unittest.TestCase):
         project = create_project(self.base_project_name, description)
         self.base_project_id = project.id
         self.base_project = project
+        self.test_dir_path = "/TestDir1/TestDir2/TestDir3"
 
     def test_is_setup_correctly(self):
         self.assertEqual(get_remote_config_url(), url)
@@ -29,9 +30,26 @@ class TestDirectory(unittest.TestCase):
         self.assertEqual(self.base_project_id, self.base_project.id)
 
     def test_get_top_level_directory(self):
-        directory1 = fetch_directory(self.base_project,"top")
+        directory1 = fetch_directory(self.base_project, "top")
         directory2 = self.base_project.get_top_directory()
         self.assertEqual(directory1.id, directory2.id)
         self.assertEqual(directory1._project, self.base_project)
         self.assertEqual(directory2._project, self.base_project)
+        self.assertEqual(directory1.path, self.base_project.name)
+
+    def test_get_top_dir_by_path(self):
+        directory1 = self.base_project.get_directory_list("/")[0]
+        directory2 = self.base_project.get_top_directory()
+        self.assertEqual(directory1.id, directory2.id)
+        self.assertEqual(directory1._project, self.base_project)
+        self.assertEqual(directory2._project, self.base_project)
+
+    def test_get_dirs_from_project(self):
+        directory_list = self.base_project.get_directory_list(self.test_dir_path)
+        self.assertIsNotNone(directory_list)
+        last_directory = directory_list[-1];
+        path1 = "/" + last_directory.name.split("/",1)[1]
+        path2 = self.test_dir_path
+        if path2.endswith("/"): path2 = path2[:-1]
+        self.assertEqual(path1,path2);
 
