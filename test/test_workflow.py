@@ -46,15 +46,18 @@ class TestWorkflow(unittest.TestCase):
             sample_names = [sample_name]
             )[0]
 
-        compute_process = experiment.\
-            create_process_from_template(Template.compute).\
-            add_samples_to_process([sample])
-
         sample_file = project.add_file_using_directory(
             project.add_directory("/FilesForSample"),
             filename_for_sample,
             filepath_for_sample
         )
+
+        create_sample_process.add_files_to_process([sample_file])
+
+        compute_process = experiment.\
+            create_process_from_template(Template.compute).\
+            add_samples_to_process([sample])
+
 
         compute_file = project.add_file_using_directory(
             project.add_directory("/FilesForCompute"),
