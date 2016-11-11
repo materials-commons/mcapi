@@ -123,7 +123,9 @@ class Project(MCObject):
         return directory.get_descendant_list_by_path(path)
 
     def add_directory(self,path):
-        return self.get_directory_list(path)[-1]
+        directory = self.get_directory_list(path)[-1]
+        directory._project = self
+        return directory
 
     def get_directory(self,path):
         return self.get_directory_list(path)[-1]
@@ -131,9 +133,6 @@ class Project(MCObject):
     def add_file_using_directory(self, directory, file_name, input_path):
         file = create_file_with_upload(self, directory, file_name, input_path)
         return file
-
-    def get_file(self,dir_path, file_name):
-        pass
 
 class Experiment(MCObject):
     @staticmethod
@@ -295,20 +294,26 @@ class Directory(MCObject):
         if (name): self.name = name
         if (path): self.path = path
 
-    def add_file(self,file):
-        return None
-
-    def get_file(self,name):
-        return None
+    def get_children(self):
+        results = api.directory_by_id(self._project.id,self.id)
+        ret = []
+        for dir_or_file in results['children']:
+            type = dir_or_file['_type']
+            if type == 'file':
+                ret.append(File(data=dir_or_file))
+            if type == 'directory':
+                ret.append(Directory(data=dir_or_file))
+        return ret
 
     def get_descendant_list_by_path(self,path):
-        print ("get_child: path = " + path)
         results = api.directory_by_path(self._project.id,self.id,path)
-        print (results)
         dir_list = []
         for dir_data in results['dirs']:
             dir_list.append(Directory.from_json(dir_data))
         return dir_list
+
+    def add_file(self,file_name,input_path):
+        return self._project.add_file_using_directory(self,file_name,input_path)
 
 class File(MCObject):
 
@@ -391,22 +396,17 @@ def make_base_object_for_type(data):
         if (type == 'datafile'):
             return File(data=data)
         if (type == 'experiment_task'):
-            # print ("Experiment task not implemented")
+            # Experiment task not implemented
             return MCObject(data=data)
         else:
-            # print "unrecognized type: ", data
             return MCObject(data=data)
     else:
         if (has_key('timezone', data)):
-            #            return utcfromtimestamp(data['time'])
             return MCObject(data=data)
         if (has_key('unit', data)):
-            # print ("Unit not implemented")
             return MCObject(data=data)
         if (has_key('starred', data)):
-            # print ("Flags not implemented")
             return MCObject(data=data)
-        # print "No _type: ", data
         return MCObject(data=data)
 
 def is_object(value):
@@ -468,7 +468,6 @@ def add_samples_to_process(project, experiment, process, samples):
 
 def create_samples(project, process, sample_names):
     samples_array_dict = api.create_samples(project.id, process.id, sample_names)
-    print "smaples json", samples_array_dict
     samples_array = samples_array_dict['samples']
     samples = map((lambda x: Sample.from_json(x)), samples_array)
     samples = map((lambda x: decorate_sample_with(x, 'project', project)), samples)

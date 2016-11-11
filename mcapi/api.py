@@ -154,12 +154,11 @@ def directory_by_id(project_id, directory_id, remote=use_remote()):
               "/directories/" + directory_id
     return get(remote.make_url_v2(api_url))
 
-def directory_by_path(project_id,directory_id,path, remote=use_remote()):
+def directory_by_path(project_id, directory_id,path, remote=use_remote()):
     data = {
         "from_dir": directory_id,
         "path": path
     }
-    print ("directory_by_path: from_dir(id) = " + directory_id + ", path = " + path)
     api_url = "projects/" + project_id + \
               "/directories/"
     return post(remote.make_url_v2(api_url), data)
@@ -178,16 +177,9 @@ def file_upload(project_id, directory_id, file_name, input_path, remote=use_remo
         r.raise_for_status()
 
 def file_download(project_id, file_id, output_file_path, remote=use_remote()):
-
-    print("file_download:")
-    print("  project_id = " + project_id)
-    print("  file_id = " + file_id)
-    print("  output_file_path = " + output_file_path)
-
     with open(output_file_path, 'wb') as f:
         api_url = "projects/" + project_id + "/files/" + file_id + "/download"
         restpath = remote.make_url_v2(api_url)
-        print ("  " + restpath)
         r = requests.get(restpath, params=remote.params, stream=True)
 
         if not r.ok:

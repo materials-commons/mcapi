@@ -33,7 +33,7 @@ class TestFileInProject(unittest.TestCase):
         path1 = "/" + self.testDir.name.split("/", 1)[1]
         path2 = self.testDirPath
         if path2.endswith("/"): path2 = path2[:-1]
-        self.assertEqual(path1, path2);
+        self.assertEqual(path1, path2)
 
     def test_add_file_to_project_root(self):
         path = Path(self.filepath)
@@ -44,8 +44,38 @@ class TestFileInProject(unittest.TestCase):
         file = self.project.add_file_using_directory(self.rootDir, file_name, input_path)
         self.assertIsNotNone(file)
         self.assertEqual(file.size, byte_count)
+        print(file.id)
+        found = None
+        decendents = self.rootDir.get_children()
+        for one in decendents:
+            if (one._type == 'file') and (one.name == file_name):
+                found = one
+        self.assertIsNotNone(found)
+        self.assertEqual(found.size, byte_count)
+        self.assertEqual(file.id,found.id)
 
         file = self.project.add_file_using_directory(self.testDir, file_name, input_path)
         self.assertIsNotNone(file)
         self.assertEqual(file.size, byte_count)
+        found = None
+        decendents = self.testDir.get_children()
+        for one in decendents:
+            if (one._type == 'file') and (one.name == file_name):
+                found = one
+        self.assertIsNotNone(found)
+        self.assertEqual(found.size, byte_count)
+        self.assertEqual(file.id, found.id)
 
+    def test_add_file_to_directory(self):
+        dirPath = "/add/file/to_directory/test"
+
+        path = Path(self.filepath)
+        file_name = path.parts[-1]
+        input_path = str(path.absolute())
+        byte_count = getsize(input_path)
+
+        directory = self.project.add_directory(dirPath)
+        file = directory.add_file(file_name,input_path)
+
+        self.assertIsNotNone(file)
+        self.assertEqual(file.size, byte_count)
