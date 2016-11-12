@@ -44,7 +44,6 @@ class TestFileInProject(unittest.TestCase):
         file = self.project.add_file_using_directory(self.rootDir, file_name, input_path)
         self.assertIsNotNone(file)
         self.assertEqual(file.size, byte_count)
-        print(file.id)
         found = None
         decendents = self.rootDir.get_children()
         for one in decendents:

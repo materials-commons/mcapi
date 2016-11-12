@@ -235,6 +235,9 @@ class Process(MCObject):
     def add_samples_to_process(self, sample_names):
         return add_samples_to_process(self.project, self.experiment, self, sample_names)
 
+    def add_files(self,files):
+        return files
+
 class Sample(MCObject):
     @staticmethod
     def from_json(data):

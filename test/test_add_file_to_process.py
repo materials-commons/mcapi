@@ -31,7 +31,7 @@ class TestFileInProject(unittest.TestCase):
 
         self.process = experiment.create_process_from_template(Template.create)
 
-        self.test_dir = self.project.add_directory(self.testDirPath)
+        self.test_dir = self.project.add_directory(self.test_dir_path)
         self.file = self.project.add_file_using_directory(
             self.test_dir, self.filename, self.filepath)
 
@@ -40,15 +40,15 @@ class TestFileInProject(unittest.TestCase):
         input_path = str(path.absolute())
         self.byte_count = getsize(input_path)
 
-        self.file = self.project.add_file_using_directory(self.rootDir, self.file_name, input_path)
+        self.file = self.project.add_file_using_directory(self.test_dir, self.file_name, input_path)
 
     def test_is_setup_correctly(self):
         self.assertIsNotNone(self.project.id)
         self.assertEqual(self.project_name,self.project.name)
         self.assertEqual(self.project_description,self.project.description)
 
-        path1 = "/" + self.testDir.name.split("/", 1)[1]
-        path2 = self.testDirPath
+        path1 = "/" + self.test_dir.name.split("/", 1)[1]
+        path2 = self.test_dir_path
         if path2.endswith("/"): path2 = path2[:-1]
         self.assertEqual(path1, path2)
 
@@ -61,7 +61,7 @@ class TestFileInProject(unittest.TestCase):
         self.assertIsNotNone(file)
         self.assertEqual(file.size, byte_count)
         found = None
-        decendents = self.rootDir.get_children()
+        decendents = self.test_dir.get_children()
         for one in decendents:
             if (one._type == 'file') and (one.name == self.file_name):
                 found = one
@@ -70,10 +70,27 @@ class TestFileInProject(unittest.TestCase):
         self.assertEqual(file.id,found.id)
 
     def test_add_file_to_process(self):
-        files1 = [file]
-        files2 = self.process.add_files([file])
+        files1 = [self.file]
+        self.assertIsNotNone(files1)
+        self.assertEqual(len(files1),1)
+        file1 = files1[0]
+        self.assertIsNotNone(file1)
+        self.assertIsNotNone(file1.id)
 
-        self.assertEqual(files1[0].id,files2[0].id)
+        files2 = self.process.add_files(files1)
+        self.assertIsNotNone(files2)
+        self.assertEqual(len(files2),1)
+        file2 = files2[0]
+        self.assertIsNotNone(file2)
+        self.assertIsNotNone(file2.id)
+
+        self.assertEqual(file1.id,file2.id)
 
         files2 = self.process.get_files()
-        self.assertEqual(files1[0].id,files2[0].id)
+        self.assertIsNotNone(files2)
+        self.assertEqual(len(files2),1)
+        file2 = files2[0]
+        self.assertIsNotNone(file2)
+        self.assertIsNotNone(file2.id)
+
+        self.assertEqual(file1.id, file2.id)
