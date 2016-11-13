@@ -5,15 +5,15 @@ from mcapi import set_remote_config_url, get_remote_config_url
 
 url = 'http://mctest.localhost/api'
 
+
 def fake_name(prefix):
     number = "%05d" % randint(0, 99999)
     return prefix + number
 
 
 class TestWorkflow(unittest.TestCase):
-
     @classmethod
-    def setUpClass(self):
+    def setUpClass(cls):
         set_remote_config_url(url)
 
     def test_is_setup_correctly(self):
@@ -32,7 +32,7 @@ class TestWorkflow(unittest.TestCase):
         filename_for_sample = "SampleFile.tif"
         filename_for_compute = "ResultsFile.jpg"
 
-        ## the workflow ##
+        # #-# the workflow #-#
         project = create_project(
             name=project_name,
             description=project_description)
