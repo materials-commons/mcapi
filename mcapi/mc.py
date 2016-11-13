@@ -325,7 +325,7 @@ class File(MCObject):
         if (data['_type'] == 'datafile'): return make_object(data)
         return None
 
-    def __init__(self, project=None, parent=None, data={}):
+    def __init__(self, project=None, parent=None, data=None):
 
         # normally, from the data base
         self.id = ""
