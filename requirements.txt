@@ -1,2 +1,3 @@
+magic
 requests
 json
