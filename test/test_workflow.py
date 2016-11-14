@@ -46,23 +46,23 @@ class TestWorkflow(unittest.TestCase):
             sample_names=[sample_name]
         )[0]
 
-        sample_file = project.add_file_using_directory(
-            project.add_directory("/FilesForSample"),
-            filename_for_sample,
-            filepath_for_sample
-        )
+        # sample_file = project.add_file_using_directory(
+        #     project.add_directory("/FilesForSample"),
+        #     filename_for_sample,
+        #     filepath_for_sample
+        # )
 
-        create_sample_process.add_files_to_process([sample_file])
+        # create_sample_process.add_files_to_process([sample_file])
 
         compute_process = experiment. \
             create_process_from_template(Template.compute). \
             add_samples_to_process([sample])
 
-        compute_file = project.add_file_using_directory(
-            project.add_directory("/FilesForCompute"),
-            filename_for_compute,
-            filepath_for_compute
-        )
+        # compute_file = project.add_file_using_directory(
+        #     project.add_directory("/FilesForCompute"),
+        #     filename_for_compute,
+        #     filepath_for_compute
+        # )
 
         # -# tests #-#
         self.assertIsNotNone(project.id)
@@ -84,9 +84,9 @@ class TestWorkflow(unittest.TestCase):
         self.assertIsNotNone(sample.property_set_id)
         self.assertEqual(sample.name, sample_name)
 
-        self.assertIsNotNone(sample_file)
-        self.assertIsNotNone(sample_file.name)
-        self.assertEqual(sample_file.name, filename_for_sample)
+        # self.assertIsNotNone(sample_file)
+        # self.assertIsNotNone(sample_file.name)
+        # self.assertEqual(sample_file.name, filename_for_sample)
 
         self.assertIsNotNone(compute_process)
         self.assertIsNotNone(compute_process.id)
@@ -94,6 +94,6 @@ class TestWorkflow(unittest.TestCase):
         self.assertEqual(compute_process.process_type, 'analysis')
         self.assertFalse(compute_process.does_transform)
 
-        self.assertIsNotNone(compute_file)
-        self.assertIsNotNone(compute_file.name)
-        self.assertEqual(compute_file.name, filename_for_compute)
+        # self.assertIsNotNone(compute_file)
+        # self.assertIsNotNone(compute_file.name)
+        # self.assertEqual(compute_file.name, filename_for_compute)
