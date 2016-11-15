@@ -21,6 +21,14 @@ def fetch_project_by_id(project_id):
     results = api.fetch_project(project_id)
     return Project(data=results)
 
+
+def get_process_from_id(project,experiment,process_id):
+    results = api.get_process_from_id(project.id, experiment.id, process_id)
+    process = Process.from_json(results)
+    process.project = project
+    process.experiment = experiment
+    return process
+
 # -- supproting classes
 
 
@@ -231,10 +239,8 @@ class Process(MCObject):
     def add_samples_to_process(self, sample_names):
         return _add_samples_to_process(self.project, self.experiment, self, sample_names)
 
-    # noinspection PyMethodMayBeStatic
     def add_files(self, files_list):
-        return files_list
-
+        return _add_files_to_process(self.project, self.experiment, self, files_list)
 
 class Sample(MCObject):
     @staticmethod
@@ -469,7 +475,15 @@ def _add_samples_to_process(project, experiment, process, samples):
     return process
 
 
+def _add_files_to_process(project, experiment, process, file_list):
+    results = api.add_files_to_process(project.id, experiment.id, process, file_list)
+    process = Process.from_json(results)
+    process.project = project
+    process.experiment = experiment
+    return process
+
 # -- support functions for Sample --
+
 
 def _create_samples(project, process, sample_names):
     samples_array_dict = api.create_samples(project.id, process.id, sample_names)

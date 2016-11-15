@@ -59,6 +59,16 @@ def disable_warnings():
 disable_warnings()
 
 
+# Set Config url
+
+def set_remote_config_url(url):
+    set_remote(Remote(config=Config(config={'mcurl': url})))
+
+
+def get_remote_config_url():
+    return use_remote().mcurl
+
+
 # Project
 
 def projects(remote=use_remote()):
@@ -136,7 +146,14 @@ def create_samples(project_id, process_id, sample_names, remote=use_remote()):
     api_url = "projects/" + project_id + "/samples"
     return post(remote.make_url_v2(api_url), data)
 
+
 # Create sample process
+
+def get_process_from_id(project_id, experiment_id, process_id, remote=use_remote()):
+    api_url = "projects/" + project_id + \
+              "/experiments/" + experiment_id + \
+              "/processes/" + process_id
+    return get(remote.make_url_v2(api_url))
 
 
 def add_samples_to_process(project_id, experiment_id, process, samples, remote=use_remote()):
@@ -200,10 +217,16 @@ def file_download(project_id, file_id, output_file_path, remote=use_remote()):
 
     return output_file_path
 
-
-def set_remote_config_url(url):
-    set_remote(Remote(config=Config(config={'mcurl': url})))
-
-
-def get_remote_config_url():
-    return use_remote().mcurl
+def add_files_to_process(project_id, experiment_id, process, files, remote=use_remote()):
+    file_id_list = map(
+        (lambda f: {'command': 'add', 'id': f.id}),
+        files)
+    data = {
+        "template_id": process.template_id,
+        "process_id": process.id,
+        "files": file_id_list
+    }
+    api_url = "projects/" + project_id + \
+              "/experiments/" + experiment_id + \
+              "/processes/" + process.id
+    return put(remote.make_url_v2(api_url), data)
