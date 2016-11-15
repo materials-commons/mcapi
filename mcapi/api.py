@@ -62,7 +62,7 @@ disable_warnings()
 # Set Config url
 
 def set_remote_config_url(url):
-    set_remote(Remote(config=Config(config={'mcurl': url})))
+    set_remote(Remote(config=Config(override_config={'mcurl': url})))
 
 
 def get_remote_config_url():
