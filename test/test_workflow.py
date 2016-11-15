@@ -2,6 +2,7 @@ import unittest
 from random import randint
 from mcapi import create_project, Template
 from mcapi import set_remote_config_url, get_remote_config_url
+from mcapi import get_process_from_id
 
 url = 'http://mctest.localhost/api'
 
@@ -27,10 +28,10 @@ class TestWorkflow(unittest.TestCase):
         sample_name = 'Test Sample 1'
         # process1_name = "Create Simulation Sample"
         # process2_name = "Monte Carlo Simulation"
-        # filepath_for_sample = 'test/test_upload_data/sem.tif'
-        # filepath_for_compute = 'test/test_upload_data/fractal.jpg'
-        # filename_for_sample = "SampleFile.tif"
-        # filename_for_compute = "ResultsFile.jpg"
+        filepath_for_sample = 'test/test_upload_data/sem.tif'
+        filepath_for_compute = 'test/test_upload_data/fractal.jpg'
+        filename_for_sample = "SampleFile.tif"
+        filename_for_compute = "ResultsFile.jpg"
 
         # #-# the workflow #-#
         project = create_project(
@@ -46,23 +47,25 @@ class TestWorkflow(unittest.TestCase):
             sample_names=[sample_name]
         )[0]
 
-        # sample_file = project.add_file_using_directory(
-        #     project.add_directory("/FilesForSample"),
-        #     filename_for_sample,
-        #     filepath_for_sample
-        # )
-
-        # create_sample_process.add_files_to_process([sample_file])
+        sample_file = project.add_file_using_directory(
+            project.add_directory("/FilesForSample"),
+            filename_for_sample,
+            filepath_for_sample
+        )
+        create_sample_process.add_files([sample_file])
+        create_sample_process = get_process_from_id(project,experiment,create_sample_process.id)
 
         compute_process = experiment. \
             create_process_from_template(Template.compute). \
             add_samples_to_process([sample])
 
-        # compute_file = project.add_file_using_directory(
-        #     project.add_directory("/FilesForCompute"),
-        #     filename_for_compute,
-        #     filepath_for_compute
-        # )
+        compute_file = project.add_file_using_directory(
+            project.add_directory("/FilesForCompute"),
+            filename_for_compute,
+            filepath_for_compute
+        )
+        compute_process.add_files([compute_file])
+        compute_process = get_process_from_id(project,experiment,compute_process.id)
 
         # -# tests #-#
         self.assertIsNotNone(project.id)
@@ -84,9 +87,17 @@ class TestWorkflow(unittest.TestCase):
         self.assertIsNotNone(sample.property_set_id)
         self.assertEqual(sample.name, sample_name)
 
-        # self.assertIsNotNone(sample_file)
-        # self.assertIsNotNone(sample_file.name)
-        # self.assertEqual(sample_file.name, filename_for_sample)
+        self.assertIsNotNone(sample_file)
+        self.assertIsNotNone(sample_file.name)
+        self.assertEqual(sample_file.name, filename_for_sample)
+
+        self.assertIsNotNone(create_sample_process.files)
+        self.assertEqual(len(create_sample_process.files), 1)
+        file1 = create_sample_process.files[0]
+        self.assertIsNotNone(file1)
+        self.assertIsNotNone(file1.id)
+        self.assertEqual(file1.id,sample_file.id)
+
 
         self.assertIsNotNone(compute_process)
         self.assertIsNotNone(compute_process.id)
@@ -94,6 +105,13 @@ class TestWorkflow(unittest.TestCase):
         self.assertEqual(compute_process.process_type, 'analysis')
         self.assertFalse(compute_process.does_transform)
 
-        # self.assertIsNotNone(compute_file)
-        # self.assertIsNotNone(compute_file.name)
-        # self.assertEqual(compute_file.name, filename_for_compute)
+        self.assertIsNotNone(compute_file)
+        self.assertIsNotNone(compute_file.name)
+        self.assertEqual(compute_file.name, filename_for_compute)
+
+        self.assertIsNotNone(compute_process.files)
+        self.assertEqual(len(compute_process.files), 1)
+        file2 = compute_process.files[0]
+        self.assertIsNotNone(file2)
+        self.assertIsNotNone(file2.id)
+        self.assertEqual(file2.id, compute_file.id)

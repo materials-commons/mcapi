@@ -1,7 +1,6 @@
 import unittest
 from random import randint
-from mcapi import api
-from mcapi import set_remote_config_url, get_remote_config_url
+from mcapi import set_remote_config_url
 from mcapi import create_project, Template
 
 
