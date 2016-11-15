@@ -1,6 +1,7 @@
 import unittest
 from mcapi import Config
 
+
 class TestConfig(unittest.TestCase):
 
     def test_default_config(self):
@@ -16,6 +17,5 @@ class TestConfig(unittest.TestCase):
         self.assertIsNotNone(config.params)
         self.assertIsNotNone(config.params['apikey'])
         self.assertIsNotNone(config.mcurl)
-        self.assertEqual(config.params['apikey'],"12345678901234567890123456789012")
-        self.assertEqual(config.mcurl,"http://mctest.localhost/api")
-
+        self.assertEqual(config.params['apikey'], "12345678901234567890123456789012")
+        self.assertEqual(config.mcurl, "http://mctest.localhost/api")

@@ -27,10 +27,10 @@ class TestWorkflow(unittest.TestCase):
         sample_name = 'Test Sample 1'
         # process1_name = "Create Simulation Sample"
         # process2_name = "Monte Carlo Simulation"
-        filepath_for_sample = 'test/test_upload_data/sem.tif'
-        filepath_for_compute = 'test/test_upload_data/fractal.jpg'
-        filename_for_sample = "SampleFile.tif"
-        filename_for_compute = "ResultsFile.jpg"
+        # filepath_for_sample = 'test/test_upload_data/sem.tif'
+        # filepath_for_compute = 'test/test_upload_data/fractal.jpg'
+        # filename_for_sample = "SampleFile.tif"
+        # filename_for_compute = "ResultsFile.jpg"
 
         # #-# the workflow #-#
         project = create_project(

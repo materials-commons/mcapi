@@ -1,6 +1,29 @@
 import api
 
 
+# -- top level project functions --
+def list_projects():
+    results = api.projects()
+    projects = []
+    for r in results:
+        projects.append(Project(data=r))
+    return projects
+
+
+def create_project(name, description):
+    ids = api.create_project(name, description)
+    project_id = ids['project_id']
+    project = fetch_project_by_id(project_id)
+    return project
+
+
+def fetch_project_by_id(project_id):
+    results = api.fetch_project(project_id)
+    return Project(data=results)
+
+# -- supproting classes
+
+
 class MCObject(object):
     def __init__(self, data=None):
         self._type = "unknown"
@@ -63,7 +86,7 @@ class Project(MCObject):
             data['id'] = id
 
     def create_experiment(self, name, description):
-        return create_experiment(self, name, description)
+        return _create_experiment(self, name, description)
 
     def _set_top_directory(self, directory):
         self._top = directory
@@ -71,7 +94,7 @@ class Project(MCObject):
 
     def get_top_directory(self):
         if not self._top:
-            self._set_top_directory(fetch_directory(self, "top"))
+            self._set_top_directory(_fetch_directory(self, "top"))
         return self._top
 
     def get_directory_list(self, path):
@@ -91,7 +114,7 @@ class Project(MCObject):
         return self.get_directory_list(path)[-1]
 
     def add_file_using_directory(self, directory, file_name, input_path):
-        uploaded_file = create_file_with_upload(self, directory, file_name, input_path)
+        uploaded_file = _create_file_with_upload(self, directory, file_name, input_path)
         return uploaded_file
 
 
@@ -152,7 +175,7 @@ class Experiment(MCObject):
             setattr(self, a, array)
 
     def create_process_from_template(self, template_id):
-        return create_process_from_template(self.project, self, template_id)
+        return _create_process_from_template(self.project, self, template_id)
 
 
 class Process(MCObject):
@@ -203,10 +226,10 @@ class Process(MCObject):
             self.description = description
 
     def create_samples(self, sample_names):
-        return create_samples(self.project, self, sample_names)
+        return _create_samples(self.project, self, sample_names)
 
     def add_samples_to_process(self, sample_names):
-        return add_samples_to_process(self.project, self.experiment, self, sample_names)
+        return _add_samples_to_process(self.project, self.experiment, self, sample_names)
 
     # noinspection PyMethodMayBeStatic
     def add_files(self, files_list):
@@ -364,16 +387,16 @@ def make_object(data):
     holder = make_base_object_for_type(data)
     for key in data.keys():
         value = data[key]
-        if is_object(value):
+        if _is_object(value):
             value = make_object(value)
-        elif is_list(value):
+        elif _is_list(value):
             value = map(make_object, value)
         setattr(holder, key, value)
     return holder
 
 
 def make_base_object_for_type(data):
-    if data_has_type(data):
+    if _data_has_type(data):
         object_type = data['_type']
         if object_type == 'process':
             return Process(data=data)
@@ -395,62 +418,42 @@ def make_base_object_for_type(data):
         else:
             return MCObject(data=data)
     else:
-        if has_key('timezone', data):
+        if _has_key('timezone', data):
             return MCObject(data=data)
-        if has_key('unit', data):
+        if _has_key('unit', data):
             return MCObject(data=data)
-        if has_key('starred', data):
+        if _has_key('starred', data):
             return MCObject(data=data)
         return MCObject(data=data)
 
 
-def is_object(value):
+# -- general support functions
+def _is_object(value):
     return isinstance(value, dict)
 
 
-def is_list(value):
+def _is_list(value):
     return isinstance(value, list)
 
 
-def has_key(key, data):
+def _has_key(key, data):
     return key in data.keys()
 
 
-def data_has_type(data):
-    return has_key('_type', data)
+def _data_has_type(data):
+    return _has_key('_type', data)
 
 
-# -- project --
-def list_projects():
-    results = api.projects()
-    projects = []
-    for r in results:
-        projects.append(Project(data=r))
-    return projects
-
-
-def create_project(name, description):
-    ids = api.create_project(name, description)
-    project_id = ids['project_id']
-    project = fetch_project_by_id(project_id)
-    return project
-
-
-def fetch_project_by_id(project_id):
-    results = api.fetch_project(project_id)
-    return Project(data=results)
-
-
-# -- Experiment --
-def create_experiment(project, name, description):
+# -- support function for Experiment --
+def _create_experiment(project, name, description):
     experiment_json = api.create_experiment(project.id, name, description)
     experiment = Experiment(data=experiment_json)
     experiment.project = project
     return experiment
 
 
-# -- Process --
-def create_process_from_template(project, experiment, template_id):
+# -- support functions for Process --
+def _create_process_from_template(project, experiment, template_id):
     results = api.create_process_from_template(project.id, experiment.id, template_id)
     process = Process.from_json(results)
     process.project = project
@@ -458,7 +461,7 @@ def create_process_from_template(project, experiment, template_id):
     return process
 
 
-def add_samples_to_process(project, experiment, process, samples):
+def _add_samples_to_process(project, experiment, process, samples):
     results = api.add_samples_to_process(project.id, experiment.id, process, samples)
     process = Process.from_json(results)
     process.project = project
@@ -466,32 +469,32 @@ def add_samples_to_process(project, experiment, process, samples):
     return process
 
 
-# -- Sample --
+# -- support functions for Sample --
 
-def create_samples(project, process, sample_names):
+def _create_samples(project, process, sample_names):
     samples_array_dict = api.create_samples(project.id, process.id, sample_names)
     samples_array = samples_array_dict['samples']
     samples = map((lambda x: Sample.from_json(x)), samples_array)
-    samples = map((lambda x: decorate_sample_with(x, 'project', project)), samples)
-    samples = map((lambda x: decorate_sample_with(x, 'process', process)), samples)
+    samples = map((lambda x: _decorate_sample_with(x, 'project', project)), samples)
+    samples = map((lambda x: _decorate_sample_with(x, 'process', process)), samples)
     return samples
 
 
-def decorate_sample_with(sample, attr_name, attr_value):
+def _decorate_sample_with(sample, attr_name, attr_value):
     setattr(sample, attr_name, attr_value)
     return sample
 
 
-# -- directory --
-def fetch_directory(project, directory_id):
+# -- support function for Directory --
+def _fetch_directory(project, directory_id):
     results = api.directory_by_id(project.id, directory_id)
     directory = Directory.from_json(results)
     directory._project = project
     return directory
 
 
-# -- file --
-def create_file_with_upload(project, directory, file_name, input_path):
+# -- support functions for File --
+def _create_file_with_upload(project, directory, file_name, input_path):
     project_id = project.id
     directory_id = directory.id
     results = api.file_upload(project_id, directory_id, file_name, input_path)
@@ -499,7 +502,7 @@ def create_file_with_upload(project, directory, file_name, input_path):
     return uploaded_file
 
 
-def download_data_to_file(project, file_object, output_file_path):
+def _download_data_to_file(project, file_object, output_file_path):
     project_id = project.id
     file_id = file_object.id
     output_file_path = api.file_download(project_id, file_id, output_file_path)
