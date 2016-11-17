@@ -23,9 +23,9 @@ class TestConfig(unittest.TestCase):
 
     def make_test_dir_path(self):
         self.assertTrue('TEST_DATA_DIR' in environ)
-        self.assertIsNotNone(path.abspath(environ['TEST_DATA_DIR']))
-        self.assertTrue(path.isdir(path.abspath(environ['TEST_DATA_DIR'])))
         test_dir = path.abspath(environ['TEST_DATA_DIR'])
+        self.assertIsNotNone(test_dir)
+        self.assertTrue(path.isdir(test_dir))
         test_dir = path.join(test_dir,'test_config_data')
         self.assertTrue(path.isdir(test_dir))
         return test_dir
