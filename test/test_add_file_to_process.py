@@ -72,7 +72,6 @@ class TestAddFileToProcess(unittest.TestCase):
         self.assertIsNotNone(file1.id)
 
         process = self.process.add_files(files1)
-        print (process)
         self.assertIsNotNone(process.files)
         self.assertEqual(len(process.files), 1)
         file2 = process.files[0]
@@ -82,7 +81,6 @@ class TestAddFileToProcess(unittest.TestCase):
         self.assertEqual(file1.id, file2.id)
 
         process = get_process_from_id(self.project,self.experiment,self.process.id)
-        print (process)
         self.assertIsNotNone(process.files)
         self.assertEqual(len(process.files), 1)
         file2 = process.files[0]
