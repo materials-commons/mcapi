@@ -1,5 +1,7 @@
 import unittest
 from random import randint
+from os import environ
+from os import path as os_path
 from mcapi import create_project, Template
 from mcapi import set_remote_config_url, get_remote_config_url
 from mcapi import get_process_from_id
@@ -28,8 +30,10 @@ class TestWorkflow(unittest.TestCase):
         sample_name = 'Test Sample 1'
         # process1_name = "Create Simulation Sample"
         # process2_name = "Monte Carlo Simulation"
-        filepath_for_sample = 'test/test_upload_data/sem.tif'
-        filepath_for_compute = 'test/test_upload_data/fractal.jpg'
+        # filepath_for_sample = 'test/test_upload_data/sem.tif'
+        # filepath_for_compute = 'test/test_upload_data/fractal.jpg'
+        filepath_for_sample = self.make_test_dir_path('sem.tif')
+        filepath_for_compute = self.make_test_dir_path('fractal.jpg')
         filename_for_sample = "SampleFile.tif"
         filename_for_compute = "ResultsFile.jpg"
 
@@ -115,3 +119,19 @@ class TestWorkflow(unittest.TestCase):
         self.assertIsNotNone(file2)
         self.assertIsNotNone(file2.id)
         self.assertEqual(file2.id, compute_file.id)
+
+    def make_test_dir_path(self, file_name):
+        self.assertTrue('TEST_DATA_DIR' in environ)
+        test_path = os_path.abspath(environ['TEST_DATA_DIR'])
+        self.assertIsNotNone(test_path)
+        self.assertTrue(os_path.isdir(test_path))
+        test_file = os_path.join(test_path, 'test_upload_data', file_name)
+        self.assertTrue(os_path.isfile(test_file))
+        return test_file
+
+    def setup_test_file(self):
+        if not hasattr(self, 'filepath1'):
+            self.filepath1 = self.make_test_dir_path('fractal.jpg')
+            self.filepath2 = self.make_test_dir_path('sem.tif')
+            self.assertTrue(Path(self.filepath1).is_file())
+            self.assertTrue(Path(self.filepath2).is_file())
