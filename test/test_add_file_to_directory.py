@@ -1,5 +1,7 @@
 import unittest
 from random import randint
+from os import environ
+from os import path as os_path
 from os.path import getsize
 from pathlib import Path
 from mcapi import create_project
@@ -10,16 +12,13 @@ def fake_name(prefix):
     return prefix+number
 
 
-class TestFileInProject(unittest.TestCase):
+class TestAddFileToDirectory(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
         cls.project_name = fake_name("Project - ")
         cls.project_description = "Test project, " + cls.project_name
-        cls.filepath = 'test/test_upload_data/fractal.jpg'
-
         cls.testDirPath = "/testDir1/testdir2/testdir3"
-
         cls.project = create_project(
             name = cls.project_name,
             description = cls.project_description)
@@ -38,7 +37,7 @@ class TestFileInProject(unittest.TestCase):
         self.assertEqual(path1, path2)
 
     def test_add_file_to_project_root(self):
-        path = Path(self.filepath)
+        path = Path(self.make_test_dir_path('fractal.jpg'))
         file_name = path.parts[-1]
         input_path = str(path.absolute())
         byte_count = getsize(input_path)
@@ -70,7 +69,7 @@ class TestFileInProject(unittest.TestCase):
     def test_add_file_to_directory(self):
         dir_path = "/add/file/to_directory/test"
 
-        path = Path(self.filepath)
+        path = Path(self.make_test_dir_path('fractal.jpg'))
         file_name = path.parts[-1]
         input_path = str(path.absolute())
         byte_count = getsize(input_path)
@@ -80,3 +79,14 @@ class TestFileInProject(unittest.TestCase):
 
         self.assertIsNotNone(added_file)
         self.assertEqual(added_file.size, byte_count)
+
+
+    def make_test_dir_path(self,file_name):
+        self.assertTrue('TEST_DATA_DIR' in environ)
+        test_path = os_path.abspath(environ['TEST_DATA_DIR'])
+        self.assertIsNotNone(test_path)
+        self.assertTrue(os_path.isdir(test_path))
+        test_file = os_path.join(test_path, 'test_upload_data',file_name)
+        self.assertTrue(os_path.isfile(test_file))
+        return test_file
+
