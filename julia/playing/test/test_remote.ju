@@ -1,0 +1,33 @@
+import unittest
+from os.path import exists
+from mcapi import Config
+from mcapi import Remote
+
+
+class TestRemote(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        test_data_dir = "test/test_config_data/"
+        if not exists(test_data_dir):
+            Exception("No test data for TestRemote. Can not find directory: " + test_data_dir)
+
+    def test_default_remote(self):
+        remote = Remote()
+        config = remote.config
+        self.assertIsNotNone(config)
+        self.assertIsNotNone(config.params)
+        self.assertIsNotNone(config.params['apikey'])
+        self.assertIsNotNone(config.mcurl)
+        self.assertEqual(remote.mcurl, config.mcurl)
+
+    def test_with_config_settings(self):
+        test_path = "test/path/for/config"
+        config = Config(config_file_path="test/test_config_data/", config_file_name="config.json")
+        remote = Remote(config=config)
+        self.assertIsNotNone(remote.make_url(test_path))
+        self.assertIsNotNone(remote.make_url_v2(test_path))
+        self.assertTrue(config.mcurl in remote.make_url(test_path))
+        self.assertTrue(config.mcurl in remote.make_url_v2(test_path))
+        self.assertTrue(test_path in remote.make_url(test_path))
+        self.assertTrue(test_path in remote.make_url_v2(test_path))
