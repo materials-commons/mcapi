@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>MCAPI by materials-commons</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">MCAPI</h1>
+      <h2 class="project-tagline">Materials Commons API</h2>
+      <a href="https://github.com/materials-commons/mcapi" class="btn">View on GitHub</a>
+      <a href="https://github.com/materials-commons/mcapi/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/materials-commons/mcapi/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <h1>
+<a id="materials-commons-rest-api" class="anchor" href="#materials-commons-rest-api" aria-hidden="true"><span class="octicon octicon-link"></span></a>Materials Commons REST API</h1>
+
+<h1>
+<a id="api-overview" class="anchor" href="#api-overview" aria-hidden="true"><span class="octicon octicon-link"></span></a>API Overview</h1>
+
+<p>This document describes the resources that make up the official Materials Commons API v2.</p>
+
+<ol>
+<li><a href="#CurrentVersion">Current Version</a></li>
+<li><a href="#Schema">Schema</a></li>
+<li><a href="#DetailParameter">Details Parameter</a></li>
+</ol>
+
+<h2>
+<a id="current-version" class="anchor" href="#current-version" aria-hidden="true"><span class="octicon octicon-link"></span></a>Current Version</h2>
+
+<p>All requests receive the default v2 version of the API. The version of the API may change in the future. To ensure compatability you should explicitly set <code>Accept</code> header.</p>
+
+<p><code>Accept: application/vnd.materialscommons.v2+json</code></p>
+
+<p>The default version of the API may change in the future. Setting the header will ensure you receive specific version response.</p>
+
+<h2>
+<a id="schema" class="anchor" href="#schema" aria-hidden="true"><span class="octicon octicon-link"></span></a>Schema</h2>
+
+<p>All API access is over HTTPS. The production version version of the API is available through <code>materialscommons.org/api/v2</code>. If you are accessing the test site then the API is available through <code>test.materialscommons.org/api/v2</code>.</p>
+
+<p>The Materials Commons send and receives in JSON format.</p>
+
+<h2>
+<a id="parameters" class="anchor" href="#parameters" aria-hidden="true"><span class="octicon octicon-link"></span></a>Parameters</h2>
+
+<h3>
+<a id="details-parameter" class="anchor" href="#details-parameter" aria-hidden="true"><span class="octicon octicon-link"></span></a>Details Parameter</h3>
+
+<p>Many APIs return an object. This occurs when you request a specific object, such as a project, or you update or create one. Where the object in question has a list of dependent types, the API will return an overview of those type, rather than the details.</p>
+
+<p>For example a <code>Project</code> contains a list of <code>Samples</code>. When requesting a Project you can ask that the full details for the <code>Samples</code> be included rather than the overview defintions. This is more expensive and should be used only when you will immediately need access to this information.</p>
+
+<p>The <code>details</code> parameter allows you to define the level of details to return. By default the API returns details at <code>overview</code> level. The <code>details</code> parameter accepts <code>overview</code> or <code>full</code> as arguments. When <code>full</code> is specified you will receive a complete object definition for all dependent objects.</p>
+
+<h4>
+<a id="examples" class="anchor" href="#examples" aria-hidden="true"><span class="octicon octicon-link"></span></a>Examples</h4>
+
+<p>The following call returns project details with dependent types (samples, and processes in this example) in overview.</p>
+
+<p>You can make this request in two ways. The first explicitly sets <code>details=overview</code>
+<code>$ curl -i https://materialscommons.org/api/v2/projects?details=overview</code></p>
+
+<p>Since <code>overview</code> is the default when make a request the details parameter doesn't need to be set: It will default to <code>overview</code>, e.g.
+<code>$ curl -i https://materialscommons.org/api/v2/projects</code></p>
+
+<div class="highlight highlight-source-json"><pre>{
+
+    <span class="pl-s"><span class="pl-pds">"</span>_type<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>project<span class="pl-pds">"</span></span> ,
+    <span class="pl-s"><span class="pl-pds">"</span>ctime<span class="pl-pds">"</span></span>:  <span class="pl-c1">531360000</span>,
+    <span class="pl-s"><span class="pl-pds">"</span>directory_id<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>d3cff7f1-c958-4cb6-8fb5-8a588b6d76b5<span class="pl-pds">"</span></span> ,
+    <span class="pl-s"><span class="pl-pds">"</span>description<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>Test grain size boundaries<span class="pl-pds">"</span></span> ,
+    <span class="pl-s"><span class="pl-pds">"</span>id<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>9a07cdfd-b420-4411-883e-21526a468aee<span class="pl-pds">"</span></span> ,
+    <span class="pl-s"><span class="pl-pds">"</span>mtime<span class="pl-pds">"</span></span>:  <span class="pl-c1">531360000</span>,
+    <span class="pl-s"><span class="pl-pds">"</span>name<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>proj5<span class="pl-pds">"</span></span> ,
+    <span class="pl-s"><span class="pl-pds">"</span>owner<span class="pl-pds">"</span></span>: <span class="pl-ii">proj</span><span class="pl-c1">5</span><span class="pl-ii">@mc.org</span>, <span class="pl-ii">»</span>
+    <span class="pl-s"><span class="pl-pds">"</span>processes<span class="pl-pds">"</span></span>: [
+        {
+            <span class="pl-s"><span class="pl-pds">"</span>_type<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>process<span class="pl-pds">"</span></span> ,
+            <span class="pl-s"><span class="pl-pds">"</span>ctime<span class="pl-pds">"</span></span>: <span class="pl-c1">5313600020</span> ,
+            <span class="pl-s"><span class="pl-pds">"</span>description<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span><span class="pl-pds">"</span></span>,
+            <span class="pl-s"><span class="pl-pds">"</span>id<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>74bc8ec5-efee-42f6-9f7f-98721ca16d85<span class="pl-pds">"</span></span> ,
+            <span class="pl-s"><span class="pl-pds">"</span>mtime<span class="pl-pds">"</span></span>: <span class="pl-c1">5313600020</span> ,
+            <span class="pl-s"><span class="pl-pds">"</span>name<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>As Measured - 09/03/2015 @ 3:48PM<span class="pl-pds">"</span></span>
+        }
+    ] ,
+    <span class="pl-s"><span class="pl-pds">"</span>samples<span class="pl-pds">"</span></span>: [],
+}</pre></div>
+
+<p><code>$ curl -i https://materialscommons.org/api/v2/projects?details=full</code></p>
+
+<div class="highlight highlight-source-json"><pre>{
+
+    <span class="pl-s"><span class="pl-pds">"</span>_type<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>project<span class="pl-pds">"</span></span> ,
+    <span class="pl-s"><span class="pl-pds">"</span>ctime<span class="pl-pds">"</span></span>: <span class="pl-c1">531360000</span>,
+    <span class="pl-s"><span class="pl-pds">"</span>directory_id<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>d3cff7f1-c958-4cb6-8fb5-8a588b6d76b5<span class="pl-pds">"</span></span> ,
+    <span class="pl-s"><span class="pl-pds">"</span>description<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span><span class="pl-pds">"</span></span> ,
+    <span class="pl-s"><span class="pl-pds">"</span>id<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>9a07cdfd-b420-4411-883e-21526a468aee<span class="pl-pds">"</span></span> ,
+    <span class="pl-s"><span class="pl-pds">"</span>mediatypes<span class="pl-pds">"</span></span>: <span class="pl-c1">null</span> ,
+    <span class="pl-s"><span class="pl-pds">"</span>mtime<span class="pl-pds">"</span></span>: <span class="pl-c1">531360000</span> ,
+    <span class="pl-s"><span class="pl-pds">"</span>name<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>proj5<span class="pl-pds">"</span></span> ,
+    <span class="pl-s"><span class="pl-pds">"</span>owner<span class="pl-pds">"</span></span>: <span class="pl-ii">proj</span><span class="pl-c1">5</span><span class="pl-ii">@mc.org</span>, <span class="pl-ii">»</span>
+    <span class="pl-s"><span class="pl-pds">"</span>processes<span class="pl-pds">"</span></span>: [
+        {
+            <span class="pl-s"><span class="pl-pds">"</span>_type<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>process<span class="pl-pds">"</span></span> ,
+            <span class="pl-s"><span class="pl-pds">"</span>birthtime<span class="pl-pds">"</span></span>: <span class="pl-c1">5313600020</span> ,
+            <span class="pl-s"><span class="pl-pds">"</span>does_transform<span class="pl-pds">"</span></span>: <span class="pl-c1">false</span> ,
+            <span class="pl-s"><span class="pl-pds">"</span>id<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>74bc8ec5-efee-42f6-9f7f-98721ca16d85<span class="pl-pds">"</span></span> ,
+            <span class="pl-s"><span class="pl-pds">"</span>mtime<span class="pl-pds">"</span></span>: <span class="pl-c1">5313600020</span> ,
+            <span class="pl-s"><span class="pl-pds">"</span>name<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>As Measured - 09/03/2015 @ 3:48PM<span class="pl-pds">"</span></span> ,
+            <span class="pl-s"><span class="pl-pds">"</span>description<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span><span class="pl-pds">"</span></span>,
+            <span class="pl-s"><span class="pl-pds">"</span>owner<span class="pl-pds">"</span></span>: <span class="pl-ii">proj</span><span class="pl-c1">5</span><span class="pl-ii">@mc.org</span>, <span class="pl-ii">»</span>
+            <span class="pl-s"><span class="pl-pds">"</span>process_type<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>OTHER<span class="pl-pds">"</span></span> ,
+            <span class="pl-s"><span class="pl-pds">"</span>what<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span><span class="pl-pds">"</span></span> ,
+            <span class="pl-s"><span class="pl-pds">"</span>why<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span><span class="pl-pds">"</span></span>,
+            <span class="pl-s"><span class="pl-pds">"</span>samples<span class="pl-pds">"</span></span>: [],
+            <span class="pl-s"><span class="pl-pds">"</span>files<span class="pl-pds">"</span></span>: []
+        }
+    ] ,
+    <span class="pl-s"><span class="pl-pds">"</span>samples<span class="pl-pds">"</span></span>: [],
+
+}</pre></div>
+
+<h1>
+<a id="api-call-sequence" class="anchor" href="#api-call-sequence" aria-hidden="true"><span class="octicon octicon-link"></span></a>API Call Sequence</h1>
+
+<pre lang="sequence"><code>Title: API Call Sequence
+Client-&gt;MC Service: Authenticate
+MC Service--&gt;Client: Authentication Token
+Client-&gt;&gt;MC Service: Request (containing Token)
+MC Service--&gt;Client: Response
+</code></pre>
+
+<h1>
+<a id="projects" class="anchor" href="#projects" aria-hidden="true"><span class="octicon octicon-link"></span></a>Projects</h1>
+
+<hr>
+
+<p>All access to projects requires an APIKEY to authenticate the request. The APIKEY controls access to the project and its resources.</p>
+
+<h2>
+<a id="type-definitions" class="anchor" href="#type-definitions" aria-hidden="true"><span class="octicon octicon-link"></span></a>Type definitions</h2>
+
+<h3>
+<a id="overview-type" class="anchor" href="#overview-type" aria-hidden="true"><span class="octicon octicon-link"></span></a>Overview type</h3>
+
+<p>All objects have an overview definition. All overview definitions have the same fields. You can identify the type of overview object by looking at its <code>_type</code> field.</p>
+
+<h4>
+<a id="overview-type-definition" class="anchor" href="#overview-type-definition" aria-hidden="true"><span class="octicon octicon-link"></span></a>Overview type definition</h4>
+
+<div class="highlight highlight-source-go"><pre><span class="pl-k">type</span> <span class="pl-v">OverviewType</span> <span class="pl-k">struct</span> {
+    id          <span class="pl-k">string</span>      <span class="pl-c">// The ID of the object</span>
+    name        <span class="pl-k">string</span>      <span class="pl-c">// Name of the object</span>
+    description <span class="pl-k">string</span>
+    ctime       integer     <span class="pl-c">// Creation time of the object</span>
+    mtime       integer     <span class="pl-c">// Last modification time</span>
+    _type       <span class="pl-k">string</span>      <span class="pl-c">// Type of Object</span>
+}</pre></div>
+
+<h4>
+<a id="example-data" class="anchor" href="#example-data" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example data</h4>
+
+<div class="highlight highlight-source-json"><pre>{
+    <span class="pl-s"><span class="pl-pds">"</span>id<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>367416f9-c266-46cd-a224-f48f08c53b46<span class="pl-pds">"</span></span>,
+    <span class="pl-s"><span class="pl-pds">"</span>name<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>My Sample<span class="pl-pds">"</span></span>,
+    <span class="pl-s"><span class="pl-pds">"</span>description<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>Pure Aluminum from Ford<span class="pl-pds">"</span></span>,
+    <span class="pl-s"><span class="pl-pds">"</span>ctime<span class="pl-pds">"</span></span>: <span class="pl-c1">531360000</span>,
+    <span class="pl-s"><span class="pl-pds">"</span>mtime<span class="pl-pds">"</span></span>: <span class="pl-c1">531360000</span>,
+    <span class="pl-s"><span class="pl-pds">"</span>_type<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>sample<span class="pl-pds">"</span></span>
+}</pre></div>
+
+<h3>
+<a id="project-type" class="anchor" href="#project-type" aria-hidden="true"><span class="octicon octicon-link"></span></a>Project type</h3>
+
+<div class="highlight highlight-source-go"><pre><span class="pl-k">type</span> <span class="pl-v">Project</span> <span class="pl-k">struct</span> {
+    id              <span class="pl-k">string</span>      <span class="pl-c">// Unique ID of project</span>
+    name            <span class="pl-k">string</span>      <span class="pl-c">// Name of project</span>
+    description     <span class="pl-k">string</span>      <span class="pl-c">// Project description</span>
+    directory_id    <span class="pl-k">string</span>      <span class="pl-c">// Top level directory id</span>
+    processes       []<span class="pl-v">Process</span>   <span class="pl-c">// Processes in project</span>
+    samples         []<span class="pl-v">Sample</span>    <span class="pl-c">// Samples in project</span>
+    users           []<span class="pl-v">User</span>      <span class="pl-c">// Users with permissions to access project</span>
+    owner           <span class="pl-k">string</span>      <span class="pl-c">// Owner of project</span>
+    ctime           time.<span class="pl-smi">Time</span>   <span class="pl-c">// Create time</span>
+    mtime           time.<span class="pl-smi">Time</span>   <span class="pl-c">// Last modification time</span>
+    _type           <span class="pl-k">string</span>      <span class="pl-c">// "project"</span>
+}</pre></div>
+
+<h3>
+<a id="process-type" class="anchor" href="#process-type" aria-hidden="true"><span class="octicon octicon-link"></span></a>Process type</h3>
+
+<div class="highlight highlight-source-go"><pre><span class="pl-k">type</span> <span class="pl-v">Process</span> <span class="pl-k">struct</span> {
+    id              <span class="pl-k">string</span>
+    ctime           integer
+    mtime           integer
+    owner           <span class="pl-k">string</span>
+    name            <span class="pl-k">string</span>
+    description     <span class="pl-k">string</span>
+    why             <span class="pl-k">string</span>
+    owner           <span class="pl-k">string</span>
+    directory_id    <span class="pl-k">string</span>
+    mediatypes      <span class="pl-v">MediaType</span>
+    samples_in      []<span class="pl-v">Sample</span>
+    samples_out     []<span class="pl-v">Sample</span>
+    files_in        []<span class="pl-v">File</span>
+    files_out       []<span class="pl-v">File</span>
+    measurements    []<span class="pl-v">Measurement</span>
+    size            integer64
+    _type           <span class="pl-k">string</span>
+}</pre></div>
+
+<h3>
+<a id="sample-type" class="anchor" href="#sample-type" aria-hidden="true"><span class="octicon octicon-link"></span></a>Sample type</h3>
+
+<div class="highlight highlight-source-go"><pre><span class="pl-k">type</span> <span class="pl-v">Sample</span> <span class="pl-k">struct</span> {
+    id              <span class="pl-k">string</span>
+    property_set_id <span class="pl-k">string</span>
+    name            <span class="pl-k">string</span>
+    description     <span class="pl-k">string</span>
+    files           []<span class="pl-v">File</span>
+    processes       []<span class="pl-v">Process</span>
+    measurements    []<span class="pl-v">Measurement</span>
+}</pre></div>
+
+<h3>
+<a id="user-type" class="anchor" href="#user-type" aria-hidden="true"><span class="octicon octicon-link"></span></a>User type</h3>
+
+<div class="highlight highlight-source-go"><pre><span class="pl-k">type</span> <span class="pl-v">User</span> <span class="pl-k">struct</span> {
+}</pre></div>
+
+<h1>
+<a id="rest-api" class="anchor" href="#rest-api" aria-hidden="true"><span class="octicon octicon-link"></span></a>REST API</h1>
+
+<h2>
+<a id="authenticate" class="anchor" href="#authenticate" aria-hidden="true"><span class="octicon octicon-link"></span></a>Authenticate</h2>
+
+<p><code>POST /login</code>
+Authenticate the system and get back an authentication token. You may supply either a username and password or an application key, application id and username. Each application must be pre authorized by the user.</p>
+
+<h3>
+<a id="parameters-1" class="anchor" href="#parameters-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>Parameters</h3>
+
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>username</code></td>
+<td>string</td>
+<td>The users login id, for example <code>username:user@umich.edu</code>
+</td>
+</tr>
+<tr>
+<td><code>password</code></td>
+<td>string</td>
+<td>The users account password</td>
+</tr>
+<tr>
+<td><code>application_key</code></td>
+<td>string</td>
+<td>The system assigned application key</td>
+</tr>
+<tr>
+<td><code>application_id</code></td>
+<td>string</td>
+<td>The application id associated with the <code>application_key</code>
+</td>
+</tr>
+</tbody>
+</table>
+
+<h4>
+<a id="example-using-username-and-password" class="anchor" href="#example-using-username-and-password" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example using username and password</h4>
+
+<div class="highlight highlight-source-json"><pre>{
+    <span class="pl-s"><span class="pl-pds">"</span>username<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>user@umich.edu<span class="pl-pds">"</span></span>,
+    <span class="pl-s"><span class="pl-pds">"</span>password<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>my secure password 123<span class="pl-pds">"</span></span>
+}</pre></div>
+
+<h4>
+<a id="example-using-application-parameters" class="anchor" href="#example-using-application-parameters" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example using application parameters</h4>
+
+<div class="highlight highlight-source-json"><pre>{
+    <span class="pl-s"><span class="pl-pds">"</span>username<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>user@umich.edu<span class="pl-pds">"</span></span>,
+    <span class="pl-s"><span class="pl-pds">"</span>application_key<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>367416f9-c266-46cd-a224-f48f08c53bbb<span class="pl-pds">"</span></span>,
+    <span class="pl-s"><span class="pl-pds">"</span>application_id<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>mc_upload_client<span class="pl-pds">"</span></span>
+}</pre></div>
+
+<h2>
+<a id="projects-api" class="anchor" href="#projects-api" aria-hidden="true"><span class="octicon octicon-link"></span></a>Projects API</h2>
+
+<p>All access to a project requires the authentication token received from the <code>/login</code> unless you are accessing a <em>public</em> project.</p>
+
+<h2>
+<a id="list-projects" class="anchor" href="#list-projects" aria-hidden="true"><span class="octicon octicon-link"></span></a>List Projects</h2>
+
+<p><code>GET /projects</code></p>
+
+<p>The Get Projects API will return the list of all projects that a user owns or has access to.</p>
+
+<p><em>Does not accept</em> the <code>details</code> parameter. If you need the full details for a particular project then you should call <code>GET /projects/:project_id?details=full</code>.</p>
+
+<h3>
+<a id="example-output" class="anchor" href="#example-output" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example output</h3>
+
+<p><code>$ curl -H "Authorization: very_long_token_string" https://materialscommons/org/api/v2/projects</code></p>
+
+<div class="highlight highlight-source-json"><pre>[{
+    <span class="pl-s"><span class="pl-pds">"</span>_type<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>project<span class="pl-pds">"</span></span> ,
+    <span class="pl-s"><span class="pl-pds">"</span>ctime<span class="pl-pds">"</span></span>:  <span class="pl-c1">531360000</span>,
+    <span class="pl-s"><span class="pl-pds">"</span>directory_id<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>d3cff7f1-c958-4cb6-8fb5-8a588b6d76b5<span class="pl-pds">"</span></span> ,
+    <span class="pl-s"><span class="pl-pds">"</span>description<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>Test grain size boundaries<span class="pl-pds">"</span></span> ,
+    <span class="pl-s"><span class="pl-pds">"</span>id<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>9a07cdfd-b420-4411-883e-21526a468aee<span class="pl-pds">"</span></span> ,
+    <span class="pl-s"><span class="pl-pds">"</span>mtime<span class="pl-pds">"</span></span>:  <span class="pl-c1">531360000</span>,
+    <span class="pl-s"><span class="pl-pds">"</span>name<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>proj1<span class="pl-pds">"</span></span> ,
+    <span class="pl-s"><span class="pl-pds">"</span>owner<span class="pl-pds">"</span></span>: <span class="pl-ii">user@mc.org</span>, <span class="pl-ii">»</span>
+    <span class="pl-s"><span class="pl-pds">"</span>processes<span class="pl-pds">"</span></span>: [
+        {
+            <span class="pl-s"><span class="pl-pds">"</span>_type<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>process<span class="pl-pds">"</span></span> ,
+            <span class="pl-s"><span class="pl-pds">"</span>ctime<span class="pl-pds">"</span></span>: <span class="pl-c1">5313600020</span> ,
+            <span class="pl-s"><span class="pl-pds">"</span>description<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span><span class="pl-pds">"</span></span>,
+            <span class="pl-s"><span class="pl-pds">"</span>id<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>74bc8ec5-efee-42f6-9f7f-98721ca16d85<span class="pl-pds">"</span></span> ,
+            <span class="pl-s"><span class="pl-pds">"</span>mtime<span class="pl-pds">"</span></span>: <span class="pl-c1">5313600020</span> ,
+            <span class="pl-s"><span class="pl-pds">"</span>name<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>As Measured - 09/03/2015 @ 3:48PM<span class="pl-pds">"</span></span>
+        }
+    ] ,
+    <span class="pl-s"><span class="pl-pds">"</span>samples<span class="pl-pds">"</span></span>: [],
+    <span class="pl-s"><span class="pl-pds">"</span>users<span class="pl-pds">"</span></span>: [<span class="pl-s"><span class="pl-pds">"</span>user@mc.org<span class="pl-pds">"</span></span>]
+},
+{
+    <span class="pl-s"><span class="pl-pds">"</span>_type<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>project<span class="pl-pds">"</span></span> ,
+    <span class="pl-s"><span class="pl-pds">"</span>ctime<span class="pl-pds">"</span></span>:  <span class="pl-c1">531360000</span>,
+    <span class="pl-s"><span class="pl-pds">"</span>datadir<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>bd3ff7f1-c958-4cb6-8fb5-8a588b6d7cde<span class="pl-pds">"</span></span> ,
+    <span class="pl-s"><span class="pl-pds">"</span>description<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>Test grain size boundaries<span class="pl-pds">"</span></span> ,
+    <span class="pl-s"><span class="pl-pds">"</span>id<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>4aa7cdfd-b420-4411-883e-21526a468e4e<span class="pl-pds">"</span></span> ,
+    <span class="pl-s"><span class="pl-pds">"</span>mtime<span class="pl-pds">"</span></span>:  <span class="pl-c1">531360000</span>,
+    <span class="pl-s"><span class="pl-pds">"</span>name<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>proj2<span class="pl-pds">"</span></span> ,
+    <span class="pl-s"><span class="pl-pds">"</span>owner<span class="pl-pds">"</span></span>: <span class="pl-ii">user@mc.org</span>, <span class="pl-ii">»</span>
+    <span class="pl-s"><span class="pl-pds">"</span>processes<span class="pl-pds">"</span></span>: [] ,
+    <span class="pl-s"><span class="pl-pds">"</span>samples<span class="pl-pds">"</span></span>: [],
+    <span class="pl-s"><span class="pl-pds">"</span>users<span class="pl-pds">"</span></span>: [<span class="pl-s"><span class="pl-pds">"</span>user@mc.org<span class="pl-pds">"</span></span>]
+}]</pre></div>
+
+<h3>
+<a id="list-public-projects" class="anchor" href="#list-public-projects" aria-hidden="true"><span class="octicon octicon-link"></span></a>List Public Projects</h3>
+
+<p><code>GET /projects/public</code></p>
+
+<h3>
+<a id="get-project" class="anchor" href="#get-project" aria-hidden="true"><span class="octicon octicon-link"></span></a>Get Project</h3>
+
+<p><code>GET /projects/:project_id</code>
+The Get Project API will return the details for a given project.</p>
+
+<h3>
+<a id="update-project" class="anchor" href="#update-project" aria-hidden="true"><span class="octicon octicon-link"></span></a>Update Project</h3>
+
+<p><code>PUT /projects/:project_id</code></p>
+
+<p>Allows you to change the name, add templates, etc...</p>
+
+<h3>
+<a id="create-project" class="anchor" href="#create-project" aria-hidden="true"><span class="octicon octicon-link"></span></a>Create Project</h3>
+
+<p><code>POST /projects</code></p>
+
+<p>The Create Project command will create a new project for the currently authenticated user. The project name must be unique for the user.</p>
+
+<h4>
+<a id="input" class="anchor" href="#input" aria-hidden="true"><span class="octicon octicon-link"></span></a>Input</h4>
+
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>The name of the project.<br>Name must be unique for the user.</td>
+</tr>
+<tr>
+<td>description</td>
+<td>string</td>
+<td>Optional description for project.</td>
+</tr>
+</tbody>
+</table>
+
+<h4>
+<a id="response-codes" class="anchor" href="#response-codes" aria-hidden="true"><span class="octicon octicon-link"></span></a>Response Codes</h4>
+
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>201 Created</td>
+<td>Project was successfully created</td>
+</tr>
+<tr>
+<td>400 Bad Request</td>
+<td>The inputs were incorrect or additional</td>
+</tr>
+<tr>
+<td>409 Conflict</td>
+<td>The user already has a project of the given name</td>
+</tr>
+</tbody>
+</table>
+
+<h4>
+<a id="example" class="anchor" href="#example" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example</h4>
+
+<pre><code>$ curl -X POST -H "Content-Type: application/json" \
+         -d '{"name": "My Project", "description": "Test WE43 Properties"}' \
+         https://materialscommons.org/api/v2/projects
+</code></pre>
+
+<h5>
+<a id="response" class="anchor" href="#response" aria-hidden="true"><span class="octicon octicon-link"></span></a>Response</h5>
+
+<p><code>Status: 201 Created</code></p>
+
+<div class="highlight highlight-source-json"><pre>{
+    <span class="pl-s"><span class="pl-pds">"</span>_type<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>project<span class="pl-pds">"</span></span> ,
+    <span class="pl-s"><span class="pl-pds">"</span>ctime<span class="pl-pds">"</span></span>:  <span class="pl-c1">531360000</span>,
+    <span class="pl-s"><span class="pl-pds">"</span>directory_id<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>abdef7f1-c958-4cb6-8fb5-8a588b6d76ee<span class="pl-pds">"</span></span> ,
+    <span class="pl-s"><span class="pl-pds">"</span>description<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>Test WE43 Properties<span class="pl-pds">"</span></span> ,
+    <span class="pl-s"><span class="pl-pds">"</span>id<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>09a7cdfd-b420-4411-883e-21526a468abd<span class="pl-pds">"</span></span> ,
+    <span class="pl-s"><span class="pl-pds">"</span>mtime<span class="pl-pds">"</span></span>:  <span class="pl-c1">531360000</span>,
+    <span class="pl-s"><span class="pl-pds">"</span>name<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>My Project<span class="pl-pds">"</span></span> ,
+    <span class="pl-s"><span class="pl-pds">"</span>owner<span class="pl-pds">"</span></span>: <span class="pl-ii">user@mc.org</span>, <span class="pl-ii">»</span>
+    <span class="pl-s"><span class="pl-pds">"</span>processes<span class="pl-pds">"</span></span>: [] ,
+    <span class="pl-s"><span class="pl-pds">"</span>samples<span class="pl-pds">"</span></span>: [],
+    <span class="pl-s"><span class="pl-pds">"</span>users<span class="pl-pds">"</span></span>: [<span class="pl-s"><span class="pl-pds">"</span>user@mc.org<span class="pl-pds">"</span></span>]
+}</pre></div>
+
+<h3>
+<a id="list-project-samples" class="anchor" href="#list-project-samples" aria-hidden="true"><span class="octicon octicon-link"></span></a>List Project Samples</h3>
+
+<p><code>GET /projects/:project_id/samples</code></p>
+
+<h3>
+<a id="get-single-project-sample" class="anchor" href="#get-single-project-sample" aria-hidden="true"><span class="octicon octicon-link"></span></a>Get Single Project Sample</h3>
+
+<p><code>GET /projects/:project_id/samples/:sample_id</code></p>
+
+<h3>
+<a id="update-project-sample" class="anchor" href="#update-project-sample" aria-hidden="true"><span class="octicon octicon-link"></span></a>Update Project Sample</h3>
+
+<p><code>PUT /projects/:project_id/samples/:sample_id</code></p>
+
+<h3>
+<a id="create-sample-in-project" class="anchor" href="#create-sample-in-project" aria-hidden="true"><span class="octicon octicon-link"></span></a>Create Sample in Project</h3>
+
+<p><code>POST /projects/:project_id/samples</code></p>
+
+<h3>
+<a id="delete-sample-in-project" class="anchor" href="#delete-sample-in-project" aria-hidden="true"><span class="octicon octicon-link"></span></a>Delete Sample in Project</h3>
+
+<p><code>DELETE /projects/:project_id/samples/:sample_id</code></p>
+
+<h3>
+<a id="list-processes-in-project" class="anchor" href="#list-processes-in-project" aria-hidden="true"><span class="octicon octicon-link"></span></a>List Processes in Project</h3>
+
+<p><code>GET /projects/:project_id/processes</code></p>
+
+<h3>
+<a id="create-process-in-project" class="anchor" href="#create-process-in-project" aria-hidden="true"><span class="octicon octicon-link"></span></a>Create Process in Project</h3>
+
+<p><code>POST /projects/:project_id/processes</code></p>
+
+<h3>
+<a id="update-process-in-project" class="anchor" href="#update-process-in-project" aria-hidden="true"><span class="octicon octicon-link"></span></a>Update Process in Project</h3>
+
+<p><code>PUT /projects/:project_id/processes/:process_id</code></p>
+
+<p>The Update Process in Project updates attributes of the process. This command is structured as a series of commands. Each command works on different parts of the process. The process data structure is complex and updates to the structure can involve modifying, adding or deleting attributes associated with the process.</p>
+
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>samples</td>
+<td>Add or delete samples from the process</td>
+</tr>
+<tr>
+<td>files</td>
+<td>Add or delete files from the process</td>
+</tr>
+<tr>
+<td>measurements</td>
+<td>Add modify or delete measurements from the process</td>
+</tr>
+<tr>
+<td>attributes</td>
+<td>Modify attributes such as name and description for the process</td>
+</tr>
+<tr>
+<td>setup</td>
+<td>Add, modify or delete setup attributes of the process</td>
+</tr>
+</tbody>
+</table>
+
+<h4>
+<a id="command-structure" class="anchor" href="#command-structure" aria-hidden="true"><span class="octicon octicon-link"></span></a>Command Structure</h4>
+
+<div class="highlight highlight-source-json"><pre>{
+    <span class="pl-s"><span class="pl-pds">"</span>samples<span class="pl-pds">"</span></span>: [],
+    <span class="pl-s"><span class="pl-pds">"</span>files<span class="pl-pds">"</span></span>: [],
+    <span class="pl-s"><span class="pl-pds">"</span>measurements<span class="pl-pds">"</span></span>: [],
+    <span class="pl-s"><span class="pl-pds">"</span>attributes<span class="pl-pds">"</span></span>: [],
+    <span class="pl-s"><span class="pl-pds">"</span>setup<span class="pl-pds">"</span></span>: []
+}</pre></div>
+
+<h4>
+<a id="samples-command" class="anchor" href="#samples-command" aria-hidden="true"><span class="octicon octicon-link"></span></a><code>samples</code> command</h4>
+
+<p>The <code>samples</code> command updates a process by adding, modifying or removing samples. The command can modify a sample in the following ways:</p>
+
+<ul>
+<li>Remove a file association from the sample. The file must have been associated with the sample in this process.</li>
+<li>Add a file association to the sample. The file must already be associated with the process.</li>
+<li>Delete a file association from a sample. The file must already be associated with the process.</li>
+</ul>
+
+<h5>
+<a id="samples-add-command" class="anchor" href="#samples-add-command" aria-hidden="true"><span class="octicon octicon-link"></span></a>Samples <code>add</code> command</h5>
+
+<div class="highlight highlight-source-json"><pre>{
+    <span class="pl-s"><span class="pl-pds">"</span>command<span class="pl-pds">"</span></span>:<span class="pl-s"><span class="pl-pds">"</span>add<span class="pl-pds">"</span></span>,
+    <span class="pl-s"><span class="pl-pds">"</span>sample_id<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>the sample id<span class="pl-pds">"</span></span>
+}</pre></div>
+
+<h5>
+<a id="samples-delete-command" class="anchor" href="#samples-delete-command" aria-hidden="true"><span class="octicon octicon-link"></span></a>Samples <code>delete</code> command</h5>
+
+<div class="highlight highlight-source-json"><pre>{
+    <span class="pl-s"><span class="pl-pds">"</span>command<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>delete<span class="pl-pds">"</span></span>,
+    <span class="pl-s"><span class="pl-pds">"</span>sample_id<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>the sample id<span class="pl-pds">"</span></span>
+}</pre></div>
+
+<h5>
+<a id="samples-modify-command" class="anchor" href="#samples-modify-command" aria-hidden="true"><span class="octicon octicon-link"></span></a>Samples <code>modify</code> command</h5>
+
+<div class="highlight highlight-source-json"><pre>{
+    <span class="pl-s"><span class="pl-pds">"</span>command<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>modify<span class="pl-pds">"</span></span>,
+    <span class="pl-s"><span class="pl-pds">"</span>sample_id<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>the sample id<span class="pl-pds">"</span></span>,
+    <span class="pl-s"><span class="pl-pds">"</span>file_id<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>the file id<span class="pl-pds">"</span></span>,
+    <span class="pl-s"><span class="pl-pds">"</span>subcommand<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>add<span class="pl-pds">"</span></span>
+}
+
+{
+    <span class="pl-s"><span class="pl-pds">"</span>command<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>modify<span class="pl-pds">"</span></span>,
+    <span class="pl-s"><span class="pl-pds">"</span>sample_id<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>the sample id<span class="pl-pds">"</span></span>,
+    <span class="pl-s"><span class="pl-pds">"</span>file_id<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>the file id<span class="pl-pds">"</span></span>,
+    <span class="pl-s"><span class="pl-pds">"</span>arg<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>delete<span class="pl-pds">"</span></span>
+}
+
+{
+    <span class="pl-s"><span class="pl-pds">"</span>command<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>modify<span class="pl-pds">"</span></span>,
+    <span class="pl-s"><span class="pl-pds">"</span>sample_id<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>the sample id<span class="pl-pds">"</span></span>,
+    <span class="pl-s"><span class="pl-pds">"</span>measurement_id<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>the measurement id<span class="pl-pds">"</span></span>,
+    <span class="pl-s"><span class="pl-pds">"</span>arg<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>delete<span class="pl-pds">"</span></span>
+}
+
+{
+    <span class="pl-s"><span class="pl-pds">"</span>command<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>modify<span class="pl-pds">"</span></span>,
+    <span class="pl-s"><span class="pl-pds">"</span>sample_id<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>the sample id<span class="pl-pds">"</span></span>,
+    <span class="pl-s"><span class="pl-pds">"</span>measurement_id<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>the measurement id<span class="pl-pds">"</span></span>,
+    <span class="pl-s"><span class="pl-pds">"</span>arg<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>modify<span class="pl-pds">"</span></span>,
+    <span class="pl-s"><span class="pl-pds">"</span>measurement<span class="pl-pds">"</span></span>: {}
+}
+
+{
+    <span class="pl-s"><span class="pl-pds">"</span>command<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>modify<span class="pl-pds">"</span></span>,
+    <span class="pl-s"><span class="pl-pds">"</span>sample_id<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>the sample id<span class="pl-pds">"</span></span>,
+    <span class="pl-s"><span class="pl-pds">"</span>arg<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>add<span class="pl-pds">"</span></span>,
+    <span class="pl-s"><span class="pl-pds">"</span>measurement<span class="pl-pds">"</span></span>: {}
+}</pre></div>
+
+<h4>
+<a id="files-command" class="anchor" href="#files-command" aria-hidden="true"><span class="octicon octicon-link"></span></a><code>files</code> command</h4>
+
+<h4>
+<a id="files-add-command" class="anchor" href="#files-add-command" aria-hidden="true"><span class="octicon octicon-link"></span></a>Files <code>add</code> command</h4>
+
+<div class="highlight highlight-source-json"><pre>{
+    <span class="pl-s"><span class="pl-pds">"</span>command<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>add<span class="pl-pds">"</span></span>,
+    <span class="pl-s"><span class="pl-pds">"</span>file_id<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>file id<span class="pl-pds">"</span></span>,
+    <span class="pl-s"><span class="pl-pds">"</span>direction<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>in or out<span class="pl-pds">"</span></span>
+}</pre></div>
+
+<h4>
+<a id="files-delete-command" class="anchor" href="#files-delete-command" aria-hidden="true"><span class="octicon octicon-link"></span></a>Files <code>delete</code> command</h4>
+
+<div class="highlight highlight-source-json"><pre>{
+    <span class="pl-s"><span class="pl-pds">"</span>command<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>delete<span class="pl-pds">"</span></span>,
+    <span class="pl-s"><span class="pl-pds">"</span>file_id<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>file id<span class="pl-pds">"</span></span>
+}</pre></div>
+
+<h4>
+<a id="measurements-command" class="anchor" href="#measurements-command" aria-hidden="true"><span class="octicon octicon-link"></span></a><code>measurements</code> command</h4>
+
+<h4>
+<a id="attributes-command" class="anchor" href="#attributes-command" aria-hidden="true"><span class="octicon octicon-link"></span></a><code>attributes</code> command</h4>
+
+<h4>
+<a id="setup-command" class="anchor" href="#setup-command" aria-hidden="true"><span class="octicon octicon-link"></span></a><code>setup</code> command</h4>
+
+<h3>
+<a id="delete-process-in-project" class="anchor" href="#delete-process-in-project" aria-hidden="true"><span class="octicon octicon-link"></span></a>Delete Process in Project</h3>
+
+<p><code>DELETE /projects/:project_id/processes/:process_id</code></p>
+
+<h3>
+<a id="get-project-file" class="anchor" href="#get-project-file" aria-hidden="true"><span class="octicon octicon-link"></span></a>Get Project File</h3>
+
+<p><code>GET /projects/:project_id/files/:file_id</code>
+Get Project File retrieves a file</p>
+
+<h3>
+<a id="get-project-files" class="anchor" href="#get-project-files" aria-hidden="true"><span class="octicon octicon-link"></span></a>Get Project Files</h3>
+
+<p><code>POST /projects/:project_id/files</code>
+This command takes a list of file ids and returns the details for those files</p>
+
+<p>It's parameter looks as follows:</p>
+
+<pre><code>{
+    file_ids:[]
+}
+</code></pre>
+
+<p>Where <code>file_ids</code> is a list of file ids belonging to the project.</p>
+
+<h3>
+<a id="update-project-file" class="anchor" href="#update-project-file" aria-hidden="true"><span class="octicon octicon-link"></span></a>Update Project File</h3>
+
+<p><code>PUT /projects/:project_id/files/:file_id</code></p>
+
+<p>The Update Project File API updates attributes associated with the a file.</p>
+
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>name</td>
+<td>Change the name of the file</td>
+</tr>
+<tr>
+<td>directory</td>
+<td>Change the directory the file is located in</td>
+</tr>
+<tr>
+<td>notes</td>
+<td>Add, modify or delete a file note</td>
+</tr>
+<tr>
+<td>tags</td>
+<td>Add or delete file tags</td>
+</tr>
+<tr>
+<td>description</td>
+<td>Modify the file description</td>
+</tr>
+</tbody>
+</table>
+
+<h4>
+<a id="command-structure-1" class="anchor" href="#command-structure-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>Command structure</h4>
+
+<div class="highlight highlight-source-json"><pre>{
+    <span class="pl-s"><span class="pl-pds">"</span>name<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>file name<span class="pl-pds">"</span></span>,
+    <span class="pl-s"><span class="pl-pds">"</span>directory<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>new directory id<span class="pl-pds">"</span></span>,
+    <span class="pl-s"><span class="pl-pds">"</span>notes<span class="pl-pds">"</span></span>:[],
+    <span class="pl-s"><span class="pl-pds">"</span>tags<span class="pl-pds">"</span></span>: [],
+    <span class="pl-s"><span class="pl-pds">"</span>description<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>the file description<span class="pl-pds">"</span></span>,
+    <span class="pl-s"><span class="pl-pds">"</span>processes<span class="pl-pds">"</span></span>: [],
+    <span class="pl-s"><span class="pl-pds">"</span>samples<span class="pl-pds">"</span></span>: []
+}</pre></div>
+
+<h4>
+<a id="notes-command" class="anchor" href="#notes-command" aria-hidden="true"><span class="octicon octicon-link"></span></a><code>notes</code> command</h4>
+
+<p>The <code>notes</code> command takes a list of notes and updates the file to include the new set of notes. To delete a note you need to include the note with its note id and add the field <code>"delete":true</code>. This note entry will look as follows:</p>
+
+<pre><code>{
+    "id": "the note id",
+    "delete": true
+}
+</code></pre>
+
+<p>To add a new note simply include a note without an id field. This will then be added as a new note to the file.</p>
+
+<h4>
+<a id="tags-commands" class="anchor" href="#tags-commands" aria-hidden="true"><span class="octicon octicon-link"></span></a><code>tags</code> commands</h4>
+
+<p>The <code>tags</code> command takes a list of tags. The server then determines how that tags list has changed and updates the file with the new list of tags.</p>
+
+<h4>
+<a id="processes-commands" class="anchor" href="#processes-commands" aria-hidden="true"><span class="octicon octicon-link"></span></a><code>processes</code> commands</h4>
+
+<div class="highlight highlight-source-json"><pre>{
+    <span class="pl-s"><span class="pl-pds">"</span>command<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>add<span class="pl-pds">"</span></span>,
+    <span class="pl-s"><span class="pl-pds">"</span>process_id<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>process id<span class="pl-pds">"</span></span>,
+    <span class="pl-s"><span class="pl-pds">"</span>direction<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>in or out<span class="pl-pds">"</span></span>
+}
+
+{
+    <span class="pl-s"><span class="pl-pds">"</span>command<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>delete<span class="pl-pds">"</span></span>,
+    <span class="pl-s"><span class="pl-pds">"</span>process_id<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>process id<span class="pl-pds">"</span></span>
+}</pre></div>
+
+<h4>
+<a id="samples-commands" class="anchor" href="#samples-commands" aria-hidden="true"><span class="octicon octicon-link"></span></a><code>samples</code> commands</h4>
+
+<h3>
+<a id="delete-project-file" class="anchor" href="#delete-project-file" aria-hidden="true"><span class="octicon octicon-link"></span></a>Delete Project File</h3>
+
+<p><code>DELETE /projects/:project_id/files/:file_id</code></p>
+
+<h3>
+<a id="create-project-directory" class="anchor" href="#create-project-directory" aria-hidden="true"><span class="octicon octicon-link"></span></a>Create Project Directory</h3>
+
+<p><code>POST /projects/:project_id/directories</code></p>
+
+<h3>
+<a id="update-project-directory" class="anchor" href="#update-project-directory" aria-hidden="true"><span class="octicon octicon-link"></span></a>Update Project Directory</h3>
+
+<p><code>PUT /projects/:project_id/directories/:directory_id</code></p>
+
+<h3>
+<a id="delete-project-directory" class="anchor" href="#delete-project-directory" aria-hidden="true"><span class="octicon octicon-link"></span></a>Delete Project Directory</h3>
+
+<p><code>DELETE /projects/:project_id/directories/:directory_id</code></p>
+
+<h3>
+<a id="list-project-directory" class="anchor" href="#list-project-directory" aria-hidden="true"><span class="octicon octicon-link"></span></a>List Project Directory</h3>
+
+<p><code>GET /projects/:project_id/directories/:directory_id</code>
+This call retrieves the directory identified by <code>:directory_id</code></p>
+
+<h3>
+<a id="list-top-level-project-directory" class="anchor" href="#list-top-level-project-directory" aria-hidden="true"><span class="octicon octicon-link"></span></a>List Top level Project Directory</h3>
+
+<p><code>GET /projects/:/project_id/directories</code>
+This call retrieves the top level directory associated with a project.</p>
+
+<h3>
+<a id="search-all-of-users-projects" class="anchor" href="#search-all-of-users-projects" aria-hidden="true"><span class="octicon octicon-link"></span></a>Search All of User's Projects</h3>
+
+<p><code>POST /projects/search</code></p>
+
+<h3>
+<a id="search-project" class="anchor" href="#search-project" aria-hidden="true"><span class="octicon octicon-link"></span></a>Search Project</h3>
+
+<p><code>POST /projects/:project_id/search</code></p>
+
+<h3>
+<a id="search-public-projects" class="anchor" href="#search-public-projects" aria-hidden="true"><span class="octicon octicon-link"></span></a>Search Public Projects</h3>
+
+<p><code>POST /projects/public/search</code></p>
+
+<h4>
+<a id="upload-file" class="anchor" href="#upload-file" aria-hidden="true"><span class="octicon octicon-link"></span></a>Upload File</h4>
+
+<p><code>POST /projects/:project_id/uploads</code>
+Upload a whole file</p>
+
+<p><code>POST /projects/:project_id/uploads/chunk</code>
+Upload file chunk by chunk</p>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/materials-commons/mcapi">MCAPI</a> is maintained by <a href="https://github.com/materials-commons">materials-commons</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
