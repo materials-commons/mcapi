@@ -8,4 +8,4 @@ function(path=config.default.path) {
 config.fetch_config <-
 function(path=config.default.path) {
     if (! config.file_exists(path))
-        throw 
+        throw
