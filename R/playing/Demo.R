@@ -5,18 +5,26 @@ library(jsonlite)
 
 base = "http://mctest.localhost/api/v2"
 com1 = "/projects/"
-project_id = "c2ecf9d9-ca34-4dc6-8bec-fa8661ac7b43"
 com2 = "/directories/"
-directory_id = "2b2ae77b-a685-4996-b61e-affaaac31485"
 key_query = "?apikey=totally-bogus"
 
-urls = c(
-paste(base,"/projects",key_query,sep=""),
-paste(base,com1,project_id,key_query,sep=""),
-paste(base,com1,project_id,com2,directory_id,key_query,sep="")
-)
 
-for (url in urls) {
-  holder = fromJSON(url)
-  print(typeof(holder))
-}
+all_projects_url = paste(base,"/projects",key_query,sep="")
+all_projects = fromJSON(all_projects_url)
+
+project_id = all_projects$id[1]
+project_url = paste(base,com1,project_id,key_query,sep="")
+print(project_url)
+project = fromJSON(project_url)
+print(project$'_type')
+
+top_directory_url = paste(base,com1,project_id,com2,'top',key_query,sep="")
+print(top_directory_url)
+top_directory = fromJSON(top_directory_url)
+print(top_directory$'_type')
+
+directory_id = top_directory$id
+directory_url = paste(base,com1,project_id,com2,directory_id,key_query,sep="")
+print(directory_url)
+directory = fromJSON(directory_url)
+print(directory$'_type')

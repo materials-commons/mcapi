@@ -11,7 +11,10 @@ function() {
 
 test.load.config <-
 function() {
-    test_that("config content is parsable", {
-        expect_that(config.fetch_config() != null, is_true())
+    test_that("config content can be parsed", {
+        c = config.fetch_config()
+        expect_equal(typeof(c),"list")
+        expect_equal(typeof(c$apikey),"character")
+        expect_equal(typeof(c$mcurl),"character")
     })
 }
