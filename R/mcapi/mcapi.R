@@ -36,9 +36,10 @@ function(partial_url)
         partial_url = paste0("/",partial_url)
     }
     if (endsWith(partial_url,"/")) {
-        partial_url = substr(base,0,length(partial_url) - 1)
+        partial_url = substr(base,0,nchar(partial_url) - 1)
     }
     url = paste0(base,partial_url,key_query)
+    print(url)
     return(fromJSON(url))
 }
 
@@ -50,5 +51,11 @@ function() {
 projects.get_project <-
 function(id) {
     request = paste0("/projects/",id)
+    return (connection.json_from_request(request))
+}
+
+directories.get_top_directory_for_project <-
+function (project_id) {
+    request = paste0("/projects/",project_id,"/directories")
     return (connection.json_from_request(request))
 }
