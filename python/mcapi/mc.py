@@ -44,7 +44,7 @@ class MCObject(object):
         if not data:
             data = {}
 
-        attr = ['id', 'name', 'description', 'birthtime', 'mtime', '_type', 'owner']
+        attr = ['id', 'name', 'description', 'birthtime', 'mtime', 'otype', 'owner']
         for a in attr:
             setattr(self, a, data.get(a, None))
 
@@ -52,7 +52,7 @@ class MCObject(object):
 class Project(MCObject):
     @staticmethod
     def from_json(data):
-        if data['_type'] == 'project':
+        if data['otype'] == 'project':
             return make_object(data)
         return None
 
@@ -64,7 +64,7 @@ class Project(MCObject):
         self.size = 0
         self.mediatypes = {}
 
-        self.__all_db_Fields__ = ['id', 'name', 'description', 'birthtime', 'mtime', '_type', 'owner',
+        self.__all_db_Fields__ = ['id', 'name', 'description', 'birthtime', 'mtime', 'otype', 'owner',
                                   'size', 'mediatypes']
 
         # additional fields
@@ -77,7 +77,7 @@ class Project(MCObject):
         # holds Datafile, using id for key;  initally empty, additional calls needed to fill
         self._files = dict()
 
-        # attr = ['id', 'name', 'description', 'birthtime', 'mtime', '_type', 'owner']
+        # attr = ['id', 'name', 'description', 'birthtime', 'mtime', 'otype', 'owner']
         super(Project, self).__init__(data)
 
         attr = ['size', 'mediatypes']
@@ -129,7 +129,7 @@ class Project(MCObject):
 class Experiment(MCObject):
     @staticmethod
     def from_json(data):
-        if data['_type'] == 'experiment':
+        if data['otype'] == 'experiment':
             return make_object(data)
         return None
 
@@ -158,7 +158,7 @@ class Experiment(MCObject):
         if not data:
             data = {}
 
-        # attr = ['id', 'name', 'description', 'birthtime', 'mtime', '_type', 'owner']
+        # attr = ['id', 'name', 'description', 'birthtime', 'mtime', 'otype', 'owner']
         super(Experiment, self).__init__(data)
 
         attr = ['project_id', 'status', 'tasks', 'funding', 'publications',
@@ -189,7 +189,7 @@ class Experiment(MCObject):
 class Process(MCObject):
     @staticmethod
     def from_json(data):
-        if data['_type'] == 'process':
+        if data['otype'] == 'process':
             return make_object(data)
         return None
 
@@ -214,7 +214,7 @@ class Process(MCObject):
         if not data:
             data = {}
 
-        # attr = ['id', 'name', 'description', 'birthtime', 'mtime', '_type', 'owner']
+        # attr = ['id', 'name', 'description', 'birthtime', 'mtime', 'otype', 'owner']
         super(Process, self).__init__(data)
 
         attr = ['files', 'output_samples', 'input_samples', 'setup', 'process_type', 'does_transform',
@@ -258,7 +258,7 @@ class Sample(MCObject):
         if not data:
             data = {}
 
-        # attr = ['id', 'name', 'description', 'birthtime', 'mtime', '_type', 'owner']
+        # attr = ['id', 'name', 'description', 'birthtime', 'mtime', 'otype', 'owner']
         super(Sample, self).__init__(data)
 
         attr = ['property_set_id']
@@ -272,9 +272,9 @@ class Sample(MCObject):
 class Directory(MCObject):
     @staticmethod
     def from_json(data):
-        if data['_type'] == 'directory':
+        if data['otype'] == 'directory':
             return make_object(data)
-        if data['_type'] == 'datadir':
+        if data['otype'] == 'datadir':
             return make_object(data)
         return None
 
@@ -296,7 +296,7 @@ class Directory(MCObject):
         if not data:
             data = {}
 
-        # attr = ['id', 'name', 'description', 'birthtime', 'mtime', '_type', 'owner']
+        # attr = ['id', 'name', 'description', 'birthtime', 'mtime', 'otype', 'owner']
         super(Directory, self).__init__(data)
 
         attr = ['checksum', 'path', 'size']
@@ -313,7 +313,7 @@ class Directory(MCObject):
         results = api.directory_by_id(self._project.id, self.id)
         ret = []
         for dir_or_file in results['children']:
-            its_type = dir_or_file['_type']
+            its_type = dir_or_file['otype']
             if its_type == 'file':
                 ret.append(File(data=dir_or_file))
             if its_type == 'directory':
@@ -334,7 +334,7 @@ class Directory(MCObject):
 class File(MCObject):
     @staticmethod
     def from_json(data):
-        if data['_type'] == 'datafile':
+        if data['otype'] == 'datafile':
             return make_object(data)
         return None
 
@@ -364,7 +364,7 @@ class File(MCObject):
         if not data:
             data = {}
 
-        # attr = ['id', 'name', 'description', 'birthtime', 'mtime', '_type', 'owner']
+        # attr = ['id', 'name', 'description', 'birthtime', 'mtime', 'otype', 'owner']
         super(File, self).__init__(data)
 
         attr = ['size', 'uploaded', 'checksum', 'current', 'owner', 'usesid']
@@ -403,7 +403,7 @@ def make_object(data):
 
 def make_base_object_for_type(data):
     if _data_has_type(data):
-        object_type = data['_type']
+        object_type = data['otype']
         if object_type == 'process':
             return Process(data=data)
         if object_type == 'project':
@@ -447,7 +447,7 @@ def _has_key(key, data):
 
 
 def _data_has_type(data):
-    return _has_key('_type', data)
+    return _has_key('otype', data)
 
 
 # -- support function for Experiment --
