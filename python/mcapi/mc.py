@@ -44,7 +44,7 @@ class MCObject(object):
         if not data:
             data = {}
 
-        attr = ['id', 'name', 'description', 'birthtime', 'mtime', '_type', 'owner']
+        attr = ['id', 'name', 'description', 'birthtime', 'mtime', 'otype', 'owner']
         for a in attr:
             setattr(self, a, data.get(a, None))
 
@@ -52,7 +52,7 @@ class MCObject(object):
 class Project(MCObject):
     @staticmethod
     def from_json(data):
-        if data['_type'] == 'project':
+        if data['otype'] == 'project':
             return make_object(data)
         return None
 
@@ -64,7 +64,7 @@ class Project(MCObject):
         self.size = 0
         self.mediatypes = {}
 
-        self.__all_db_Fields__ = ['id', 'name', 'description', 'birthtime', 'mtime', '_type', 'owner',
+        self.__all_db_Fields__ = ['id', 'name', 'description', 'birthtime', 'mtime', 'otype', 'owner',
                                   'size', 'mediatypes']
 
         # additional fields
@@ -77,7 +77,7 @@ class Project(MCObject):
         # holds Datafile, using id for key;  initally empty, additional calls needed to fill
         self._files = dict()
 
-        # attr = ['id', 'name', 'description', 'birthtime', 'mtime', '_type', 'owner']
+        # attr = ['id', 'name', 'description', 'birthtime', 'mtime', 'otype', 'owner']
         super(Project, self).__init__(data)
 
         attr = ['size', 'mediatypes']
@@ -129,7 +129,7 @@ class Project(MCObject):
 class Experiment(MCObject):
     @staticmethod
     def from_json(data):
-        if data['_type'] == 'experiment':
+        if data['otype'] == 'experiment':
             return make_object(data)
         return None
 
@@ -158,7 +158,7 @@ class Experiment(MCObject):
         if not data:
             data = {}
 
-        # attr = ['id', 'name', 'description', 'birthtime', 'mtime', '_type', 'owner']
+        # attr = ['id', 'name', 'description', 'birthtime', 'mtime', 'otype', 'owner']
         super(Experiment, self).__init__(data)
 
         attr = ['project_id', 'status', 'tasks', 'funding', 'publications',
@@ -189,7 +189,7 @@ class Experiment(MCObject):
 class Process(MCObject):
     @staticmethod
     def from_json(data):
-        if data['_type'] == 'process':
+        if data['otype'] == 'process':
             return make_object(data)
         return None
 
@@ -211,16 +211,21 @@ class Process(MCObject):
         self.project = None
         self.experiment = None
 
+        self.properties_dictionary = {}
+
         if not data:
             data = {}
 
-        # attr = ['id', 'name', 'description', 'birthtime', 'mtime', '_type', 'owner']
+        # attr = ['id', 'name', 'description', 'birthtime', 'mtime', 'otype', 'owner']
         super(Process, self).__init__(data)
 
         attr = ['files', 'output_samples', 'input_samples', 'setup', 'process_type', 'does_transform',
                 'template_id', 'note', 'template_name', 'input_files', 'output_files']
         for a in attr:
             setattr(self, a, data.get(a, None))
+
+        if (self.setup):
+            self._transform_setup()
 
         if process_type:
             self.process_type = process_type
@@ -233,6 +238,17 @@ class Process(MCObject):
         if description:
             self.description = description
 
+    def _transform_setup(self):
+        for attr in self.setup:
+            new_property_list = []
+            if attr['properties']:
+                for prop in attr['properties']:
+                    new_property_list.append(self._transform_property(prop))
+            attr['properties'] = new_property_list
+
+    def _transform_property(self,property):
+        return Property.property_from_json(property)
+
     def create_samples(self, sample_names):
         return _create_samples(self.project, self, sample_names)
 
@@ -241,6 +257,37 @@ class Process(MCObject):
 
     def add_files(self, files_list):
         return _add_files_to_process(self.project, self.experiment, self, files_list)
+
+    def get_setup_properties_as_dictionary(self):
+        if (self.properties_dictionary):
+            return self.properties_dictionary
+        ret = {}
+        for s in self.setup:
+            props = s.properties
+            for prop in props:
+                prop.setup_attribute = s.attribute
+                ret[prop.attribute] = prop
+        self.properties_dictionary = ret
+        return ret
+
+    def set_value_of_setup_property(self,name,value):
+        prop = self.get_setup_properties_as_dictionary()[name]
+        if (prop):
+            prop.value = value
+
+    def set_unit_of_setup_property(self,name,unit):
+        prop = self.get_setup_properties_as_dictionary()[name]
+        if (prop and (unit in prop.units)):
+            prop.unit = unit
+
+    def update_setup_properties(self,name_list):
+        dict = self.get_setup_properties_as_dictionary()
+        prop_list = []
+        for name in name_list:
+            prop = dict[name]
+            if (prop):
+                prop_list.append(prop)
+        return _update_process_setup_properties(self.project,self.experiment,self,prop_list)
 
 class Sample(MCObject):
     @staticmethod
@@ -258,7 +305,7 @@ class Sample(MCObject):
         if not data:
             data = {}
 
-        # attr = ['id', 'name', 'description', 'birthtime', 'mtime', '_type', 'owner']
+        # attr = ['id', 'name', 'description', 'birthtime', 'mtime', 'otype', 'owner']
         super(Sample, self).__init__(data)
 
         attr = ['property_set_id']
@@ -272,9 +319,9 @@ class Sample(MCObject):
 class Directory(MCObject):
     @staticmethod
     def from_json(data):
-        if data['_type'] == 'directory':
+        if data['otype'] == 'directory':
             return make_object(data)
-        if data['_type'] == 'datadir':
+        if data['otype'] == 'datadir':
             return make_object(data)
         return None
 
@@ -296,7 +343,7 @@ class Directory(MCObject):
         if not data:
             data = {}
 
-        # attr = ['id', 'name', 'description', 'birthtime', 'mtime', '_type', 'owner']
+        # attr = ['id', 'name', 'description', 'birthtime', 'mtime', 'otype', 'owner']
         super(Directory, self).__init__(data)
 
         attr = ['checksum', 'path', 'size']
@@ -313,7 +360,7 @@ class Directory(MCObject):
         results = api.directory_by_id(self._project.id, self.id)
         ret = []
         for dir_or_file in results['children']:
-            its_type = dir_or_file['_type']
+            its_type = dir_or_file['otype']
             if its_type == 'file':
                 ret.append(File(data=dir_or_file))
             if its_type == 'directory':
@@ -334,7 +381,7 @@ class Directory(MCObject):
 class File(MCObject):
     @staticmethod
     def from_json(data):
-        if data['_type'] == 'datafile':
+        if data['otype'] == 'datafile':
             return make_object(data)
         return None
 
@@ -364,7 +411,7 @@ class File(MCObject):
         if not data:
             data = {}
 
-        # attr = ['id', 'name', 'description', 'birthtime', 'mtime', '_type', 'owner']
+        # attr = ['id', 'name', 'description', 'birthtime', 'mtime', 'otype', 'owner']
         super(File, self).__init__(data)
 
         attr = ['size', 'uploaded', 'checksum', 'current', 'owner', 'usesid']
@@ -380,6 +427,78 @@ class File(MCObject):
             setattr(self, a, data.get(a, dict()))
 
 
+class Property(MCObject):
+    @staticmethod
+    def property_from_json(data):
+        return make_property_object(data)
+
+    def __init__(self, data=None):
+        # attr = ['id', 'name', 'description', 'birthtime', 'mtime', 'otype', 'owner']
+        super(Property, self).__init__(data)
+
+        self.setup_id = ''
+        self.required = False;
+        self.unit = ''
+        self.attribute = ''
+        self.value = ''
+
+        self.units = []   # of string
+        self.choices = [] # of string
+
+        attr = ['setup_id', 'required', 'unit', 'attribute', 'value']
+        for a in attr:
+            setattr(self, a, data.get(a, None))
+
+        attr = ['units', 'choices']
+        for a in attr:
+            setattr(self, a, data.get(a, []))
+
+
+class NumberProperty(Property):
+    def __init__(self, data=None):
+        super(NumberProperty, self).__init__(data)
+
+
+class StringProperty(Property):
+    def __init__(self, data=None):
+        super(StringProperty, self).__init__(data)
+
+
+class BooleanProperty(Property):
+    def __init__(self, data=None):
+        super(BooleanProperty, self).__init__(data)
+
+
+class DateProperty(Property):
+    def __init__(self, data=None):
+        super(DateProperty, self).__init__(data)
+
+
+class SelectionProperty(Property):
+    def __init__(self, data=None):
+        super(SelectionProperty, self).__init__(data)
+
+
+class FunctionProperty(Property):
+    def __init__(self, data=None):
+        super(FunctionProperty, self).__init__(data)
+
+
+class CompositionProperty(Property):
+    def __init__(self, data=None):
+        super(CompositionProperty, self).__init__(data)
+
+
+class VectorProperty(Property):
+    def __init__(self, data=None):
+        super(VectorProperty, self).__init__(data)
+
+
+class MatrixProperty(Property):
+    def __init__(self, data=None):
+        super(MatrixProperty, self).__init__(data)
+
+
 class Template:
     # global static
     create = "global_Create Samples"
@@ -390,20 +509,23 @@ class Template:
 
 
 def make_object(data):
-    holder = make_base_object_for_type(data)
-    for key in data.keys():
-        value = data[key]
-        if _is_object(value):
-            value = make_object(value)
-        elif _is_list(value):
-            value = map(make_object, value)
-        setattr(holder, key, value)
-    return holder
+    if _is_object(data):
+        holder = make_base_object_for_type(data)
+        for key in data.keys():
+            value = data[key]
+            if _is_object(value):
+                value = make_object(value)
+            elif _is_list(value):
+                value = map(make_object, value)
+            setattr(holder, key, value)
+        return holder
+    else:
+        return data
 
 
 def make_base_object_for_type(data):
     if _data_has_type(data):
-        object_type = data['_type']
+        object_type = data['otype']
         if object_type == 'process':
             return Process(data=data)
         if object_type == 'project':
@@ -432,6 +554,31 @@ def make_base_object_for_type(data):
             return MCObject(data=data)
         return MCObject(data=data)
 
+def make_property_object(data):
+    if _data_has_type(data):
+        object_type = data['otype']
+        if object_type == 'number':
+            return NumberProperty(data=data)
+        if object_type == 'string':
+            return StringProperty(data=data)
+        if object_type == 'boolean':
+            return BooleanProperty(data=data)
+        if object_type == 'date':
+            return DateProperty(data=data)
+        if object_type == 'selection':
+            return SelectionProperty(data=data)
+        if object_type == 'function':
+            return FunctionProperty(data=data)
+        if object_type == 'composition':
+            return CompositionProperty(data=data)
+        if object_type == 'vector':
+            return VectorProperty(data=data)
+        if object_type == 'matrix':
+            return MatrixProperty(data=data)
+        raise Exception("Np Property Object, unrecognized otype = " + object_type, data)
+    else:
+        raise Exception("No Property Object, otype not defined", data)
+
 
 # -- general support functions
 def _is_object(value):
@@ -447,7 +594,7 @@ def _has_key(key, data):
 
 
 def _data_has_type(data):
-    return _has_key('_type', data)
+    return _has_key('otype', data)
 
 
 # -- support function for Experiment --
@@ -482,8 +629,17 @@ def _add_files_to_process(project, experiment, process, file_list):
     process.experiment = experiment
     return process
 
-# -- support functions for Sample --
 
+def _update_process_setup_properties(project, experiment, process, prop_list):
+    results = api.update_process_setup_properties(
+            project.id, experiment.id, process, prop_list)
+    process = Process.from_json(results)
+    process.project = project
+    process.experiment = experiment
+    return process
+
+
+# -- support functions for Sample --
 
 def _create_samples(project, process, sample_names):
     samples_array_dict = api.create_samples(project.id, process.id, sample_names)

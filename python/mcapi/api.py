@@ -171,6 +171,21 @@ def add_samples_to_process(project_id, experiment_id, process, samples, remote=u
     return put(remote.make_url_v2(api_url), data)
 
 
+# update process setup values
+
+def update_process_setup_properties(project_id, experiment_id, process, properties, remote=use_remote()):
+    properties_data = map(
+        (lambda p: p.__dict__),
+        properties)
+    data = {
+        "template_id": process.template_id,
+        "properties" : properties_data
+    }
+    api_url = "projects/" + project_id + \
+              "/experiments/" + experiment_id + \
+              "/processes/" + process.id
+    return put(remote.make_url_v2(api_url), data)
+
 # directory
 
 def directory_by_id(project_id, directory_id, remote=use_remote()):
@@ -216,6 +231,7 @@ def file_download(project_id, file_id, output_file_path, remote=use_remote()):
             f.write(block)
 
     return output_file_path
+
 
 def add_files_to_process(project_id, experiment_id, process, files, remote=use_remote()):
     file_id_list = map(

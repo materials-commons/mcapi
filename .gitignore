@@ -8,6 +8,11 @@ __pycache__/
 # C extensions
 *.so
 
+# R support files
+.Rapp.history
+.RData
+.Rhistory
+
 # Distribution / packaging
 .Python
 env/

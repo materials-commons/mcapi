@@ -6,9 +6,9 @@ __samples_example__ = {u'samples': [
 
 __example_experiment__ = \
     {u'status': u'active',
-     u'_type': u'experiment',
+     u'otype': u'experiment',
      u'tasks': [
-         {u'due_date': 0, u'_type': u'experiment_task', u'tasks': [], u'name': u'', u'index': 0,
+         {u'due_date': 0, u'otype': u'experiment_task', u'tasks': [], u'name': u'', u'index': 0,
           u'mtime': {u'timezone': u'+00:00', u'$reql_type$': u'TIME', u'epoch_time': 1478019910.16},
           u'template_id': u'', u'note': u'Notes here...', u'parent_id': u'', u'process_id': u'',
           u'flags': {u'starred': False, u'onhold': False, u'done': False, u'flagged': False},
@@ -29,22 +29,22 @@ __example_experiment__ = \
      u'id': u'79b53479-3ab2-4d53-80fe-f029d63aaf02', u'name': u'TestExperiment-from-data'}
 
 __process_example_create__ = \
-    {u'files': [], u'_type': u'process', u'name': u'Create Samples', u'output_samples': [],
-     u'setup': [{u'_type': u'settings', u'name': u'Instrument', u'attribute': u'instrument',
+    {u'files': [], u'otype': u'process', u'name': u'Create Samples', u'output_samples': [],
+     u'setup': [{u'otype': u'settings', u'name': u'Instrument', u'attribute': u'instrument',
                  u'properties': [
-                     {u'_type': u'string', u'description': u'', u'attribute': u'manufacturer',
+                     {u'otype': u'string', u'description': u'', u'attribute': u'manufacturer',
                       u'value': u'', u'setup_id': u'366f693b-068e-4294-b0d2-31dbf2b7e05d',
                       u'id': u'e9c0a2c3-ee42-457f-b64e-e9b85b634467', u'unit': u'',
                       u'name': u'Manufacturer'},
-                     {u'_type': u'string', u'description': u'', u'attribute': u'supplier',
+                     {u'otype': u'string', u'description': u'', u'attribute': u'supplier',
                       u'value': u'', u'setup_id': u'366f693b-068e-4294-b0d2-31dbf2b7e05d',
                       u'id': u'59d51a7e-5936-49bb-86dc-ee06b2380772', u'unit': u'',
                       u'name': u'Supplier'},
-                     {u'_type': u'selection', u'description': u'', u'attribute': u'production_method',
+                     {u'otype': u'selection', u'description': u'', u'attribute': u'production_method',
                       u'value': u'', u'setup_id': u'366f693b-068e-4294-b0d2-31dbf2b7e05d',
                       u'id': u'9980e935-fb01-497b-abe8-9fb85f131715', u'unit': u'',
                       u'name': u'Production method'},
-                     {u'_type': u'date', u'description': u'', u'attribute': u'manufacturing_date',
+                     {u'otype': u'date', u'description': u'', u'attribute': u'manufacturing_date',
                       u'value': u'', u'setup_id': u'366f693b-068e-4294-b0d2-31dbf2b7e05d',
                       u'id': u'61f6be41-67c1-46dc-8244-6a106570518a', u'unit': u'',
                       u'name': u'Manufacturing Date'}],
@@ -62,24 +62,24 @@ __process_example_create__ = \
 
 __process_example_compute__ = \
     {u'files': [],
-     u'_type': u'process',
+     u'otype': u'process',
      u'name': u'Computation',
      u'output_samples': [],
      u'setup': [
-         {u'_type': u'settings',
+         {u'otype': u'settings',
           u'name': u'Job Settings',
           u'attribute': u'job_settings',
           u'properties': [
-              {u'_type': u'number', u'description': u'', u'attribute': u'walltime', u'value': u'',
+              {u'otype': u'number', u'description': u'', u'attribute': u'walltime', u'value': u'',
                u'setup_id': u'8c21a86c-ac2c-44f3-9ea5-fc05a14bcb44', u'id': u'77517151-f0a6-4f83-9e3a-de65f12a96e1',
                u'unit': u's', u'name': u'Walltime'},
-              {u'_type': u'number', u'description': u'', u'attribute': u'memory_per_processor', u'value': u'',
+              {u'otype': u'number', u'description': u'', u'attribute': u'memory_per_processor', u'value': u'',
                u'setup_id': u'8c21a86c-ac2c-44f3-9ea5-fc05a14bcb44', u'id': u'6b52fdda-ad5f-437a-8775-160d7518c488',
                u'unit': u'', u'name': u'Memory per Processor'},
-              {u'_type': u'number', u'description': u'', u'attribute': u'number_of_processors', u'value': u'',
+              {u'otype': u'number', u'description': u'', u'attribute': u'number_of_processors', u'value': u'',
                u'setup_id': u'8c21a86c-ac2c-44f3-9ea5-fc05a14bcb44', u'id': u'75774a94-2239-4987-8fc1-fba68f6093b3',
                u'unit': u'', u'name': u'Number of Processors'},
-              {u'_type': u'string', u'description': u'', u'attribute': u'submit_script', u'value': u'',
+              {u'otype': u'string', u'description': u'', u'attribute': u'submit_script', u'value': u'',
                u'setup_id': u'8c21a86c-ac2c-44f3-9ea5-fc05a14bcb44', u'id': u'2f3359f5-c054-4512-8955-f6d96fb476a8',
                u'unit': u'', u'name': u'Submit Script'}],
           u'setup_id': u'8c21a86c-ac2c-44f3-9ea5-fc05a14bcb44',
@@ -94,11 +94,11 @@ __process_example_compute__ = \
      u'input_samples': [
          {u'files': [],
           u'property_set_id': u'bd68bdf1-c62c-42e5-b740-8e395b002f22',
-          u'_type': u'sample',
+          u'otype': u'sample',
           u'description': u'',
           u'name': u'Test Sample 1',
           u'processes': [
-              {u'_type': u'process', u'name': u'Computation', u'template_name': u'Computation',
+              {u'otype': u'process', u'name': u'Computation', u'template_name': u'Computation',
                u'sample_id': u'd5ac20de-f032-481e-b179-f918d5811954', u'does_transform': False,
                u'process_type': u'analysis',
                u'template_id': u'global_Computation', u'note': u'',
@@ -107,7 +107,7 @@ __process_example_compute__ = \
                u'owner': u'terry.weymouth@gmail.com',
                u'birthtime': {u'timezone': u'+00:00', u'$reql_type$': u'TIME', u'epoch_time': 1478108883.134},
                u'id': u'e5a8f0bf-d07e-4296-886e-4b315b679dd4'},
-              {u'_type': u'process', u'name': u'Create Samples', u'template_name': u'Create Samples',
+              {u'otype': u'process', u'name': u'Create Samples', u'template_name': u'Create Samples',
                u'sample_id': u'd5ac20de-f032-481e-b179-f918d5811954', u'does_transform': True,
                u'process_type': u'create',
                u'template_id': u'global_Create Samples', u'note': u'',
@@ -139,27 +139,27 @@ __process_example_compute__ = \
      }
 
 __added_sample_results__ = \
-    {u'files': [], u'_type': u'process', u'name': u'Computation', u'output_samples': [], u'setup': [
-        {u'_type': u'settings', u'name': u'Job Settings', u'attribute': u'job_settings', u'properties': [
-            {u'_type': u'number', u'description': u'', u'attribute': u'memory_per_processor', u'value': u'',
+    {u'files': [], u'otype': u'process', u'name': u'Computation', u'output_samples': [], u'setup': [
+        {u'otype': u'settings', u'name': u'Job Settings', u'attribute': u'job_settings', u'properties': [
+            {u'otype': u'number', u'description': u'', u'attribute': u'memory_per_processor', u'value': u'',
              u'setup_id': u'9a8bfeac-124e-462e-ba89-c83e37380024', u'id': u'4f346cb1-9de8-48df-92a7-c1e1575334da',
              u'unit': u'', u'name': u'Memory per Processor'},
-            {u'_type': u'number', u'description': u'', u'attribute': u'number_of_processors', u'value': u'',
+            {u'otype': u'number', u'description': u'', u'attribute': u'number_of_processors', u'value': u'',
              u'setup_id': u'9a8bfeac-124e-462e-ba89-c83e37380024', u'id': u'c35d71d2-dc9a-44b6-94c9-41ab97b1055a',
              u'unit': u'', u'name': u'Number of Processors'},
-            {u'_type': u'string', u'description': u'', u'attribute': u'submit_script', u'value': u'',
+            {u'otype': u'string', u'description': u'', u'attribute': u'submit_script', u'value': u'',
              u'setup_id': u'9a8bfeac-124e-462e-ba89-c83e37380024', u'id': u'717f9f64-8c55-4216-bb8e-5b36cab92884',
              u'unit': u'', u'name': u'Submit Script'},
-            {u'_type': u'number', u'description': u'', u'attribute': u'walltime', u'value': u'',
+            {u'otype': u'number', u'description': u'', u'attribute': u'walltime', u'value': u'',
              u'setup_id': u'9a8bfeac-124e-462e-ba89-c83e37380024', u'id': u'53be1d96-cc84-40fd-8c5c-b126f295dbe9',
              u'unit': u's', u'name': u'Walltime'}], u'setup_id': u'9a8bfeac-124e-462e-ba89-c83e37380024',
          u'process_id': u'b21d4346-d33d-4ad5-8096-a9e7392cee6a',
          u'birthtime': {u'timezone': u'+00:00', u'$reql_type$': u'TIME', u'epoch_time': 1478100133.808},
          u'id': u'9a8bfeac-124e-462e-ba89-c83e37380024'}], u'does_transform': False, u'process_type': u'analysis',
      u'template_id': u'global_Computation', u'note': u'', u'input_samples': [
-        {u'files': [], u'property_set_id': u'433e5e15-16a6-400b-b526-df1769ccb86e', u'_type': u'sample',
+        {u'files': [], u'property_set_id': u'433e5e15-16a6-400b-b526-df1769ccb86e', u'otype': u'sample',
          u'description': u'', u'name': u'Test Sample 1', u'processes': [
-            {u'_type': u'process', u'name': u'Create Samples', u'template_name': u'Create Samples',
+            {u'otype': u'process', u'name': u'Create Samples', u'template_name': u'Create Samples',
              u'sample_id': u'67a8d27a-026e-4c0b-8b0d-6805ede722fe', u'does_transform': True, u'process_type': u'create',
              u'template_id': u'global_Create Samples', u'note': u'',
              u'process_id': u'63af6b82-8bde-4110-ba73-4c413cc333ba',
@@ -167,7 +167,7 @@ __added_sample_results__ = \
              u'owner': u'terry.weymouth@gmail.com',
              u'birthtime': {u'timezone': u'+00:00', u'$reql_type$': u'TIME', u'epoch_time': 1478100133.467},
              u'id': u'63af6b82-8bde-4110-ba73-4c413cc333ba'},
-            {u'_type': u'process', u'name': u'Computation', u'template_name': u'Computation',
+            {u'otype': u'process', u'name': u'Computation', u'template_name': u'Computation',
              u'sample_id': u'67a8d27a-026e-4c0b-8b0d-6805ede722fe', u'does_transform': False,
              u'process_type': u'analysis', u'template_id': u'global_Computation', u'note': u'',
              u'process_id': u'b21d4346-d33d-4ad5-8096-a9e7392cee6a',
