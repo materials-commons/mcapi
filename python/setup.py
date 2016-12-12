@@ -5,4 +5,4 @@ setup(name='mcapi',
       packages=['mcapi']
       )
 
-# build with: sudo python setup.py install
+# build with: python setup.py install --user

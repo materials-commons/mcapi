@@ -47,6 +47,7 @@ class TestWorkflow(unittest.TestCase):
             description=experiment_description)
 
         create_sample_process = experiment.create_process_from_template(Template.create)
+
         sample = create_sample_process.create_samples(
             sample_names=[sample_name]
         )[0]
@@ -62,6 +63,16 @@ class TestWorkflow(unittest.TestCase):
         compute_process = experiment. \
             create_process_from_template(Template.compute). \
             add_samples_to_process([sample])
+
+        compute_process.set_value_of_setup_property('number_of_processors',5)
+        compute_process.set_value_of_setup_property('memory_per_processor',16)
+        compute_process.set_unit_of_setup_property('memory_per_processor','gb')
+        compute_process.set_value_of_setup_property('walltime',12)
+        compute_process.set_unit_of_setup_property('walltime','h')
+        compute_process.set_value_of_setup_property('submit_script',"exec.sh")
+        compute_process = compute_process.update_setup_properties([
+                'number_of_processors','memory_per_processor','walltime','submit_script'
+        ])
 
         compute_file = project.add_file_using_directory(
             project.add_directory("/FilesForCompute"),
@@ -108,6 +119,17 @@ class TestWorkflow(unittest.TestCase):
         self.assertIsNotNone(compute_process.process_type)
         self.assertEqual(compute_process.process_type, 'analysis')
         self.assertFalse(compute_process.does_transform)
+
+        prop = compute_process.get_setup_properties_as_dictionary()['walltime']
+        self.assertEqual(prop.value,12)
+        self.assertEqual(prop.unit,'h')
+        prop = compute_process.get_setup_properties_as_dictionary()['memory_per_processor']
+        self.assertEqual(prop.value,16)
+        self.assertEqual(prop.unit,'gb')
+        prop = compute_process.get_setup_properties_as_dictionary()['number_of_processors']
+        self.assertEqual(prop.value,5)
+        prop = compute_process.get_setup_properties_as_dictionary()['submit_script']
+        self.assertEqual(prop.value,"exec.sh")
 
         self.assertIsNotNone(compute_file)
         self.assertIsNotNone(compute_file.name)
