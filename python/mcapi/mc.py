@@ -546,7 +546,7 @@ class Template:
 
 
 def make_object(data):
-    if _is_datetime(data)
+    if _is_datetime(data):
         return make_datetime(data)
     if _is_object(data):
         holder = make_base_object_for_type(data)
@@ -619,7 +619,7 @@ def make_property_object(data):
 
 def make_datetime(data):
     timestamp = int(data['epoch_time'])
-    return datatime.datetime.utcfromtimestamp(timestamp)
+    return datetime.datetime.utcfromtimestamp(timestamp)
 
 def make_measurement_object(data):
     if _data_has_type(data):
