@@ -1,4 +1,5 @@
 import api
+import datetime
 
 
 # -- top level project functions --
@@ -545,6 +546,8 @@ class Template:
 
 
 def make_object(data):
+    if _is_datetime(data)
+        return make_datetime(data)
     if _is_object(data):
         holder = make_base_object_for_type(data)
         for key in data.keys():
@@ -580,10 +583,9 @@ def make_base_object_for_type(data):
             # Experiment task not implemented
             return MCObject(data=data)
         else:
+            print "No make_object for otype: ", object_type
             return MCObject(data=data)
     else:
-        if _has_key('timezone', data):
-            return MCObject(data=data)
         if _has_key('unit', data):
             return MCObject(data=data)
         if _has_key('starred', data):
@@ -615,6 +617,9 @@ def make_property_object(data):
     else:
         raise Exception("No Property Object, otype not defined", data)
 
+def make_datetime(data):
+    timestamp = int(data['epoch_time'])
+    return datatime.datetime.utcfromtimestamp(timestamp)
 
 def make_measurement_object(data):
     if _data_has_type(data):
@@ -640,6 +645,9 @@ def _has_key(key, data):
 
 def _data_has_type(data):
     return _has_key('otype', data)
+
+def _is_datetime(data):
+    return _has_key('$reql_type$', data) and data['$reql_type$'] == 'TIME'
 
 
 # -- support function for Experiment --
