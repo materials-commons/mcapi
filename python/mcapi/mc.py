@@ -34,7 +34,7 @@ def get_process_from_id(project,experiment,process_id):
 
 class MCObject(object):
     def __init__(self, data=None):
-        self._type = "unknown"
+        self.otype = "unknown"
         self.owner = ""
         self.name = ""
         self.description = ""
@@ -298,7 +298,7 @@ class Process(MCObject):
 class Sample(MCObject):
     @staticmethod
     def from_json(data):
-        return Sample(data=data)  # no _type attrubute in Sample JSON
+        return Sample(data=data)  # no otype attrubute in Sample JSON
 
     def __init__(self, name=None, data=None):
         self.id = None
