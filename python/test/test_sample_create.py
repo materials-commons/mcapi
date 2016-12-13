@@ -27,8 +27,8 @@ class TestSampleCreate(unittest.TestCase):
         cls.experiment_id = cls.experiment.id
         cls.process = cls.experiment.create_process_from_template(Template.create)
         cls.process_id = cls.process.id
-        sample_names = ['Test Sample 1']
-        cls.samples = self.process.create_samples(sample_names)
+        cls.sample_names = ['Test Sample 1']
+        cls.samples = cls.process.create_samples(cls.sample_names)
 
     def test_is_setup_correctly(self):
         self.assertIsNotNone(self.project)
@@ -50,5 +50,5 @@ class TestSampleCreate(unittest.TestCase):
         self.assertIsNotNone(sample)
         self.assertIsNotNone(sample.name)
         self.assertIsNotNone(sample.property_set_id)
-        self.assertEqual(sample.name, sample_names[0])
+        self.assertEqual(sample.name, self.sample_names[0])
         
