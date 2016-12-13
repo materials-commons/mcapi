@@ -171,6 +171,26 @@ def add_samples_to_process(project_id, experiment_id, process, samples, remote=u
     return put(remote.make_url_v2(api_url), data)
 
 
+# add/update measurements on process samples
+
+def set_measurement_for_process_samples(project_id, experiment_id, process_id,\
+            samples, property, measurements, remote=use_remote()):
+    request_properties = {
+        'property' : property,
+        'add_as' : 'separate',
+        'samples' : samples,
+        'measurements' : measurements,
+    }
+    data = {
+        'process_id': process_id,
+        'properties': [request_properties]
+    }
+    api_url = "projects/" + project_id + \
+              "/experiments/" + experiment_id + \
+              "/samples/measurements"
+    return post(remote.make_url_v2(api_url), data)
+
+
 # update process setup values
 
 def update_process_setup_properties(project_id, experiment_id, process, properties, remote=use_remote()):

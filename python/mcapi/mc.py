@@ -292,8 +292,11 @@ class Process(MCObject):
     def create_measurement(self,data):
         return Measurement.measurement_from_data(data)
 
-    def set_measurements_for_process_samples(self,measuerements):
-        return self
+    def set_measurements_for_process_samples(self, property, measurements):
+        return _set_measurement_for_process_samples(self.project, \
+                self.experiment, self, self.output_samples,\
+                property, measurements)
+
 
 class Sample(MCObject):
     @staticmethod
@@ -679,6 +682,36 @@ def _update_process_setup_properties(project, experiment, process, prop_list):
     process.project = project
     process.experiment = experiment
     return process
+
+
+def _set_measurement_for_process_samples(project, experiment, process,\
+            samples, property, measurements):
+    project_id = project.id
+    experiment_id = experiment.id
+    process_id = process.id
+    samples_parameter = []
+    for sample in samples:
+        samples_parameter.append({\
+            'id': sample.id, \
+            'property_set_id': sample.property_set_id
+        })
+    measurement_parameter = []
+    for measurement in measurements:
+        measurement_parameter.append({\
+            'name': measurement.name, \
+            'attribute': measurement.attribute, \
+            'otype': measurement.otype, \
+            'value': measurement.value, \
+            'unit' : measurement.unit, \
+            'is_best_measure': measurement.is_best_measure
+        })
+    success_flag = api.set_measurement_for_process_samples(\
+            project_id, experiment_id, process_id, \
+            samples_parameter, property, measurement_parameter)
+    if not success_flag:
+        # throw exception?
+        return None
+    return get_process_from_id(project, experiment, process_id)
 
 
 # -- support functions for Sample --

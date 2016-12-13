@@ -33,13 +33,6 @@ class TestMeasurementComposition(unittest.TestCase):
         cls.process = cls.process.add_samples_to_process([cls.sample])
 
     def test_is_setup_correctly(self):
-        process = self.process
-        print '======================'
-        print process.output_samples[0].id
-        print process.output_samples[0].property_set_id
-        print process.output_samples[0].__dict__
-        print '======================'
-
         self.assertIsNotNone(self.project)
         self.assertIsNotNone(self.project.name)
         self.assertEqual(self.project_name, self.project.name)
@@ -86,15 +79,38 @@ class TestMeasurementComposition(unittest.TestCase):
         self.assertEqual(value_list[2]['element'],"Zr")
         self.assertEqual(value_list[2]['value'],5)
 
+
     def test_add_or_update_composition_for_process(self):
-        data = {"name":"Composition",
-                    "attribute":"composition",
-                    "otype":"composition",
-                    "unit":"at%",
-                    "value":[
-                        {"element":"Al","value":94},
-                        {"element":"Ca","value":1},
-                        {"element":"Zr","value":5}],
-                    "is_best_measure":True}
+        data = {
+            "name":"Composition",
+            "attribute":"composition",
+            "otype":"composition",
+            "unit":"at%",
+            "value":[
+                {"element":"Al","value":94},
+                {"element":"Ca","value":1},
+                {"element":"Zr","value":5}],
+            "is_best_measure":True
+        }
+        property = {
+            "name":"Composition",
+            "attribute":"composition"
+        }
         measurement = self.process.create_measurement(data=data)
-        process = self.process.set_measurements_for_process_samples([measurement])
+        process_out = self.process.set_measurements_for_process_samples(\
+                property, [measurement])
+        measurement_out = process_out.measurements[0]
+        self.assertEqual(measurement_out.name,measurement.name)
+        composition = measurement_out
+        self.assertEqual(composition.name,"Composition")
+        self.assertEqual(composition.attribute,"composition")
+        self.assertEqual(composition.otype,"composition")
+        self.assertEqual(composition.unit,"at%")
+        self.assertTrue(composition.is_best_measure)
+        value_list = composition.value
+        self.assertEqual(value_list[0]['element'],"Al")
+        self.assertEqual(value_list[0]['value'],94)
+        self.assertEqual(value_list[1]['element'],"Ca")
+        self.assertEqual(value_list[1]['value'],1)
+        self.assertEqual(value_list[2]['element'],"Zr")
+        self.assertEqual(value_list[2]['value'],5)
