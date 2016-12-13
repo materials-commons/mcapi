@@ -12,6 +12,11 @@ class TestObjectFactory(unittest.TestCase):
         self.assertIsNotNone(timestamp)
         self.assertTrue(isinstance(timestamp,datetime.datetime))
 
+    def test_settings(self):
+        settings_data = data_examples['settings']
+        settings = mc.make_object(settings_data)
+        self.assertIsNotNone(settings)
+
     def test_experiment(self):
         name = 'TestExperiment-from-data'
         description = 'Test experiment from data'
