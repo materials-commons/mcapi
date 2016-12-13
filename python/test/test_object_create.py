@@ -1,9 +1,16 @@
 import unittest
+import datetime
 from test_object_create_input_examples import data_examples
 from mcapi import mc
 
 
 class TestObjectFactory(unittest.TestCase):
+
+    def test_timestamp(self):
+        timestamp_data = data_examples['timestamp']
+        timestamp = mc.make_object(timestamp_data)
+        self.assertIsNotNone(timestamp)
+        self.assertTrue(isinstance(timestamp,datetime.datetime))
 
     def test_experiment(self):
         name = 'TestExperiment-from-data'

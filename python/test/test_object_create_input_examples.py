@@ -4,6 +4,39 @@ __samples_example__ = {u'samples': [
     {u'property_set_id': u'702de353-739a-445f-b687-8479bb73a492', u'name': u'Test Sample 1',
      u'id': u'4d3d997e-22c5-4036-9365-64cf910f715e'}]}
 
+__timestamp__ = {
+    u'timezone': u'+00:00',
+    u'$reql_type$': u'TIME',
+    u'epoch_time': 1478031698.441
+}
+
+__settings_example__ = {
+    u'otype': u'settings',
+    u'name': u'Instrument', u'attribute': u'instrument',
+    u'properties': [
+       {u'otype': u'string', u'description': u'', u'attribute': u'manufacturer',
+        u'value': u'', u'setup_id': u'366f693b-068e-4294-b0d2-31dbf2b7e05d',
+        u'id': u'e9c0a2c3-ee42-457f-b64e-e9b85b634467', u'unit': u'',
+        u'name': u'Manufacturer'},
+       {u'otype': u'string', u'description': u'', u'attribute': u'supplier',
+        u'value': u'', u'setup_id': u'366f693b-068e-4294-b0d2-31dbf2b7e05d',
+        u'id': u'59d51a7e-5936-49bb-86dc-ee06b2380772', u'unit': u'',
+        u'name': u'Supplier'},
+       {u'otype': u'selection', u'description': u'', u'attribute': u'production_method',
+        u'value': u'', u'setup_id': u'366f693b-068e-4294-b0d2-31dbf2b7e05d',
+        u'id': u'9980e935-fb01-497b-abe8-9fb85f131715', u'unit': u'',
+        u'name': u'Production method'},
+       {u'otype': u'date', u'description': u'', u'attribute': u'manufacturing_date',
+        u'value': u'', u'setup_id': u'366f693b-068e-4294-b0d2-31dbf2b7e05d',
+        u'id': u'61f6be41-67c1-46dc-8244-6a106570518a', u'unit': u'',
+        u'name': u'Manufacturing Date'}],
+    u'setup_id': u'366f693b-068e-4294-b0d2-31dbf2b7e05d',
+    u'process_id': u'd8cf9165-1803-4250-aedc-23e78717494d',
+    u'birthtime': {u'timezone': u'+00:00', u'$reql_type$': u'TIME',
+                  u'epoch_time': 1478031698.441},
+    u'id': u'366f693b-068e-4294-b0d2-31dbf2b7e05d'
+}
+
 __example_experiment__ = \
     {u'status': u'active',
      u'otype': u'experiment',
@@ -187,6 +220,8 @@ __added_sample_results__ = \
      u'output_files': [], u'id': u'b21d4346-d33d-4ad5-8096-a9e7392cee6a', u'input_files': []}
 
 data_examples = {
+    'timestamp': __timestamp__,
+    'settings': __settings_example__,
     'experiment': __example_experiment__,
     'process_create': __process_example_create__,
     'process_compute': __process_example_compute__,
