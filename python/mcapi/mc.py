@@ -289,6 +289,12 @@ class Process(MCObject):
                 prop_list.append(prop)
         return _update_process_setup_properties(self.project,self.experiment,self,prop_list)
 
+    def create_measurement(self,data):
+        return Measurement.measurement_from_data(data)
+
+    def set_measurements_for_process_samples(self,measuerements):
+        return self
+
 class Sample(MCObject):
     @staticmethod
     def from_json(data):
@@ -427,6 +433,33 @@ class File(MCObject):
             setattr(self, a, data.get(a, dict()))
 
 
+class Measurement(object):
+    @staticmethod
+    def measurement_from_data(data):
+        return make_measurement_object(data)
+
+    def __init__(self, data=None):
+        self.birthtime = ''
+        self.mtime = ''
+        self.owner = ''
+        self.name = ''
+        self.attribute = ''
+        self.otype = ''
+        self.unit = ''
+        self.value = ''
+        self.is_best_measure = False
+        attr = ['name', 'attribute', 'birthtime', 'mtime', 'otype',
+            'owner', 'unit', 'value', 'is_best_measure']
+        for a in attr:
+            setattr(self, a, data.get(a, None))
+
+
+class MeasurementComposition(Measurement):
+    def __init__(self, data=None):
+        # attr = ['name', 'attribute', 'birthtime', 'mtime', 'otype', 'owner', 'unit', 'value']
+        super(MeasurementComposition, self).__init__(data)
+
+
 class Property(MCObject):
     @staticmethod
     def property_from_json(data):
@@ -437,7 +470,7 @@ class Property(MCObject):
         super(Property, self).__init__(data)
 
         self.setup_id = ''
-        self.required = False;
+        self.required = False
         self.unit = ''
         self.attribute = ''
         self.value = ''
@@ -575,10 +608,19 @@ def make_property_object(data):
             return VectorProperty(data=data)
         if object_type == 'matrix':
             return MatrixProperty(data=data)
-        raise Exception("Np Property Object, unrecognized otype = " + object_type, data)
+        raise Exception("No Property Object, unrecognized otype = " + object_type, data)
     else:
         raise Exception("No Property Object, otype not defined", data)
 
+
+def make_measurement_object(data):
+    if _data_has_type(data):
+        object_type = data['otype']
+        if object_type == 'composition':
+             return MeasurementComposition(data=data)
+        raise Exception("No Measurement Object, unrecognized otype = " + object_type, data)
+    else:
+        raise Exception("No Measurement Object, otype not defined", data)
 
 # -- general support functions
 def _is_object(value):
