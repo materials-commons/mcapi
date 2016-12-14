@@ -577,6 +577,8 @@ def make_base_object_for_type(data):
             return Directory(data=data)
         if object_type == 'datafile':
             return File(data=data)
+        if object_type == 'file':
+            return File(data=data)
         if object_type == 'experiment_task':
             # Experiment task not implemented
             return MCObject(data=data)
@@ -638,7 +640,7 @@ def _is_list(value):
 
 
 def _has_key(key, data):
-    return key in data.keys()
+    return _is_object(data) and key in data.keys()
 
 
 def _data_has_type(data):
