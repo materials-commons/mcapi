@@ -50,3 +50,14 @@ class TestObjectFactory(unittest.TestCase):
         self.assertEqual(process.process_type, 'analysis')
         self.assertFalse(process.does_transform)
         self.assertEqual(process.setup[0].process_id, process.id)
+
+    def test_process_fetch_results(self):
+        process_create_data = data_examples['process_create_from_fetch']
+        process = mc.make_object(process_create_data)
+        self.assertIsNotNone(process)
+        self.assertIsNotNone(process.id)
+        self.assertIsNotNone(process.process_type)
+        self.assertEqual(process.process_type, 'analysis')
+        self.assertFalse(process.does_transform)
+        self.assertEqual(process.setup[0].process_id, process.id)
+        self.assertIsNotNone(process.measurements)
