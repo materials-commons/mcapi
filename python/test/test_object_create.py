@@ -51,13 +51,28 @@ class TestObjectFactory(unittest.TestCase):
         self.assertFalse(process.does_transform)
         self.assertEqual(process.setup[0].process_id, process.id)
 
-    def test_process_fetch_results(self):
+    def test_process_fetch_create_process(self):
         process_create_data = data_examples['process_create_from_fetch']
         process = mc.make_object(process_create_data)
         self.assertIsNotNone(process)
         self.assertIsNotNone(process.id)
         self.assertIsNotNone(process.process_type)
-        self.assertEqual(process.process_type, 'analysis')
-        self.assertFalse(process.does_transform)
-        self.assertEqual(process.setup[0].process_id, process.id)
-        self.assertIsNotNone(process.measurements)
+        self.assertEqual(process.process_type, 'create')
+        self.assertTrue(process.does_transform)
+        self.assertIsNotNone(process.mtime)
+        self.assertTrue(isinstance(process.mtime,datetime.datetime))
+        self.assertIsNotNone(process.setup)
+        self.assertIsNotNone(process.setup[0])
+        self.assertEqual(process.setup[0].attribute,'instrument')
+        self.assertEqual(process.setup[0].name,'Instrument')
+        self.assertEqual(len(process.setup[0].properties),4)
+        self.assertEqual(process.setup[0].properties[0].otype,'string')
+        self.assertEqual(process.setup[0].properties[0].attribute,'manufacturer')
+        self.assertEqual(process.setup[0].properties[1].otype,'string')
+        self.assertEqual(process.setup[0].properties[1].attribute,'supplier')
+        self.assertEqual(process.setup[0].properties[2].otype,'date')
+        self.assertEqual(process.setup[0].properties[2].attribute,'manufacturing_date')
+        self.assertEqual(process.setup[0].properties[3].otype,'selection')
+        self.assertEqual(process.setup[0].properties[3].attribute,'production_method')
+
+#    @pytest.mark.xfail(run=False, reason="test currently failing due to failure to correctly map measure values")

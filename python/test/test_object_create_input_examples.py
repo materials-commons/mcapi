@@ -369,6 +369,6 @@ data_examples = {
     'experiment': __example_experiment__,
     'process_create': __process_example_create__,
     'process_compute': __process_example_compute__,
-    'process_add_sample': __added_sample_results__
+    'process_add_sample': __added_sample_results__,
     'process_create_from_fetch': __create_process_with_sample_measurement_properties__
 }
