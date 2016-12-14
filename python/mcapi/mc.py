@@ -45,6 +45,8 @@ class MCObject(object):
         if not data:
             data = {}
 
+        self.input_data = data
+
         attr = ['id', 'name', 'description', 'birthtime', 'mtime', 'otype', 'owner']
         for a in attr:
             setattr(self, a, data.get(a, None))
