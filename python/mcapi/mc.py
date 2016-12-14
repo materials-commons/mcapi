@@ -439,23 +439,19 @@ class File(MCObject):
             setattr(self, a, data.get(a, dict()))
 
 
-class Measurement(object):
+class Measurement(MCObject):
     @staticmethod
     def measurement_from_data(data):
         return make_measurement_object(data)
 
     def __init__(self, data=None):
-        self.birthtime = ''
-        self.mtime = ''
-        self.owner = ''
-        self.name = ''
+        # attr = ['id', 'name', 'description', 'birthtime', 'mtime', 'otype', 'owner']
+        super(Measurement, self).__init__(data)
         self.attribute = ''
-        self.otype = ''
         self.unit = ''
         self.value = ''
         self.is_best_measure = False
-        attr = ['name', 'attribute', 'birthtime', 'mtime', 'otype',
-            'owner', 'unit', 'value', 'is_best_measure']
+        attr = ['attribute','unit', 'value', 'is_best_measure']
         for a in attr:
             setattr(self, a, data.get(a, None))
 
