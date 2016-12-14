@@ -583,7 +583,6 @@ def make_base_object_for_type(data):
             # Experiment task not implemented
             return MCObject(data=data)
         else:
-            print "No make_object for otype: ", object_type
             return MCObject(data=data)
     else:
         if _has_key('unit', data):
@@ -592,7 +591,10 @@ def make_base_object_for_type(data):
             return MCObject(data=data)
         return MCObject(data=data)
 
-def make_property_object(data):
+def make_property_object(obj):
+    data = obj
+    if isinstance(obj,MCObject):
+        data = obj.input_data
     if _data_has_type(data):
         object_type = data['otype']
         if object_type == 'number':
@@ -621,7 +623,10 @@ def make_datetime(data):
     timestamp = int(data['epoch_time'])
     return datetime.datetime.utcfromtimestamp(timestamp)
 
-def make_measurement_object(data):
+def make_measurement_object(obj):
+    data = obj
+    if isinstance(obj,MCObject):
+        data = obj.input_data
     if _data_has_type(data):
         object_type = data['otype']
         if object_type == 'composition':

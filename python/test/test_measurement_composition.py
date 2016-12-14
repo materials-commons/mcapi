@@ -81,7 +81,7 @@ class TestMeasurementComposition(unittest.TestCase):
         self.assertEqual(value_list[2]['value'],5)
 
 
-    @pytest.mark.xfail(run=False, reason="test currently failing due to failure to correctly map measure values")
+#    @pytest.mark.xfail(run=False, reason="test currently failing due to failure to correctly map measure values")
     def test_add_or_update_composition_for_process(self):
         data = {
             "name":"Composition",
