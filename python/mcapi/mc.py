@@ -385,8 +385,13 @@ class Directory(MCObject):
     def get_descendant_list_by_path(self, path):
         results = api.directory_by_path(self._project.id, self.id, path)
         dir_list = []
+        parent = self;
         for dir_data in results['dirs']:
-            dir_list.append(make_object(dir_data))
+            directory = make_object(dir_data)
+            directory._project = self._project
+            directory._parent = parent
+            parent = directory;
+            dir_list.append(directory)
         return dir_list
 
     def add_file(self, file_name, input_path):
