@@ -28,9 +28,10 @@ also update it in the .materialscommons/config.jason file.
 
 Libraries
 ---------
-pip install --user python-magic
-pip install --user pathlib
-
+```
+  pip install --user python-magic
+  pip install --user pathlib
+```
 
 To Compile
 ----------
