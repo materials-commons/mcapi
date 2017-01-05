@@ -24,6 +24,7 @@ class TestFileDirectoryUpload(unittest.TestCase):
         project = create_project(cls.base_project_name, description)
         cls.base_project_id = project.id
         cls.base_project = project
+        cls.single_file_dir = "Test"
         cls.top_dir = 'TestUploadDir'
 
     def test_is_setup_correctly(self):
