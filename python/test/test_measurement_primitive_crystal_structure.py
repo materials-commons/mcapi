@@ -54,3 +54,469 @@ class TestMeasurementPrimitiveCrystalStructure(unittest.TestCase):
         self.assertIsNotNone(sample.property_set_id)
         self.assertEqual(sample.name, self.sample_name)
         self.assertEqual(sample.name, samples[0].name)
+
+    def test_measurement_attribute_name(self):
+        value = "Test Primitive Crystal Structure"
+        data = {"name":"Name",
+            "attribute":"name",
+            "otype":"string",
+            "unit":"",
+            "units": [],
+            "value":value,
+            "is_best_measure":True}
+        measurement = self.process.create_measurement(data=data)
+        self.assertEqual(measurement.name,"Name")
+        self.assertEqual(measurement.attribute,"name")
+        self.assertEqual(measurement.otype,"string")
+        self.assertEqual(measurement.unit,"")
+        self.assertEqual(measurement.value,value)
+
+    @pytest.mark.skip("test_add_or_update_attribute_name - no value")
+    def test_add_or_update_attribute_name(self):
+        value = "Test Primitive Crystal Structure"
+        data = {"name":"Name",
+            "attribute":"name",
+            "otype":"string",
+            "unit":"",
+            "units": [],
+            "value":value,
+            "is_best_measure":True}
+        property = {
+            "name": "Name",
+            "attribute": "name"
+        }
+        measurement = self.process.create_measurement(data=data)
+        process_out = self.process.set_measurements_for_process_samples(\
+                property, [measurement])
+        measurement_out = process_out.measurements[0]
+        self.assertEqual(measurement_out.name,measurement.name)
+        self.assertEqual(measurement_out.name, "Name")
+        self.assertEqual(measurement_out.attribute, "name")
+        self.assertEqual(measurement_out.otype, "string")
+        self.assertEqual(measurement_out.unit, "")
+        self.assertTrue(measurement_out.is_best_measure)
+        self.assertEqual(measurement_out.value, value)
+
+    def test_measurement_attribute_lattice(self):
+        value = [[1.0,2.0,3.0],[4.0,5.0,6.0],[7.0,8.0,9.0]]
+        data = {"name":"Lattice",
+            "attribute":"lattice",
+            "otype":"matrix",
+            "unit":"",
+            "units": [],
+            "value": {
+                "dimensions": [3,3],
+                "otype": "float",
+                "value": value
+            },
+            "is_best_measure":True}
+        measurement = self.process.create_measurement(data=data)
+        self.assertEqual(measurement.name,"Lattice")
+        self.assertEqual(measurement.attribute,"lattice")
+        self.assertEqual(measurement.otype,"matrix")
+        self.assertEqual(measurement.unit,"")
+        self.assertEqual(measurement.value['value'], value)
+
+    @pytest.mark.skip("test_add_or_update_attribute_lattice")
+    def test_add_or_update_attribute_lattice(self):
+        value = [[1.0,2.0,3.0],[4.0,5.0,6.0],[7.0,8.0,9.0]]
+        data = {"name":"Lattice",
+            "attribute":"lattice",
+            "otype":"matrix",
+            "unit":"",
+            "units": [],
+            "value": {
+                "dimensions": [3,3],
+                "otype": "float",
+                "value": value
+            },
+            "is_best_measure":True}
+        property = {
+            "name": "Lattice",
+            "attribute": "lattice"
+        }
+        measurement = self.process.create_measurement(data=data)
+        process_out = self.process.set_measurements_for_process_samples(\
+                property, [measurement])
+        measurement_out = process_out.measurements[0]
+        self.assertEqual(measurement_out.name,measurement.name)
+        self.assertEqual(measurement_out.name,"Lattice")
+        self.assertEqual(measurement_out.attribute,"lattice")
+        self.assertEqual(measurement_out.otype,"matrix")
+        self.assertEqual(measurement_out.unit,"")
+        self.assertEqual(measurement_out.value['value'], value)
+
+
+    def test_measurement_attribute_parameters(self):
+        value = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0]
+        data = {"name": "Parameters",
+                "attribute": "parameters",
+                "otype": "vector",
+                "unit": "",
+                "units": [],
+                "value": {
+                    "dimensions": 6,
+                    "otype": "float",
+                    "value": value
+                },
+                "is_best_measure": True}
+        measurement = self.process.create_measurement(data=data)
+        self.assertEqual(measurement.name, "Parameters")
+        self.assertEqual(measurement.attribute, "parameters")
+        self.assertEqual(measurement.otype, "vector")
+        self.assertEqual(measurement.unit, "")
+        self.assertEqual(measurement.value['value'], value)
+
+
+    @pytest.mark.skip("test_add_or_update_attribute_parameters")
+    def test_add_or_update_attribute_parameters(self):
+        value = [1.0,2.0,3.0,4.0,5.0,6.0]
+        data = {"name": "Parameters",
+                "attribute": "parameters",
+                "otype": "vector",
+                "unit": "",
+                "units": [],
+                "value": {
+                    "dimensions": 6,
+                    "otype": "float",
+                    "value": value
+                },
+                "is_best_measure": True}
+        property = {
+            "name": "Parameters",
+            "attribute": "parameters"
+        }
+        measurement = self.process.create_measurement(data=data)
+        process_out = self.process.set_measurements_for_process_samples( \
+            property, [measurement])
+        measurement_out = process_out.measurements[0]
+        self.assertEqual(measurement_out.name, measurement.name)
+        self.assertEqual(measurement_out.name, "Parameters")
+        self.assertEqual(measurement_out.attribute, "parameters")
+        self.assertEqual(measurement_out.otype, "vector")
+        self.assertEqual(measurement_out.unit, "")
+        self.assertEqual(measurement_out.value['value'], value)
+
+    def test_measurement_attribute_lattice_system(self):
+        choices = \
+        [
+            {"name": "Triclinic", "value": "triclinic"},        # 0
+            {"name": "Monoclinic", "value": "monoclinic"},      # 1
+            {"name": "Orthorhombic","value": "orthorhombic"},   # 2
+            {"name": "Tetragonal","value": "tetragonal"},       # 3
+            {"name": "Hexagonal","value": "hexagonal"},         # 4
+            {"name": "Rhombohedral","value": "rhombohedral"},   # 5
+            {"name": "Cubic","value": "cubic"}                  # 6
+        ]
+        value = choices[4]['value']
+        data = {"name": "Lattice System",
+                "attribute": "lattice_system",
+                "otype": "selection",
+                "unit": "",
+                "units": [],
+                "value": value,
+                "is_best_measure": True}
+        measurement = self.process.create_measurement(data=data)
+        self.assertEqual(measurement.name, "Lattice System")
+        self.assertEqual(measurement.attribute, "lattice_system")
+        self.assertEqual(measurement.otype, "selection")
+        self.assertEqual(measurement.unit, "")
+        self.assertEqual(measurement.value, value)
+
+
+    @pytest.mark.skip("test_add_or_update_attribute_lattice_system")
+    def test_add_or_update_attribute_lattice_system(self):
+        choices = \
+        [
+            {"name": "Triclinic", "value": "triclinic"},        # 0
+            {"name": "Monoclinic", "value": "monoclinic"},      # 1
+            {"name": "Orthorhombic","value": "orthorhombic"},   # 2
+            {"name": "Tetragonal","value": "tetragonal"},       # 3
+            {"name": "Hexagonal","value": "hexagonal"},         # 4
+            {"name": "Rhombohedral","value": "rhombohedral"},   # 5
+            {"name": "Cubic","value": "cubic"}                  # 6
+        ]
+        value = choices[4]['value']
+        data = {"name": "Lattice System",
+                "attribute": "lattice_system",
+                "otype": "selection",
+                "unit": "",
+                "units": [],
+                "value": value,
+                "is_best_measure": True}
+        property = {
+            "name": "Lattice System",
+            "attribute": "lattice_system"
+        }
+        measurement = self.process.create_measurement(data=data)
+        process_out = self.process.set_measurements_for_process_samples( \
+            property, [measurement])
+        measurement_out = process_out.measurements[0]
+        self.assertEqual(measurement_out.name, measurement.name)
+        self.assertEqual(measurement_out.name, "Lattice System")
+        self.assertEqual(measurement_out.attribute, "lattice_system")
+        self.assertEqual(measurement_out.otype, "selection")
+        self.assertEqual(measurement_out.unit, "")
+        self.assertEqual(measurement_out.value, value)
+
+    def test_measurement_attribute_symmetry(self):
+        value = "Test Primitive Crystal Structure"
+        data = {"name":"Symmetry",
+            "attribute":"symmetry",
+            "otype":"string",
+            "unit":"",
+            "units": [],
+            "value":value,
+            "is_best_measure":True}
+        measurement = self.process.create_measurement(data=data)
+        self.assertEqual(measurement.name,"Symmetry")
+        self.assertEqual(measurement.attribute,"symmetry")
+        self.assertEqual(measurement.otype,"string")
+        self.assertEqual(measurement.unit,"")
+        self.assertEqual(measurement.value,value)
+
+    @pytest.mark.skip("test_add_or_update_attribute_symmetry")
+    def test_add_or_update_attribute_symmetry(self):
+        value = ""
+        data = {"name":"Name",
+            "attribute":"name",
+            "otype":"string",
+            "unit":"",
+            "units": [],
+            "value":value,
+            "is_best_measure":True}
+        property = {
+            "name": "Name",
+            "attribute": "name"
+        }
+        measurement = self.process.create_measurement(data=data)
+        process_out = self.process.set_measurements_for_process_samples(\
+                property, [measurement])
+        measurement_out = process_out.measurements[0]
+        self.assertEqual(measurement_out.name,measurement.name)
+        self.assertEqual(measurement_out.name, "Name")
+        self.assertEqual(measurement_out.attribute, "name")
+        self.assertEqual(measurement_out.otype, "string")
+        self.assertEqual(measurement_out.unit, "")
+        self.assertTrue(measurement_out.is_best_measure)
+        self.assertEqual(measurement_out.value, value)
+
+
+
+'''
+"measurements": [
+{
+"attribute":  "symmetry" ,
+"choices": [ ],
+"description":  "Schonflies symbol" ,
+"name":  "Symmetry" ,
+"otype":  "string" ,
+"required": false ,
+"unit":  "" ,
+"units": [ ],
+"value":  ""
+} ,
+{
+"attribute":  "casm_prism_file" ,
+"choices": [ ],
+"description":  "CASM prim.json type file." ,
+"name":  "CASM PRISM File" ,
+"otype":  "file" ,
+"required": false ,
+"unit":  "" ,
+"units": [ ],
+"value": {
+"file_id":  "" ,
+"file_name":  ""
+}
+} ,
+{
+"attribute":  "schonflies_space_group_symbol" ,
+"choices": [ ],
+"description":  "" ,
+"name":  "Schonflies Space Group Symbol" ,
+"otype":  "string" ,
+"required": false ,
+"unit":  "" ,
+"units": [ ],
+"value":  ""
+} ,
+{
+"attribute":  "hermann_mauguin_space_group_symbol" ,
+"choices": [ ],
+"description":  "" ,
+"name":  "Hermann-Mauguin Space Group Symbol" ,
+"otype":  "string" ,
+"required": false ,
+"unit":  "" ,
+"units": [ ],
+"value":  ""
+} ,
+{
+"attribute":  "space_group_number" ,
+"choices": [ ],
+"description":  "International Union of Crytallography space group number" ,
+"name":  "Space Group Number" ,
+"otype":  "integer" ,
+"required": false ,
+"unit":  "" ,
+"units": [ ],
+"value":  ""
+} ,
+{
+"attribute":  "crystal_family" ,
+"choices": [
+{
+"name":  "Triclinic" ,
+"value":  "triclinic"
+} ,
+{
+"name":  "Monoclinic" ,
+"value":  "monoclinic"
+} ,
+{
+"name":  "Orthorhombic" ,
+"value":  "orthorhombic"
+} ,
+{
+"name":  "Tetragonal" ,
+"value":  "tetragonal"
+} ,
+{
+"name":  "Hexagonal" ,
+"value":  "hexagonal"
+} ,
+{
+"name":  "Cubic" ,
+"value":  "cubic"
+}
+] ,
+"description":  "" ,
+"name":  "Crystal Family" ,
+"otype":  "selection" ,
+"required": false ,
+"unit":  "" ,
+"units": [ ],
+"value":  ""
+} ,
+{
+"attribute":  "crystal_system" ,
+"choices": [
+{
+"name":  "Triclinic" ,
+"value":  "triclinic"
+} ,
+{
+"name":  "Monoclinic" ,
+"value":  "monoclinic"
+} ,
+{
+"name":  "Orthorhombic" ,
+"value":  "orthorhombic"
+} ,
+{
+"name":  "Tetragonal" ,
+"value":  "tetragonal"
+} ,
+{
+"name":  "Hexagonal" ,
+"value":  "hexagonal"
+} ,
+{
+"name":  "Trigonal" ,
+"value":  "trigonal"
+} ,
+{
+"name":  "Cubic" ,
+"value":  "cubic"
+}
+] ,
+"description":  "" ,
+"name":  "Crystal System" ,
+"otype":  "selection" ,
+"required": false ,
+"unit":  "" ,
+"units": [ ],
+"value":  ""
+} ,
+{
+"attribute":  "number_of_elements" ,
+"choices": [ ],
+"description":  "Usually length of Elements." ,
+"name":  "Number Of Elements" ,
+"otype":  "integer" ,
+"required": false ,
+"unit":  "" ,
+"units": [ ],
+"value":  ""
+} ,
+{
+"attribute":  "elements" ,
+"choices": [ ],
+"description":  "" ,
+"name":  "Elements" ,
+"otype":  "composition" ,
+"required": false ,
+"unit":  "" ,
+"units": [
+"at%" ,
+"wt%" ,
+"atoms"
+] ,
+"value": [ ]
+} ,
+{
+"attribute":  "number_of_components" ,
+"choices": [ ],
+"description":  "" ,
+"name":  "Number Of Components" ,
+"otype":  "integer" ,
+"required": false ,
+"unit":  "" ,
+"units": [ ],
+"value":  ""
+} ,
+{
+"attribute":  "components" ,
+"choices": [ ],
+"description":  "" ,
+"name":  "Components" ,
+"otype":  "composition" ,
+"required": false ,
+"unit":  "" ,
+"units": [
+"at%" ,
+"wt%" ,
+"atoms"
+] ,
+"value": [ ]
+} ,
+{
+"attribute":  "number_of_independent_composition_variables" ,
+"choices": [ ],
+"description":  "" ,
+"name":  "Number Of Independent Composition Variables" ,
+"otype":  "integer" ,
+"required": false ,
+"unit":  "" ,
+"units": [ ],
+"value":  ""
+} ,
+{
+"attribute":  "degrees_of_freedom" ,
+"choices": [ ],
+"description":  "" ,
+"name":  "Degrees Of Freedom" ,
+"otype":  "vector" ,
+"required": false ,
+"unit":  "" ,
+"units": [ ],
+"value": {
+"dimensions": 0 ,
+"otype":  "string" ,
+"value": [ ]
+}
+}
+] ,
+
+'''
