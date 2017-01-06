@@ -4,17 +4,15 @@ from random import randint
 from mcapi import set_remote_config_url
 from mcapi import create_project, Template
 
-
 url = 'http://mctest.localhost/api'
 
 
 def fake_name(prefix):
     number = "%05d" % randint(0, 99999)
-    return prefix+number
+    return prefix + number
 
 
 class TestMeasurementComposition(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         set_remote_config_url(url)
@@ -57,60 +55,59 @@ class TestMeasurementComposition(unittest.TestCase):
         self.assertEqual(sample.name, samples[0].name)
 
     def test_composition(self):
-        data = {"name":"Composition",
-            "attribute":"composition",
-            "otype":"composition",
-            "unit":"at%",
-            "value":[
-                {"element":"Al","value":94},
-                {"element":"Ca","value":1},
-                {"element":"Zr","value":5}],
-            "is_best_measure":True}
+        data = {"name": "Composition",
+                "attribute": "composition",
+                "otype": "composition",
+                "unit": "at%",
+                "value": [
+                    {"element": "Al", "value": 94},
+                    {"element": "Ca", "value": 1},
+                    {"element": "Zr", "value": 5}],
+                "is_best_measure": True}
         composition = self.process.create_measurement(data=data)
-        self.assertEqual(composition.name,"Composition")
-        self.assertEqual(composition.attribute,"composition")
-        self.assertEqual(composition.otype,"composition")
-        self.assertEqual(composition.unit,"at%")
+        self.assertEqual(composition.name, "Composition")
+        self.assertEqual(composition.attribute, "composition")
+        self.assertEqual(composition.otype, "composition")
+        self.assertEqual(composition.unit, "at%")
         self.assertTrue(composition.is_best_measure)
         value_list = composition.value
-        self.assertEqual(value_list[0]['element'],"Al")
-        self.assertEqual(value_list[0]['value'],94)
-        self.assertEqual(value_list[1]['element'],"Ca")
-        self.assertEqual(value_list[1]['value'],1)
-        self.assertEqual(value_list[2]['element'],"Zr")
-        self.assertEqual(value_list[2]['value'],5)
-
+        self.assertEqual(value_list[0]['element'], "Al")
+        self.assertEqual(value_list[0]['value'], 94)
+        self.assertEqual(value_list[1]['element'], "Ca")
+        self.assertEqual(value_list[1]['value'], 1)
+        self.assertEqual(value_list[2]['element'], "Zr")
+        self.assertEqual(value_list[2]['value'], 5)
 
     def test_add_or_update_composition_for_process(self):
         data = {
-            "name":"Composition",
-            "attribute":"composition",
-            "otype":"composition",
-            "unit":"at%",
-            "value":[
-                {"element":"Al","value":94},
-                {"element":"Ca","value":1},
-                {"element":"Zr","value":5}],
-            "is_best_measure":True
+            "name": "Composition",
+            "attribute": "composition",
+            "otype": "composition",
+            "unit": "at%",
+            "value": [
+                {"element": "Al", "value": 94},
+                {"element": "Ca", "value": 1},
+                {"element": "Zr", "value": 5}],
+            "is_best_measure": True
         }
         property = {
-            "name":"Composition",
-            "attribute":"composition"
+            "name": "Composition",
+            "attribute": "composition"
         }
         measurement = self.process.create_measurement(data=data)
-        process_out = self.process.set_measurements_for_process_samples(\
-                property, [measurement])
+        process_out = self.process.set_measurements_for_process_samples( \
+            property, [measurement])
         measurement_out = process_out.measurements[0]
-        self.assertEqual(measurement_out.name,measurement.name)
+        self.assertEqual(measurement_out.name, measurement.name)
         composition = measurement_out
-        self.assertEqual(composition.name,"Composition")
-        self.assertEqual(composition.attribute,"composition")
-        self.assertEqual(composition.otype,"composition")
-        self.assertEqual(composition.unit,"at%")
+        self.assertEqual(composition.name, "Composition")
+        self.assertEqual(composition.attribute, "composition")
+        self.assertEqual(composition.otype, "composition")
+        self.assertEqual(composition.unit, "at%")
         value_list = composition.value
-        self.assertEqual(value_list[0]['element'],"Al")
-        self.assertEqual(value_list[0]['value'],94)
-        self.assertEqual(value_list[1]['element'],"Ca")
-        self.assertEqual(value_list[1]['value'],1)
-        self.assertEqual(value_list[2]['element'],"Zr")
-        self.assertEqual(value_list[2]['value'],5)
+        self.assertEqual(value_list[0]['element'], "Al")
+        self.assertEqual(value_list[0]['value'], 94)
+        self.assertEqual(value_list[1]['element'], "Ca")
+        self.assertEqual(value_list[1]['value'], 1)
+        self.assertEqual(value_list[2]['element'], "Zr")
+        self.assertEqual(value_list[2]['value'], 5)
