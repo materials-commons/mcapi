@@ -569,6 +569,7 @@ class Template:
     # global static
     create = "global_Create Samples"
     compute = "global_Computation"
+    primitive_crystal_structure= "global_Primitive Crystal Structure"
 
     def __init__(self):
         pass
