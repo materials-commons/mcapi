@@ -1,6 +1,9 @@
 import api
 import datetime
-
+from os import path as os_path
+from os import listdir
+from os import pardir as parent_directory
+from pathlib import Path
 
 # -- top level project functions --
 def list_projects():
@@ -379,7 +382,10 @@ class Directory(MCObject):
             if its_type == 'file':
                 ret.append(File(data=dir_or_file))
             if its_type == 'directory':
-                ret.append(Directory(data=dir_or_file))
+                directory = Directory(data=dir_or_file)
+                directory._project = self._project
+                directory._parent = self
+                ret.append(directory)
         return ret
 
     def get_descendant_list_by_path(self, path):
@@ -397,8 +403,35 @@ class Directory(MCObject):
     def add_file(self, file_name, input_path):
         return self._project.add_file_using_directory(self, file_name, input_path)
 
+    def add_directory_tree(self, dir_name, input_dir_path):
+        if (not os_path.isdir(input_dir_path)): return self
+        dir_tree_table = make_dir_tree_table(input_dir_path,dir_name,dir_name,{})
+        for relative_dir_path in dir_tree_table.keys():
+            file_dict = dir_tree_table[relative_dir_path]
+            dirs = self.get_descendant_list_by_path(relative_dir_path)
+            directory = dirs[-1]
+            for file_name in file_dict.keys():
+                directory.add_file(file_name,file_dict[file_name])
+        return self
+
     def process_special_objects(self):
         pass
+
+
+def make_dir_tree_table(base_path, dir_name, relative_base, table_so_far):
+    local_path = os_path.join(base_path, dir_name)
+    file_dictionary = {}
+    for file in listdir(local_path):
+        path = os_path.join(local_path, file)
+        if (os_path.isfile(path)):
+            file_dictionary[file] = path
+    table_so_far[relative_base] = file_dictionary
+    for dir in listdir(local_path):
+        path = os_path.join(local_path, dir)
+        base = os_path.join(relative_base, dir)
+        if (os_path.isdir(path)):
+            table_so_far = make_dir_tree_table(local_path, dir, base, table_so_far)
+    return table_so_far
 
 
 class File(MCObject):
