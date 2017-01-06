@@ -28,8 +28,8 @@ symmap = {
   'C4h': '4/m',
   'D4': '422',
   'C4v': '4mm',
-  'D2d': '42m',
-  'Vd': '42m',
+  'D2d': '-42m',
+  'Vd': '-42m',
   'D4h': '4/mmm',
   'C3': '3',
   'S6': '-3',
@@ -38,7 +38,7 @@ symmap = {
   'C3v': '3m',
   'D3d': '-3m',
   'C6': '6',
-  'C3h': '6',
+  'C3h': '-6',
   'C6h': '6/m',
   'D6': '622',
   'C6v': '6mm',
@@ -84,6 +84,48 @@ xtalfamilymap = {
   'cubic': ['T', 'Th', 'O', 'Td', 'Oh']
 }
 
+# crystal family to Schoenflies
+space_group_number_map {
+  'C1': '1',
+  'Ci': '2',
+  'S2': '2',
+  'C2': '3:5',
+  'Cs': '6:9',
+  'C1h': '6:9',
+  'C2h': '10:15',
+  'D2': '16:24',
+  'V': '16:24',
+  'C2v': '25:46',
+  'D2h': '47:74',
+  'Vh': '47:74',
+  'C4': '75:80',
+  'S4': '81:82',
+  'C4h': '83:88',
+  'D4': '89:98',
+  'C4v': '99:110,
+  'D2d': '111:122',
+  'Vd': '111:122',
+  'D4h': '123:142',
+  'C3': '143:146',
+  'S6': '147:148',
+  'C3i': '149:155',
+  'D3': '149:155',
+  'C3v': '156:161',
+  'D3d': '162:167',
+  'C6': '168:173',
+  'C3h': '174',
+  'C6h': '175:176',
+  'D6': '177:182',
+  'C6v': '183:186',
+  'D3h': '187:190',
+  'D6h': '191:194',
+  'T': '195:199',
+  'Th': '200:206',
+  'O': '207:214',
+  'Td': '215:220',
+  'Oh': '221:230',
+}
+
 def _add_string_measurement(create_sample_process, attrname, value):
     measurement_data = {
         "attribute": attrname,
@@ -93,12 +135,25 @@ def _add_string_measurement(create_sample_process, attrname, value):
     }
     return create_sample_process.create_measurement(data=measurement_data)
 
-def _add_matrix_measurement(create_sample_process, attrname, value, params):
+def _add_matrix_measurement(create_sample_process, attrname, value):
     measurement_data = {
         "attribute": attrname,
         "otype": "matrix",
         "value": {
             "dimensions": list(value.shape),
+            "otype":  "float" ,
+            "value": value
+        },
+        "is_best_measure": True
+    }
+    return create_sample_process.create_measurement(data=measurement_data)
+
+def _add_vector_measurement(create_sample_process, attrname, value):
+    measurement_data = {
+        "attribute": attrname,
+        "otype": "vector",
+        "value": {
+            "dimensions": len(value),
             "otype":  "float" ,
             "value": value
         },
@@ -204,6 +259,24 @@ def create_prim_sample(expt, casm_proj):
                 return key
         return None
     
+    def _components(casm_proj):
+        # raw composition_axes.json (for some properties not yet supported in the casm.project API)
+        with open(dir.composition_axes()) as f:
+            raw_composition_axes = json.load(f)
+            comp = raw_composition_axes["standard_axes"]["0"]["components"]
+        return comp
+
+    def _elements(casm_proj):
+        # currently identical to components
+        return _components(casm_proj)
+
+    def _n_independent_compositions(casm_proj):
+        # raw composition_axes.json (for some properties not yet supported in the casm.project API)
+        with open(dir.composition_axes()) as f:
+            raw_composition_axes = json.load(f)
+            n = raw_composition_axes["standard_axes"]["0"]["independent_compositions"]
+        return n
+
     def _degrees_of_freedom(casm_proj):
         """
         Get allowed types of DoF, as vector
@@ -228,11 +301,6 @@ def create_prim_sample(expt, casm_proj):
     with open(dir.prim()) as f:
       raw_prim = json.load(f)
     
-    # raw composition_axes.json (for some properties not yet supported in the casm.project API)
-    with open(dir.composition_axes()) as f:
-      raw_composition_axes = json.load(f)
-    
-    
     # Sample attributes (how to check names?):
     # "name"
     name = raw_proj_set["name"]
@@ -250,40 +318,62 @@ def create_prim_sample(expt, casm_proj):
     _add_vector_measurement(create_sample_process, 'parameters', lattice_parameters)
 
     lattice_symmetry = _lattice_symmetry(casm_proj)
+    _add_string_measurement(create_sample_process, 'symmetry', lattice_symmetry)
+
     lattice_system = _lattice_system(lattice_symmetry)
-    
+    _add_string_measurement(create_sample_process, 'system', lattice_system)
+
     # "space_group"
     #      "schonflies_symbol"
     #      "hermann_mauguin_symbol"
     #      "number"
     #      "family" ("triclinic", "monoclinic", "orthorhombic", "tetragonal", "hexagonal", "cubic")
     #      "system" ("triclinic", "monoclinic", "orthorhombic", "tetragonal", "hexagonal", "trigonal", "cubic")
-    space_group_schoenflies_symbol = _crystal_symmetry(casm_proj)
-    space_group_hermann_mauguin_symbol = _crystal_symmetry_hm(space_group_symbol)
+    crystal_pg_schoenflies_symbol = _crystal_symmetry(casm_proj)
+    _add_string_measurement(create_sample_process, 'schonflies_space_group_symbol', crystal_pg_schoenflies_symbol)
+
+    crystal_pg_hermann_mauguin_symbol = _crystal_symmetry_hm(space_group_symbol)
+    _add_string_measurement(create_sample_process, 'hermann_mauguin_space_group_symbol', crystal_pg_hermann_mauguin_symbol)
+
     crystal_family = _crystal_family(space_group_schoenflies_symbol)
+    _add_string_measurement(create_sample_process, 'crystal_family', crystal_family)
+
     crystal_system = _crystal_system(space_group_schoenflies_symbol)
-    space_group_number = None # don't have this yet
-    
+    _add_string_measurement(create_sample_process, 'crystal_system', crystal_system)
+
+    # right now, this is a string giving a range of possible values based on the
+    #   crystal point group
+    space_group_number = space_group_number_map[space_group_schoenflies_symbol]
+    _add_string_measurement(create_sample_process, 'space_group_number', space_group_number)
+
     # "file"
-    file = dir.prim()  # what value is stored in the "measurement"
-    
-    # "elements"
+    # filename = dir.prim()  
+    ... need to get datafile ...
+    _add_file_measurement(create_sample_process, 'casm_prism_file', file_id, filename)
+
+    # "elements" - currently only elemental components are allowed
     elements = _elements(casm_proj)
+    ...
     
     # "n_elements" 
     n_elements = len(elements)
+    ...
     
-    # "components"
-    components = elements # currently only elemental components are allowed
-    
+    # "components" - currently only elemental components are allowed
+    components = _components(casm_proj)
+    ...     
+
     # "n_components"
-    n_components = n_elements # currently only elemental components are allowed
+    n_components = len(components)
+    ...
     
     # "n_independent_compositions"
-    n_independent_compositions = raw_composition_axes["standard_axes"]["0"]["independent_compositions"]
+    n_independent_compositions = _n_independent_compositions(casm_proj)
+    ...
     
     # "degrees_of_freedom" ("occupation", "displacement", "strain")
     degrees_of_freedom = _degrees_of_freedom(casm_proj)
+    ...
     
     
 
