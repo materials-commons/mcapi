@@ -3,8 +3,8 @@ from random import randint
 from os import environ
 from os import path as os_path
 from os import listdir
+from os import makedirs
 from os.path import getsize
-from pathlib import Path
 from mcapi import set_remote_config_url, get_remote_config_url, create_project
 from mcapi import make_dir_tree_table
 
@@ -25,6 +25,7 @@ class TestFileDirectoryUpload(unittest.TestCase):
         cls.base_project_id = project.id
         cls.base_project = project
         cls.single_file_dir_path = "test_upload_dir/sub_directory_a"
+        cls.path_of_empty_dir = "test_upload_dir/sub_directory_c/empty_dir"
         cls.full_dir = 'test_upload_dir'
 
     def test_is_setup_correctly(self):
@@ -32,6 +33,10 @@ class TestFileDirectoryUpload(unittest.TestCase):
         self.assertTrue(os_path.isdir(path))
 
         path = self.setup_test_directory_path(self.full_dir)
+        self.assertTrue(os_path.isdir(path))
+
+        self.fix_empty_dir_if_needed()
+        path = self.setup_test_directory_path(self.path_of_empty_dir)
         self.assertTrue(os_path.isdir(path))
 
         self.assertEqual(get_remote_config_url(), url)
@@ -254,3 +259,11 @@ class TestFileDirectoryUpload(unittest.TestCase):
         for child in child_list:
             ret[child.name] = child
         return ret
+
+
+    # Check that the empty dir, needed for the tests, exists.
+    # Note - github does not save empty directories.
+    def fix_empty_dir_if_needed(self):
+        path = self.setup_test_directory_path(self.path_of_empty_dir)
+        if not os_path.isdir(path):
+            makedirs(path)
