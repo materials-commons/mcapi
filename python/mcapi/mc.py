@@ -28,6 +28,7 @@ def fetch_project_by_id(project_id):
 
 def get_process_from_id(project,experiment,process_id):
     results = api.get_process_from_id(project.id, experiment.id, process_id)
+    print(results)
     process = make_object(results)
     process.project = project
     process.experiment = experiment
@@ -479,6 +480,7 @@ class File(MCObject):
     def process_special_objects(self):
         pass
 
+
 class Measurement(MCObject):
     def __init__(self, data=None):
         # attr = ['id', 'name', 'description', 'birthtime', 'mtime', 'otype', 'owner']
@@ -491,10 +493,47 @@ class Measurement(MCObject):
         for a in attr:
             setattr(self, a, data.get(a, None))
 
+
 class MeasurementComposition(Measurement):
     def __init__(self, data=None):
         # attr = ['name', 'attribute', 'birthtime', 'mtime', 'otype', 'owner', 'unit', 'value']
         super(MeasurementComposition, self).__init__(data)
+
+
+class MeasurementString(Measurement):
+    def __init__(self, data=None):
+        # attr = ['name', 'attribute', 'birthtime', 'mtime', 'otype', 'owner', 'unit', 'value']
+        super(MeasurementString, self).__init__(data)
+
+
+class MeasurementMatrix(Measurement):
+    def __init__(self, data=None):
+        # attr = ['name', 'attribute', 'birthtime', 'mtime', 'otype', 'owner', 'unit', 'value']
+        super(MeasurementMatrix, self).__init__(data)
+
+
+class MeasurementVector(Measurement):
+    def __init__(self, data=None):
+        # attr = ['name', 'attribute', 'birthtime', 'mtime', 'otype', 'owner', 'unit', 'value']
+        super(MeasurementVector, self).__init__(data)
+
+
+class MeasurementSelection(Measurement):
+    def __init__(self, data=None):
+        # attr = ['name', 'attribute', 'birthtime', 'mtime', 'otype', 'owner', 'unit', 'value']
+        super(MeasurementSelection, self).__init__(data)
+
+
+class MeasurementFile(Measurement):
+    def __init__(self, data=None):
+        # attr = ['name', 'attribute', 'birthtime', 'mtime', 'otype', 'owner', 'unit', 'value']
+        super(MeasurementFile, self).__init__(data)
+
+
+class MeasurementInteger(Measurement):
+    def __init__(self, data=None):
+        # attr = ['name', 'attribute', 'birthtime', 'mtime', 'otype', 'owner', 'unit', 'value']
+        super(MeasurementInteger, self).__init__(data)
 
 
 class Property(MCObject):
@@ -665,7 +704,21 @@ def make_measurement_object(obj):
     if _data_has_type(data):
         object_type = data['otype']
         if object_type == 'composition':
-             return MeasurementComposition(data=data)
+            return MeasurementComposition(data=data)
+        if object_type == 'string':
+            return MeasurementString(data=data)
+        if object_type == 'matrix':
+            return MeasurementMatrix(data=data)
+        if object_type == 'vector':
+            return MeasurementVector(data=data)
+        if object_type == 'selection':
+            return MeasurementSelection(data=data)
+        if object_type == 'file':
+            return MeasurementFile(data=data)
+        if object_type == 'integer':
+            return MeasurementInteger(data=data)
+
+
         raise Exception("No Measurement Object, unrecognized otype = " + object_type, data)
     else:
         raise Exception("No Measurement Object, otype not defined", data)
