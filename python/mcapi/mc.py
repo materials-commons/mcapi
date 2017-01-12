@@ -391,7 +391,7 @@ class Directory(MCObject):
     def get_descendant_list_by_path(self, path):
         results = api.directory_by_path(self._project.id, self.id, path)
         dir_list = []
-        parent = self;
+        parent = self
         for dir_data in results['dirs']:
             directory = make_object(dir_data)
             directory._project = self._project

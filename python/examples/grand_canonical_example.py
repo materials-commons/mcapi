@@ -722,58 +722,8 @@ def create_monte_carlo_process(expt, settings_local_abspath,
 
     return proc
 
-
-
 if __name__ == "__main__":
-    
-    # Basic Materials Commons actions:
-    #   commons --set-mcurl http://materialscommons.org/api
-    #   commons --set-apikey abc123
-    #   commons --list-proj
-    #   commons --new-proj local_path
-    #   commons --list-expt
-    #   commons --new-expt expt_name
-    #   commons --set-expt expt_name
-    
-    # CASM-specific actions:
-    #   casm-commons --files (?)  
-    #   casm-commons --prim  
-    #   casm-commons --comp  
-    #   casm-commons --clex clexname
-    #   casm-commons --mc settings_local_path
-
-    parser = argparse.ArgumentParser(description = 'Upload CASM data to Materials Commons')
-    parser.add_argument('--path', help=path_help, type=str, default=None)
-    parser.add_argument('--files', help=files_help, action="store_true", default=False)
-    parser.add_argument('--prim', help=prim_help, action="store_true", default=False)
-    parser.add_argument('--composition', help=composition_help, action="store_true", default=False)
-    parser.add_argument('--clex', help=clex_help, action="store_true", default=False)
-    parser.add_argument('--mc', help=mc_help, action="store_true", default=False)
-    args = parser.parse_args()
-    
-    ## (How to construct already existing mcapi.Project / mcapi.Experiment ? )
-    #... check to find what Project I'm in ...
-    proj = 
-    
-    ## Construct Experiment object (assume already created remotely)
-    #... get current Experiment ...
-    expt = ...
-    
-    ## Set local path to Materials Commons project files
-    expt.project.local_abspath = .. 
-    
-    
-    ## Do CASM things ...
-    casm_proj = casm.project.Project(args.path)
-    
-    if args.mc:
-        
-    
-    
-
-
-
-
-
+    #CommonsCLIParser()
+    print "hello"
 
 
