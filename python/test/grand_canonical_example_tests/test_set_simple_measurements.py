@@ -13,7 +13,7 @@ def fake_name(prefix):
     return prefix+number
 
 
-class TestSetIntegerMeasurement(unittest.TestCase):
+class TestSetSimpleMeasurements(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
@@ -57,18 +57,30 @@ class TestSetIntegerMeasurement(unittest.TestCase):
         self.assertEqual(sample.name, self.sample_name)
         self.assertEqual(sample.name, samples[0].name)
 
+
     def test_set_integer_measurement(self):
         attribute = "spacing"
         value = 5
         name = "Gap Spacing"
         type = "integer"
         process = base._add_integer_measurement(
-               self.process, attribute, value, name=name)
+            self.process, attribute, value, name=name)
         sample_out = process.output_samples[0]
         properties_out = sample_out.properties
-        measurement_out = properties_out[0].best_measure[0]
+        table = self.make_properties_dictionary(properties_out)
+        property = table[name]
+        self.assertEqual(len(property.best_measure),1)
+        measurement_out = property.best_measure[0]
         self.assertEqual(measurement_out.name, name)
         self.assertEqual(measurement_out.attribute, attribute)
         self.assertEqual(measurement_out.otype, type)
         self.assertEqual(measurement_out.unit, "")
         self.assertEqual(measurement_out.value, value)
+
+
+    def make_properties_dictionary(self, properties):
+        ret = {}
+        for property in properties:
+            name = property.name
+            ret[name] = property
+        return ret
