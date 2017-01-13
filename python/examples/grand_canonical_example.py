@@ -176,15 +176,29 @@ space_group_number_map = {
 
 # The following create and set measurments, updating 'create_sample_process'
 
-def _set_measurement(create_sample_process, attrname, measurement_data):
+def _set_measurement(create_sample_process, attribute, measurement_data, name=None):
+    if (not name):
+        name = attribute
+
+    if not "name" in measurement_data:
+        measurement_data['name'] = name
+
+    if not "attribute" in measurement_data:
+        measurement_data['attribute'] = attribute
+
+    if not "unit" in measurement_data:
+        measurement_data['unit'] = ""
+
     measurement = create_sample_process.create_measurement(data=measurement_data)
-    
+
     measurement_property = {
-        "attribute":attrname
+        "name": name,
+        "attribute": attribute
     }
-    
-    return create_sample_process.set_measurements_for_process_samples(\
+
+    return create_sample_process.set_measurements_for_process_samples(
         measurement_property, [measurement])
+
 
 def _add_integer_measurement(create_sample_process, attrname, value):
     measurement_data = {
