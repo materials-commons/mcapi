@@ -97,7 +97,6 @@ class TestSetSimpleMeasurements(unittest.TestCase):
         self.assertEqual(measurement_out.unit, "")
         self.assertEqual(measurement_out.value, value)
 
-    @pytest.mark.skip("python API does not recognise 'boolean' type - needs fixing")
     def test_set_boolean_measurement(self):
         attribute = "flag"
         value = True
@@ -117,7 +116,6 @@ class TestSetSimpleMeasurements(unittest.TestCase):
         self.assertEqual(measurement_out.unit, "")
         self.assertEqual(measurement_out.value, value)
 
-    @pytest.mark.skip("python API does not recognise 'number' type - needs fixing")
     def test_set_number_measurement(self):
         attribute = "scale"
         value = 7

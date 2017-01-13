@@ -553,6 +553,15 @@ class MeasurementInteger(Measurement):
         # attr = ['name', 'attribute', 'birthtime', 'mtime', 'otype', 'owner', 'unit', 'value']
         super(MeasurementInteger, self).__init__(data)
 
+class MeasurementNumber(Measurement):
+    def __init__(self, data=None):
+        # attr = ['name', 'attribute', 'birthtime', 'mtime', 'otype', 'owner', 'unit', 'value']
+        super(MeasurementNumber, self).__init__(data)
+
+class MeasurementBoolean(Measurement):
+    def __init__(self, data=None):
+        # attr = ['name', 'attribute', 'birthtime', 'mtime', 'otype', 'owner', 'unit', 'value']
+        super(MeasurementBoolean, self).__init__(data)
 
 class Property(MCObject):
     def __init__(self, data=None):
@@ -763,6 +772,10 @@ def make_measurement_object(obj):
             holder = MeasurementFile(data=data)
         if object_type == 'integer':
             holder = MeasurementInteger(data=data)
+        if object_type == 'number':
+            holder = MeasurementNumber(data=data)
+        if object_type == 'boolean':
+            holder = MeasurementBoolean(data=data)
         if (holder):
             holder.process_special_objects()
             return holder
