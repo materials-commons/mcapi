@@ -1,0 +1,429 @@
+#!/usr/bin/env python
+
+# sketch of a command line interface
+
+import os
+import sys
+import copy
+import json
+import argparse
+import mcapi
+import pandas
+import string
+import time
+
+def _mc_remotes(path=None):
+    """
+    Dict of {name: mcapi.Remote}
+    """
+    # just 'origin' for now
+    return {'origin':mcapi.Remote()}
+
+def _print_projects(projects):
+    """
+    Print list of projects
+    
+    Arguments:
+        projects: List[mcapi.Project]
+    """
+    data = []
+    for p in projects:
+        data.append({
+            'name':p.name,
+            'owner':p.owner,
+            'id':p.id
+        })
+    
+    df = pandas.DataFrame.from_records(data, index='id', 
+        columns=['name', 'owner', 'id'])
+    
+    print df.to_string()
+
+def _proj_path(path=None):
+    if path is None:
+        path = os.getcwd()
+    #if not os.path.isdir(path):
+    #  raise Exception("Error, no directory named: " + path)
+    curr = path
+    cont = True
+    while cont == True:
+        test_path = os.path.join(curr, '.mc')
+        if os.path.isdir(test_path):
+            return curr
+        elif curr == os.path.dirname(curr):
+            return None
+        else:
+            curr = os.path.dirname(curr)
+    return None
+
+def _proj_config(path=None):
+    dirpath = _proj_path(path)
+    if dirpath is None:
+        return None
+    return os.path.join(dirpath, '.mc', 'config.json')
+
+def _fetch_project_by_id(id, remote=None):
+    if remote is None:
+        remote = Remote()
+    results = mcapi.api.fetch_project(id, remote)
+    return mcapi.Project(data=results)
+
+def _local_to_remote_relpath(proj, local_path):
+    """
+    Arguments:
+        proj: mcapi.Project, with proj.path indicating local project location
+        local_path: path to file or directory in local tree
+    
+    Returns:
+        remote_path: relative path from the 'top' directory
+    """
+    return os.path.relpath(local_path, proj.path)
+
+def _obj_path_to_local_path(proj, obj_path):
+    """
+    Arguments:
+        proj: mcapi.Project, with proj.path indicating local project location
+        obj_path: Directory.path or File.path
+            currently this begins with 'top', instead of being relative to 'top'
+    
+    Returns:
+        local_path: absolute path to file or directory locally
+    """
+    return os.path.join(os.path.dirname(proj.path), remote_path)
+
+def _get_file_or_directory(proj, local_path):
+    """
+    Arguments:
+        proj: mcapi.Project
+        local_path: file or directory local path equivalant
+    
+    Returns:
+        obj: mcapi.File, mcapi.Directory, or None
+    """
+    names = string.split(os.path.relpath(local_path, proj.path), '/')
+    curr = proj.get_top_directory()
+    for n in names:
+        nextchild = filter(lambda x: x.name == n, curr.get_children())
+        if len(nextchild) == 0:
+            return None
+        curr = nextchild[0]
+    return curr
+    
+
+def make_local_project(path=None):
+    # get config
+    with open(_proj_config(path)) as f:
+        j = json.load(f)
+    
+    # get remote
+    remotes = _mc_remotes()
+    remote = None
+    for key, val in remotes.iteritems():
+        if val.mcurl == j['remote_url']:
+            remote = val
+            break
+    if remote is None:
+        print "could not find remote:", j['remote_url']
+    
+    # get mcapi.Project
+    proj =  _fetch_project_by_id(j['project_id'], remote)
+    
+    proj.path = _proj_path(path)
+    proj.remote = remote
+    return proj
+
+#  Want to print something like: 
+#
+#  warning! file0 is a local file and remote dir!
+#  warning! file1 is a local direcotry and remote file!
+#
+#  remote_owner local_mtime local_size remote_mtime remote_size file0 
+#             - local_mtime local_size            -           - file1                       
+#  remote_owner           -          - remote_mtime remote_size file2                        
+#
+#  dir1:
+#  remote_owner local_mtime local_size remote_mtime remote_size file0 
+#             - local_mtime local_size            -           - file1                       
+#  remote_owner           -          - remote_mtime remote_size file2                        
+#
+#  dir2:
+#  remote_owner local_mtime local_size remote_mtime remote_size file0 
+#             - local_mtime local_size            -           - file1                       
+#  remote_owner           -          - remote_mtime remote_size file2
+#
+
+def _ls_group(proj, paths, files_only=True):
+    """
+    Construct DataFrame with 'mc ls' results for paths. Also outputs
+    the sets of paths that are files or directories (either local or remote).
+    """
+    path_data = []
+    columns = [
+        'owner',
+        'l_mtime', 'l_size', 'l_checksum', 'l_type',
+        'r_mtime', 'r_size', 'r_checksum', 'r_type',
+        'name']
+    data_init = {k:'-' for k in columns}
+    files = set()
+    dirs = set()
+    
+    for path in paths:
+        
+        data = copy.deepcopy(data_init)
+        data['name'] = os.path.basename(path)
+        
+        # locals
+        if os.path.exists(path):
+            data['l_mtime'] = time.strftime("%b %Y %H:%M:%S", time.localtime(os.path.getmtime(path)))
+            data['l_size'] = os.path.getsize(path)
+            if os.path.isfile(path):
+                data['l_type'] = 'file'
+                data['l_checksum'] = 'checksum'
+                files.add(path)
+            elif os.path.isdir(path):
+                data['l_type'] = 'dir'
+                dirs.add(path)
+        
+        # remotes
+        obj = _get_file_or_directory(proj, path)
+        if obj is not None:
+            data['owner'] = obj.owner
+            if obj.mtime:
+                data['r_ctime'] = time.strftime("%b %Y %H:%M:%S", time.localtime(obj.ctime))
+            data['r_size'] = obj.size
+            if isinstance(obj, mcapi.File):
+                data['r_type'] = 'file'
+                data['r_checksum'] = obj.checksum
+                files.add(path)
+            elif isinstance(obj, mcapi.Directory):
+                data['r_type'] = 'dir'
+                dirs.add(path)
+        
+        if not files_only or ('file' in [data['l_type'], data['r_type']]):
+            path_data.append(data)
+    
+    return (pandas.DataFrame.from_records(path_data, columns=columns), files, dirs)
+
+
+class CommonsCLIParser(object):
+    
+    usage_help = \
+"""mc <command> [<args>]
+
+The most commonly used mc commands are:
+    remote     List servers
+    proj       List projects
+    init       Initialize a new project
+    clone      Clone an existing project
+
+Specialized commands are:
+    casm       Create CASM samples, processes, measurements, etc.
+"""
+
+    def __init__(self):
+        parser = argparse.ArgumentParser(
+            description='Materials Commons command line interface',
+            usage=CommonsCLIParser.usage_help)
+        parser.add_argument('command', help='Subcommand to run')
+        # parse_args defaults to [1:] for args, but you need to
+        # exclude the rest of the args too, or validation will fail
+        args = parser.parse_args(sys.argv[1:2])
+        if not hasattr(self, args.command):
+            print 'Unrecognized command'
+            parser.print_help()
+            exit(1)
+        # use dispatch pattern to invoke method with same name
+        getattr(self, args.command)()
+
+    def remote(self):
+        """
+        Show / modify list of known Materials Commons servers.
+        
+        Goal:
+            mc remote [-v]
+            mc remote add 
+            mc remote remove
+        
+        Current:
+            mc remote
+        
+        """
+        parser = argparse.ArgumentParser(
+            description='Server settings')
+        
+        # ignore 'mc remote'
+        args = parser.parse_args(sys.argv[2:])
+        
+        remotes = _mc_remotes()
+        data = [{'name': key, 'url': remotes[key].mcurl} for key in remotes]
+        df = pandas.DataFrame.from_records(data, columns=['name', 'url'])
+        print df.to_string(index=False)
+        
+
+    def proj(self):
+        """
+        Show list of projects
+        
+        Goal: 
+            mc proj [--details] [--remote <remotename> ...] [<projname> ...]
+        
+        Current: 
+            mc proj
+        """
+        parser = argparse.ArgumentParser(
+            description='Projects')
+        
+        # ignore 'mc proj'
+        args = parser.parse_args(sys.argv[2:])
+        
+        projects = mcapi.list_projects()
+        
+        _print_projects(projects)
+    
+    
+    def init(self):
+        """
+        Initialize a new project
+        
+        mc init <name> <remote> [--desc <description>]
+        
+        """
+        parser = argparse.ArgumentParser(
+            description='Initialize a new project')
+        parser.add_argument('name', help='Project name')
+        parser.add_argument('--remote', type=str, default='origin', help='Remote name')
+        parser.add_argument('--desc', type=str, default='', help='Project description')
+        
+        # ignore 'mc proj'
+        args = parser.parse_args(sys.argv[2:])
+        
+        remotes = _mc_remotes()
+        if not args.remote in remotes:
+            print "unrecognized remote:", args.remote
+            parser.print_help()
+            exit(1)
+        remote=remotes[args.remote]
+        
+        project = mcapi.create_project(args.name, args.desc)
+        #project = mcapi.create_project(args.name, args.desc, remote=remote)
+        
+        print "Created new project at:", remote.mcurl
+        _print_projects([project])
+    
+    def clone(self):
+        """
+        'Clone' a project, i.e. set the local directory tree where files should
+        be uploaded/downloaded. Creates a '.mc/config.json'.
+        
+        mc clone <projid> [--remote <remotename>]
+        
+        """
+        parser = argparse.ArgumentParser(
+            description='Clone an existing project')
+        parser.add_argument('id', help='Project id')
+        parser.add_argument('--remote', type=str, default='origin', help='Remote name')
+        
+        # ignore 'mc proj'
+        args = parser.parse_args(sys.argv[2:])
+        
+        remotes = _mc_remotes()
+        if not args.remote in remotes:
+            print "unrecognized remote:", args.remote
+            exit(1)
+        remote=remotes[args.remote]
+        
+        project = _fetch_project_by_id(args.id, remote)
+        
+        dest = os.path.join(os.getcwd(), project.name)
+        
+        if _proj_path(dest) is not None:
+            print "mc project already exists at", _proj_path(dest)
+            exit(1)
+        
+        if not os.path.exists(dest):
+            os.mkdir(dest)
+        os.mkdir(os.path.join(dest,'.mc'))
+        with open(_proj_config(dest), 'w') as f:
+            # set a default current experiment? 
+            data = {'remote_url':remote.mcurl, 'project_id': args.id, 'experiment_id': None}
+            json.dump(data, f)
+        
+        print "Cloned project from", remote.mcurl, "to", dest
+        _print_projects([project])
+    
+    def ls(self):
+        """
+        'ls' a project directory to see local and remote files and directories.
+        
+        mc ls [<pathspec> ...]
+        
+        """
+        parser = argparse.ArgumentParser(
+            description='List local & remote directory contents')
+        parser.add_argument('paths', nargs='*', default=[os.getcwd()], help='Files or directories')
+        
+        # ignore 'mc proj'
+        args = parser.parse_args(sys.argv[2:])
+        
+        local_abspaths = [os.path.abspath(p) for p in args.paths]
+        
+        proj = make_local_project()
+        
+        # act on local paths
+        (df, files, dirs) = _ls_group(proj, local_abspaths, files_only=True)
+        
+        # print warnings for type mismatches
+        for file in files:
+            if file in dirs and os.path.isfile(file):
+                print "warning!", file, "is a local file and remote directory!"
+            if file in dirs and os.path.isdir(file):
+                print "warning!", file, "is a local directory and remote file!"
+        
+        if df.shape[0]:
+            print df.to_string()
+            print ""
+        
+        for d in dirs:
+            
+            _locals = []
+            if os.path.exists(d):
+                _locals = [os.path.join(d, f) for f in os.listdir(d)]
+            
+            if os.path.abspath(d) == proj.path:
+                remote_dir = proj.get_top_directory()
+            else:
+                d_remote_relpath = _local_to_remote_relpath(proj, d)
+                remote_dir = _get_file_or_directory(proj, d_remote_relpath)
+            _remotes = [os.path.join(d, child.name) for child in remote_dir.get_children()]
+            
+            _local_abspaths = set(_locals + _remotes)
+                
+            (df, files, dirs) = _ls_group(proj, _local_abspaths, files_only=False)
+            
+            if df.shape[0]:
+                print os.path.relpath(d, os.getcwd()) + ":"
+                print df.to_string()
+                print ""
+        
+        return
+        
+          
+            
+        
+        
+
+
+
+# TODO for CASM example:
+#   mc expt [-c] [--details] [<exptname>]
+#   mc ls [<pathspec> ...] (list files and directories w/local & remote details, etc.)
+#   mc upload [<pathspec> ...]  (specify files to be uploaded)
+#   mc download [<pathspec> ...]  (specify files to be downloaded)
+
+
+
+
+if __name__ == "__main__":
+    CommonsCLIParser()
+
+
