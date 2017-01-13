@@ -1,4 +1,5 @@
 import unittest
+import pytest
 from random import randint
 from mcapi import set_remote_config_url
 from mcapi import create_project, Template
@@ -77,6 +78,64 @@ class TestSetSimpleMeasurements(unittest.TestCase):
         self.assertEqual(measurement_out.unit, "")
         self.assertEqual(measurement_out.value, value)
 
+    def test_set_string_measurement(self):
+        attribute = "label"
+        value = "booloo ball"
+        name = "Gingle Snit"
+        type = "string"
+        process = base._add_string_measurement(
+            self.process, attribute, value, name=name)
+        sample_out = process.output_samples[0]
+        properties_out = sample_out.properties
+        table = self.make_properties_dictionary(properties_out)
+        property = table[name]
+        self.assertEqual(len(property.best_measure),1)
+        measurement_out = property.best_measure[0]
+        self.assertEqual(measurement_out.name, name)
+        self.assertEqual(measurement_out.attribute, attribute)
+        self.assertEqual(measurement_out.otype, type)
+        self.assertEqual(measurement_out.unit, "")
+        self.assertEqual(measurement_out.value, value)
+
+    @pytest.mark.skip("python API does not recognise 'boolean' type - needs fixing")
+    def test_set_boolean_measurement(self):
+        attribute = "flag"
+        value = True
+        name = "Shift"
+        type = "boolean"
+        process = base._add_boolean_measurement(
+            self.process, attribute, value, name=name)
+        sample_out = process.output_samples[0]
+        properties_out = sample_out.properties
+        table = self.make_properties_dictionary(properties_out)
+        property = table[name]
+        self.assertEqual(len(property.best_measure),1)
+        measurement_out = property.best_measure[0]
+        self.assertEqual(measurement_out.name, name)
+        self.assertEqual(measurement_out.attribute, attribute)
+        self.assertEqual(measurement_out.otype, type)
+        self.assertEqual(measurement_out.unit, "")
+        self.assertEqual(measurement_out.value, value)
+
+    @pytest.mark.skip("python API does not recognise 'number' type - needs fixing")
+    def test_set_number_measurement(self):
+        attribute = "scale"
+        value = 7
+        name = "Scaling Factor"
+        type = "number"
+        process = base._add_number_measurement(
+            self.process, attribute, value, name=name)
+        sample_out = process.output_samples[0]
+        properties_out = sample_out.properties
+        table = self.make_properties_dictionary(properties_out)
+        property = table[name]
+        self.assertEqual(len(property.best_measure),1)
+        measurement_out = property.best_measure[0]
+        self.assertEqual(measurement_out.name, name)
+        self.assertEqual(measurement_out.attribute, attribute)
+        self.assertEqual(measurement_out.otype, type)
+        self.assertEqual(measurement_out.unit, "")
+        self.assertEqual(measurement_out.value, value)
 
     def make_properties_dictionary(self, properties):
         ret = {}
