@@ -1,3 +1,4 @@
+# -*- coding: latin-1 -*-
 # this script creates a 'CASM Monte Carlo Calculation' process
 # and uploads the results files
 
@@ -132,10 +133,14 @@ space_group_number_map = {
 
 # The following create and set measurments, updating 'create_sample_process'
 
-def _set_measurement(create_sample_process, attrname, measurement_data):
+def _set_measurement(create_sample_process, attrname, measurement_data, name = None):
     measurement = create_sample_process.create_measurement(data=measurement_data)
-    
+
+    if (not name):
+        name = attrname
+
     measurement_property = {
+        "name": name,
         "attribute":attrname
     }
     
@@ -438,7 +443,7 @@ def create_prim_sample(expt, casm_proj):
     #     "matrix"
     #     "parameters" (a, b, c, alpha, beta, gamma)
     #     "system" ("triclinic", "monoclinic", "orthorhombic", "tetragonal", "hexagonal", "rhombohedral", "cubic")
-    #     "symmetry" (SchÃ¶nflies symbol)
+    #     "symmetry" (Schönflies symbol)
     lattice_matrix = np.array(raw_prim['lattice_vectors']).transpose()
     _add_matrix_measurement(create_sample_process, 'lattice', lattice_matrix)
 
