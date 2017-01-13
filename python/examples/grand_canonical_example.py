@@ -5,6 +5,8 @@ import casm.project
 import mcapi
 import numpy as np
 import math
+import os
+import json
 from string import ascii_lowercase
 import argparse
 
@@ -91,7 +93,7 @@ xtalfamilymap = {
 }
 
 # crystal family to Schoenflies
-space_group_number_map {
+space_group_number_map = {
   'C1': '1',
   'Ci': '2',
   'S2': '2',
@@ -108,7 +110,7 @@ space_group_number_map {
   'S4': '81:82',
   'C4h': '83:88',
   'D4': '89:98',
-  'C4v': '99:110,
+  'C4v': '99:110',
   'D2d': '111:122',
   'Vd': '111:122',
   'D4h': '123:142',
@@ -207,7 +209,7 @@ def _add_vector_measurement(create_sample_process, attrname, value):
     }
     return _set_measurement(create_sample_process, attrname, measurement_data)
 
-def _add_list_measurement(create_sample_process, attrname, value, value_otype):
+def _add_list_measurement(create_sample_process, attrname, value, value_type):
     """
     Add a measurement that is a list of some type of object.
     
@@ -271,15 +273,15 @@ def _add_file(proj, local_file_abspath, filename=None):
         filename: name to give file on Materials Commons (default=os.path.basename(local_file_abspath))
             
     """
-    file_relpath = os.path.relpath(proj.local_abspath, file_local_abspath)
+    file_relpath = os.path.relpath(proj.local_abspath, local_file_abspath)
     top = proj.get_top_directory()
     
     # get mcapi.Directory to add file, creating intermediates as necessary
     dir = top.get_descendent_list_by_path(os.path.dirname(file_relpath))[-1]
     
     if filename is None:
-        filename = os.path.basename(file_local_abspath)
-    return dir.add_file(filename, file_local_abspath)
+        filename = os.path.basename(local_file_abspath)
+    return dir.add_file(filename, local_file_abspath)
 
 
 def _add_files_recursively(proj, local_dir_abspath):
@@ -635,7 +637,7 @@ def create_clex_sample(expt, casm_proj, prim, clex_desc):
     
     # "eci" (file)
     file = _add_file(expt.proj, dir.eci(clex_desc))
-    _add_file_measurement(create_sample_process, 'eci', file_id, file_name)
+    _add_file_measurement(create_sample_process, 'eci', file.id, file.name)
     
     return create_sample_process
 
