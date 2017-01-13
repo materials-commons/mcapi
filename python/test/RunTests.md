@@ -55,7 +55,7 @@ to point to the directory python/test/test_data. That is:
 
 ```
   cd to the python top level directory of the mcapi repo
-  pytest -rap --setup-show test
+  pytest -rap --setup-show -s test
 ```
 
 And to run test using an individual test class, for example:

@@ -56,22 +56,63 @@ class TestSetMeasurement(unittest.TestCase):
         self.assertEqual(sample.name, self.sample_name)
         self.assertEqual(sample.name, samples[0].name)
 
-    def test_set_measurement_basic(self):
+    def test_measurement_attribute_name(self):
+        value = "Test Primitive Crystal Structure"
+        data = {"name":"Name",
+            "attribute":"name",
+            "otype":"string",
+            "unit":"",
+            "units": [],
+            "value":value,
+            "is_best_measure":True}
+        measurement = self.process.create_measurement(data=data)
+        self.assertEqual(measurement.name,"Name")
+        self.assertEqual(measurement.attribute,"name")
+        self.assertEqual(measurement.otype,"string")
+        self.assertEqual(measurement.unit,"")
+        self.assertEqual(measurement.value,value)
+
+    def test_inline_pretest_set_measurement_basic(self):
         attribute = "name"
         measurement_name = "Name"
         measurement_value = "test value for attribute"
         measurement_data = {
+            "name": measurement_name,
             "attribute": attribute,
             "otype": "string",
+            "unit":"",
+            "units": [],
             "value": measurement_value,
             "is_best_measure": True
+            }
+        measurement_property = {
+            "name": measurement_name,
+            "attribute": attribute
         }
-        process = base._set_measurement(self.process, attribute, measurement_data, measurement_name)
-        measurement_out = process.measurements[0]
-        print(measurement_out)
-        self.assertEqual(measurement_out.name, measurement_name)
-        self.assertEqual(measurement_out.attribute, attribute)
-        self.assertEqual(measurement_out.otype, "string")
-        self.assertEqual(measurement_out.unit, "")
-        self.assertTrue(measurement_out.is_best_measure)
-        self.assertEqual(measurement_out.value, measurement_value)
+        process = self.process
+        measurement = process.create_measurement(data=measurement_data)
+        self.assertEqual(measurement.name,measurement_name)
+        self.assertEqual(measurement.attribute,attribute)
+        self.assertEqual(measurement.otype,"string")
+        self.assertEqual(measurement.unit,"")
+        self.assertEqual(measurement.value,measurement_value)
+
+#    def test_set_measurement_basic(self):
+#        attribute = "name"
+#        measurement_name = "Name"
+#        measurement_value = "test value for attribute"
+#        measurement_data = {
+#            "attribute": attribute,
+#            "otype": "string",
+#            "value": measurement_value,
+#            "is_best_measure": True
+#        }
+#        process = base._set_measurement(self.process, attribute, measurement_data, measurement_name)
+#        measurement_out = process.measurements[0]
+#        print(measurement_out)
+#        self.assertEqual(measurement_out.name, measurement_name)
+#        self.assertEqual(measurement_out.attribute, attribute)
+#        self.assertEqual(measurement_out.otype, "string")
+#        self.assertEqual(measurement_out.unit, "")
+#        self.assertTrue(measurement_out.is_best_measure)
+#        self.assertEqual(measurement_out.value, measurement_value)
