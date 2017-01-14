@@ -392,8 +392,7 @@ Specialized commands are:
             if os.path.abspath(d) == proj.path:
                 remote_dir = proj.get_top_directory()
             else:
-                d_remote_relpath = _local_to_remote_relpath(proj, d)
-                remote_dir = _get_file_or_directory(proj, d_remote_relpath)
+                remote_dir = _get_file_or_directory(proj, d)
             _remotes = [os.path.join(d, child.name) for child in remote_dir.get_children()]
             
             _local_abspaths = set(_locals + _remotes)
