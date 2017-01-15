@@ -1,7 +1,8 @@
 # this script creates a 'CASM Monte Carlo Calculation' process
 # and uploads the results files
 
-import casm.project 
+# TODO - link up casm.project
+# import casm.project
 import mcapi
 import numpy as np
 import math
@@ -10,9 +11,48 @@ import json
 from string import ascii_lowercase
 import argparse
 
+
+# TODO -- the following objects not defined
+subprocess = {}
+re = {}
+schoenflies_symbol = ""
+space_group_symbol = ""
+space_group_schoenflies_symbol = ""
+space_group_schoenflies_symbol = ""
+space_group_schoenflies_symbol = ""
+name = ""
+
+# TODO -- stub functions - either not defined or not imported!
+def _parameteric_formula():
+    pass
+
+def GcmcConditions(cond):
+    pass
+
+def path_help():
+    pass
+
+def files_help():
+    pass
+
+def prim_help():
+    pass
+
+def composition_help():
+    pass
+
+def clex_help():
+    pass
+
+def mc_help():
+    pass
+
+def add_files_recursively():
+    pass
+
+
 # Note assume throughout that mcapi.Project.local_abspath is set with local
 # Materials Commons project directory tree location
-
 
 # specify the version of casm these functions work for
 casm_version = "0.2.0"
@@ -136,15 +176,29 @@ space_group_number_map = {
 
 # The following create and set measurments, updating 'create_sample_process'
 
-def _set_measurement(create_sample_process, attrname, measurement_data):
+def _set_measurement(create_sample_process, attribute, measurement_data, name=None):
+    if (not name):
+        name = attribute
+
+    if not "name" in measurement_data:
+        measurement_data['name'] = name
+
+    if not "attribute" in measurement_data:
+        measurement_data['attribute'] = attribute
+
+    if not "unit" in measurement_data:
+        measurement_data['unit'] = ""
+
     measurement = create_sample_process.create_measurement(data=measurement_data)
-    
+
     measurement_property = {
-        "attribute":attrname
+        "name": name,
+        "attribute": attribute
     }
-    
-    return create_sample_process.set_measurements_for_process_samples(\
+
+    return create_sample_process.set_measurements_for_process_samples(
         measurement_property, [measurement])
+
 
 def _add_integer_measurement(create_sample_process, attrname, value):
     measurement_data = {
@@ -682,15 +736,15 @@ def create_monte_carlo_process(expt, settings_local_abspath,
     mode = settings['driver']['mode']
     proc.set_value_of_setup_property('mode', mode)
     if mode == 'incremental':
-        init_cond = GcmcConditions(settings['driver']['initial_conditions')
+        init_cond = GcmcConditions(settings['driver']['initial_conditions'])
         proc.set_value_of_setup_property('initial_conditions_temperature', init_cond.T)
         proc.set_value_of_setup_property('initial_conditions_parametric_chemical_potential', init_cond.param_chem_pot)
         
-        final_cond = GcmcConditions(settings['driver']['final_conditions')
+        final_cond = GcmcConditions(settings['driver']['final_conditions'])
         proc.set_value_of_setup_property('final_conditions_temperature', init_cond.T)
         proc.set_value_of_setup_property('final_conditions_parametric_chemical_potential', init_cond.param_chem_pot)
         
-        final_cond = GcmcConditions(settings['driver']['incremental_conditions')
+        final_cond = GcmcConditions(settings['driver']['incremental_conditions'])
         proc.set_value_of_setup_property('incremental_conditions_temperature', init_cond.T)
         proc.set_value_of_setup_property('incremental_conditions_parametric_chemical_potential', init_cond.param_chem_pot)
         
@@ -728,4 +782,33 @@ if __name__ == "__main__":
     #CommonsCLIParser()
     print "hello"
 
+    parser = argparse.ArgumentParser(description = 'Upload CASM data to Materials Commons')
+    parser.add_argument('--path', help=path_help, type=str, default=None)
+    parser.add_argument('--files', help=files_help, action="store_true", default=False)
+    parser.add_argument('--prim', help=prim_help, action="store_true", default=False)
+    parser.add_argument('--composition', help=composition_help, action="store_true", default=False)
+    parser.add_argument('--clex', help=clex_help, action="store_true", default=False)
+    parser.add_argument('--mc', help=mc_help, action="store_true", default=False)
+    args = parser.parse_args()
+    
+    ## (How to construct already existing mcapi.Project / mcapi.Experiment ? )
+    #... check to find what Project I'm in ...
+    proj = 'to be determined'
+    
+    ## Construct Experiment object (assume already created remotely)
+    #... get current Experiment ...
+    expt = 'to be determined'
+    
+    ## Set local path to Materials Commons project files
+    expt.project.local_abspath = 'to be determined'
+    
+
+    # TODO - link up casm.project
+    ## Do CASM things ...
+    ## casm_proj = casm.project.Project(args.path)
+    
+    if args.mc:
+        pass
+
+    
 
