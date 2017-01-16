@@ -1,55 +1,12 @@
+# -*- coding: latin-1 -*-
 # this script creates a 'CASM Monte Carlo Calculation' process
 # and uploads the results files
 
-# TODO - link up casm.project
-# import casm.project
-import mcapi
 import numpy as np
 import math
 import os
 import json
 from string import ascii_lowercase
-import argparse
-
-
-# TODO -- the following objects not defined
-subprocess = {}
-re = {}
-schoenflies_symbol = ""
-space_group_symbol = ""
-space_group_schoenflies_symbol = ""
-space_group_schoenflies_symbol = ""
-space_group_schoenflies_symbol = ""
-name = ""
-
-# TODO -- stub functions - either not defined or not imported!
-def _parameteric_formula():
-    pass
-
-def GcmcConditions(cond):
-    pass
-
-def path_help():
-    pass
-
-def files_help():
-    pass
-
-def prim_help():
-    pass
-
-def composition_help():
-    pass
-
-def clex_help():
-    pass
-
-def mc_help():
-    pass
-
-def add_files_recursively():
-    pass
-
 
 # Note assume throughout that mcapi.Project.local_abspath is set with local
 # Materials Commons project directory tree location
@@ -176,7 +133,7 @@ space_group_number_map = {
 
 # The following create and set measurments, updating 'create_sample_process'
 
-def _set_measurement(create_sample_process, attribute, measurement_data, name=None):
+def _set_measurement(create_sample_process, attribute, measurement_data, name = None):
     if (not name):
         name = attribute
 
@@ -193,49 +150,53 @@ def _set_measurement(create_sample_process, attribute, measurement_data, name=No
 
     measurement_property = {
         "name": name,
-        "attribute": attribute
+        "attribute":attribute
     }
-
+    
     return create_sample_process.set_measurements_for_process_samples(
         measurement_property, [measurement])
 
+def _add_integer_measurement(create_sample_process, attribute, value, name = None):
 
-def _add_integer_measurement(create_sample_process, attrname, value):
+    if (not name):
+        name = attribute
+
     measurement_data = {
-        "attribute": attrname,
+        "name": name,
+        "attribute": attribute,
         "otype": "integer",
         "value": value,
         "is_best_measure": True
     }
-    return _set_measurement(create_sample_process, attrname, measurement_data)
+    return _set_measurement(create_sample_process, attribute, measurement_data, name)
         
 
-def _add_number_measurement(create_sample_process, attrname, value):
+def _add_number_measurement(create_sample_process, attrname, value, name = None):
     measurement_data = {
         "attribute": attrname,
         "otype": "number",
         "value": value,
         "is_best_measure": True
     }
-    return _set_measurement(create_sample_process, attrname, measurement_data)
+    return _set_measurement(create_sample_process, attrname, measurement_data, name)
 
-def _add_boolean_measurement(create_sample_process, attrname, value):
+def _add_boolean_measurement(create_sample_process, attrname, value, name = None):
     measurement_data = {
         "attribute": attrname,
         "otype": "boolean",
         "value": value,
         "is_best_measure": True
     }
-    return _set_measurement(create_sample_process, attrname, measurement_data)
+    return _set_measurement(create_sample_process, attrname, measurement_data, name)
 
-def _add_string_measurement(create_sample_process, attrname, value):
+def _add_string_measurement(create_sample_process, attrname, value, name = None):
     measurement_data = {
         "attribute": attrname,
         "otype": "string",
         "value": value,
         "is_best_measure": True
     }
-    return _set_measurement(create_sample_process, attrname, measurement_data)
+    return _set_measurement(create_sample_process, attrname, measurement_data, name)
 
 def _add_matrix_measurement(create_sample_process, attrname, value):
     measurement_data = {
@@ -248,9 +209,9 @@ def _add_matrix_measurement(create_sample_process, attrname, value):
         },
         "is_best_measure": True
     }
-    return _set_measurement(create_sample_process, attrname, measurement_data)
+    return _set_measurement(create_sample_process, attrname, measurement_data, name)
 
-def _add_vector_measurement(create_sample_process, attrname, value):
+def _add_vector_measurement(create_sample_process, attrname, value, name = None):
     measurement_data = {
         "attribute": attrname,
         "otype": "vector",
@@ -261,7 +222,7 @@ def _add_vector_measurement(create_sample_process, attrname, value):
         },
         "is_best_measure": True
     }
-    return _set_measurement(create_sample_process, attrname, measurement_data)
+    return _set_measurement(create_sample_process, attrname, measurement_data, name)
 
 def _add_list_measurement(create_sample_process, attrname, value, value_type):
     """
@@ -281,7 +242,7 @@ def _add_list_measurement(create_sample_process, attrname, value, value_type):
     }
     return _set_measurement(create_sample_process, attrname, measurement_data)
 
-def _add_file_measurement(create_sample_process, attrname, file):
+def _add_file_measurement(create_sample_process, attrname, file_obj):
     """
     Add a measurement that is a data file
     
@@ -291,14 +252,14 @@ def _add_file_measurement(create_sample_process, attrname, file):
         "attribute": attrname,
         "otype": "file",
         "value": {
-            "file_id": file.id,
-            "file_name": file.name
+            "file_id": file_obj.id,
+            "file_name": file_obj.name
         },
         "is_best_measure": True
     }
     return _set_measurement(create_sample_process, attrname, measurement_data)
 
-def _add_sample_measurement(create_sample_process, attrname, sample, property_set):
+def _add_sample_measurement(create_sample_process, attrname, sample):
     """
     Add a measurement that is a sample
     
@@ -331,11 +292,11 @@ def _add_file(proj, local_file_abspath, filename=None):
     top = proj.get_top_directory()
     
     # get mcapi.Directory to add file, creating intermediates as necessary
-    dir = top.get_descendent_list_by_path(os.path.dirname(file_relpath))[-1]
+    directory = top.get_descendent_list_by_path(os.path.dirname(file_relpath))[-1]
     
     if filename is None:
         filename = os.path.basename(local_file_abspath)
-    return dir.add_file(filename, local_file_abspath)
+    return directory.add_file(filename, local_file_abspath)
 
 
 def _add_files_recursively(proj, local_dir_abspath):
@@ -387,39 +348,39 @@ def create_prim_sample(expt, casm_proj):
         gamma = _angle(L[:,0], L[:,1])
         return {"a":a, "b":b, "c":c, "alpha":alpha, "beta":beta, "gamma":gamma}
     
-    def _lattice_symmetry(casm_proj):
-        """
-        Parse from 'casm sym', return Schoenflies form
-        """
-        def parse(stdout):
-            for line in stdout.split('\n'):
-                if re.search('Lattice point group is:', line):
-                    return line.split()[-1]
-            return None
-
-        proc = subprocess.Popen(["casm", "sym"], stdout=subprocess.PIPE)
-        stdout = proc.communicate()[0]
-        return parse(stdout)
+#    def _lattice_symmetry(casm_proj):
+#        """
+#        Parse from 'casm sym', return Schoenflies form
+#        """
+#        def parse(stdout):
+#            for line in stdout.split('\n'):
+#                if re.search('Lattice point group is:', line):
+#                    return line.split()[-1]
+#            return None
+#
+#        proc = subprocess.Popen(["casm", "sym"], stdout=subprocess.PIPE)
+#        stdout = proc.communicate()[0]
+#        return parse(stdout)
     
     def _lattice_system(schoenflies_symbol):
-        """ 
+        """
         Determine from lattice symmetry
         """
         return latsysmap[schoenflies_symbol]
     
-    def _crystal_symmetry(casm_proj):
-        """
-        Parse from 'casm sym', return Schoenflies form
-        """
-        def parse(stdout):
-            for line in stdout.split('\n'):
-                if re.search('Crystal point group is:', line):
-                    return line.split()[-1]
-            return None
-
-        proc = subprocess.Popen(["casm", "sym"], stdout=subprocess.PIPE)
-        stdout = proc.communicate()[0]
-        return parse(stdout)
+#    def _crystal_symmetry(casm_proj):
+#        """
+#        Parse from 'casm sym', return Schoenflies form
+#        """
+#        def parse(stdout):
+#            for line in stdout.split('\n'):
+#                if re.search('Crystal point group is:', line):
+#                   return line.split()[-1]
+#            return None
+#
+#        proc = subprocess.Popen(["casm", "sym"], stdout=subprocess.PIPE)
+#        stdout = proc.communicate()[0]
+#        return parse(stdout)
     
     def _crystal_symmetry_hm(schoenflies_symbol):
         """
@@ -427,14 +388,14 @@ def create_prim_sample(expt, casm_proj):
         """
         return symmap[schoenflies_symbol]
     
-    def _crystal_system(casm_proj):
-        """ 
-        Determine crystal system from crystal symmetry
-        """
-        for key, val in xtalsysmap:
-            if schoenflies_symbol in val:
-                return key
-        return None
+#    def _crystal_system(casm_proj):
+#        """
+#        Determine crystal system from crystal symmetry
+#        """
+#        for key, val in xtalsysmap:
+#            if schoenflies_symbol in val:
+#                return key
+#        return None
     
     def _crystal_family(schoenflies_symbol):
         """ 
@@ -496,18 +457,18 @@ def create_prim_sample(expt, casm_proj):
     #     "matrix"
     #     "parameters" (a, b, c, alpha, beta, gamma)
     #     "system" ("triclinic", "monoclinic", "orthorhombic", "tetragonal", "hexagonal", "rhombohedral", "cubic")
-    #     "symmetry" (SchÃ¶nflies symbol)
+    #     "symmetry" (Schönflies symbol)
     lattice_matrix = np.array(raw_prim['lattice_vectors']).transpose()
     _add_matrix_measurement(create_sample_process, 'lattice', lattice_matrix)
 
     lattice_parameters = _lattice_parameters(lattice_matrix)
     _add_vector_measurement(create_sample_process, 'parameters', lattice_parameters)
 
-    lattice_symmetry = _lattice_symmetry(casm_proj)
-    _add_string_measurement(create_sample_process, 'symmetry', lattice_symmetry)
+#    lattice_symmetry = _lattice_symmetry(casm_proj)
+#    _add_string_measurement(create_sample_process, 'symmetry', lattice_symmetry)
 
-    lattice_system = _lattice_system(lattice_symmetry)
-    _add_string_measurement(create_sample_process, 'system', lattice_system)
+#    lattice_system = _lattice_system(lattice_symmetry)
+#    _add_string_measurement(create_sample_process, 'system', lattice_system)
 
     # "space_group"
     #      "schonflies_symbol"
@@ -515,27 +476,27 @@ def create_prim_sample(expt, casm_proj):
     #      "number"
     #      "family" ("triclinic", "monoclinic", "orthorhombic", "tetragonal", "hexagonal", "cubic")
     #      "system" ("triclinic", "monoclinic", "orthorhombic", "tetragonal", "hexagonal", "trigonal", "cubic")
-    crystal_pg_schoenflies_symbol = _crystal_symmetry(casm_proj)
-    _add_string_measurement(create_sample_process, 'schonflies_space_group_symbol', crystal_pg_schoenflies_symbol)
+#    crystal_pg_schoenflies_symbol = _crystal_symmetry(casm_proj)
+#    _add_string_measurement(create_sample_process, 'schonflies_space_group_symbol', crystal_pg_schoenflies_symbol)
 
-    crystal_pg_hermann_mauguin_symbol = _crystal_symmetry_hm(space_group_symbol)
-    _add_string_measurement(create_sample_process, 'hermann_mauguin_space_group_symbol', crystal_pg_hermann_mauguin_symbol)
+#    crystal_pg_hermann_mauguin_symbol = _crystal_symmetry_hm(space_group_symbol)
+#    _add_string_measurement(create_sample_process, 'hermann_mauguin_space_group_symbol', crystal_pg_hermann_mauguin_symbol)
 
-    crystal_family = _crystal_family(space_group_schoenflies_symbol)
-    _add_string_measurement(create_sample_process, 'crystal_family', crystal_family)
+#    crystal_family = _crystal_family(space_group_schoenflies_symbol)
+#    _add_string_measurement(create_sample_process, 'crystal_family', crystal_family)
 
-    crystal_system = _crystal_system(space_group_schoenflies_symbol)
-    _add_string_measurement(create_sample_process, 'crystal_system', crystal_system)
+#    crystal_system = _crystal_system(space_group_schoenflies_symbol)
+#    _add_string_measurement(create_sample_process, 'crystal_system', crystal_system)
 
     # right now, this is a string giving a range of possible values based on the
     #   crystal point group
-    space_group_number = space_group_number_map[space_group_schoenflies_symbol]
-    _add_string_measurement(create_sample_process, 'space_group_number', space_group_number)
+#    space_group_number = space_group_number_map[space_group_schoenflies_symbol]
+#    _add_string_measurement(create_sample_process, 'space_group_number', space_group_number)
 
     # "file"
     # filename = dir.prim()  
-    file = _add_file(expt.proj, dir.prim()) 
-    _add_file_measurement(create_sample_process, 'casm_prism_file', file)
+#    file = _add_file(expt.proj, dir.prim())
+#    _add_file_measurement(create_sample_process, 'casm_prism_file', file)
 
     # "elements" - currently only elemental components are allowed
     elements = _elements(casm_proj)
@@ -634,7 +595,7 @@ def create_composition_axes_sample(expt, casm_proj, prim, clex_desc, axes_name):
     ## Create Sample
     create_sample_process = expt.create_process_from_template('global_Composition Axes')
     sample = create_sample_process.create_samples(
-        sample_names=[name]
+        sample_names=[axes_name]
     )[0]
     
     # casm.project.DirectoryStructure instance
@@ -655,8 +616,8 @@ def create_composition_axes_sample(expt, casm_proj, prim, clex_desc, axes_name):
     _add_string_measurement(create_sample_process, 'formula', formula)
     
     # "parametric_formula"
-    parametric_formula = _parameteric_formula(casm_proj, axes_name)
-    _add_string_measurement(create_sample_process, 'parametric_formula', parametric_formula)
+#    parametric_formula = _parameteric_formula(casm_proj, axes_name)
+#    _add_string_measurement(create_sample_process, 'parametric_formula', parametric_formula)
     
     return create_sample_process
 
@@ -686,12 +647,12 @@ def create_clex_sample(expt, casm_proj, prim, clex_desc):
     _add_sample_measurement(create_sample_process, 'prim', prim)
     
     # "bspecs" (file)
-    file = _add_file(expt.proj, dir.bspecs(clex_desc))
-    _add_file_measurement(create_sample_process, 'bspecs', file)
+    file_obj = _add_file(expt.proj, dir.bspecs(clex_desc))
+    _add_file_measurement(create_sample_process, 'bspecs', file_obj)
     
     # "eci" (file)
-    file = _add_file(expt.proj, dir.eci(clex_desc))
-    _add_file_measurement(create_sample_process, 'eci', file.id, file.name)
+    file_obj = _add_file(expt.proj, dir.eci(clex_desc))
+    _add_file_measurement(create_sample_process, 'eci', file_obj.id, file_obj.name)
     
     return create_sample_process
 
@@ -735,101 +696,47 @@ def create_monte_carlo_process(expt, settings_local_abspath,
     
     mode = settings['driver']['mode']
     proc.set_value_of_setup_property('mode', mode)
-    if mode == 'incremental':
-        init_cond = GcmcConditions(settings['driver']['initial_conditions'])
-        proc.set_value_of_setup_property('initial_conditions_temperature', init_cond.T)
-        proc.set_value_of_setup_property('initial_conditions_parametric_chemical_potential', init_cond.param_chem_pot)
+#    if mode == 'incremental':
+#        init_cond = GcmcConditions(settings['driver']['initial_conditions')
+#        proc.set_value_of_setup_property('initial_conditions_temperature', init_cond.T)
+#        proc.set_value_of_setup_property('initial_conditions_parametric_chemical_potential', init_cond.param_chem_pot)
+#
+#        final_cond = GcmcConditions(settings['driver']['final_conditions')
+#        proc.set_value_of_setup_property('final_conditions_temperature', init_cond.T)
+#        proc.set_value_of_setup_property('final_conditions_parametric_chemical_potential', init_cond.param_chem_pot)
+#
+#        final_cond = GcmcConditions(settings['driver']['incremental_conditions')
+#        proc.set_value_of_setup_property('incremental_conditions_temperature', init_cond.T)
+#        proc.set_value_of_setup_property('incremental_conditions_parametric_chemical_potential', init_cond.param_chem_pot)
         
-        final_cond = GcmcConditions(settings['driver']['final_conditions'])
-        proc.set_value_of_setup_property('final_conditions_temperature', init_cond.T)
-        proc.set_value_of_setup_property('final_conditions_parametric_chemical_potential', init_cond.param_chem_pot)
-        
-        final_cond = GcmcConditions(settings['driver']['incremental_conditions'])
-        proc.set_value_of_setup_property('incremental_conditions_temperature', init_cond.T)
-        proc.set_value_of_setup_property('incremental_conditions_parametric_chemical_potential', init_cond.param_chem_pot)
-        
-    elif mode == 'custom':
+#    elif mode == 'custom':
         #custom_cond = [GcmcConditions(cond) for cond in settings['driver']['custom_conditions'] ]
-        custom_cond = [GcmcConditions(cond) for cond in settings['driver']['custom_conditions']]
+#        custom_cond = [GcmcConditions(cond) for cond in settings['driver']['custom_conditions']]
         
         # "custom_conditions_temperature" (1d np.array)
-        custom_cond_T = np.array([cond.T for cond in custom_cond])
-        proc.set_value_of_setup_property('custom_conditions_temperature', custom_cond_T)
+#        custom_cond_T = np.array([cond.T for cond in custom_cond])
+#        proc.set_value_of_setup_property('custom_conditions_temperature', custom_cond_T)
         
         # "custom_conditions_parametric_chemical_potential" (2d np.array)
-        custom_cond_param_chem_pot = np.array([cond.param_chem_pot for cond in custom_cond])
-        proc.set_value_of_setup_property('custom_conditions_parametric_chemical_potential', custom_cond_param_chem_pot)
+#        custom_cond_param_chem_pot = np.array([cond.param_chem_pot for cond in custom_cond])
+#        proc.set_value_of_setup_property('custom_conditions_parametric_chemical_potential', custom_cond_param_chem_pot)
         
-    else:
+#    else:
         # is this the best way to handle errors?
-        raise Exception("Unknown Monte Carlo driver mode: " + mode)
+#        raise Exception("Unknown Monte Carlo driver mode: " + mode)
     
     ## Add samples
     proc.add_samples_to_process([prim, comp_axes, formation_energy_clex])
     
     ## Upload files
-    files = add_files_recursively(proj, mc_local_abspath)
+    # TODO - different name/logic for function
+    # files = add_files_recursively(proj, mc_local_abspath)
     
     ## Add files to process
-    proc.add_files(files)
+    # proc.add_files(files)
     
     ## Add measurements (read from 'mc_local_abspath/results.json' or 'mc_local_abspath/results.csv')
-    # TODO
+    # TODO - Add measurements...
 
     return proc
-
-
-if __name__ == "__main__":
-    
-    # Basic Materials Commons actions:
-    #   commons --set-mcurl http://materialscommons.org/api
-    #   commons --set-apikey abc123
-    #   commons --list-proj
-    #   commons --new-proj local_path
-    #   commons --list-expt
-    #   commons --new-expt expt_name
-    #   commons --set-expt expt_name
-    
-    # CASM-specific actions:
-    #   casm-commons --files (?)  
-    #   casm-commons --prim  
-    #   casm-commons --comp  
-    #   casm-commons --clex clexname
-    #   casm-commons --mc settings_local_path
-
-    parser = argparse.ArgumentParser(description = 'Upload CASM data to Materials Commons')
-    parser.add_argument('--path', help=path_help, type=str, default=None)
-    parser.add_argument('--files', help=files_help, action="store_true", default=False)
-    parser.add_argument('--prim', help=prim_help, action="store_true", default=False)
-    parser.add_argument('--composition', help=composition_help, action="store_true", default=False)
-    parser.add_argument('--clex', help=clex_help, action="store_true", default=False)
-    parser.add_argument('--mc', help=mc_help, action="store_true", default=False)
-    args = parser.parse_args()
-    
-    ## (How to construct already existing mcapi.Project / mcapi.Experiment ? )
-    #... check to find what Project I'm in ...
-    proj = 'to be determined'
-    
-    ## Construct Experiment object (assume already created remotely)
-    #... get current Experiment ...
-    expt = 'to be determined'
-    
-    ## Set local path to Materials Commons project files
-    expt.project.local_abspath = 'to be determined'
-    
-
-    # TODO - link up casm.project
-    ## Do CASM things ...
-    ## casm_proj = casm.project.Project(args.path)
-    
-    if args.mc:
-        pass
-
-    
-
-
-
-
-
-
 

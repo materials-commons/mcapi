@@ -257,6 +257,15 @@ class Process(MCObject):
                 self.setup[i] = self._transform_setup(self.setup[i])
         if (self.measurements):
             self.measurements = [make_measurement_object(m) for m in self.measurements]
+        if (self.input_samples):
+            self.input_samples = [make_object(s.input_data) for s in self.input_samples]
+        if (self.output_samples):
+            self.output_samples = [make_object(s.input_data) for s in self.output_samples]
+        if (self.input_files):
+            self.input_files = [make_object(s.input_data) for s in self.input_files]
+        if (self.output_files):
+            self.output_files = [make_object(s.input_data) for s in self.output_files]
+
 
     def _transform_setup(self,setup_element):
         setup_element.properties = [self._transform_property(prop) for prop in setup_element.properties]
@@ -324,21 +333,31 @@ class Sample(MCObject):
         self.project = None
         self.process = None
 
+        self.properties = []
+
         if not data:
             data = {}
 
         # attr = ['id', 'name', 'description', 'birthtime', 'mtime', 'otype', 'owner']
         super(Sample, self).__init__(data)
 
-        attr = ['property_set_id']
+        attr = ['property_set_id','properties']
         for a in attr:
             setattr(self, a, data.get(a, None))
+
+        attr = ['properties']
+        for a in attr:
+            array = getattr(self, a)
+            if not array:
+                array = []
+            setattr(self, a, array)
 
         if name:
             self.name = name
 
     def process_special_objects(self):
-        pass
+        if (self.properties):
+            self.properties = [make_measured_property(p.input_data) for p in self.properties]
 
 
 class Directory(MCObject):
@@ -483,7 +502,6 @@ class File(MCObject):
         return filepath
 
 
-
 class Measurement(MCObject):
     def __init__(self, data=None):
         # attr = ['id', 'name', 'description', 'birthtime', 'mtime', 'otype', 'owner']
@@ -496,11 +514,57 @@ class Measurement(MCObject):
         for a in attr:
             setattr(self, a, data.get(a, None))
 
+
 class MeasurementComposition(Measurement):
     def __init__(self, data=None):
         # attr = ['name', 'attribute', 'birthtime', 'mtime', 'otype', 'owner', 'unit', 'value']
         super(MeasurementComposition, self).__init__(data)
 
+
+class MeasurementString(Measurement):
+    def __init__(self, data=None):
+        # attr = ['name', 'attribute', 'birthtime', 'mtime', 'otype', 'owner', 'unit', 'value']
+        super(MeasurementString, self).__init__(data)
+
+
+class MeasurementMatrix(Measurement):
+    def __init__(self, data=None):
+        # attr = ['name', 'attribute', 'birthtime', 'mtime', 'otype', 'owner', 'unit', 'value']
+        super(MeasurementMatrix, self).__init__(data)
+
+
+class MeasurementVector(Measurement):
+    def __init__(self, data=None):
+        # attr = ['name', 'attribute', 'birthtime', 'mtime', 'otype', 'owner', 'unit', 'value']
+        super(MeasurementVector, self).__init__(data)
+
+
+class MeasurementSelection(Measurement):
+    def __init__(self, data=None):
+        # attr = ['name', 'attribute', 'birthtime', 'mtime', 'otype', 'owner', 'unit', 'value']
+        super(MeasurementSelection, self).__init__(data)
+
+
+class MeasurementFile(Measurement):
+    def __init__(self, data=None):
+        # attr = ['name', 'attribute', 'birthtime', 'mtime', 'otype', 'owner', 'unit', 'value']
+        super(MeasurementFile, self).__init__(data)
+
+
+class MeasurementInteger(Measurement):
+    def __init__(self, data=None):
+        # attr = ['name', 'attribute', 'birthtime', 'mtime', 'otype', 'owner', 'unit', 'value']
+        super(MeasurementInteger, self).__init__(data)
+
+class MeasurementNumber(Measurement):
+    def __init__(self, data=None):
+        # attr = ['name', 'attribute', 'birthtime', 'mtime', 'otype', 'owner', 'unit', 'value']
+        super(MeasurementNumber, self).__init__(data)
+
+class MeasurementBoolean(Measurement):
+    def __init__(self, data=None):
+        # attr = ['name', 'attribute', 'birthtime', 'mtime', 'otype', 'owner', 'unit', 'value']
+        super(MeasurementBoolean, self).__init__(data)
 
 class Property(MCObject):
     def __init__(self, data=None):
@@ -523,6 +587,26 @@ class Property(MCObject):
         attr = ['units', 'choices']
         for a in attr:
             setattr(self, a, data.get(a, []))
+
+
+class MeasuredProperty(Property):
+    def __init__(self, data=None):
+        # attr = ['id', 'name', 'description', 'birthtime', 'mtime', 'otype', 'owner',
+        # 'setup_id', 'required', 'unit', 'attribute', 'value', 'units', 'choices']
+        super(MeasuredProperty, self).__init__(data)
+
+        self.best_measure = []  # of Measurement
+
+        attr = ['best_measure']
+        for a in attr:
+            setattr(self, a, data.get(a, []))
+
+    def process_special_objects(self):
+        if (self.best_measure):
+            for i in range(len(self.best_measure)):
+                measure_data = self.best_measure[i]
+                measurement = make_measurement_object(measure_data)
+                self.best_measure[i] = measurement
 
 
 class NumberProperty(Property):
@@ -601,7 +685,6 @@ def make_object(data):
 def make_base_object_for_type(data):
     if _data_has_type(data):
         object_type = data['otype']
-#        print "make_base_object_for_type: ", object_type
         if object_type == 'process':
             return Process(data=data)
         if object_type == 'project':
@@ -624,7 +707,6 @@ def make_base_object_for_type(data):
         else:
             return MCObject(data=data)
     else:
-#        print "make_base_object_for_type: no type"
         if _has_key('unit', data):
             return MCObject(data=data)
         if _has_key('starred', data):
@@ -637,25 +719,29 @@ def make_property_object(obj):
         data = obj.input_data
     if _data_has_type(data):
         object_type = data['otype']
+        holder = None
         if object_type == 'number':
-            return NumberProperty(data=data)
+            holder = NumberProperty(data=data)
         if object_type == 'string':
-            return StringProperty(data=data)
+            holder = StringProperty(data=data)
         if object_type == 'boolean':
-            return BooleanProperty(data=data)
+            holder = BooleanProperty(data=data)
         if object_type == 'date':
-            return DateProperty(data=data)
+            holder = DateProperty(data=data)
         if object_type == 'selection':
-            return SelectionProperty(data=data)
+            holder = SelectionProperty(data=data)
         if object_type == 'function':
-            return FunctionProperty(data=data)
+            holder = FunctionProperty(data=data)
         if object_type == 'composition':
-            return CompositionProperty(data=data)
+            holder = CompositionProperty(data=data)
         if object_type == 'vector':
-            return VectorProperty(data=data)
+            holder = VectorProperty(data=data)
         if object_type == 'matrix':
-            return MatrixProperty(data=data)
-        raise Exception("No Property Object, unrecognized otype = " + object_type, data)
+            holder = MatrixProperty(data=data)
+        if (not holder):
+            raise Exception("No Property Object, unrecognized otype = " + object_type, data)
+        holder.process_special_objects()
+        return holder
     else:
         raise Exception("No Property Object, otype not defined", data)
 
@@ -663,14 +749,39 @@ def make_datetime(data):
     timestamp = int(data['epoch_time'])
     return datetime.datetime.utcfromtimestamp(timestamp)
 
+def make_measured_property(data):
+    property = MeasuredProperty(data)
+    property.process_special_objects()
+    return property
+
 def make_measurement_object(obj):
     data = obj
     if isinstance(obj,MCObject):
         data = obj.input_data
     if _data_has_type(data):
         object_type = data['otype']
+        holder = None
         if object_type == 'composition':
-             return MeasurementComposition(data=data)
+            holder = MeasurementComposition(data=data)
+        if object_type == 'string':
+            holder = MeasurementString(data=data)
+        if object_type == 'matrix':
+            holder = MeasurementMatrix(data=data)
+        if object_type == 'vector':
+            holder = MeasurementVector(data=data)
+        if object_type == 'selection':
+            holder = MeasurementSelection(data=data)
+        if object_type == 'file':
+            holder = MeasurementFile(data=data)
+        if object_type == 'integer':
+            holder = MeasurementInteger(data=data)
+        if object_type == 'number':
+            holder = MeasurementNumber(data=data)
+        if object_type == 'boolean':
+            holder = MeasurementBoolean(data=data)
+        if (holder):
+            holder.process_special_objects()
+            return holder
         raise Exception("No Measurement Object, unrecognized otype = " + object_type, data)
     else:
         raise Exception("No Measurement Object, otype not defined", data)
