@@ -231,7 +231,7 @@ def file_upload(project_id, directory_id, file_name, input_path, remote=use_remo
         mime_type = magic.Magic(mime=True).from_file(input_path)
         files = {'file': (file_name, f, mime_type)}
         restpath = remote.make_url_v2(api_url)
-        r = requests.post(restpath, params=remote.params, files=files)
+        r = requests.post(restpath, params=remote.params, files=files, verify=False)
         if r.status_code == requests.codes.ok:
             return r.json()
         r.raise_for_status()

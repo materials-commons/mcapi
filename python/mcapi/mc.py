@@ -399,12 +399,12 @@ class Directory(MCObject):
         for dir_or_file in results['children']:
             its_type = dir_or_file['otype']
             if its_type == 'file':
-                ret.append(File(data=dir_or_file))
+                obj = File(data=dir_or_file)
             if its_type == 'directory':
-                directory = Directory(data=dir_or_file)
-                directory._project = self._project
-                directory._parent = self
-                ret.append(directory)
+                obj = Directory(data=dir_or_file)
+            obj._project = self._project
+            obj._parent = self
+            ret.append(obj)
         return ret
 
     def get_descendant_list_by_path(self, path):
@@ -419,19 +419,24 @@ class Directory(MCObject):
             dir_list.append(directory)
         return dir_list
 
-    def add_file(self, file_name, input_path):
-        return self._project.add_file_using_directory(self, file_name, input_path)
+    def add_file(self, file_name, input_path, verbose=True):
+        if verbose:
+            print "uploading:", input_path, " as:", file_name
+        result = self._project.add_file_using_directory(self, file_name, input_path)
+        print result
+        return result
 
-    def add_directory_tree(self, dir_name, input_dir_path):
+    def add_directory_tree(self, dir_name, input_dir_path, verbose=True):
         if (not os_path.isdir(input_dir_path)): return self
         dir_tree_table = make_dir_tree_table(input_dir_path,dir_name,dir_name,{})
+        result = []
         for relative_dir_path in dir_tree_table.keys():
             file_dict = dir_tree_table[relative_dir_path]
             dirs = self.get_descendant_list_by_path(relative_dir_path)
             directory = dirs[-1]
             for file_name in file_dict.keys():
-                directory.add_file(file_name,file_dict[file_name])
-        return self
+                result.append(directory.add_file(file_name,file_dict[file_name],verbose))
+        return result
 
     def process_special_objects(self):
         pass
@@ -461,6 +466,7 @@ class File(MCObject):
         self.description = ""
         self.owner = ""
 
+        self.path = ""
         self.size = 0
         self.uploaded = 0
         self.checksum = ""
@@ -473,7 +479,7 @@ class File(MCObject):
         self.samples = []
         self.processes = []
 
-        # additional fields, not inserted now, additional code needed
+        # additional fields
         self._project = None
         self._parent = None
 
@@ -905,6 +911,11 @@ def _create_file_with_upload(project, directory, file_name, input_path):
     directory_id = directory.id
     results = api.file_upload(project_id, directory_id, file_name, input_path)
     uploaded_file = make_object(results)
+    uploaded_file._project = project
+    uploaded_file._parent = directory
+    
+    # why is this not included in the results here, but it is in 'get_children'?
+    uploaded_file.path = os_path.join(directory.name, uploaded_file.name)
     return uploaded_file
 
 
