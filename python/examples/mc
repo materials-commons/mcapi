@@ -11,6 +11,49 @@ import mcapi
 import pandas
 import string
 import time
+from tabulate import tabulate
+
+import requests
+
+def delete(restpath, remote=mcapi.Remote()):
+    r = requests.delete(restpath, params=remote.params, verify=False)
+    if r.status_code == requests.codes.ok:
+        return r.json()
+    r.raise_for_status()
+
+def _experiments(project_id, remote=mcapi.Remote()):
+    """
+    get experiments data for specified project
+
+    Returns
+    ----------
+      results: List[dict()]
+
+    """
+    return mcapi.api.get(remote.make_url_v2('projects/' + project_id + '/experiments'), remote=remote)
+
+def _delete_experiment(project_id, experiment_id, remote=mcapi.Remote()):
+    """
+    delete experiment for specified project
+
+    Returns
+    ----------
+      results: result
+
+    """
+    return delete(remote.make_url_v2('projects/' + project_id + '/experiments'), remote=remote)
+
+def _get_experiments(proj):
+    """
+    get List[mcapi.Experiment] for project
+    """
+    results = _experiments(proj.id, proj.remote)
+    ret = []
+    for data in results:
+        expt = mcapi.mc.make_object(data)
+        expt.project = proj
+        ret.append(expt)
+    return ret 
 
 def _mc_remotes(path=None):
     """
@@ -19,25 +62,73 @@ def _mc_remotes(path=None):
     # just 'origin' for now
     return {'origin':mcapi.Remote()}
 
-def _print_projects(projects):
+def _print_projects(projects, current=None):
     """
-    Print list of projects
+    Print list of projects, include '*' for current project
     
     Arguments:
         projects: List[mcapi.Project]
+        current: mcapi.Project containing os.getcwd()
     """
     data = []
     for p in projects:
+        _is_current = ' '
+        if current is not None and p.id == current.id:
+          _is_current = '*' 
+        
+        _name = p.name
+        if len(_name) > 40:
+            _name = _name[:37] + '...'
+        
         data.append({
-            'name':p.name,
+            'current':_is_current,
+            'name': _name,
             'owner':p.owner,
             'id':p.id
         })
     
-    df = pandas.DataFrame.from_records(data, index='id', 
-        columns=['name', 'owner', 'id'])
+    df = pandas.DataFrame.from_records(data, 
+        columns=['current', 'name', 'owner', 'id'])
     
-    print df.to_string()
+    #print df.to_string()
+    print(tabulate(df, showindex=False, headers=['', 'name', 'owner', 'id']))
+
+def _print_experiments(experiments, current=None):
+    """
+    Print list of experiments, include '*' for current experiment
+    
+    Arguments:
+        experiments: List[mcapi.Experiment]
+        current: current working mcapi.Experiment
+    """
+    data = []
+    for e in experiments:
+        
+        _is_current = ' '
+        if current is not None and e.id == current.id:
+          _is_current = '*' 
+        
+        _name = e.name
+        if len(_name) > 40:
+            _name = _name[:37] + '...'
+        
+        _description = e.description
+        if len(_description) > 100:
+            _description = _description[:97] + '...'
+        
+        data.append({
+            'current':_is_current,
+            'name': _name,
+            'description':_description,
+            'owner':e.owner,
+            'id':e.id
+        })
+    
+    df = pandas.DataFrame.from_records(data, 
+        columns=['current', 'name', 'description', 'owner', 'id'])
+    
+    #print df.to_string()
+    print(tabulate(df, showindex=False, headers=['', 'name', 'description', 'owner', 'id']))
 
 def _proj_path(path=None):
     if path is None:
@@ -133,6 +224,26 @@ def make_local_project(path=None):
     proj.path = _proj_path(path)
     proj.remote = remote
     return proj
+
+
+def make_local_expt(proj):
+    with open(_proj_config(proj.path)) as f:
+        j = json.load(f)
+    
+    for expt in _get_experiments(proj):
+        if expt.id == j['experiment_id']:
+            return expt
+    
+    return None
+
+def set_current_experiment(proj, expt):
+    config_path = _proj_config(proj.path)
+    with open(config_path, 'r') as f:
+        data = json.load(f)
+    data['experiment_id'] = expt.id
+    with open(config_path, 'w') as f:
+        json.dump(data, f)
+    print "set current experiment: '" + expt.name + "'"
 
 #  Want to print something like: 
 #
@@ -283,8 +394,79 @@ Specialized commands are:
         
         projects = mcapi.list_projects()
         
-        _print_projects(projects)
+        current = None
+        if _proj_path() is not None:
+            current = make_local_project()
+        
+        _print_projects(projects, current)
     
+    
+    def expt(self):
+        """
+        List, create, delete, and modify experiments
+        
+        mc expt
+        mc expt [-c] <exptname>
+        
+        """
+        parser = argparse.ArgumentParser(
+            description='List, create, delete, and modify experiments')
+        parser.add_argument('expts', nargs='*', default=None, help='Experiment names (or id if --id given)')
+        parser.add_argument('-l', '--list', action="store_true", default=True, help='List experiments (default)')
+        parser.add_argument('-c', '--create', action="store_true", default=False, help='Create experiments')
+        parser.add_argument('-d', '--delete', action="store_true", default=False, help='Delete experiments')
+        parser.add_argument('-s', '--set', action="store_true", default=False, help='Set current experiment')
+        parser.add_argument('--id', action="store_true", default=False, help='Input experiment id instead of name')
+        parser.add_argument('--desc', type=str, default="", help='Experiment description')
+        #parser.add_argument('-m', '--rename', type=str, default='origin', help='Rename experiment')
+        
+        # ignore 'mc expt'
+        args = parser.parse_args(sys.argv[2:])
+        
+        proj = make_local_project()
+        expt_list = _get_experiments(proj)
+        expts = {e.name:e for e in expt_list}
+        expt_ids = {e.id:e for e in expt_list}
+        
+        if args.create:
+            if len(args.expts) != 1:
+                print 'create one experiment at a time'
+                print 'example: mc expt -c ExptName --desc "short description"'
+                parser.print_help()
+                exit(1)
+            for name in args.expts:
+                if name not in expts:
+                    expt = proj.create_experiment(name, args.desc)
+                    print 'Created experiment:', expt.name
+                    set_current_experiment(proj, expt)
+                else:
+                    print 'experiment: \'' + name + '\' already exists'
+        
+        elif args.delete:
+            for name in args.expts:
+                if args.id:
+                    _delete_experiment(proj.id, expt_ids[name])
+                else:
+                    _delete_experiment(proj.id, expts[name])
+                print 'Deleted experiment:', name
+        
+        elif args.set:
+            if len(args.expts) != 1:
+                print 'set one current experiment at a time'
+                print 'example: mc expt -s ExptName'
+                parser.print_help()
+                exit(1)
+            
+            if args.id:
+                set_current_experiment(proj, expt_ids[args.expts[0]])
+            else:
+                set_current_experiment(proj, expts[args.expts[0]])
+        
+        elif args.list:
+            
+            _print_experiments(_get_experiments(proj), make_local_expt(proj))
+        
+        return
     
     def init(self):
         """
@@ -299,7 +481,7 @@ Specialized commands are:
         parser.add_argument('--remote', type=str, default='origin', help='Remote name')
         parser.add_argument('--desc', type=str, default='', help='Project description')
         
-        # ignore 'mc proj'
+        # ignore 'mc init'
         args = parser.parse_args(sys.argv[2:])
         
         remotes = _mc_remotes()
@@ -313,7 +495,7 @@ Specialized commands are:
         #project = mcapi.create_project(args.name, args.desc, remote=remote)
         
         print "Created new project at:", remote.mcurl
-        _print_projects([project])
+        _print_projects([project], project)
     
     def clone(self):
         """
@@ -328,7 +510,7 @@ Specialized commands are:
         parser.add_argument('id', help='Project id')
         parser.add_argument('--remote', type=str, default='origin', help='Remote name')
         
-        # ignore 'mc proj'
+        # ignore 'mc clone'
         args = parser.parse_args(sys.argv[2:])
         
         remotes = _mc_remotes()
@@ -367,7 +549,7 @@ Specialized commands are:
             description='List local & remote directory contents')
         parser.add_argument('paths', nargs='*', default=[os.getcwd()], help='Files or directories')
         
-        # ignore 'mc proj'
+        # ignore 'mc ls'
         args = parser.parse_args(sys.argv[2:])
         
         local_abspaths = [os.path.abspath(p) for p in args.paths]
@@ -423,7 +605,7 @@ Specialized commands are:
         parser.add_argument('paths', nargs='*', default=None, help='Files or directories')
         parser.add_argument('-r', '--recursive', action="store_true", default=False, help='Upload directory contents recursively')
         
-        # ignore 'mc upload'
+        # ignore 'mc up'
         args = parser.parse_args(sys.argv[2:])
         
         local_abspaths = [os.path.abspath(p) for p in args.paths]
@@ -462,7 +644,7 @@ Specialized commands are:
         parser.add_argument('-r', '--recursive', action="store_true", default=False, help='Download directory contents recursively')
         parser.add_argument('-f', '--force', action="store_true", default=False, help='Force overwrite of existing files')
         
-        # ignore 'mc upload'
+        # ignore 'mc down'
         args = parser.parse_args(sys.argv[2:])
         
         local_abspaths = [os.path.abspath(p) for p in args.paths]
