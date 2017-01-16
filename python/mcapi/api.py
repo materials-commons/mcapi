@@ -241,7 +241,7 @@ def file_download(project_id, file_id, output_file_path, remote=use_remote()):
     with open(output_file_path, 'wb') as f:
         api_url = "projects/" + project_id + "/files/" + file_id + "/download"
         restpath = remote.make_url_v2(api_url)
-        r = requests.get(restpath, params=remote.params, stream=True)
+        r = requests.get(restpath, params=remote.params, stream=True, verify=False)
 
         if not r.ok:
             r.raise_for_status()

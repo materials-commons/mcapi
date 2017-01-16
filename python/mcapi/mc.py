@@ -2,6 +2,7 @@ import api
 import datetime
 from os import path as os_path
 from os import listdir
+from os import getcwd
 from os import pardir as parent_directory
 from pathlib import Path
 
@@ -421,7 +422,7 @@ class Directory(MCObject):
 
     def add_file(self, file_name, input_path, verbose=True):
         if verbose:
-            print "uploading:", input_path, " as:", file_name
+            print "uploading:", os_path.relpath(input_path, getcwd()), " as:", file_name
         result = self._project.add_file_using_directory(self, file_name, input_path)
         print result
         return result
