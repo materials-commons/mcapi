@@ -326,6 +326,7 @@ class CommonsCLIParser(object):
 The most commonly used mc commands are:
     remote     List servers
     proj       List projects
+    expt       List, create, delete, and modify experiments
     init       Initialize a new project
     clone      Clone an existing project
     ls         List local and remote directory contents
