@@ -150,10 +150,9 @@ class Project(MCObject):
     def get_directory(self, path):
         return self.get_directory_list(path)[-1]
 
-    def add_file_using_directory(self, directory, file_name, input_path):
-        uploaded_file = _create_file_with_upload(self, directory, file_name, input_path)
+    def add_file_using_directory(self, directory, file_name, local_input_path):
+        uploaded_file = _create_file_with_upload(self, directory, file_name, local_input_path)
         return uploaded_file
-
 
 class Experiment(MCObject):
     def __init__(self, project_id=None, name=None, description=None,
@@ -456,7 +455,7 @@ class File(MCObject):
 
         # additional fields, not inserted now, additional code needed
         self._project = None
-        self._parent = None
+        self._directory = None
 
         if not data:
             data = {}
@@ -478,6 +477,12 @@ class File(MCObject):
 
     def process_special_objects(self):
         pass
+
+    def download_file_content(self,local_download_file_path):
+        filepath = _download_data_to_file(self._project, self, local_download_file_path)
+        return filepath
+
+
 
 class Measurement(MCObject):
     def __init__(self, data=None):
@@ -792,6 +797,8 @@ def _create_file_with_upload(project, directory, file_name, input_path):
     directory_id = directory.id
     results = api.file_upload(project_id, directory_id, file_name, input_path)
     uploaded_file = make_object(results)
+    uploaded_file._project = project
+    uploaded_file._directory = directory
     return uploaded_file
 
 
