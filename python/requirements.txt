@@ -2,5 +2,4 @@ python-magic
 requests
 rethinkdb
 pytest
-mcapi
 pathlib
