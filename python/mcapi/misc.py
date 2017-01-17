@@ -373,7 +373,6 @@ class CommonsCLIParser(object):
                 if f:
                     f.close()
             
-            print 'Run custom'
         else:
             print 'Unrecognized command'
             parser.print_help()
