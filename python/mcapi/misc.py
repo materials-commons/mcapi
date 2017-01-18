@@ -12,6 +12,7 @@ from tabulate import tabulate
 import requests
 import StringIO
 import imp
+import hashlib
 
 
 def _delete(restpath, remote=mcapi.Remote()):
@@ -202,8 +203,7 @@ def _get_file_or_directory(proj, local_path):
         if len(nextchild) == 0:
             return None
         curr = nextchild[0]
-    return curr
-    
+    return curr    
 
 def make_local_project(path=None):
     # get config
@@ -267,25 +267,40 @@ def set_current_experiment(proj, expt):
 #  remote_owner           -          - remote_mtime remote_size file2
 #
 
-def _ls_group(proj, paths, files_only=True):
+def _ls_group(proj, paths, files_only=True, checksum=False, json=False, id=False):
     """
     Construct DataFrame with 'mc ls' results for paths. Also outputs
     the sets of paths that are files or directories (either local or remote).
+    
+    Arguments:
+        files_only: If True, only include files in output DataFrame
+        checksum: If True, calculate MD5 checksum of local files and compared to remote
+    
+    Results:
+        (df, files, dirs, remotes):
+        
+        df: pandas.DataFrame containing:
+            'l_mtime', 'l_size', 'l_type', 'r_mtime', 'r_size', 'r_type', 'eq', 'name'
+        files: set of local and remote paths that are files
+        dirs: set of local and remote paths that are directories
+        remotes: set of remote File and Directory objects
+        
     """
     path_data = []
     columns = [
-        'owner',
-        'l_mtime', 'l_size', 'l_checksum', 'l_type',
-        'r_mtime', 'r_size', 'r_checksum', 'r_type',
-        'name']
+        'l_mtime', 'l_size', 'l_type',
+        'r_mtime', 'r_size', 'r_type',
+        'eq', 'name', 'id']
     data_init = {k:'-' for k in columns}
     files = set()
     dirs = set()
+    remotes = set()
     
     for path in paths:
         
         data = copy.deepcopy(data_init)
         data['name'] = os.path.basename(path)
+        l_checksum = None
         
         # locals
         if os.path.exists(path):
@@ -293,7 +308,9 @@ def _ls_group(proj, paths, files_only=True):
             data['l_size'] = os.path.getsize(path)
             if os.path.isfile(path):
                 data['l_type'] = 'file'
-                data['l_checksum'] = 'checksum'
+                if checksum:
+                    with open(path, 'r') as f:
+                        l_checksum = hashlib.md5(f.read()).hexdigest()
                 files.add(path)
             elif os.path.isdir(path):
                 data['l_type'] = 'dir'
@@ -302,22 +319,26 @@ def _ls_group(proj, paths, files_only=True):
         # remotes
         obj = _get_file_or_directory(proj, path)
         if obj is not None:
-            data['owner'] = obj.owner
             if obj.mtime:
                 data['r_mtime'] = time.strftime("%b %Y %H:%M:%S", time.localtime(obj.mtime))
             data['r_size'] = obj.size
             if isinstance(obj, mcapi.File):
                 data['r_type'] = 'file'
-                data['r_checksum'] = obj.checksum
+                if checksum and l_checksum is not None:
+                    data['eq'] = (obj.checksum == l_checksum)
                 files.add(path)
+                remotes.add(obj)
             elif isinstance(obj, mcapi.Directory):
                 data['r_type'] = 'dir'
                 dirs.add(path)
+                if not files_only:
+                    remotes.add(obj)
+            data['id'] = obj.id
         
         if not files_only or ('file' in [data['l_type'], data['r_type']]):
             path_data.append(data)
     
-    return (pandas.DataFrame.from_records(path_data, columns=columns), files, dirs)
+    return (pandas.DataFrame.from_records(path_data, columns=columns).sort_values(by='name'), files, dirs, remotes)
 
 class CommonsCLIParser(object):
 
@@ -646,6 +667,8 @@ class CommonsCLIParser(object):
         parser = argparse.ArgumentParser(
             description='List local & remote directory contents')
         parser.add_argument('paths', nargs='*', default=[os.getcwd()], help='Files or directories')
+        parser.add_argument('--checksum', action="store_true", default=False, help='Calculate MD5 checksum for local files')
+        parser.add_argument('--json', action="store_true", default=False, help='Print JSON exactly')
         
         # ignore 'mc ls'
         args = parser.parse_args(sys.argv[2:])
@@ -655,7 +678,8 @@ class CommonsCLIParser(object):
         proj = make_local_project()
         
         # act on local paths
-        (df, files, dirs) = _ls_group(proj, local_abspaths, files_only=True)
+        (df, files, dirs, remotes) = _ls_group(proj, local_abspaths,
+            files_only=True, checksum=args.checksum, json=args.json)
         
         # print warnings for type mismatches
         for file in files:
@@ -664,9 +688,13 @@ class CommonsCLIParser(object):
             if file in dirs and os.path.isdir(file):
                 print "warning!", file, "is a local directory and remote file!"
         
-        if df.shape[0]:
-            print df.to_string(index=False)
-            print ""
+        if args.json:
+            for r in remotes:
+                print r.input_data
+        else:
+            if df.shape[0]:
+                print df.to_string(index=False)
+                print ""
         
         for d in dirs:
             
@@ -682,12 +710,17 @@ class CommonsCLIParser(object):
             
             _local_abspaths = set(_locals + _remotes)
                 
-            (df, files, dirs) = _ls_group(proj, _local_abspaths, files_only=False)
+            (df, files, dirs, remotes) = _ls_group(proj, _local_abspaths,
+                files_only=False, checksum=args.checksum, json=args.json)
             
-            if df.shape[0]:
-                print os.path.relpath(d, os.getcwd()) + ":"
-                print df.to_string(index=False)
-                print ""
+            if args.json:
+                for r in remotes:
+                    print r.input_data
+            else:
+                if df.shape[0]:
+                    print os.path.relpath(d, os.getcwd()) + ":"
+                    print df.to_string(index=False)
+                    print ""
         
         return
 
