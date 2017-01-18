@@ -31,6 +31,9 @@ def _experiments(project_id, remote=mcapi.Remote()):
     """
     return mcapi.api.get(remote.make_url_v2('projects/' + project_id + '/experiments'), remote=remote)
 
+def _templates(remote=mcapi.Remote()):
+    return mcapi.api.get(remote.make_url_v2('templates'), remote=remote)
+
 def _delete_experiment(project_id, experiment_id, remote=mcapi.Remote()):
     """
     delete experiment for specified project
@@ -326,7 +329,8 @@ class CommonsCLIParser(object):
         {'name':'clone', 'desc': 'Clone an existing project'},
         {'name':'ls', 'desc': 'List local and remote directory contents'},
         {'name':'up', 'desc': 'Upload files'},
-        {'name':'down', 'desc': 'Download files'}
+        {'name':'down', 'desc': 'Download files'},
+        {'name':'templates', 'desc': 'List process templates'}
     ]
     
     def __init__(self):
@@ -401,7 +405,6 @@ class CommonsCLIParser(object):
         data = [{'name': key, 'url': remotes[key].mcurl} for key in remotes]
         df = pandas.DataFrame.from_records(data, columns=['name', 'url'])
         print df.to_string(index=False)
-        
 
     def proj(self):
         """
@@ -427,6 +430,74 @@ class CommonsCLIParser(object):
         
         _print_projects(projects, current)
     
+    def templates(self):
+        """
+        Show list of process templates
+        
+        Goal: 
+            mc templates [--details] [--remote <remotename> ...] [<templatename> ...]
+        
+        Current: 
+            mc templates [--details] [<templatename> ...]
+        """
+        parser = argparse.ArgumentParser(
+            description='List process templates')
+        parser.add_argument('names', nargs='*', default=None, help='Template names (or id if --id given)')
+        parser.add_argument('--id', action="store_true", default=False, help='Input experiment id instead of name')
+        parser.add_argument('--json', action="store_true", default=False, help='Print JSON exactly')
+        
+        # ignore 'mc templates'
+        args = parser.parse_args(sys.argv[2:])
+        
+        data = _templates()
+        
+        # print all templates
+        if not args.names:
+            
+            if args.json:
+                print json.dumps(data, indent=2)
+            else:
+                df = pandas.DataFrame.from_records(data, columns=['name', 'id'])
+                print(tabulate(df, showindex=False, headers=['name', 'id']))
+        
+        # print specific templates
+        else:
+            if args.id:
+                _data = {d['id']:d for d in data}
+            else:
+                _data = {d['name']:d for d in data}
+            
+            for name in args.names:
+                
+                if args.json:
+                    print json.dumps(_data[name], indent=2)
+                else:
+                    
+                    print ""
+                    value_list = ['name', 'description', 'id', 'category', 'process_type', 'destructive', 'does_transform']
+                    for k in value_list:
+                        print k + ":", _data[name][k]
+                    
+                    # for 'create sample' processes
+                    measurements = _data[name]['measurements']
+                    if len(measurements):
+                        print "\nCreate samples with attributes:\n"
+                        df = pandas.DataFrame.from_records(measurements, columns=['name', 'attribute', 'otype', 'units'])
+                        print(tabulate(df, showindex=False, headers=['name', 'attribute', 'otype', 'units'])) 
+                    
+                    # for process settings / attributes
+                    setup = _data[name]['setup']
+                    
+                    # attributes are grouped, for each group print attributes
+                    for s in setup:
+                        properties = s['properties']
+                        if len(properties):
+                            print "\nProcess attributes: ", s['name'], "\n"
+                            df = pandas.DataFrame.from_records(properties, columns=['name', 'attribute', 'otype', 'unit'])
+                            print(tabulate(df, showindex=False, headers=['name', 'attribute', 'otype', 'unit']))
+                        
+                    
+        return
     
     def expt(self):
         """
@@ -494,7 +565,7 @@ class CommonsCLIParser(object):
             _print_experiments(_get_experiments(proj), make_local_expt(proj))
         
         return
-    
+
     def init(self):
         """
         Initialize a new project
@@ -523,7 +594,7 @@ class CommonsCLIParser(object):
         
         print "Created new project at:", remote.mcurl
         _print_projects([project], project)
-    
+
     def clone(self):
         """
         'Clone' a project, i.e. set the local directory tree where files should
@@ -564,7 +635,7 @@ class CommonsCLIParser(object):
         
         print "Cloned project from", remote.mcurl, "to", dest
         _print_projects([project])
-    
+
     def ls(self):
         """
         'ls' a project directory to see local and remote files and directories.
@@ -657,7 +728,7 @@ class CommonsCLIParser(object):
                 print "error uploading:", os.path.relpath(p, os.getcwd())
                 print "use -r option to upload directory contents, recursively"
         return
-    
+
     def down(self):
         """
         download files from Materials Commons
@@ -725,7 +796,7 @@ class CommonsCLIParser(object):
             
             elif isinstance(obj, mcapi.Directory):
                 _download(proj, obj, recursive=args.recursive)
-                
+        
         return
-    
+
 
