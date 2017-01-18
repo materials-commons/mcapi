@@ -1,3 +1,5 @@
-magic
+python-magic
 requests
-json
+rethinkdb
+pytest
+pathlib
