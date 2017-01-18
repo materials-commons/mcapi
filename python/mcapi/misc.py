@@ -706,7 +706,10 @@ class CommonsCLIParser(object):
                 remote_dir = proj.get_top_directory()
             else:
                 remote_dir = _get_file_or_directory(proj, d)
-            _remotes = [os.path.join(d, child.name) for child in remote_dir.get_children()]
+            
+            _remotes = []
+            if remote_dir is not None:
+                _remotes = [os.path.join(d, child.name) for child in remote_dir.get_children()]
             
             _local_abspaths = set(_locals + _remotes)
                 
@@ -747,12 +750,16 @@ class CommonsCLIParser(object):
             if os.path.isfile(p):
                 #print "uploading:", p
                 dir = _get_file_or_directory(proj, os.path.dirname(p))
+                if dir is None:
+                    dir = proj.get_directory(_local_to_remote_relpath(proj, p))
                 result = dir.add_file(os.path.basename(p), p, verbose=True)
                 # This should indicate if file already existed on Materials Commons
                 #print result.path + ":", result
             elif os.path.isdir(p) and args.recursive:
                 #print "uploading:", p
                 dir = _get_file_or_directory(proj, os.path.dirname(p))
+                if dir is None:
+                    dir = proj.get_directory(_local_to_remote_relpath(proj, p))
                 result = dir.add_directory_tree(os.path.basename(p), os.path.dirname(p), verbose=True)
                 #for f in result:
                 #    # This should indicate if file already existed on Materials Commons
