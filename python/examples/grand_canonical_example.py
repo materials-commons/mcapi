@@ -200,42 +200,49 @@ def _set_measurement(create_sample_process, attribute, measurement_data, name=No
         measurement_property, [measurement])
 
 
-def _add_integer_measurement(create_sample_process, attrname, value):
+def _add_integer_measurement(create_sample_process, attribute, value, name=None):
+    if (not name):
+        name = attribute
+
     measurement_data = {
-        "attribute": attrname,
+        "name": name,
+        "attribute": attribute,
         "otype": "integer",
         "value": value,
         "is_best_measure": True
     }
-    return _set_measurement(create_sample_process, attrname, measurement_data)
-        
+    return _set_measurement(create_sample_process, attribute, measurement_data, name)
 
-def _add_number_measurement(create_sample_process, attrname, value):
+
+def _add_number_measurement(create_sample_process, attrname, value, name=None):
     measurement_data = {
         "attribute": attrname,
         "otype": "number",
         "value": value,
         "is_best_measure": True
     }
-    return _set_measurement(create_sample_process, attrname, measurement_data)
+    return _set_measurement(create_sample_process, attrname, measurement_data, name)
 
-def _add_boolean_measurement(create_sample_process, attrname, value):
+
+def _add_boolean_measurement(create_sample_process, attrname, value, name=None):
     measurement_data = {
         "attribute": attrname,
         "otype": "boolean",
         "value": value,
         "is_best_measure": True
     }
-    return _set_measurement(create_sample_process, attrname, measurement_data)
+    return _set_measurement(create_sample_process, attrname, measurement_data, name)
 
-def _add_string_measurement(create_sample_process, attrname, value):
+
+def _add_string_measurement(create_sample_process, attrname, value, name=None):
     measurement_data = {
         "attribute": attrname,
         "otype": "string",
         "value": value,
         "is_best_measure": True
     }
-    return _set_measurement(create_sample_process, attrname, measurement_data)
+    return _set_measurement(create_sample_process, attrname, measurement_data, name)
+
 
 def _add_matrix_measurement(create_sample_process, attrname, value):
     measurement_data = {
