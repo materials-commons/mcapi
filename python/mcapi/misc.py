@@ -751,7 +751,7 @@ class CommonsCLIParser(object):
                 #print "uploading:", p
                 dir = _get_file_or_directory(proj, os.path.dirname(p))
                 if dir is None:
-                    dir = proj.get_directory(_local_to_remote_relpath(proj, p))
+                    dir = proj.get_directory(os.path.dirname(_local_to_remote_relpath(proj, p)))
                 result = dir.add_file(os.path.basename(p), p, verbose=True)
                 # This should indicate if file already existed on Materials Commons
                 #print result.path + ":", result
@@ -759,7 +759,7 @@ class CommonsCLIParser(object):
                 #print "uploading:", p
                 dir = _get_file_or_directory(proj, os.path.dirname(p))
                 if dir is None:
-                    dir = proj.get_directory(_local_to_remote_relpath(proj, p))
+                    dir = proj.get_directory(os.path.dirname(_local_to_remote_relpath(proj, p)))
                 result = dir.add_directory_tree(os.path.basename(p), os.path.dirname(p), verbose=True)
                 #for f in result:
                 #    # This should indicate if file already existed on Materials Commons
@@ -791,6 +791,9 @@ class CommonsCLIParser(object):
         
         def _check_download(proj_id, file_id, local_path, remote):
             if not os.path.exists(local_path) or args.force:
+                dir = os.path.dirname(local_path)
+                if not os.path.exists(dir):
+                    os.makedirs(dir)
                 return mcapi.api.file_download(proj_id, file_id, local_path, remote)
             else:
                 print "Overwrite '" + os.path.relpath(local_path, os.getcwd()) + "'?"
