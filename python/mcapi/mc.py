@@ -153,6 +153,8 @@ class Project(MCObject):
 
     def add_file_using_directory(self, directory, file_name, local_input_path):
         uploaded_file = _create_file_with_upload(self, directory, file_name, local_input_path)
+        uploaded_file._project = self
+        uploaded_file._parent = directory
         return uploaded_file
 
 class Experiment(MCObject):
@@ -419,14 +421,13 @@ class Directory(MCObject):
             dir_list.append(directory)
         return dir_list
 
-    def add_file(self, file_name, input_path, verbose=True):
+    def add_file(self, file_name, input_path, verbose=False):
         if verbose:
             print "uploading:", os_path.relpath(input_path, getcwd()), " as:", file_name
         result = self._project.add_file_using_directory(self, file_name, input_path)
-        print result
         return result
 
-    def add_directory_tree(self, dir_name, input_dir_path, verbose=True):
+    def add_directory_tree(self, dir_name, input_dir_path, verbose=False):
         if (not os_path.isdir(input_dir_path)): return self
         dir_tree_table = make_dir_tree_table(input_dir_path,dir_name,dir_name,{})
         result = []
@@ -435,7 +436,8 @@ class Directory(MCObject):
             dirs = self.get_descendant_list_by_path(relative_dir_path)
             directory = dirs[-1]
             for file_name in file_dict.keys():
-                result.append(directory.add_file(file_name,file_dict[file_name],verbose))
+                input_path = file_dict[file_name]
+                result.append(directory.add_file(file_name,input_path,verbose))
         return result
 
     def process_special_objects(self):

@@ -198,6 +198,8 @@ def _add_string_measurement(create_sample_process, attrname, value, name = None)
     }
     return _set_measurement(create_sample_process, attrname, measurement_data, name)
 
+
+
 def _add_matrix_measurement(create_sample_process, attrname, value):
     measurement_data = {
         "attribute": attrname,
