@@ -120,7 +120,6 @@ class TestMeasurementPrimitiveCrystalStructure(unittest.TestCase):
         self.assertEqual(measurement.unit,"")
         self.assertEqual(measurement.value['value'], value)
 
-    @pytest.mark.skip('Value not set correctly!')
     def test_add_or_update_attribute_lattice(self):
         value = [[1.0,2.0,3.0],[4.0,5.0,6.0],[7.0,8.0,9.0]]
         data = {"name":"Lattice",
@@ -152,9 +151,6 @@ class TestMeasurementPrimitiveCrystalStructure(unittest.TestCase):
         self.assertEqual(measurement_out.attribute,"lattice")
         self.assertEqual(measurement_out.otype,"matrix")
         self.assertEqual(measurement_out.unit,"")
-        print("-----------")
-        print(measurement_out.value)
-        print("-----------")
         self.assertEqual(measurement_out.value['value'], value)
 
     def test_measurement_attribute_parameters(self):
@@ -177,7 +173,6 @@ class TestMeasurementPrimitiveCrystalStructure(unittest.TestCase):
         self.assertEqual(measurement.unit, "")
         self.assertEqual(measurement.value['value'], value)
 
-    @pytest.mark.skip('Value not set correctly!')
     def test_add_or_update_attribute_parameters(self):
         value = [1.0,2.0,3.0,4.0,5.0,6.0]
         data = {"name": "Parameters",
