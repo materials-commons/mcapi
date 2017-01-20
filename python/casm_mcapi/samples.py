@@ -273,18 +273,15 @@ def _add_file_measurement(create_sample_process, attrname, file, name=None):
     }
     return _set_measurement(create_sample_process, attrname, measurement_data, name)
 
+# NOTE: no covering test or example for this function - probably works - Terry, Jan 20, 2016
 def _add_sample_measurement(create_sample_process, attrname, sample, property_set, name=None):
-    """
-    Add a measurement that is a sample
-    
-    Not sure how this JSON should look...
-    """
     measurement_data = {
         "attribute": attrname,
-        "otype": "file",
+        "otype": "sample",
         "value": {
             "sampled_id": sample.id,
-            "sample_name": sample.name
+            "sample_name": sample.name,
+            "property_set_id": property_set.id
         },
         "is_best_measure": True
     }
