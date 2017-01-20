@@ -92,7 +92,6 @@ class TestAddVectorMeasurements(unittest.TestCase):
         name = "Parameters"
         attribute = "parameters"
         value = [1.0,2.0,3.0,4.0,5.0,6.0]
-        type = "lattice"
         process = _add_vector_measurement(
             self.process, attribute, value, name=name)
         sample_out = process.output_samples[0]
