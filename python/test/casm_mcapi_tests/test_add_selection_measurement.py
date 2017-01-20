@@ -54,7 +54,7 @@ class TestAddChoiceMeasurements(unittest.TestCase):
         self.assertEqual(sample.name, self.sample_name)
         self.assertEqual(sample.name, samples[0].name)
 
-    def test_measurement_attribute_lattice_system(self):
+    def test_measurement_attribute_lattice_system_direct(self):
         choices = \
         [
             {"name": "Triclinic", "value": "triclinic"},        # 0

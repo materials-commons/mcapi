@@ -2,8 +2,7 @@ import unittest
 from random import randint
 from mcapi import set_remote_config_url
 from mcapi import create_project, Template
-from casm_mcapi import _add_vector_measurement
-
+from casm_mcapi import _add_list_measurement
 
 url = 'http://mctest.localhost/api'
 
@@ -12,7 +11,7 @@ def fake_name(prefix):
     number = "%05d" % randint(0, 99999)
     return prefix+number
 
-class TestAddVectorMeasurements(unittest.TestCase):
+class TestAddListMeasurements(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
@@ -55,46 +54,54 @@ class TestAddVectorMeasurements(unittest.TestCase):
         self.assertEqual(sample.name, self.sample_name)
         self.assertEqual(sample.name, samples[0].name)
 
-    def test_add_or_update_attribute_parameters_direct(self):
+    def test_add_or_update_list_float_direct(self):
         value = [1.0,2.0,3.0,4.0,5.0,6.0]
-        data = {"name": "Parameters",
-                "attribute": "parameters",
-                "otype": "vector",
-                "unit": "",
-                "units": [],
-                "value": {
-                    "dimensions": 6,
-                    "otype": "float",
-                    "value": value
-                },
-                "is_best_measure": True}
-        property = {
-            "name": "Parameters",
-            "attribute": "parameters"
+        value_type = 'float'
+        attribute = "mumble"
+        name = "A List"
+
+        measurement_data = {
+            "name": name,
+            "attribute": attribute,
+            "otype": "vector",
+            "unit": "",
+            "units": [],
+            "value": {
+                "dimensions": len(value),
+                "otype": value_type,
+                "value": value
+            },
+            "is_best_measure": True
         }
-        measurement = self.process.create_measurement(data=data)
-        process_out = self.process.set_measurements_for_process_samples( \
+        property = {
+            "name": name,
+            "attribute": attribute
+        }
+        measurement = self.process.create_measurement(data=measurement_data)
+        process_out = self.process.set_measurements_for_process_samples(
             property, [measurement])
         sample_out = process_out.output_samples[0]
         properties_out = sample_out.properties
         table = self.make_properties_dictionary(properties_out)
-        property = table["Parameters"]
+        property = table[name]
         self.assertEqual(len(property.best_measure),1)
         measurement_out = property.best_measure[0]
         self.assertEqual(measurement_out.name, measurement.name)
-        self.assertEqual(measurement_out.name, "Parameters")
-        self.assertEqual(measurement_out.attribute, "parameters")
+        self.assertEqual(measurement_out.name, name)
+        self.assertEqual(measurement_out.attribute, attribute)
         self.assertEqual(measurement_out.otype, "vector")
         self.assertEqual(measurement_out.unit, "")
+        self.assertEqual(measurement_out.value['dimensions'], len(value))
+        self.assertEqual(measurement_out.value['otype'], value_type)
         self.assertEqual(measurement_out.value['value'], value)
 
-    def test_add_or_update_attribute_parameters(self):
-        name = "Parameters"
-        attribute = "parameters"
-        value = [1.0,2.0,3.0,4.0,5.0,6.0]
-        type = "lattice"
-        process = _add_vector_measurement(
-            self.process, attribute, value, name=name)
+    def test_add_or_update__list_string(self):
+        value = ['A','B','C']
+        value_type = 'string'
+        attribute = "mumble"
+        name = "A List"
+        process = _add_list_measurement(
+            self.process, attribute, value, value_type, name=name)
         sample_out = process.output_samples[0]
         properties_out = sample_out.properties
         table = self.make_properties_dictionary(properties_out)
@@ -105,7 +112,7 @@ class TestAddVectorMeasurements(unittest.TestCase):
         self.assertEqual(measurement_out.attribute, attribute)
         self.assertEqual(measurement_out.otype, "vector")
         self.assertEqual(measurement_out.unit, "")
-        self.assertEqual(measurement_out.value['otype'], 'float')
+        self.assertEqual(measurement_out.value['otype'], value_type)
         self.assertEqual(measurement_out.value['dimensions'], len(value))
         self.assertEqual(measurement_out.value['value'], value)
 

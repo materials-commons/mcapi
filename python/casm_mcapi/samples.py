@@ -241,11 +241,6 @@ def _add_vector_measurement(create_sample_process, attrname, value, name=None):
     return _set_measurement(create_sample_process, attrname, measurement_data, name)
 
 def _add_list_measurement(create_sample_process, attrname, value, value_type, name=None):
-    """
-    Add a measurement that is a list of some type of object.
-    
-    Not sure how this JSON should look...
-    """
     measurement_data = {
         "attribute": attrname,
         "otype": "vector",
@@ -259,11 +254,6 @@ def _add_list_measurement(create_sample_process, attrname, value, value_type, na
     return _set_measurement(create_sample_process, attrname, measurement_data, name)
 
 def _add_file_measurement(create_sample_process, attrname, file, name=None):
-    """
-    Add a measurement that is a data file
-    
-    Not sure how this JSON should look...
-    """
     measurement_data = {
         "attribute": attrname,
         "otype": "file",
