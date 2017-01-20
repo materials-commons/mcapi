@@ -55,7 +55,7 @@ class TestAddVectorMeasurements(unittest.TestCase):
         self.assertEqual(sample.name, self.sample_name)
         self.assertEqual(sample.name, samples[0].name)
 
-    def test_add_or_update_attribute_parameters(self):
+    def test_add_or_update_attribute_parameters_direct(self):
         value = [1.0,2.0,3.0,4.0,5.0,6.0]
         data = {"name": "Parameters",
                 "attribute": "parameters",
@@ -86,6 +86,28 @@ class TestAddVectorMeasurements(unittest.TestCase):
         self.assertEqual(measurement_out.attribute, "parameters")
         self.assertEqual(measurement_out.otype, "vector")
         self.assertEqual(measurement_out.unit, "")
+        self.assertEqual(measurement_out.value['value'], value)
+
+    def test_add_or_update_attribute_parameters(self):
+        name = "Parameters"
+        attribute = "parameters"
+        value = [1.0,2.0,3.0,4.0,5.0,6.0]
+        type = "lattice"
+        process = base._add_vector_measurement(
+            self.process, attribute, value, name=name)
+        sample_out = process.output_samples[0]
+        properties_out = sample_out.properties
+        table = self.make_properties_dictionary(properties_out)
+        property = table[name]
+        self.assertEqual(len(property.best_measure),1)
+        measurement_out = property.best_measure[0]
+        measurement_out = property.best_measure[0]
+        self.assertEqual(measurement_out.name, name)
+        self.assertEqual(measurement_out.attribute, attribute)
+        self.assertEqual(measurement_out.otype, "vector")
+        self.assertEqual(measurement_out.unit, "")
+        self.assertEqual(measurement_out.value['otype'], 'float')
+        self.assertEqual(measurement_out.value['dimensions'], len(value))
         self.assertEqual(measurement_out.value['value'], value)
 
     def make_properties_dictionary(self,properties):
