@@ -244,18 +244,18 @@ def _add_string_measurement(create_sample_process, attrname, value, name=None):
     return _set_measurement(create_sample_process, attrname, measurement_data, name)
 
 
-def _add_matrix_measurement(create_sample_process, attrname, value):
+def _add_nampy_matrix_measurement(create_sample_process, attrname, value, name):
     measurement_data = {
         "attribute": attrname,
         "otype": "matrix",
         "value": {
             "dimensions": list(value.shape),
             "otype":  "float" ,
-            "value": value
+            "value": value.tolist()
         },
         "is_best_measure": True
     }
-    return _set_measurement(create_sample_process, attrname, measurement_data)
+    return _set_measurement(create_sample_process, attrname, measurement_data, name)
 
 def _add_vector_measurement(create_sample_process, attrname, value):
     measurement_data = {
@@ -505,7 +505,7 @@ def create_prim_sample(expt, casm_proj):
     #     "system" ("triclinic", "monoclinic", "orthorhombic", "tetragonal", "hexagonal", "rhombohedral", "cubic")
     #     "symmetry" (Schönflies symbol)
     lattice_matrix = np.array(raw_prim['lattice_vectors']).transpose()
-    _add_matrix_measurement(create_sample_process, 'lattice', lattice_matrix)
+    _add_nampy_matrix_measurement(create_sample_process, 'lattice', lattice_matrix)
 
     lattice_parameters = _lattice_parameters(lattice_matrix)
     _add_vector_measurement(create_sample_process, 'parameters', lattice_parameters)
