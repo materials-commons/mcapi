@@ -1,5 +1,9 @@
 import unittest
 from random import randint
+from os import environ
+from os import path as os_path
+from os.path import getsize
+from pathlib import Path as PathClass
 from mcapi import set_remote_config_url
 from mcapi import create_project, Template
 from casm_mcapi import _add_file_measurement
@@ -30,6 +34,8 @@ class TestAddFileMeasurements(unittest.TestCase):
         cls.sample_name = "pcs-sample-1"
         cls.sample = cls.process.create_samples(sample_names=[cls.sample_name])[0]
         cls.process = cls.process.add_samples_to_process([cls.sample])
+        cls.test_dir_path = "/testDir1/testdir2/testdir3"
+        cls.filename = "test.jpg"
 
 
     def test_is_setup_correctly(self):
@@ -55,31 +61,26 @@ class TestAddFileMeasurements(unittest.TestCase):
         self.assertEqual(sample.name, self.sample_name)
         self.assertEqual(sample.name, samples[0].name)
 
-    def test_measurement_attribute_lattice_system_direct(self):
-        choices = \
-        [
-            {"name": "Triclinic", "value": "triclinic"},        # 0
-            {"name": "Monoclinic", "value": "monoclinic"},      # 1
-            {"name": "Orthorhombic","value": "orthorhombic"},   # 2
-            {"name": "Tetragonal","value": "tetragonal"},       # 3
-            {"name": "Hexagonal","value": "hexagonal"},         # 4
-            {"name": "Rhombohedral","value": "rhombohedral"},   # 5
-            {"name": "Cubic","value": "cubic"}                  # 6
-        ]
-        value = choices[4]['value']
-        name = "Lattice System"
-        attribute = "lattice_system"
+    def test_measurement_file_direct(self):
+        self.setup_each_test()
+        file = self.file
+
+        name = "Measurement File"
+        attribute = "file"
 
         data = {"name": name,
                 "attribute": attribute,
-                "otype": "selection",
+                "otype": "file",
                 "unit": "",
                 "units": [],
-                "value": value,
+                "value": {
+                    "file_id": file.id,
+                    "file_name": file.name
+                },
                 "is_best_measure": True}
         property = {
-            "name": "Lattice System",
-            "attribute": "lattice_system"
+            "name": name,
+            "attribute": attribute
         }
         measurement = self.process.create_measurement(data=data)
         process_out = self.process.set_measurements_for_process_samples(
@@ -92,27 +93,19 @@ class TestAddFileMeasurements(unittest.TestCase):
         measurement_out = property.best_measure[0]
         self.assertEqual(measurement_out.name, name)
         self.assertEqual(measurement_out.attribute, attribute)
-        self.assertEqual(measurement_out.otype, "selection")
+        self.assertEqual(measurement_out.otype, "file")
         self.assertEqual(measurement_out.unit, "")
-        self.assertEqual(measurement_out.value, value)
+        self.assertEqual(measurement_out.value['file_id'], file.id)
+        self.assertEqual(measurement_out.value['file_name'], file.name)
 
     def test_measurement_attribute_lattice_system_direct(self):
-        choices = \
-        [
-            {"name": "Triclinic", "value": "triclinic"},        # 0
-            {"name": "Monoclinic", "value": "monoclinic"},      # 1
-            {"name": "Orthorhombic","value": "orthorhombic"},   # 2
-            {"name": "Tetragonal","value": "tetragonal"},       # 3
-            {"name": "Hexagonal","value": "hexagonal"},         # 4
-            {"name": "Rhombohedral","value": "rhombohedral"},   # 5
-            {"name": "Cubic","value": "cubic"}                  # 6
-        ]
-        value = choices[4]['value']
-        name = "Lattice System"
-        attribute = "lattice_system"
+        self.setup_each_test()
+        file = self.file
+        name = "Measurement File"
+        attribute = "file"
 
-        process = _add_selection_measurement(
-            self.process, attribute, value, name=name)
+        process = _add_file_measurement(
+            self.process, attribute, file, name=name)
         sample_out = process.output_samples[0]
         properties_out = sample_out.properties
         table = self.make_properties_dictionary(properties_out)
@@ -121,9 +114,10 @@ class TestAddFileMeasurements(unittest.TestCase):
         measurement_out = property.best_measure[0]
         self.assertEqual(measurement_out.name, name)
         self.assertEqual(measurement_out.attribute, attribute)
-        self.assertEqual(measurement_out.otype, "selection")
+        self.assertEqual(measurement_out.otype, "file")
         self.assertEqual(measurement_out.unit, "")
-        self.assertEqual(measurement_out.value, value)
+        self.assertEqual(measurement_out.value['file_id'], file.id)
+        self.assertEqual(measurement_out.value['file_name'], file.name)
 
     def make_properties_dictionary(self,properties):
         ret = {}
@@ -132,3 +126,25 @@ class TestAddFileMeasurements(unittest.TestCase):
             ret[name] = property
         return ret
 
+    def setup_each_test(self):
+        if not hasattr(self, 'filepath'):
+            self.filepath = self.make_test_dir_path('fractal.jpg')
+            self.test_dir = self.project.add_directory(self.test_dir_path)
+            self.file = self.project.add_file_using_directory(
+                self.test_dir, self.filename, self.filepath)
+
+            file_path = PathClass(self.filepath)
+            self.file_name = file_path.parts[-1]
+            input_path = str(file_path.absolute())
+            self.byte_count = getsize(input_path)
+
+            self.file = self.project.add_file_using_directory(self.test_dir, self.file_name, input_path)
+
+    def make_test_dir_path(self, file_name):
+        self.assertTrue('TEST_DATA_DIR' in environ)
+        test_path = os_path.abspath(environ['TEST_DATA_DIR'])
+        self.assertIsNotNone(test_path)
+        self.assertTrue(os_path.isdir(test_path))
+        test_file = os_path.join(test_path, 'test_upload_data', file_name)
+        self.assertTrue(os_path.isfile(test_file))
+        return test_file
