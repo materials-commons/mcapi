@@ -2,7 +2,6 @@ import unittest
 from random import randint
 from mcapi import set_remote_config_url
 from mcapi import create_project, Template
-import grand_canonical_example_tests_base as base
 
 
 url = 'http://mctest.localhost/api'

@@ -2,7 +2,7 @@ import unittest
 from random import randint
 from mcapi import set_remote_config_url
 from mcapi import create_project, Template
-import grand_canonical_example_tests_base as base
+from casm_mcapi import _set_measurement
 
 
 url = 'http://mctest.localhost/api'
@@ -121,7 +121,7 @@ class TestSetMeasurement(unittest.TestCase):
             "value": measurement_value,
             "is_best_measure": True
             }
-        process = base._set_measurement(
+        process = _set_measurement(
                self.process, attribute, measurement_data, measurement_name)
         sample_out = process.output_samples[0]
         properties_out = sample_out.properties

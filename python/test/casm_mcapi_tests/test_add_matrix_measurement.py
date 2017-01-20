@@ -4,8 +4,7 @@ import pytest
 from random import randint
 from mcapi import set_remote_config_url
 from mcapi import create_project, Template
-import grand_canonical_example_tests_base as base
-
+from casm_mcapi import _add_nampy_matrix_measurement
 
 url = 'http://mctest.localhost/api'
 
@@ -94,7 +93,7 @@ class TestAddMatrixMeasurements(unittest.TestCase):
         value = np.array([[1.0,2.0,3.0],[4.0,5.0,6.0],[7.0,8.0,9.0]])
         name = "Lattice"
         type = "lattice"
-        process = base._add_nampy_matrix_measurement(
+        process = _add_nampy_matrix_measurement(
             self.process, type, value, name=name)
         sample_out = process.output_samples[0]
         properties_out = sample_out.properties

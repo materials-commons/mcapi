@@ -2,7 +2,7 @@ import unittest
 from random import randint
 from mcapi import set_remote_config_url
 from mcapi import create_project, Template
-import grand_canonical_example_tests_base as base
+from casm_mcapi import _add_vector_measurement
 
 
 url = 'http://mctest.localhost/api'
@@ -93,7 +93,7 @@ class TestAddVectorMeasurements(unittest.TestCase):
         attribute = "parameters"
         value = [1.0,2.0,3.0,4.0,5.0,6.0]
         type = "lattice"
-        process = base._add_vector_measurement(
+        process = _add_vector_measurement(
             self.process, attribute, value, name=name)
         sample_out = process.output_samples[0]
         properties_out = sample_out.properties

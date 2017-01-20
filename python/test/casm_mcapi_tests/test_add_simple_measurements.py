@@ -3,7 +3,8 @@ import pytest
 from random import randint
 from mcapi import set_remote_config_url
 from mcapi import create_project, Template
-import grand_canonical_example_tests_base as base
+from casm_mcapi import _add_integer_measurement,\
+    _add_string_measurement,_add_boolean_measurement,_add_number_measurement
 
 
 url = 'http://mctest.localhost/api'
@@ -64,7 +65,7 @@ class TestSetSimpleMeasurements(unittest.TestCase):
         value = 5
         name = "Gap Spacing"
         type = "integer"
-        process = base._add_integer_measurement(
+        process = _add_integer_measurement(
             self.process, attribute, value, name=name)
         sample_out = process.output_samples[0]
         properties_out = sample_out.properties
@@ -83,7 +84,7 @@ class TestSetSimpleMeasurements(unittest.TestCase):
         value = "booloo ball"
         name = "Gingle Snit"
         type = "string"
-        process = base._add_string_measurement(
+        process = _add_string_measurement(
             self.process, attribute, value, name=name)
         sample_out = process.output_samples[0]
         properties_out = sample_out.properties
@@ -102,7 +103,7 @@ class TestSetSimpleMeasurements(unittest.TestCase):
         value = True
         name = "Shift"
         type = "boolean"
-        process = base._add_boolean_measurement(
+        process = _add_boolean_measurement(
             self.process, attribute, value, name=name)
         sample_out = process.output_samples[0]
         properties_out = sample_out.properties
@@ -121,7 +122,7 @@ class TestSetSimpleMeasurements(unittest.TestCase):
         value = 7
         name = "Scaling Factor"
         type = "number"
-        process = base._add_number_measurement(
+        process = _add_number_measurement(
             self.process, attribute, value, name=name)
         sample_out = process.output_samples[0]
         properties_out = sample_out.properties
