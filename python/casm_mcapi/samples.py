@@ -213,6 +213,14 @@ def _add_string_measurement(create_sample_process, attrname, value, name=None):
     }
     return _set_measurement(create_sample_process, attrname, measurement_data, name)
 
+def _add_selection_measurement(create_sample_process, attrname, value, name=None):
+    measurement_data = {
+        "attribute": attrname,
+        "otype": "selection",
+        "value": value,
+        "is_best_measure": True
+    }
+    return _set_measurement(create_sample_process, attrname, measurement_data, name)
 
 def _add_nampy_matrix_measurement(create_sample_process, attrname, value, name=None):
     measurement_data = {

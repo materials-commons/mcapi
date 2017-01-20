@@ -2,6 +2,7 @@ import unittest
 from random import randint
 from mcapi import set_remote_config_url
 from mcapi import create_project, Template
+from casm_mcapi import _add_selection_measurement
 
 
 url = 'http://mctest.localhost/api'
@@ -66,8 +67,11 @@ class TestAddChoiceMeasurements(unittest.TestCase):
             {"name": "Cubic","value": "cubic"}                  # 6
         ]
         value = choices[4]['value']
-        data = {"name": "Lattice System",
-                "attribute": "lattice_system",
+        name = "Lattice System"
+        attribute = "lattice_system"
+
+        data = {"name": name,
+                "attribute": attribute,
                 "otype": "selection",
                 "unit": "",
                 "units": [],
@@ -78,16 +82,45 @@ class TestAddChoiceMeasurements(unittest.TestCase):
             "attribute": "lattice_system"
         }
         measurement = self.process.create_measurement(data=data)
-        process_out = self.process.set_measurements_for_process_samples( \
+        process_out = self.process.set_measurements_for_process_samples(
             property, [measurement])
         sample_out = process_out.output_samples[0]
         properties_out = sample_out.properties
         table = self.make_properties_dictionary(properties_out)
-        property = table["Lattice System"]
+        property = table[name]
         self.assertEqual(len(property.best_measure), 1)
         measurement_out = property.best_measure[0]
-        self.assertEqual(measurement_out.name, "Lattice System")
-        self.assertEqual(measurement_out.attribute, "lattice_system")
+        self.assertEqual(measurement_out.name, name)
+        self.assertEqual(measurement_out.attribute, attribute)
+        self.assertEqual(measurement_out.otype, "selection")
+        self.assertEqual(measurement_out.unit, "")
+        self.assertEqual(measurement_out.value, value)
+
+    def test_measurement_attribute_lattice_system_direct(self):
+        choices = \
+        [
+            {"name": "Triclinic", "value": "triclinic"},        # 0
+            {"name": "Monoclinic", "value": "monoclinic"},      # 1
+            {"name": "Orthorhombic","value": "orthorhombic"},   # 2
+            {"name": "Tetragonal","value": "tetragonal"},       # 3
+            {"name": "Hexagonal","value": "hexagonal"},         # 4
+            {"name": "Rhombohedral","value": "rhombohedral"},   # 5
+            {"name": "Cubic","value": "cubic"}                  # 6
+        ]
+        value = choices[4]['value']
+        name = "Lattice System"
+        attribute = "lattice_system"
+
+        process = _add_selection_measurement(
+            self.process, attribute, value, name=name)
+        sample_out = process.output_samples[0]
+        properties_out = sample_out.properties
+        table = self.make_properties_dictionary(properties_out)
+        property = table[name]
+        self.assertEqual(len(property.best_measure),1)
+        measurement_out = property.best_measure[0]
+        self.assertEqual(measurement_out.name, name)
+        self.assertEqual(measurement_out.attribute, attribute)
         self.assertEqual(measurement_out.otype, "selection")
         self.assertEqual(measurement_out.unit, "")
         self.assertEqual(measurement_out.value, value)

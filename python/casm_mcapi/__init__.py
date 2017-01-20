@@ -12,5 +12,6 @@ __all__ = dir()
 from samples import _set_measurement
 from samples import _add_integer_measurement,\
     _add_string_measurement,_add_boolean_measurement,_add_number_measurement
+from samples import _add_selection_measurement
 from samples import _add_nampy_matrix_measurement,_add_vector_measurement,\
     _add_list_measurement,_add_file_measurement,_add_sample_measurement
