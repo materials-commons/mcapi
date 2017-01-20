@@ -11,6 +11,17 @@ import json
 from string import ascii_lowercase
 import argparse
 
+# TODO -- the following objects not defined
+subprocess = {}
+re = {}
+schoenflies_symbol = ""
+space_group_symbol = ""
+space_group_schoenflies_symbol = ""
+name = ""
+
+# TODO -- stub functions - either not defined or not imported!
+def _parameteric_formula():
+    pass
 
 # Note assume throughout that mcapi.Project.local_abspath is set with local
 # Materials Commons project directory tree location
@@ -159,57 +170,64 @@ def _set_measurement(create_sample_process, attribute, measurement_data, name=No
         measurement_property, [measurement])
 
 
-def _add_integer_measurement(create_sample_process, attrname, value):
+def _add_integer_measurement(create_sample_process, attribute, value, name=None):
+    if (not name):
+        name = attribute
+
     measurement_data = {
-        "attribute": attrname,
+        "name": name,
+        "attribute": attribute,
         "otype": "integer",
         "value": value,
         "is_best_measure": True
     }
-    return _set_measurement(create_sample_process, attrname, measurement_data)
-        
+    return _set_measurement(create_sample_process, attribute, measurement_data, name)
 
-def _add_number_measurement(create_sample_process, attrname, value):
+
+def _add_number_measurement(create_sample_process, attrname, value, name=None):
     measurement_data = {
         "attribute": attrname,
         "otype": "number",
         "value": value,
         "is_best_measure": True
     }
-    return _set_measurement(create_sample_process, attrname, measurement_data)
+    return _set_measurement(create_sample_process, attrname, measurement_data, name)
 
-def _add_boolean_measurement(create_sample_process, attrname, value):
+
+def _add_boolean_measurement(create_sample_process, attrname, value, name=None):
     measurement_data = {
         "attribute": attrname,
         "otype": "boolean",
         "value": value,
         "is_best_measure": True
     }
-    return _set_measurement(create_sample_process, attrname, measurement_data)
+    return _set_measurement(create_sample_process, attrname, measurement_data, name)
 
-def _add_string_measurement(create_sample_process, attrname, value):
+
+def _add_string_measurement(create_sample_process, attrname, value, name=None):
     measurement_data = {
         "attribute": attrname,
         "otype": "string",
         "value": value,
         "is_best_measure": True
     }
-    return _set_measurement(create_sample_process, attrname, measurement_data)
+    return _set_measurement(create_sample_process, attrname, measurement_data, name)
 
-def _add_matrix_measurement(create_sample_process, attrname, value):
+
+def _add_nampy_matrix_measurement(create_sample_process, attrname, value, name=None):
     measurement_data = {
         "attribute": attrname,
         "otype": "matrix",
         "value": {
             "dimensions": list(value.shape),
             "otype":  "float" ,
-            "value": value
+            "value": value.tolist()
         },
         "is_best_measure": True
     }
-    return _set_measurement(create_sample_process, attrname, measurement_data)
+    return _set_measurement(create_sample_process, attrname, measurement_data, name)
 
-def _add_vector_measurement(create_sample_process, attrname, value):
+def _add_vector_measurement(create_sample_process, attrname, value, name=None):
     measurement_data = {
         "attribute": attrname,
         "otype": "vector",
@@ -220,9 +238,9 @@ def _add_vector_measurement(create_sample_process, attrname, value):
         },
         "is_best_measure": True
     }
-    return _set_measurement(create_sample_process, attrname, measurement_data)
+    return _set_measurement(create_sample_process, attrname, measurement_data, name)
 
-def _add_list_measurement(create_sample_process, attrname, value, value_type):
+def _add_list_measurement(create_sample_process, attrname, value, value_type, name=None):
     """
     Add a measurement that is a list of some type of object.
     
@@ -238,9 +256,9 @@ def _add_list_measurement(create_sample_process, attrname, value, value_type):
         },
         "is_best_measure": True
     }
-    return _set_measurement(create_sample_process, attrname, measurement_data)
+    return _set_measurement(create_sample_process, attrname, measurement_data, name)
 
-def _add_file_measurement(create_sample_process, attrname, file):
+def _add_file_measurement(create_sample_process, attrname, file, name=None):
     """
     Add a measurement that is a data file
     
@@ -255,9 +273,9 @@ def _add_file_measurement(create_sample_process, attrname, file):
         },
         "is_best_measure": True
     }
-    return _set_measurement(create_sample_process, attrname, measurement_data)
+    return _set_measurement(create_sample_process, attrname, measurement_data, name)
 
-def _add_sample_measurement(create_sample_process, attrname, sample, property_set):
+def _add_sample_measurement(create_sample_process, attrname, sample, property_set, name=None):
     """
     Add a measurement that is a sample
     
@@ -272,7 +290,7 @@ def _add_sample_measurement(create_sample_process, attrname, sample, property_se
         },
         "is_best_measure": True
     }
-    return _set_measurement(create_sample_process, attrname, measurement_data)
+    return _set_measurement(create_sample_process, attrname, measurement_data, name)
 
 
 def _add_file(proj, local_file_abspath, filename=None):
@@ -457,7 +475,7 @@ def create_prim_sample(expt, casm_proj):
     #     "system" ("triclinic", "monoclinic", "orthorhombic", "tetragonal", "hexagonal", "rhombohedral", "cubic")
     #     "symmetry" (Schoenflies symbol)
     lattice_matrix = np.array(raw_prim['lattice_vectors']).transpose()
-    _add_matrix_measurement(create_sample_process, 'lattice', lattice_matrix)
+    _add_nampy_matrix_measurement(create_sample_process, 'lattice', lattice_matrix)
 
     lattice_parameters = _lattice_parameters(lattice_matrix)
     _add_vector_measurement(create_sample_process, 'parameters', lattice_parameters)
