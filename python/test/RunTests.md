@@ -48,9 +48,7 @@ Prior to running the test you will need to set an environment varialbe TEST_DATA
 to point to the directory python/test/test_data. That is:
 ```
   cd to the python top level directory of the mcapi repo
-  pushd test/test_data
-  export TEST_DATA_DIR=`pwd`
-  popd
+  source set_test_dir.sh
 ```
 
 ```
