@@ -71,7 +71,8 @@ before_script:
 
 script:
   - cd $MC_PYTHON_API_DIR
-  - python print_modules.py | grep mcapi
+  - pwd
+  - python print_modules.py
   - python setup.py install --user
   - pytest test
 
