@@ -42,7 +42,7 @@ install:
   - pushd materialscommons.org
   - export MC_CLONE_DIR=`pwd`
   - npm install --production
-  - npm install gulp
+  - npm install -g gulp
   - popd
   - popd
   - pwd
