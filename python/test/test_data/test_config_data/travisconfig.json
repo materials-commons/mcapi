@@ -1,4 +1,4 @@
 {
   "apikey": "totally-bogus",
-  "mcurl": "http://localhost:5004/api"
+  "mcurl": "http://mctest.localhost/api"
 }

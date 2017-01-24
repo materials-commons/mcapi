@@ -1,6 +1,8 @@
-sudo: false
+sudo: require
 
-
+addons:
+  hosts:
+  - mctest.localhost
 
 notifications:
   email:
