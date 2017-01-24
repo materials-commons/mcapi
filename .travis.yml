@@ -42,21 +42,32 @@ install:
   - git clone -b sprint https://github.com/materials-commons/materialscommons.org.git
   - pushd materialscommons.org
   - npm install
-  - pushd backend
-  - bash mcservers start
-  - bash mcservers
+  - export MC_CLONE_DIR=`pwd`
   - popd
   - popd
-  - popd
-  - pwd
   - cd python
+  - export MC_PYTHON_API_DIR=`pwd`
   - pip install -r requirements.txt
   - python setup.py install --user
   - pushd test/test_data
   - export TEST_DATA_DIR=`pwd`
   - popd
+  - echo $MC_CLONE_DIR
+  - echo $MC_PYTHON_API_DIR
   - echo $TEST_DATA_DIR
 
+before_script:
+  - npm list --depth=0
+  - which mocha
+  - rethinkdb --driver-port $MCDB_PORT --cluster-port $RETHINKDB_CLUSTER_PORT --http-port $RETHINKDB_HTTP_PORT --daemon
+  - sleep 5
+  - rethinkdb restore $MCDB_FILE --connect $MCDB_CONNECTION --force
+  - sleep 5
+  - cd $MC_CLONE_DIR/backend
+  - gulp build-mcapi-server
+  - node sbin/mcapi/mcapi.js -p $MC_API_SERVICE_PORT > ${MC_LOG_DIR}/mcapi.out.${SERVERTYPE} 2>&1&
+
 script:
+  - cd $MC_PYTHON_API_DIR
   - pytest test
 
