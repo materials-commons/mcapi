@@ -18,13 +18,18 @@ env:
 
 install:
   - git clone https://github.com/materials-commons/materialscommons.org.git
-  - pushd materialscommons.org/backend
-  - mcservers start -u
+  - pushd materialscommons.org
+  - npm install
+  - pushd backend
+  - bash mcservers start
+  - bash mcservers
   - popd
+  - popd
+  - ls
   - cd python
   - pip install -r requirements.txt
   - python setup.py install --user
 
 script:
-  - pytest
+  - pytest test
 
