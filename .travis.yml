@@ -41,8 +41,6 @@ install:
   - pushd ~
   - git clone -b sprint https://github.com/materials-commons/materialscommons.org.git
   - pushd materialscommons.org
-  - npm install
-  - npm list --depth=0
   - export MC_CLONE_DIR=`pwd`
   - popd
   - popd
