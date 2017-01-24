@@ -85,8 +85,7 @@ before_script:
 
 
 script:
-  - pytest test/mcapi_tests/test_object_create.py
-
+  - pytest test
 after_failure:
   - echo ${MC_LOG_DIR}/mcapi.out.${SERVERTYPE}
   - cat ${MC_LOG_DIR}/mcapi.out.${SERVERTYPE}
