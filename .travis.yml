@@ -52,6 +52,10 @@ install:
   - cd python
   - pip install -r requirements.txt
   - python setup.py install --user
+  - pushd test/test_data
+  - export TEST_DATA_DIR=`pwd`
+  - popd
+  - echo $TEST_DATA_DIR
 
 script:
   - pytest test
