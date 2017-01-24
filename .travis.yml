@@ -1,30 +1,78 @@
 sudo: false
 
+notifications:
+  email:
+    recipients:
+      gtarcea@umich.edu
+      weymouth@umich.ed
+    on_success: change
+    on_failure: change
+
 language: python
 
 python:
   - 2.7
+
+sudo: required
 
 env:
   global:
     - MCDIR=/tmp/mcdir
     - MCDB_TYPE=rethinkdb
     - MCDB_NAME=materialscommons
-    - MCDB_FILE=rethink_startup/rethinkdb_dump_test_data.tar.gz
+    - MCDB_FILE=test_data/test_ready_rethinkdb_dump_2016-12-15.tar.gz
     - MCDB_PORT=30815
     - MCDB_CONNECTION=localhost:$MCDB_PORT
     - RETHINKDB_CLUSTER_PORT=31815
     - RETHINKDB_HTTP_PORT=8090
 
+before_install:
+  - source /etc/lsb-release && echo "deb http://download.rethinkdb.com/apt $DISTRIB_CODENAME main" | sudo tee /etc/apt/sources.list.d/rethinkdb.list
+  - wget -qO- https://download.rethinkdb.com/apt/pubkey.gpg | sudo apt-key add -
+  - sudo apt-get update
+  - sudo apt-get install rethinkdb
+  - nvm --verion
+  - node --version
+  - pip list
+
 install:
-  - git clone https://github.com/materials-commons/materialscommons.org.git
-  - pushd materialscommons.org/backend
-  - mcservers start -u
+  - pwd
+  - pushd ~
+  - git clone -b sprint https://github.com/materials-commons/materialscommons.org.git
+  - pushd materialscommons.org
+  - export MC_CLONE_DIR=`pwd`
+  - npm install --production
+  - npm install gulp gulp-babel gulp-clean babel-plugin-transform-runtime babel-preset-es2015
   - popd
+  - popd
+  - pwd
   - cd python
+  - export MC_PYTHON_API_DIR=`pwd`
   - pip install -r requirements.txt
   - python setup.py install --user
+  - pushd test/test_data
+  - export TEST_DATA_DIR=`pwd`
+  - popd
+  - pwd
+  - npm install -g gulp
+  - echo $MC_CLONE_DIR
+  - echo $MC_PYTHON_API_DIR
+  - echo $TEST_DATA_DIR
+
+before_script:
+  - cd $MC_CLONE_DIR
+  - rethinkdb --driver-port $MCDB_PORT --cluster-port $RETHINKDB_CLUSTER_PORT --http-port $RETHINKDB_HTTP_PORT --daemon
+  - sleep 5
+  - rethinkdb restore 'test_data/test_ready_rethinkdb_dump_2016-12-15.tar.gz' --connect $MCDB_CONNECTION --force
+  - sleep 5
+  - cd backend
+  - gulp build-mcapi-server
+  - node sbin/mcapi/mcapi.js -p $MC_API_SERVICE_PORT > ${MC_LOG_DIR}/mcapi.out.${SERVERTYPE} 2>&1&
 
 script:
-  - pytest
+  - cd $MC_PYTHON_API_DIR
+  - pwd
+  - python print_modules.py
+  - python setup.py install --user
+  - pytest test
 
