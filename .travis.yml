@@ -5,6 +5,8 @@ notifications:
     recipients:
       gtarcea@umich.edu
       weymouth@umich.ed
+    on_success: change
+    on_failure: change
 
 language: python
 
@@ -57,11 +59,12 @@ install:
   - echo $TEST_DATA_DIR
 
 before_script:
+  - cd $MC_CLONE_DIR
   - rethinkdb --driver-port $MCDB_PORT --cluster-port $RETHINKDB_CLUSTER_PORT --http-port $RETHINKDB_HTTP_PORT --daemon
   - sleep 5
   - rethinkdb restore $MCDB_FILE --connect $MCDB_CONNECTION --force
   - sleep 5
-  - cd $MC_CLONE_DIR/backend
+  - cd backend
   - gulp build-mcapi-server
   - node sbin/mcapi/mcapi.js -p $MC_API_SERVICE_PORT > ${MC_LOG_DIR}/mcapi.out.${SERVERTYPE} 2>&1&
 
