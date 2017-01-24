@@ -17,7 +17,7 @@ env:
     - RETHINKDB_HTTP_PORT=8090
 
 install:
-  - git clone https://github.com/materials-commons/materialscommons.org.git
+  - git clone -b sprint https://github.com/materials-commons/materialscommons.org.git
   - pushd materialscommons.org
   - npm install
   - pushd backend
