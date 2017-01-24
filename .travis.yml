@@ -43,6 +43,7 @@ install:
   - export MC_CLONE_DIR=`pwd`
   - npm install --production
   - npm install gulp
+  - npm install gulp-babel
   - popd
   - popd
   - pwd
