@@ -68,11 +68,11 @@ before_script:
   - cd backend
   - gulp build-mcapi-server
   - node sbin/mcapi/mcapi.js -p $MC_API_SERVICE_PORT > ${MC_LOG_DIR}/mcapi.out.${SERVERTYPE} 2>&1&
-
-script:
   - cd $MC_PYTHON_API_DIR
   - pwd
-  - python print_modules.py
   - python setup.py install --user
+  - python print_modules.py
+
+script:
   - pytest test
 
