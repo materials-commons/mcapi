@@ -31,7 +31,7 @@ before_install:
   - wget -qO- https://download.rethinkdb.com/apt/pubkey.gpg | sudo apt-key add -
   - sudo apt-get update
   - sudo apt-get install rethinkdb
-  - nvm --verions
+  - nvm --verion
   - node --version
   - pip list
 
@@ -42,7 +42,7 @@ install:
   - pushd materialscommons.org
   - export MC_CLONE_DIR=`pwd`
   - npm install --production
-  - npm install -g gulp
+  - npm install gulp
   - popd
   - popd
   - pwd
@@ -54,6 +54,7 @@ install:
   - export TEST_DATA_DIR=`pwd`
   - popd
   - pwd
+  - npm install -g gulp
   - echo $MC_CLONE_DIR
   - echo $MC_PYTHON_API_DIR
   - echo $TEST_DATA_DIR
