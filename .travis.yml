@@ -1,5 +1,7 @@
 sudo: false
 
+
+
 notifications:
   email:
     recipients:
@@ -12,8 +14,6 @@ language: python
 
 python:
   - 2.7
-
-sudo: required
 
 env:
   global:
@@ -38,6 +38,7 @@ before_install:
 install:
   - pwd
   - pushd ~
+  - mkdir .materialscommons
   - git clone -b sprint https://github.com/materials-commons/materialscommons.org.git
   - pushd materialscommons.org
   - export MC_CLONE_DIR=`pwd`
@@ -72,6 +73,7 @@ before_script:
   - pwd
   - python setup.py install
   - python print_modules.py
+  - cp test/test_data/test_config_data/travisconfig.json ~/.materialscommons/config.json
 
 script:
   - pytest test
