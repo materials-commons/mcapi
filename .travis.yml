@@ -20,7 +20,7 @@ env:
     - MCDIR=/tmp/mcdir
     - MCDB_TYPE=rethinkdb
     - MCDB_NAME=materialscommons
-    - MCDB_FILE=rethink_startup/test_ready_rethinkdb_dump_2016-12-15.tar.gz
+    - MCDB_FILE=test_data/test_ready_rethinkdb_dump_2016-12-15.tar.gz
     - MCDB_PORT=30815
     - MCDB_CONNECTION=localhost:$MCDB_PORT
     - RETHINKDB_CLUSTER_PORT=31815
@@ -62,7 +62,7 @@ before_script:
   - cd $MC_CLONE_DIR
   - rethinkdb --driver-port $MCDB_PORT --cluster-port $RETHINKDB_CLUSTER_PORT --http-port $RETHINKDB_HTTP_PORT --daemon
   - sleep 5
-  - rethinkdb restore $MCDB_FILE --connect $MCDB_CONNECTION --force
+  - rethinkdb restore 'test_data/test_ready_rethinkdb_dump_2016-12-15.tar.gz' --connect $MCDB_CONNECTION --force
   - sleep 5
   - cd backend
   - gulp build-mcapi-server
