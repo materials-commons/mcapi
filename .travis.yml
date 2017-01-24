@@ -76,7 +76,7 @@ before_script:
   - sleep 5
   - cd backend
   - gulp build-mcapi-server
-  - node sbin/mcapi/mcapi.js -p $MC_API_SERVICE_PORT > ${MC_LOG_DIR}/mcapi.out.${SERVERTYPE} 2>&1&
+  - node sbin/mcapi/mcapi.js -p $MCAPI_SERVER_PORT > ${MC_LOG_DIR}/mcapi.out.${SERVERTYPE} 2>&1&
   - cd $MC_PYTHON_API_DIR
   - pwd
   - python setup.py install
@@ -85,7 +85,7 @@ before_script:
 
 
 script:
-  - pytest test
+  - pytest test/mcapi_tests/test_object_create.py
 
 after_failure:
   - echo ${MC_LOG_DIR}/mcapi.out.${SERVERTYPE}
