@@ -42,6 +42,7 @@ install:
   - git clone -b sprint https://github.com/materials-commons/materialscommons.org.git
   - pushd materialscommons.org
   - npm install
+  - npm list --depth=0
   - export MC_CLONE_DIR=`pwd`
   - popd
   - popd
@@ -52,13 +53,12 @@ install:
   - pushd test/test_data
   - export TEST_DATA_DIR=`pwd`
   - popd
+  - pwd
   - echo $MC_CLONE_DIR
   - echo $MC_PYTHON_API_DIR
   - echo $TEST_DATA_DIR
 
 before_script:
-  - npm list --depth=0
-  - which mocha
   - rethinkdb --driver-port $MCDB_PORT --cluster-port $RETHINKDB_CLUSTER_PORT --http-port $RETHINKDB_HTTP_PORT --daemon
   - sleep 5
   - rethinkdb restore $MCDB_FILE --connect $MCDB_CONNECTION --force
