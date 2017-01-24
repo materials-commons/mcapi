@@ -71,5 +71,6 @@ before_script:
 
 script:
   - cd $MC_PYTHON_API_DIR
+  - python setup.py install --user
   - pytest test
 
