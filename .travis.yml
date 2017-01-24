@@ -18,7 +18,7 @@ env:
     - MCDIR=/tmp/mcdir
     - MCDB_TYPE=rethinkdb
     - MCDB_NAME=materialscommons
-    - MCDB_FILE=rethink_startup/rethinkdb_dump_test_data.tar.gz
+    - MCDB_FILE=rethink_startup/test_ready_rethinkdb_dump_2016-12-15.tar.gz
     - MCDB_PORT=30815
     - MCDB_CONNECTION=localhost:$MCDB_PORT
     - RETHINKDB_CLUSTER_PORT=31815
@@ -30,9 +30,9 @@ before_install:
   - sudo apt-get update
   - sudo apt-get install rethinkdb
   - 'nvm install v5.3.0'
-  - sudo pip install rethinkdb
-  - sudo pip install Flask
-  - sudo pip install pytest
+  - pip install rethinkdb
+  - pip install Flask
+  - pip install pytest
   - node --version
   - pip list
 
