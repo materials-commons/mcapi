@@ -1,5 +1,11 @@
 sudo: false
 
+notifications:
+  email:
+    recipients:
+      gtarcea@umich.edu
+      weymouth@umich.ed
+
 language: python
 
 python:
