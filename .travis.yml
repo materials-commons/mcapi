@@ -42,7 +42,7 @@ install:
   - pushd materialscommons.org
   - export MC_CLONE_DIR=`pwd`
   - npm install --production
-  - npm install gulp gulp-babel gulp-clean babel-plugin-transform-runtime
+  - npm install gulp gulp-babel gulp-clean babel-plugin-transform-runtime babel-preset-es2015
   - popd
   - popd
   - pwd
