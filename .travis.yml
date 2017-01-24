@@ -31,10 +31,7 @@ before_install:
   - wget -qO- https://download.rethinkdb.com/apt/pubkey.gpg | sudo apt-key add -
   - sudo apt-get update
   - sudo apt-get install rethinkdb
-  - 'nvm install v5.3.0'
-  - pip install rethinkdb
-  - pip install Flask
-  - pip install pytest
+  - nvm --verions
   - node --version
   - pip list
 
@@ -44,8 +41,11 @@ install:
   - git clone -b sprint https://github.com/materials-commons/materialscommons.org.git
   - pushd materialscommons.org
   - export MC_CLONE_DIR=`pwd`
+  - npm install --production
+  - npm install gulp
   - popd
   - popd
+  - pwd
   - cd python
   - export MC_PYTHON_API_DIR=`pwd`
   - pip install -r requirements.txt
