@@ -2,11 +2,8 @@ sudo: require
 
 notifications:
   email:
-    recipients:
-      gtarcea@umich.edu
-      weymouth@umich.ed
-    on_success: change
-    on_failure: change
+    on_success: always
+    on_failure: always
 
 language: python
 
@@ -33,8 +30,8 @@ before_install:
   - wget -qO- https://download.rethinkdb.com/apt/pubkey.gpg | sudo apt-key add -
   - sudo apt-get update
 
-
 install:
+  - sudo apt-get install nginx
   - sudo apt-get install rethinkdb
 
   - pushd ~
@@ -73,13 +70,14 @@ before_script:
   - node sbin/mcapi/mcapi.js -p $MCAPI_SERVER_PORT > ${MC_LOG_DIR}/mcapi.out.${SERVERTYPE} 2>&1&
   - cd $MC_PYTHON_API_DIR
   - pwd
+  - sudo nginx -c test/test_data/test_config_data/travis_nginx.conf
   - python setup.py install
 #  - python print_modules.py
   - cp test/test_data/test_config_data/travisconfig.json ~/.materialscommons/config.json
 
 
 script:
-  - pytest test
+  - pytest test/mcapi_tests/test_project.py
 
 
 after_failure:
