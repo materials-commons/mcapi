@@ -10,6 +10,10 @@ language: python
 python:
   - 2.7
 
+addons:
+  hosts:
+  - travis.dev
+
 env:
   global:
     - MCDIR=/tmp/mcdir
@@ -21,6 +25,7 @@ env:
     - SERVERTYPE=travisrun
     - MCDB_CONNECTION=localhost:$MCDB_PORT
     - MCAPI_SERVER_PORT=5004
+    - MC_SERVICE_PORT=5000
     - RETHINKDB_CLUSTER_PORT=31815
     - RETHINKDB_HTTP_PORT=8090
 
@@ -29,19 +34,30 @@ before_install:
   - source /etc/lsb-release && echo "deb http://download.rethinkdb.com/apt $DISTRIB_CODENAME main" | sudo tee /etc/apt/sources.list.d/rethinkdb.list
   - wget -qO- https://download.rethinkdb.com/apt/pubkey.gpg | sudo apt-key add -
   - sudo apt-get update
+  - sudo cat /etc/hosts
 
 install:
+  - nvm install v5.3.0
+  - node --version
   - sudo apt-get install nginx
   - sudo apt-get install rethinkdb
 
   - pushd ~
+  - npm install -g gulp
   - mkdir .materialscommons
-  - git clone -b sprint https://github.com/materials-commons/materialscommons.org.git
+  - git clone -b sprint --depth 1 https://github.com/materials-commons/materialscommons.org.git
 
   - pushd materialscommons.org
   - export MC_CLONE_DIR=`pwd`
-  - npm install --production
-  - npm install gulp gulp-babel gulp-clean babel-plugin-transform-runtime babel-preset-es2015
+  - npm install
+
+  - pushd backend
+  - pip install rethinkdb
+  - pip install Flask
+  - pip install pytest
+  - pip install pbkdf2
+  - popd
+
   - popd
 
   - popd
@@ -49,17 +65,17 @@ install:
   - cd python
   - export MC_PYTHON_API_DIR=`pwd`
   - pip install -r requirements.txt
-  - python setup.py install --user
 
   - pushd test/test_data
   - export TEST_DATA_DIR=`pwd`
   - popd
   - pwd
 
-  - npm install -g gulp
 
 
 before_script:
+  - sudo cp ${TEST_DATA_DIR}/test_config_data/mctest.localhost.conf /etc/nginx/conf.d/
+  - sudo nginx
   - cd $MC_CLONE_DIR
   - rethinkdb --driver-port $MCDB_PORT --cluster-port $RETHINKDB_CLUSTER_PORT --http-port $RETHINKDB_HTTP_PORT --daemon
   - sleep 5
@@ -70,7 +86,6 @@ before_script:
   - node sbin/mcapi/mcapi.js -p $MCAPI_SERVER_PORT > ${MC_LOG_DIR}/mcapi.out.${SERVERTYPE} 2>&1&
   - cd $MC_PYTHON_API_DIR
   - pwd
-  - sudo nginx -c test/test_data/test_config_data/travis_nginx.conf
   - python setup.py install
 #  - python print_modules.py
   - cp test/test_data/test_config_data/travisconfig.json ~/.materialscommons/config.json
