@@ -37,7 +37,6 @@ before_install:
 install:
   - sudo apt-get install rethinkdb
 
-  - pwd
   - pushd ~
   - mkdir .materialscommons
   - git clone -b sprint https://github.com/materials-commons/materialscommons.org.git
@@ -49,7 +48,6 @@ install:
   - popd
 
   - popd
-  - pwd
 
   - cd python
   - export MC_PYTHON_API_DIR=`pwd`
@@ -62,10 +60,6 @@ install:
   - pwd
 
   - npm install -g gulp
-
-  - echo $MC_CLONE_DIR
-  - echo $MC_PYTHON_API_DIR
-  - echo $TEST_DATA_DIR
 
 
 before_script:
@@ -80,12 +74,14 @@ before_script:
   - cd $MC_PYTHON_API_DIR
   - pwd
   - python setup.py install
-  - python print_modules.py
+#  - python print_modules.py
   - cp test/test_data/test_config_data/travisconfig.json ~/.materialscommons/config.json
 
 
 script:
   - pytest test
+
+
 after_failure:
   - echo ${MC_LOG_DIR}/mcapi.out.${SERVERTYPE}
   - cat ${MC_LOG_DIR}/mcapi.out.${SERVERTYPE}
