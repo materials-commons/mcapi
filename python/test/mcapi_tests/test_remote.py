@@ -26,11 +26,8 @@ class TestRemote(unittest.TestCase):
         test_path = "test/path/for/config"
         config = Config(config_file_path=self.make_test_dir_path(), config_file_name="config.json")
         remote = Remote(config=config)
-        self.assertIsNotNone(remote.make_url(test_path))
         self.assertIsNotNone(remote.make_url_v2(test_path))
-        self.assertTrue(config.mcurl in remote.make_url(test_path))
         self.assertTrue(config.mcurl in remote.make_url_v2(test_path))
-        self.assertTrue(test_path in remote.make_url(test_path))
         self.assertTrue(test_path in remote.make_url_v2(test_path))
 
 

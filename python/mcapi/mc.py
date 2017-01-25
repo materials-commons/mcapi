@@ -16,8 +16,8 @@ def list_projects():
 
 
 def create_project(name, description):
-    ids = api.create_project(name, description)
-    project_id = ids['project_id']
+    results = api.create_project(name, description)
+    project_id = results['id']
     project = fetch_project_by_id(project_id)
     return project
 

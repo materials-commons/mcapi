@@ -10,10 +10,6 @@ class Remote(object):
         self.mcurl = config.mcurl
         self.params = config.params
 
-    def make_url(self, restpath):
-        p = self.mcurl + '/' + restpath
-        return p
-
     def make_url_v2(self, restpath):
         p = self.mcurl + '/v2/' + restpath
         return p
