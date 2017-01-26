@@ -12,7 +12,7 @@ python:
 
 addons:
   hosts:
-  - travis.dev
+  - mctest.localhost
 
 env:
   global:
