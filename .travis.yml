@@ -45,7 +45,7 @@ install:
   - pushd ~
   - npm install -g gulp
   - mkdir .materialscommons
-  - git clone -b sprint --depth 1 https://github.com/materials-commons/materialscommons.org.git
+  - git clone -b create-project --depth 1 https://github.com/materials-commons/materialscommons.org.git
 
   - pushd materialscommons.org
   - export MC_CLONE_DIR=`pwd`
