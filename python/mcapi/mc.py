@@ -430,13 +430,17 @@ class Directory(MCObject):
         if (not os_path.isdir(input_dir_path)): return self
         dir_tree_table = make_dir_tree_table(input_dir_path,dir_name,dir_name,{})
         result = []
+        error = {}
         for relative_dir_path in dir_tree_table.keys():
             file_dict = dir_tree_table[relative_dir_path]
             dirs = self.get_descendant_list_by_path(relative_dir_path)
             directory = dirs[-1]
             for file_name in file_dict.keys():
-                result.append(directory.add_file(file_name,file_dict[file_name],verbose))
-        return result
+                try:
+                    result.append(directory.add_file(file_name,file_dict[file_name],verbose))
+                except Exception as e:
+                    error[file_dict[file_name]] = e
+        return result, error
 
     def process_special_objects(self):
         pass

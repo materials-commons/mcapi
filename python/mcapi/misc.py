@@ -752,7 +752,12 @@ class CommonsCLIParser(object):
                 dir = _get_file_or_directory(proj, os.path.dirname(p))
                 if dir is None:
                     dir = proj.get_directory(os.path.dirname(_local_to_remote_relpath(proj, p)))
-                result = dir.add_file(os.path.basename(p), p, verbose=True)
+                try:
+                    result = dir.add_file(os.path.basename(p), p, verbose=True)
+                except Exception as e:
+                    print "Could not upload:", p
+                    print "Error:"
+                    print e
                 # This should indicate if file already existed on Materials Commons
                 #print result.path + ":", result
             elif os.path.isdir(p) and args.recursive:
@@ -760,7 +765,13 @@ class CommonsCLIParser(object):
                 dir = _get_file_or_directory(proj, os.path.dirname(p))
                 if dir is None:
                     dir = proj.get_directory(os.path.dirname(_local_to_remote_relpath(proj, p)))
-                result = dir.add_directory_tree(os.path.basename(p), os.path.dirname(p), verbose=True)
+                result, error = dir.add_directory_tree(os.path.basename(p), os.path.dirname(p), verbose=True)
+                if len(error):
+                    for file in error:
+                        print "Could not upload:", file
+                        print "Error:"
+                        print error[file]
+                    
                 #for f in result:
                 #    # This should indicate if file already existed on Materials Commons
                 #    print f.path + ":", f
