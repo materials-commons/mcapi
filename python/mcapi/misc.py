@@ -369,9 +369,6 @@ class CommonsCLIParser(object):
     ]
     
     def __init__(self):
-        pass
-    
-    def parse_input(self):
         
         usage_help = StringIO.StringIO()
         usage_help.write("mc <command> [<args>]\n\n")

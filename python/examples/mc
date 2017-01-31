@@ -6,6 +6,4 @@ import types
 
 if __name__ == "__main__":
     cli = mcapi.misc.CommonsCLIParser()
-    cli.parse_input()
-
 
