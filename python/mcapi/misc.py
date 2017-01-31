@@ -478,7 +478,7 @@ class CommonsCLIParser(object):
         parser = argparse.ArgumentParser(
             description='List process templates')
         parser.add_argument('names', nargs='*', default=None, help='Template names (or id if --id given)')
-        parser.add_argument('--id', action="store_true", default=False, help='Input experiment id instead of name')
+        parser.add_argument('--id', action="store_true", default=False, help='Input teamplate id instead of name')
         parser.add_argument('--json', action="store_true", default=False, help='Print JSON exactly')
         
         # ignore 'mc templates'
