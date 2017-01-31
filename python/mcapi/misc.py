@@ -267,6 +267,14 @@ def set_current_experiment(proj, expt):
 #  remote_owner           -          - remote_mtime remote_size file2
 #
 
+def _humanize(file_size_bytes):
+    abbrev = [("B",0), ("K",10), ("M",20), ("G",30), ("T",40)]
+    for key, val in abbrev:
+        _size = (file_size_bytes >> val)
+        if _size < 1000 or key == "T":
+            return str(_size) + key
+    
+
 def _ls_group(proj, paths, files_only=True, checksum=False, json=False, id=False):
     """
     Construct DataFrame with 'mc ls' results for paths. Also outputs
@@ -305,7 +313,7 @@ def _ls_group(proj, paths, files_only=True, checksum=False, json=False, id=False
         # locals
         if os.path.exists(path):
             data['l_mtime'] = time.strftime("%b %Y %H:%M:%S", time.localtime(os.path.getmtime(path)))
-            data['l_size'] = os.path.getsize(path)
+            data['l_size'] = _humanize(os.path.getsize(path))
             if os.path.isfile(path):
                 data['l_type'] = 'file'
                 if checksum:
@@ -321,7 +329,7 @@ def _ls_group(proj, paths, files_only=True, checksum=False, json=False, id=False
         if obj is not None:
             if obj.mtime:
                 data['r_mtime'] = time.strftime("%b %Y %H:%M:%S", time.localtime(obj.mtime))
-            data['r_size'] = obj.size
+            data['r_size'] = _humanize(obj.size)
             if isinstance(obj, mcapi.File):
                 data['r_type'] = 'file'
                 if checksum and l_checksum is not None:

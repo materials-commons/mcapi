@@ -420,6 +420,9 @@ class Directory(MCObject):
         return dir_list
 
     def add_file(self, file_name, input_path, verbose=True):
+        file_size_MB = os_path.getsize(input_path) >> 20
+        if file_size_MB > 50:
+            raise Exception("File too large (>50MB), skipping. File size: " + str(file_size_MB) + "M")
         if verbose:
             print "uploading:", os_path.relpath(input_path, getcwd()), " as:", file_name
         result = self._project.add_file_using_directory(self, file_name, input_path)
