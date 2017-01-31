@@ -16,8 +16,8 @@ def list_projects():
 
 
 def create_project(name, description):
-    ids = api.create_project(name, description)
-    project_id = ids['project_id']
+    results = api.create_project(name, description)
+    project_id = results['id']
     project = fetch_project_by_id(project_id)
     return project
 
@@ -153,6 +153,8 @@ class Project(MCObject):
 
     def add_file_using_directory(self, directory, file_name, local_input_path):
         uploaded_file = _create_file_with_upload(self, directory, file_name, local_input_path)
+        uploaded_file._project = self
+        uploaded_file._parent = directory
         return uploaded_file
 
 class Experiment(MCObject):
@@ -419,17 +421,16 @@ class Directory(MCObject):
             dir_list.append(directory)
         return dir_list
 
-    def add_file(self, file_name, input_path, verbose=True):
+    def add_file(self, file_name, input_path, verbose=False):
         file_size_MB = os_path.getsize(input_path) >> 20
         if file_size_MB > 50:
             raise Exception("File too large (>50MB), skipping. File size: " + str(file_size_MB) + "M")
         if verbose:
             print "uploading:", os_path.relpath(input_path, getcwd()), " as:", file_name
         result = self._project.add_file_using_directory(self, file_name, input_path)
-        print result
         return result
 
-    def add_directory_tree(self, dir_name, input_dir_path, verbose=True):
+    def add_directory_tree(self, dir_name, input_dir_path, verbose=False):
         if (not os_path.isdir(input_dir_path)): return self
         dir_tree_table = make_dir_tree_table(input_dir_path,dir_name,dir_name,{})
         result = []
@@ -439,10 +440,11 @@ class Directory(MCObject):
             dirs = self.get_descendant_list_by_path(relative_dir_path)
             directory = dirs[-1]
             for file_name in file_dict.keys():
+                input_path = file_dict[file_name]
                 try:
-                    result.append(directory.add_file(file_name,file_dict[file_name],verbose))
+                    result.append(directory.add_file(file_name,input_path,verbose))
                 except Exception as e:
-                    error[file_dict[file_name]] = e
+                    error[input_path] = e
         return result, error
 
     def process_special_objects(self):
@@ -579,6 +581,16 @@ class MeasurementBoolean(Measurement):
     def __init__(self, data=None):
         # attr = ['name', 'attribute', 'birthtime', 'mtime', 'otype', 'owner', 'unit', 'value']
         super(MeasurementBoolean, self).__init__(data)
+
+class MeasurementSample(Measurement):
+    def __init__(self, data=None):
+        # attr = ['name', 'attribute', 'birthtime', 'mtime', 'otype', 'owner', 'unit', 'value']
+        super(MeasurementSample, self).__init__(data)
+
+class MeasurementFile(Measurement):
+    def __init__(self, data=None):
+        # attr = ['name', 'attribute', 'birthtime', 'mtime', 'otype', 'owner', 'unit', 'value']
+        super(MeasurementFile, self).__init__(data)
 
 class Property(MCObject):
     def __init__(self, data=None):
@@ -793,6 +805,10 @@ def make_measurement_object(obj):
             holder = MeasurementNumber(data=data)
         if object_type == 'boolean':
             holder = MeasurementBoolean(data=data)
+        if object_type == 'sample':
+            holder = MeasurementSample(data=data)
+        if object_type == 'file':
+            holder = MeasurementFile(data=data)
         if (holder):
             holder.process_special_objects()
             return holder

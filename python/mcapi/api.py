@@ -96,7 +96,7 @@ def create_project(name, description, remote=use_remote()):
         "name": name,
         "description": description
     }
-    return post(remote.make_url("projects"), data)
+    return post(remote.make_url_v2("projects"), data)
 
 
 def fetch_project(project_id, remote=use_remote()):

@@ -3,3 +3,4 @@ requests
 rethinkdb
 pytest
 pathlib
+numpy

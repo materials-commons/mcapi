@@ -1,30 +1,102 @@
-sudo: false
+sudo: require
+
+notifications:
+  email:
+    on_success: always
+    on_failure: always
 
 language: python
 
 python:
   - 2.7
 
+addons:
+  hosts:
+  - mctest.localhost
+
 env:
   global:
     - MCDIR=/tmp/mcdir
     - MCDB_TYPE=rethinkdb
     - MCDB_NAME=materialscommons
-    - MCDB_FILE=rethink_startup/rethinkdb_dump_test_data.tar.gz
+    - MCDB_FILE=test_data/test_ready_rethinkdb_dump_2016-12-15.tar.gz
     - MCDB_PORT=30815
+    - MC_LOG_DIR=/tmp/
+    - SERVERTYPE=travisrun
     - MCDB_CONNECTION=localhost:$MCDB_PORT
+    - MCAPI_SERVER_PORT=5004
+    - MC_SERVICE_PORT=5000
     - RETHINKDB_CLUSTER_PORT=31815
     - RETHINKDB_HTTP_PORT=8090
 
+
+before_install:
+  - source /etc/lsb-release && echo "deb http://download.rethinkdb.com/apt $DISTRIB_CODENAME main" | sudo tee /etc/apt/sources.list.d/rethinkdb.list
+  - wget -qO- https://download.rethinkdb.com/apt/pubkey.gpg | sudo apt-key add -
+  - sudo apt-get update
+  - sudo cat /etc/hosts
+
 install:
-  - git clone https://github.com/materials-commons/materialscommons.org.git
-  - pushd materialscommons.org/backend
-  - mcservers start -u
+  - nvm install v5.3.0
+  - node --version
+  - sudo apt-get install nginx
+  - sudo apt-get install rethinkdb
+
+  - pushd ~
+  - npm install -g node-gyp@3.5.0
+  - npm install -g gulp
+  - mkdir .materialscommons
+  - git clone -b create-project --depth 1 https://github.com/materials-commons/materialscommons.org.git
+
+  - pushd materialscommons.org
+  - export MC_CLONE_DIR=`pwd`
+  - npm install
+
+  - pushd backend
+  - pip install rethinkdb
+  - pip install Flask
+  - pip install pytest
+  - pip install pbkdf2
   - popd
+
+  - popd
+
+  - popd
+
   - cd python
+  - export MC_PYTHON_API_DIR=`pwd`
   - pip install -r requirements.txt
-  - python setup.py install --user
+
+  - pushd test/test_data
+  - export TEST_DATA_DIR=`pwd`
+  - popd
+  - pwd
+
+
+
+before_script:
+  - sudo cp ${TEST_DATA_DIR}/test_config_data/mctest.localhost.conf /etc/nginx/conf.d/
+  - sudo nginx
+  - cd $MC_CLONE_DIR
+  - rethinkdb --driver-port $MCDB_PORT --cluster-port $RETHINKDB_CLUSTER_PORT --http-port $RETHINKDB_HTTP_PORT --daemon
+  - sleep 5
+  - rethinkdb restore 'test_data/test_ready_rethinkdb_dump_2016-12-15.tar.gz' --connect $MCDB_CONNECTION --force
+  - sleep 5
+  - cd backend
+  - gulp build-mcapi-server
+  - node sbin/mcapi/mcapi.js -p $MCAPI_SERVER_PORT > ${MC_LOG_DIR}/mcapi.out.${SERVERTYPE} 2>&1&
+  - cd $MC_PYTHON_API_DIR
+  - pwd
+  - python setup.py install
+#  - python print_modules.py
+  - cp test/test_data/test_config_data/travisconfig.json ~/.materialscommons/config.json
+
 
 script:
-  - pytest
+  - pytest test/mcapi_tests/test_project.py
+
+
+after_failure:
+  - echo ${MC_LOG_DIR}/mcapi.out.${SERVERTYPE}
+  - cat ${MC_LOG_DIR}/mcapi.out.${SERVERTYPE}
 

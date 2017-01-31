@@ -14,13 +14,14 @@ import StringIO
 import imp
 import hashlib
 
-
+# api.py
 def _delete(restpath, remote=mcapi.Remote()):
     r = requests.delete(restpath, params=remote.params, verify=False)
     if r.status_code == requests.codes.ok:
         return r.json()
     r.raise_for_status()
 
+# mc.py - project object - with approperate mapping to api.py
 def _experiments(project_id, remote=mcapi.Remote()):
     """
     get experiments data for specified project
@@ -32,9 +33,11 @@ def _experiments(project_id, remote=mcapi.Remote()):
     """
     return mcapi.api.get(remote.make_url_v2('projects/' + project_id + '/experiments'), remote=remote)
 
+# where used? - does this need to be extended to create a list of lightweight objects
 def _templates(remote=mcapi.Remote()):
     return mcapi.api.get(remote.make_url_v2('templates'), remote=remote)
 
+# mc.py - experiment object? does this actually work?
 def _delete_experiment(project_id, experiment_id, remote=mcapi.Remote()):
     """
     delete experiment for specified project
@@ -46,6 +49,7 @@ def _delete_experiment(project_id, experiment_id, remote=mcapi.Remote()):
     """
     return _delete(remote.make_url_v2('projects/' + project_id + '/experiments'), remote=remote)
 
+# mc.py - project object
 def _get_experiments(proj):
     """
     get List[mcapi.Experiment] for project
@@ -56,8 +60,10 @@ def _get_experiments(proj):
         expt = mcapi.mc.make_object(data)
         expt.project = proj
         ret.append(expt)
-    return ret 
+    return ret
 
+# maybe another file for CLI support
+# mcli.py/mc.py - additional objects...
 def _mc_remotes(path=None):
     """
     Dict of {name: mcapi.Remote}
