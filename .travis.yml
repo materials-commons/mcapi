@@ -102,7 +102,7 @@ before_script:
   - cp test/test_data/test_config_data/travisconfig.json ~/.materialscommons/config.json
 
   - sleep 20
-  - curl -o junk.txt http://mctest.localhost/api/v2/projects?apikey=totally-bogus
+  - curl -o junk.txt http://mctest.localhost/api/v2/templets?apikey=totally-bogus
   - cat junk.txt
 
 script:
