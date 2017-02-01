@@ -1,4 +1,5 @@
 import unittest
+import pytest
 from random import randint
 from mcapi import set_remote_config_url, get_remote_config_url, get_all_templates
 
@@ -21,6 +22,7 @@ class TestTempletAccess(unittest.TestCase):
         self.assertIsNotNone(probe)
         self.assertTrue(probe.otype == 'template')
 
+    @pytest.mark.skip("Skipping test for 'all templates' until dependencies on mc.org are worked out")
     def make_template_table(self,templates):
         ret = {}
         for t in templates:
