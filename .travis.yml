@@ -84,12 +84,16 @@ before_script:
   - sleep 5
   - cd backend
   - gulp build-mcapi-server
+  - sleep 5
   - node sbin/mcapi/mcapi.js -p $MCAPI_SERVER_PORT > ${MC_LOG_DIR}/mcapi.out.${SERVERTYPE} 2>&1&
+  - sleep 5
   - cd $MC_PYTHON_API_DIR
   - pwd
   - python setup.py install
 #  - python print_modules.py
   - cp test/test_data/test_config_data/travisconfig.json ~/.materialscommons/config.json
+
+  - sleep 20
   - curl -o junk.txt http://mctest.localhost/api/v2/projects?apikey=totally-bogus
   - cat junk.txt
 
