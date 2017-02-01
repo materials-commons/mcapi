@@ -206,6 +206,12 @@ def update_process_setup_properties(project_id, experiment_id, process, properti
               "/processes/" + process.id
     return put(remote.make_url_v2(api_url), data)
 
+# templates
+
+def get_all_templates(remote=use_remote()):
+    api_url = "templates"
+    return get(remote.make_url_v2(api_url))
+
 # directory
 
 def directory_by_id(project_id, directory_id, remote=use_remote()):

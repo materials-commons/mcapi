@@ -85,7 +85,12 @@ before_script:
   - sleep 5
   - rethinkdb restore 'test_data/test_ready_rethinkdb_dump_2016-12-15.tar.gz' --connect $MCDB_CONNECTION --force
   - sleep 5
+
   - cd backend
+#  - pushd scripts/templates
+#  - node --harmony loadtemplates.js
+#  - popd
+
   - gulp build-mcapi-server
   - sleep 5
   - node sbin/mcapi/mcapi.js -p $MCAPI_SERVER_PORT > ${MC_LOG_DIR}/mcapi.out.${SERVERTYPE} 2>&1&
