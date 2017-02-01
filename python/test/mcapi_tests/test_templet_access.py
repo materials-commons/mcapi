@@ -11,6 +11,7 @@ class TestTempletAccess(unittest.TestCase):
     def setUpClass(cls):
         set_remote_config_url(url)
 
+    @pytest.mark.skip("Skipping test for 'all templates' until dependencies on mc.org are worked out")
     def test_all_templets(self):
         self.assertEqual(get_remote_config_url(), url)
         templates = get_all_templates()
@@ -22,7 +23,6 @@ class TestTempletAccess(unittest.TestCase):
         self.assertIsNotNone(probe)
         self.assertTrue(probe.otype == 'template')
 
-    @pytest.mark.skip("Skipping test for 'all templates' until dependencies on mc.org are worked out")
     def make_template_table(self,templates):
         ret = {}
         for t in templates:
