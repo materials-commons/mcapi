@@ -98,7 +98,7 @@ before_script:
   - cat junk.txt
 
 script:
-  - pytest test/mcapi_tests/test_project.py
+  - pytest test
 
 
 after_failure:
