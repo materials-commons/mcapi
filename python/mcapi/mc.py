@@ -510,6 +510,23 @@ class File(MCObject):
         filepath = _download_data_to_file(self._project, self, local_download_file_path)
         return filepath
 
+class Template(MCObject):
+    # global static
+    create = "global_Create Samples"
+    compute = "global_Computation"
+    primitive_crystal_structure= "global_Primitive Crystal Structure"
+
+    def __init__(self, data=None):
+        # attr = ['id', 'name', 'description', 'birthtime', 'mtime', 'otype', 'owner']
+        super(Template, self).__init__(data)
+
+        #---- NOTE
+        #- Template is truncated, for now, as we only need the id to create
+        #- processes from a Template
+        #----
+
+def get_all_templates():
+    return _get_all_templates()
 
 class Measurement(MCObject):
     def __init__(self, data=None):
@@ -673,16 +690,6 @@ class MatrixProperty(Property):
         super(MatrixProperty, self).__init__(data)
 
 
-class Template:
-    # global static
-    create = "global_Create Samples"
-    compute = "global_Computation"
-    primitive_crystal_structure= "global_Primitive Crystal Structure"
-
-    def __init__(self):
-        pass
-
-
 def make_object(data):
     if _is_datetime(data):
         return make_datetime(data)
@@ -720,6 +727,8 @@ def make_base_object_for_type(data):
             return File(data=data)
         if object_type == 'file':
             return File(data=data)
+        if object_type == 'template':
+            return Template(data=data)
         if object_type == 'experiment_task':
             # Experiment task not implemented
             return MCObject(data=data)
@@ -900,6 +909,11 @@ def _set_measurement_for_process_samples(project, experiment, process,\
         return None
     return get_process_from_id(project, experiment, process_id)
 
+# -- support funcitons for Templet --
+def _get_all_templates():
+    templates_array = api.get_all_templates()
+    templates =  map((lambda x: make_object(x)), templates_array)
+    return templates
 
 # -- support functions for Sample --
 
