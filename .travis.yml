@@ -90,7 +90,8 @@ before_script:
   - python setup.py install
 #  - python print_modules.py
   - cp test/test_data/test_config_data/travisconfig.json ~/.materialscommons/config.json
-
+  - curl -o junk.txt http://mctest.localhost/api/v2/projects?apikey=totally-bogus
+  - cat junk.txt
 
 script:
   - pytest test/mcapi_tests/test_project.py
