@@ -83,7 +83,7 @@ before_script:
   - cd $MC_CLONE_DIR
   - rethinkdb --driver-port $MCDB_PORT --cluster-port $RETHINKDB_CLUSTER_PORT --http-port $RETHINKDB_HTTP_PORT --daemon
   - sleep 5
-  - rethinkdb restore 'test_data/test_ready_rethinkdb_dump_2016-12-15.tar.gz' --connect $MCDB_CONNECTION --force
+  - rethinkdb restore 'test_data/test_ready_rethinkdb_dump_2017-02-01.tar.gz' --connect $MCDB_CONNECTION --force
   - sleep 5
 
   - cd backend
