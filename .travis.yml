@@ -100,6 +100,7 @@ before_script:
   - sleep 5
   - cd $MC_PYTHON_API_DIR
   - pwd
+  - pip install coverage
   - python setup.py install
 #  - python print_modules.py
   - cp test/test_data/test_config_data/travisconfig.json ~/.materialscommons/config.json
