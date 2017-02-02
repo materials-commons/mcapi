@@ -51,8 +51,8 @@ install:
   - sudo apt-get install yarn
 
   - pushd ~
-  - yarn install node-gyp@3.5.0
-  - yarn install gulp
+  - yarn add node-gyp@3.5.0
+  - yarn add gulp
   - mkdir .materialscommons
   - git clone -b sprint --depth 1 https://github.com/materials-commons/materialscommons.org.git
 
