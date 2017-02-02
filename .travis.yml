@@ -109,10 +109,12 @@ before_script:
 #  - cat junk.txt
 
 script:
-  - pytest test
-
+  - coverage run --source mcapi -m py.test test
 
 after_failure:
   - echo ${MC_LOG_DIR}/mcapi.out.${SERVERTYPE}
   - cat ${MC_LOG_DIR}/mcapi.out.${SERVERTYPE}
 
+after_sucess:
+  - coverage report -m
+ 
