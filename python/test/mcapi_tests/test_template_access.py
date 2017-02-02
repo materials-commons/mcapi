@@ -5,13 +5,12 @@ from mcapi import set_remote_config_url, get_remote_config_url, get_all_template
 
 url = 'http://mctest.localhost/api'
 
-class TestTempletAccess(unittest.TestCase):
+class TestTemplateAccess(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
         set_remote_config_url(url)
 
-    @pytest.mark.skip("Skipping test for 'all templates' until dependencies on mc.org are worked out")
     def test_all_templets(self):
         self.assertEqual(get_remote_config_url(), url)
         templates = get_all_templates()
