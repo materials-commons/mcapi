@@ -602,12 +602,11 @@ class CommonsCLIParser(object):
         """
         Initialize a new project
         
-        mc init <name> <remote> [--desc <description>]
+        mc init [--remote <remote>] [--desc <description>]
         
         """
         parser = argparse.ArgumentParser(
-            description='Initialize a new project')
-        parser.add_argument('name', help='Project name')
+            description='Initialize current working directory as a new project')
         parser.add_argument('--remote', type=str, default='origin', help='Remote name')
         parser.add_argument('--desc', type=str, default='', help='Project description')
         
@@ -621,11 +620,19 @@ class CommonsCLIParser(object):
             exit(1)
         remote=remotes[args.remote]
         
-        project = mcapi.create_project(args.name, args.desc)
-        #project = mcapi.create_project(args.name, args.desc, remote=remote)
+        name = os.path.basename(os.getcwd())
+        
+        project = mcapi.create_project(name, args.desc)
         
         print "Created new project at:", remote.mcurl
         _print_projects([project], project)
+        
+        if not os.path.exists('.mc'):
+            os.mkdir('.mc')
+        with open(_proj_config(), 'w') as f:
+            # set a default current experiment? 
+            data = {'remote_url':remote.mcurl, 'project_id': project.id, 'experiment_id': None}
+            json.dump(data, f)
 
     def clone(self):
         """
