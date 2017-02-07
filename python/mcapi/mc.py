@@ -421,16 +421,16 @@ class Directory(MCObject):
             dir_list.append(directory)
         return dir_list
 
-    def add_file(self, file_name, input_path, verbose=False):
+    def add_file(self, file_name, input_path, verbose=False, limit=50):
         file_size_MB = os_path.getsize(input_path) >> 20
-        if file_size_MB > 50:
-            raise Exception("File too large (>50MB), skipping. File size: " + str(file_size_MB) + "M")
+        if file_size_MB > limit:
+            raise Exception("File too large (>" + str(limit) + "MB), skipping. File size: " + str(file_size_MB) + "M")
         if verbose:
             print "uploading:", os_path.relpath(input_path, getcwd()), " as:", file_name
         result = self._project.add_file_using_directory(self, file_name, input_path)
         return result
 
-    def add_directory_tree(self, dir_name, input_dir_path, verbose=False):
+    def add_directory_tree(self, dir_name, input_dir_path, verbose=False, limit=50):
         if (not os_path.isdir(input_dir_path)): return self
         dir_tree_table = make_dir_tree_table(input_dir_path,dir_name,dir_name,{})
         result = []
@@ -442,7 +442,7 @@ class Directory(MCObject):
             for file_name in file_dict.keys():
                 input_path = file_dict[file_name]
                 try:
-                    result.append(directory.add_file(file_name,input_path,verbose))
+                    result.append(directory.add_file(file_name,input_path,verbose,limit))
                 except Exception as e:
                     error[input_path] = e
         return result, error
