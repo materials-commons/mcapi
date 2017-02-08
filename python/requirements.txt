@@ -1,6 +1,3 @@
 python-magic
-requests
-rethinkdb
 pytest
 pathlib
-numpy
