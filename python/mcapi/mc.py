@@ -157,6 +157,9 @@ class Project(MCObject):
         uploaded_file._parent = directory
         return uploaded_file
 
+    def fetch_experiments(self):
+        return _fetch_experiments(self)
+
 class Experiment(MCObject):
     def __init__(self, project_id=None, name=None, description=None,
                  data=None):
@@ -277,6 +280,11 @@ class Process(MCObject):
     def _transform_property(self,property):
         prop = make_property_object(property)
         return prop
+
+    def add_name(self,process_name):
+        self.name = process_name
+        _push_name_for_process(self)
+        return self
 
     def create_samples(self, sample_names):
         return _create_samples(self.project, self, sample_names)
@@ -845,6 +853,14 @@ def _create_experiment(project, name, description):
     experiment.project = project
     return experiment
 
+def _fetch_experiments(project):
+    list_results = api.fetch_experiments(project.id)
+    experiments = []
+    for ex in list_results:
+        experiment = Experiment(data=ex)
+        experiment.project = project
+        experiments.append(experiment)
+    return experiments
 
 # -- support functions for Process --
 def _create_process_from_template(project, experiment, template_id):
@@ -854,6 +870,12 @@ def _create_process_from_template(project, experiment, template_id):
     process.experiment = experiment
     return process
 
+def _push_name_for_process(process):
+    results = api.push_name_for_process(process.project.id,process.id,process.name)
+    print '---- +++ ----'
+    print results
+    print '---- +++ ----'
+    return results
 
 def _add_samples_to_process(project, experiment, process, samples):
     results = api.add_samples_to_process(project.id, experiment.id, process, samples)
@@ -880,25 +902,25 @@ def _update_process_setup_properties(project, experiment, process, prop_list):
     return process
 
 
-def _set_measurement_for_process_samples(project, experiment, process,\
+def _set_measurement_for_process_samples(project, experiment, process,
             samples, property, measurements):
     project_id = project.id
     experiment_id = experiment.id
     process_id = process.id
     samples_parameter = []
     for sample in samples:
-        samples_parameter.append({\
-            'id': sample.id, \
+        samples_parameter.append({
+            'id': sample.id,
             'property_set_id': sample.property_set_id
         })
     measurement_parameter = []
     for measurement in measurements:
-        measurement_parameter.append({\
-            'name': measurement.name, \
-            'attribute': measurement.attribute, \
-            'otype': measurement.otype, \
-            'value': measurement.value, \
-            'unit' : measurement.unit, \
+        measurement_parameter.append({
+            'name': measurement.name,
+            'attribute': measurement.attribute,
+            'otype': measurement.otype,
+            'value': measurement.value,
+            'unit' : measurement.unit,
             'is_best_measure': measurement.is_best_measure
         })
     success_flag = api.set_measurement_for_process_samples(\
