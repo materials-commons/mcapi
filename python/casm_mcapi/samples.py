@@ -222,7 +222,7 @@ def _add_selection_measurement(create_sample_process, attrname, value, name=None
     }
     return _set_measurement(create_sample_process, attrname, measurement_data, name)
 
-def _add_nampy_matrix_measurement(create_sample_process, attrname, value, name=None):
+def _add_numpy_matrix_measurement(create_sample_process, attrname, value, name=None):
     measurement_data = {
         "attribute": attrname,
         "otype": "matrix",
@@ -470,7 +470,7 @@ def create_prim_sample(expt, casm_proj):
     #     "system" ("triclinic", "monoclinic", "orthorhombic", "tetragonal", "hexagonal", "rhombohedral", "cubic")
     #     "symmetry" (Schoenflies symbol)
     lattice_matrix = np.array(raw_prim['lattice_vectors']).transpose()
-    _add_nampy_matrix_measurement(create_sample_process, 'lattice', lattice_matrix)
+    _add_numpy_matrix_measurement(create_sample_process, 'lattice', lattice_matrix)
 
     lattice_parameters = _lattice_parameters(lattice_matrix)
     _add_vector_measurement(create_sample_process, 'parameters', lattice_parameters)

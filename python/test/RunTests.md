@@ -33,6 +33,13 @@ Libraries
   pip install --user pathlib
 ```
 
+If you plan to use the casm_mcapi module, you may need to install numpy to support
+the matrix representation used by _add_numpy_matrix_measurement
+```
+  pip install --user numpy
+```
+
+
 To Compile
 ----------
 
