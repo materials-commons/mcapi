@@ -4,7 +4,7 @@ Compiling and Running Tests
 Preconditions
 -------------
 
-You must have set up the connection configuration, in a file **config.jason**
+You must have set up the connection configuration, in a file **config.json**
 in a directory **~/.materialscommons**, with the content:
 ```
 {
