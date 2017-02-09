@@ -1,4 +1,3 @@
-from os import environ
 from os import path as os_path
 from mcapi import create_project, Template
 from mcapi import list_projects
@@ -6,8 +5,8 @@ from mcapi import get_process_from_id
 
 
 class DemoProject:
-    def __init__(self):
-        pass
+    def __init__(self,data_directory_path):
+        self.build_data_directory = data_directory_path
 
     def build_project(self):
         project_name = "Demo Project"
@@ -40,7 +39,7 @@ class DemoProject:
                 sample_names=[sample_name]
             )[0]
 
-        filepath_for_sample = self._make_test_dir_path('sem.tif')
+        filepath_for_sample = self._make_data_dir_path('sem.tif')
         directory_path = "/FilesForSample"
         filename_for_sample = "SampleFile.tif"
         sample_file = self._get_file_from_project(project, directory_path, filename_for_sample)
@@ -133,7 +132,6 @@ class DemoProject:
         return selected_file
 
     def _make_data_dir_path(self, file_name):
-        # self.assertTrue('TEST_DATA_DIR' in environ)
-        test_path = os_path.abspath(environ['DEMO_DATA_DIR'])
-        test_file = os_path.join(test_path, 'test_upload_data', file_name)
+        test_file = os_path.join(self.build_data_directory, file_name)
         return test_file
+
