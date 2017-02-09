@@ -73,11 +73,12 @@ class TestDemoProject(unittest.TestCase):
         self.assertEqual(sample.name, sample_name)
 
         filepath_for_sample = self._make_test_dir_path('sem.tif')
+        directory_path = "/FilesForSample"
         filename_for_sample = "SampleFile.tif"
-        sample_file = self._get_file_from_project(project, filename_for_sample)
+        sample_file = self._get_file_from_project(project, directory_path, filename_for_sample)
         if not sample_file:
             sample_file = project.add_file_using_directory(
-                project.add_directory("/FilesForSample"),
+                project.add_directory(directory_path),
                 filename_for_sample,
                 filepath_for_sample
             )
@@ -158,14 +159,28 @@ class TestDemoProject(unittest.TestCase):
         return selected_process
 
     def _get_output_sample_from_process(self, process, sample_name):
-        print '---- process output sample'
-        print process
-        print process.output_samples
-        print '---- process output sample'
-        pass
+        samples = process.output_samples
+        selected_sample = None
+        for sample in samples:
+            if sample.name == sample_name:
+                selected_sample = sample
+        return selected_sample
 
-    def _get_file_from_project(self, project, filename_for_sample):
-        pass
+    def _get_file_from_project(self, project, directory_path, filename):
+        directory = project.get_directory(directory_path)
+        children = directory.get_children()
+        selected_file = None
+        for entry in children:
+            if entry.otype =='file' and entry.name == filename:
+                selected_file = entry
+        return selected_file
+
+    def _process_has_file(self, process, file):
+        selected_file = None
+        for check_file in process.files:
+            if check_file.id == file.id:
+                selected_file = check_file
+        return selected_file
 
     def _make_test_dir_path(self, file_name):
         self.assertTrue('TEST_DATA_DIR' in environ)
@@ -176,5 +191,3 @@ class TestDemoProject(unittest.TestCase):
         self.assertTrue(os_path.isfile(test_file))
         return test_file
 
-    def _process_has_file(self, create_sample_process, sample_file):
-        pass
