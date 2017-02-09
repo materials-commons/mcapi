@@ -64,3 +64,4 @@ class TestSampleAssociate(unittest.TestCase):
                 found_process = process
         self.assertIsNotNone(found_process)
         self.assertEqual(found_process.id, process_with_sample.id)
+

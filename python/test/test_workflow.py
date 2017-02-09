@@ -41,9 +41,14 @@ class TestWorkflow(unittest.TestCase):
         create_sample_process = experiment.create_process_from_template(Template.create)
 
         sample_name = 'Test Sample 1'
-        sample = create_sample_process.create_samples(
+        samples = create_sample_process.create_samples(
             sample_names=[sample_name]
-        )[0]
+        )
+        sample = samples [0]
+
+        experiment.fetch_and_add_samples(create_sample_process)
+        samples_from_experiment = experiment.samples
+        sample_from_experiment = samples_from_experiment[0]
 
         filepath_for_sample = self.make_test_dir_path('sem.tif')
         filename_for_sample = "SampleFile.tif"
@@ -121,6 +126,10 @@ class TestWorkflow(unittest.TestCase):
         self.assertIsNotNone(sample.name)
         self.assertIsNotNone(sample.property_set_id)
         self.assertEqual(sample.name, sample_name)
+
+        self.assertEqual(sample.id,sample_from_experiment.id)
+        self.assertEqual(sample.project.id,sample_from_experiment.project.id)
+        self.assertEqual(sample.process.id,sample_from_experiment.process.id)
 
         self.assertIsNotNone(sample_file)
         self.assertIsNotNone(sample_file.name)

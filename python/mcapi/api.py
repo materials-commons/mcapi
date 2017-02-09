@@ -125,6 +125,10 @@ def create_experiment(project_id, name, description, remote=use_remote()):
 def fetch_experiments(project_id, remote=use_remote()):
     return get(remote.make_url_v2("projects/" + project_id + "/experiments"))
 
+def fetch_experiment_samples(project_id, experiment_id, remote=use_remote()):
+    api_url = "projects/" + project_id + "/experiments/" + experiment_id + "/samples"
+    return get(remote.make_url_v2(api_url))
+
 # Process
 
 def create_process_from_template(project_id, experiment_id, template_id, remote=use_remote()):
@@ -145,7 +149,7 @@ def push_name_for_process(project_id, process_id, name, remote=use_remote()):
 
 # Sample
 
-def create_samples(project_id, process_id, sample_names, remote=use_remote()):
+def create_samples_in_project(project_id, process_id, sample_names, remote=use_remote()):
     sample_names_data = [{"name": name} for name in sample_names]
     data = {
         "process_id": process_id,
@@ -154,6 +158,12 @@ def create_samples(project_id, process_id, sample_names, remote=use_remote()):
     api_url = "projects/" + project_id + "/samples"
     return post(remote.make_url_v2(api_url), data)
 
+def add_samples_to_experiment(project_id, experiment_id, sample_id_list, remote=use_remote()):
+    data = {
+        "samples": sample_id_list
+    }
+    api_url = "projects/" + project_id + "/experiments/" + experiment_id + "/samples"
+    return post(remote.make_url_v2(api_url), data)
 
 # Create sample process
 

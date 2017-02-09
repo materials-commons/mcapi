@@ -183,6 +183,8 @@ class Experiment(MCObject):
         self.goals = None
         self.aims = None
 
+        self.samples = []
+
         if not data:
             data = {}
 
@@ -210,8 +212,16 @@ class Experiment(MCObject):
                 array = []
             setattr(self, a, array)
 
+    def process_special_objects(self):
+        if (self.samples):
+            self.samples = [make_object(s.input_data) for s in self.samples]
+
     def create_process_from_template(self, template_id):
         return _create_process_from_template(self.project, self, template_id)
+
+    def fetch_and_add_samples(self,process):
+        self.samples = _fetch_samples_for_experiment(self,process)
+        return self
 
 
 class Process(MCObject):
@@ -862,6 +872,14 @@ def _fetch_experiments(project):
         experiments.append(experiment)
     return experiments
 
+def _fetch_samples_for_experiment(experiment,process):
+    samples_list = api.fetch_experiment_samples(experiment.project.id,experiment.id)
+    samples = map((lambda x: make_object(x)), samples_list)
+    samples = map((lambda x: _decorate_sample_with(x, 'project', experiment.project)), samples)
+    samples = map((lambda x: _decorate_sample_with(x, 'process', process)), samples)
+    return samples
+
+
 # -- support functions for Process --
 def _create_process_from_template(project, experiment, template_id):
     results = api.create_process_from_template(project.id, experiment.id, template_id)
@@ -940,11 +958,15 @@ def _get_all_templates():
 # -- support functions for Sample --
 
 def _create_samples(project, process, sample_names):
-    samples_array_dict = api.create_samples(project.id, process.id, sample_names)
+    samples_array_dict = api.create_samples_in_project(project.id, process.id, sample_names)
     samples_array = samples_array_dict['samples']
     samples = map((lambda x: make_object(x)), samples_array)
     samples = map((lambda x: _decorate_sample_with(x, 'project', project)), samples)
     samples = map((lambda x: _decorate_sample_with(x, 'process', process)), samples)
+    samples_id_list = []
+    for sample in samples:
+        samples_id_list.append(sample.id)
+    api.add_samples_to_experiment(project.id,process.experiment.id,samples_id_list)
     return samples
 
 
