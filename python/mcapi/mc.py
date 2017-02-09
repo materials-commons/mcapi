@@ -184,6 +184,7 @@ class Experiment(MCObject):
         self.aims = None
 
         self.samples = []
+        self.processes = []
 
         if not data:
             data = {}
@@ -222,6 +223,11 @@ class Experiment(MCObject):
     def fetch_and_add_samples(self,process):
         self.samples = _fetch_samples_for_experiment(self,process)
         return self
+
+    def fetch_and_add_processes(self):
+        self.processes = _fetch_processes_for_exeriment(self)
+        return self
+
 
 
 class Process(MCObject):
@@ -875,10 +881,16 @@ def _fetch_experiments(project):
 def _fetch_samples_for_experiment(experiment,process):
     samples_list = api.fetch_experiment_samples(experiment.project.id,experiment.id)
     samples = map((lambda x: make_object(x)), samples_list)
-    samples = map((lambda x: _decorate_sample_with(x, 'project', experiment.project)), samples)
-    samples = map((lambda x: _decorate_sample_with(x, 'process', process)), samples)
+    samples = map((lambda x: _decorate_object_with(x, 'project', experiment.project)), samples)
+    samples = map((lambda x: _decorate_object_with(x, 'process', process)), samples)
     return samples
 
+def _fetch_processes_for_exeriment(experiment):
+    process_list = api.fetch_experiment_processes(experiment.project.id,experiment.id)
+    processes = map((lambda x: make_object(x)), process_list)
+    processes = map((lambda x: _decorate_object_with(x, 'project', experiment.project)), processes)
+    processes = map((lambda x: _decorate_object_with(x, 'experiment', experiment)), processes)
+    return processes
 
 # -- support functions for Process --
 def _create_process_from_template(project, experiment, template_id):
@@ -890,9 +902,6 @@ def _create_process_from_template(project, experiment, template_id):
 
 def _push_name_for_process(process):
     results = api.push_name_for_process(process.project.id,process.id,process.name)
-    print '---- +++ ----'
-    print results
-    print '---- +++ ----'
     return results
 
 def _add_samples_to_process(project, experiment, process, samples):
@@ -961,19 +970,13 @@ def _create_samples(project, process, sample_names):
     samples_array_dict = api.create_samples_in_project(project.id, process.id, sample_names)
     samples_array = samples_array_dict['samples']
     samples = map((lambda x: make_object(x)), samples_array)
-    samples = map((lambda x: _decorate_sample_with(x, 'project', project)), samples)
-    samples = map((lambda x: _decorate_sample_with(x, 'process', process)), samples)
+    samples = map((lambda x: _decorate_object_with(x, 'project', project)), samples)
+    samples = map((lambda x: _decorate_object_with(x, 'process', process)), samples)
     samples_id_list = []
     for sample in samples:
         samples_id_list.append(sample.id)
     api.add_samples_to_experiment(project.id,process.experiment.id,samples_id_list)
     return samples
-
-
-def _decorate_sample_with(sample, attr_name, attr_value):
-    setattr(sample, attr_name, attr_value)
-    return sample
-
 
 # -- support function for Directory --
 def _fetch_directory(project, directory_id):
@@ -999,3 +1002,10 @@ def _download_data_to_file(project, file_object, output_file_path):
     file_id = file_object.id
     output_file_path = api.file_download(project_id, file_id, output_file_path)
     return output_file_path
+
+# General support functions
+
+def _decorate_object_with(object, attr_name, attr_value):
+    setattr(object, attr_name, attr_value)
+    return object
+

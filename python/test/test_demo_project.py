@@ -28,9 +28,6 @@ class TestDemoProject(unittest.TestCase):
         self.assertIsNotNone(project)
         self.assertIsNotNone(project.id)
         self.assertEqual(project_name, project.name)
-        print '----'
-        print project.description
-        print '----'
         self.assertTrue(project_description in project.description)
 
         experiment_name = "Demo Experiment"
@@ -43,8 +40,10 @@ class TestDemoProject(unittest.TestCase):
         self.assertIsNotNone(experiment.id)
         self.assertEqual(experiment_name, experiment.name)
         self.assertEqual(experiment_description, experiment.description)
+        self.assertIsNotNone(experiment.project)
+        self.assertEqual(experiment.project.id,project.id)
 
-        process_name = "Create_Sample_Example"
+        process_name = "Setup_Samples"
         create_sample_process = self. \
             _get_process_with_template(experiment, process_name, Template.create)
         if not create_sample_process:
@@ -57,6 +56,10 @@ class TestDemoProject(unittest.TestCase):
         self.assertIsNotNone(create_sample_process.process_type)
         self.assertEqual(create_sample_process.process_type, 'create')
         self.assertTrue(create_sample_process.does_transform)
+        self.assertIsNotNone(create_sample_process.project)
+        self.assertEqual(create_sample_process.project.id,project.id)
+        self.assertIsNotNone(create_sample_process.experiment)
+        self.assertEqual(create_sample_process.experiment.id,experiment.id)
 
         sample_name = 'Demo Sample'
         sample = self._get_output_sample_from_process(create_sample_process, sample_name)
@@ -145,10 +148,20 @@ class TestDemoProject(unittest.TestCase):
                 experiment = ex
         return experiment
 
-    def _get_process_with_template(self, experiment, process_name, template):
-        pass
+    def _get_process_with_template(self, experiment, process_name, template_id):
+        experiment = experiment.fetch_and_add_processes()
+        processes = experiment.processes
+        selected_process = None
+        for process in processes:
+            if template_id == process.template_id and process_name == process.name:
+                selected_process = process
+        return selected_process
 
-    def _get_output_sample_from_process(self, create_sample_process, sample_name):
+    def _get_output_sample_from_process(self, process, sample_name):
+        print '---- process output sample'
+        print process
+        print process.output_samples
+        print '---- process output sample'
         pass
 
     def _get_file_from_project(self, project, filename_for_sample):
