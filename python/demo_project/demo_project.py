@@ -79,6 +79,8 @@ class DemoProject:
         composition = measurement_out
         value_list = composition.value
 
+        return (project, experiment)
+
     # Support methods
 
     def _get_project(self, project_name):
