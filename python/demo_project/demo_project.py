@@ -1,23 +1,15 @@
-import unittest
 from os import environ
 from os import path as os_path
 from mcapi import create_project, Template
 from mcapi import list_projects
-from mcapi import set_remote_config_url, get_remote_config_url
 from mcapi import get_process_from_id
 
-url = 'http://mctest.localhost/api'
 
+class DemoProject:
+    def __init__(self):
+        pass
 
-class TestDemoProject(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        set_remote_config_url(url)
-
-    def test_is_setup_correctly(self):
-        self.assertEqual(get_remote_config_url(), url)
-
-    def test_demo_project(self):
+    def build_project(self):
         project_name = "Demo Project"
         project_description = "A project for trying things out."
         project = self._get_project(project_name)
@@ -25,10 +17,6 @@ class TestDemoProject(unittest.TestCase):
             project = create_project(
                 name=project_name,
                 description=project_description)
-        self.assertIsNotNone(project)
-        self.assertIsNotNone(project.id)
-        self.assertEqual(project_name, project.name)
-        self.assertTrue(project_description in project.description)
 
         experiment_name = "Demo Experiment"
         experiment_description = "A demo experiment generated for your use"
@@ -37,11 +25,6 @@ class TestDemoProject(unittest.TestCase):
             experiment = project.create_experiment(
                 name=experiment_name,
                 description=experiment_description)
-        self.assertIsNotNone(experiment.id)
-        self.assertEqual(experiment_name, experiment.name)
-        self.assertEqual(experiment_description, experiment.description)
-        self.assertIsNotNone(experiment.project)
-        self.assertEqual(experiment.project.id,project.id)
 
         process_name = "Setup_Samples"
         create_sample_process = self. \
@@ -49,17 +32,6 @@ class TestDemoProject(unittest.TestCase):
         if not create_sample_process:
             create_sample_process = experiment.create_process_from_template(Template.create)
             create_sample_process.add_name(process_name)
-        self.assertIsNotNone(create_sample_process)
-        self.assertIsNotNone(create_sample_process.id)
-        self.assertIsNotNone(create_sample_process.name)
-        self.assertEqual(create_sample_process.name, process_name)
-        self.assertIsNotNone(create_sample_process.process_type)
-        self.assertEqual(create_sample_process.process_type, 'create')
-        self.assertTrue(create_sample_process.does_transform)
-        self.assertIsNotNone(create_sample_process.project)
-        self.assertEqual(create_sample_process.project.id,project.id)
-        self.assertIsNotNone(create_sample_process.experiment)
-        self.assertEqual(create_sample_process.experiment.id,experiment.id)
 
         sample_name = 'Demo Sample'
         sample = self._get_output_sample_from_process(create_sample_process, sample_name)
@@ -67,10 +39,6 @@ class TestDemoProject(unittest.TestCase):
             sample = create_sample_process.create_samples(
                 sample_names=[sample_name]
             )[0]
-        self.assertIsNotNone(sample)
-        self.assertIsNotNone(sample.name)
-        self.assertIsNotNone(sample.property_set_id)
-        self.assertEqual(sample.name, sample_name)
 
         filepath_for_sample = self._make_test_dir_path('sem.tif')
         directory_path = "/FilesForSample"
@@ -82,20 +50,11 @@ class TestDemoProject(unittest.TestCase):
                 filename_for_sample,
                 filepath_for_sample
             )
-        self.assertIsNotNone(sample_file)
-        self.assertIsNotNone(sample_file.name)
-        self.assertEqual(sample_file.name, filename_for_sample)
 
         create_sample_process = get_process_from_id(project, experiment, create_sample_process.id)
         if not self._process_has_file(create_sample_process, sample_file):
             create_sample_process.add_files([sample_file])
             create_sample_process = get_process_from_id(project, experiment, create_sample_process.id)
-        self.assertIsNotNone(create_sample_process.files)
-        self.assertEqual(len(create_sample_process.files), 1)
-        file1 = create_sample_process.files[0]
-        self.assertIsNotNone(file1)
-        self.assertIsNotNone(file1.id)
-        self.assertEqual(file1.id, sample_file.id)
 
         measurement_data = {
             "name": "Composition",
@@ -117,19 +76,8 @@ class TestDemoProject(unittest.TestCase):
             create_sample_process.set_measurements_for_process_samples(
                 measurement_property, [measurement])
         measurement_out = create_sample_process_updated.measurements[0]
-        self.assertEqual(measurement_out.name, measurement.name)
         composition = measurement_out
-        self.assertEqual(composition.name, "Composition")
-        self.assertEqual(composition.attribute, "composition")
-        self.assertEqual(composition.otype, "composition")
-        self.assertEqual(composition.unit, "at%")
         value_list = composition.value
-        self.assertEqual(value_list[0]['element'], "Al")
-        self.assertEqual(value_list[0]['value'], 94)
-        self.assertEqual(value_list[1]['element'], "Ca")
-        self.assertEqual(value_list[1]['value'], 1)
-        self.assertEqual(value_list[2]['element'], "Zr")
-        self.assertEqual(value_list[2]['value'], 5)
 
     # Support methods
 
@@ -171,7 +119,7 @@ class TestDemoProject(unittest.TestCase):
         children = directory.get_children()
         selected_file = None
         for entry in children:
-            if entry.otype =='file' and entry.name == filename:
+            if entry.otype == 'file' and entry.name == filename:
                 selected_file = entry
         return selected_file
 
@@ -182,12 +130,8 @@ class TestDemoProject(unittest.TestCase):
                 selected_file = check_file
         return selected_file
 
-    def _make_test_dir_path(self, file_name):
-        self.assertTrue('TEST_DATA_DIR' in environ)
-        test_path = os_path.abspath(environ['TEST_DATA_DIR'])
-        self.assertIsNotNone(test_path)
-        self.assertTrue(os_path.isdir(test_path))
+    def _make_data_dir_path(self, file_name):
+        # self.assertTrue('TEST_DATA_DIR' in environ)
+        test_path = os_path.abspath(environ['DEMO_DATA_DIR'])
         test_file = os_path.join(test_path, 'test_upload_data', file_name)
-        self.assertTrue(os_path.isfile(test_file))
         return test_file
-
