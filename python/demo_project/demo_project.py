@@ -1,5 +1,5 @@
 from os import path as os_path
-from mcapi import create_project, Template
+from mcapi import create_project, get_all_templates
 from mcapi import list_projects
 from mcapi import get_process_from_id
 
@@ -13,42 +13,35 @@ class DemoProject:
         project_description = "A project for trying things out."
         experiment_name = "Microsegregation in HPDC L380"
         experiment_description = "A demo experiment -  A study of microsegregation in High Pressure Die Cast L380."
+
+        project = \
+            self._get_or_create_project(project_name, project_description)
+        experiment = \
+            self._get_or_create_experiment(project, experiment_name, experiment_description)
+
+        template_table = self._make_template_table()
         processes_data = [
             {
                 'name': 'Lift 380 Casting Day  # 1',
-                'template':Template.create
-            },
-            {
-                'name': 'Lift 380 Casting Day  # 1',
-                'template': Template.sectioning
+                'template': self._template_id_with(template_table,'Create Samples')
             },
             {
                 'name': 'Casting L124',
-                'template': Template.sectioning
+                'template': self._template_id_with(template_table,'Sectioning')
             },
             {
                 'name': 'Sectioning of Casting L124',
-                'tempate': Template.EBSD_SEM_Data_Collection
+                'template': self._template_id_with(template_table,'Sectioning')
             },
             {
                 'name': 'EBSD SEM Data Collection - 5 mm plate',
-                'template': Template.EBSD_SEM_Data_Collection
+                'template': self._template_id_with(template_table,'EBSD SEM')
             },
             {
                 'name': 'EPMA Data Collection - 5 mm plate - center',
-                'template': Template.EPMA_Data_Collection
+                'template': self._template_id_with(template_table,'EPMA')
             }
         ]
-
-        sample_names = [
-            'l380', 'L124', 'L124 - 2mm plate', 'L124 - 3mm plate',
-            'L124 - 5mm plate', 'L124 - 5mm plate - 3ST', 'L124 -tensil bar, gage'
-        ]
-
-        project = \
-            self._get_or_creaet_project(project_name, project_description)
-        experiment = \
-            self._get_or_create_experiment(project, experiment_name, experiment_description)
 
         processes = []
         for entry in processes_data:
@@ -57,25 +50,48 @@ class DemoProject:
             process = self._get_or_create_process(experiment,process_name,template)
             processes.append(process)
 
+        sample_names = [
+            'l380', 'L124', 'L124 - 2mm plate', 'L124 - 3mm plate',
+            'L124 - 5mm plate', 'L124 - 5mm plate - 3ST', 'L124 - tensil bar, gage'
+        ]
+
         samples = []
-        samples.append(
+        samples = samples + \
             self._get_or_create_output_sample_from_process(
                 processes[0], sample_names[0:1]
             )
-        )
-        samples.append(
+        samples = samples + \
             self._get_or_create_output_sample_from_process(
                 processes[1], sample_names[1:2]
             )
-        )
 
-        samples.append(
+        samples = samples + \
             self._get_or_create_output_sample_from_process(
                 processes[2], sample_names[2:]
             )
-        )
+
+        processes[1] = processes[1].add_samples_to_process(samples[0:1])
+        processes[2] = processes[2].add_samples_to_process(samples[1:2])
+        processes[3] = processes[3].add_samples_to_process(samples[4:5])
+        processes[4] = processes[4].add_samples_to_process(samples[4:5])
+
+        return (project, experiment)
 
     # Support methods
+
+    def _make_template_table(self):
+        template_list = get_all_templates()
+        table = {}
+        for template in template_list:
+            table[template.id] = template
+        return table
+
+    def _template_id_with(self,table,match):
+        found_id = None
+        for key in table:
+            if match in key:
+                found_id = key
+        return found_id
 
     def _get_or_create_project(self, project_name, project_description):
         projects = list_projects()
@@ -110,7 +126,7 @@ class DemoProject:
                 selected_process = process
         process = selected_process
         if not process:
-            process = experiment.create_process_from_template(Template.create)
+            process = experiment.create_process_from_template(template_id)
             process.add_name(process_name)
         return process
 
@@ -122,7 +138,7 @@ class DemoProject:
                 selected_samples.append(sample)
         samples = selected_samples
         if not samples:
-            samples = create_sample_process.create_samples(
+            samples = process.create_samples(
                 sample_names=sample_names
             )
         return samples

@@ -37,8 +37,8 @@ class TestWorkflow(unittest.TestCase):
             name=experiment_name,
             description=experiment_description)
 
-        # process1_name = "Create Simulation Sample"
         create_sample_process = experiment.create_process_from_template(Template.create)
+        create_sample_process.add_name("Create Simulation Sample")
 
         sample_name = 'Test Sample 1'
         samples = create_sample_process.create_samples(
@@ -60,10 +60,11 @@ class TestWorkflow(unittest.TestCase):
         create_sample_process.add_files([sample_file])
         create_sample_process = get_process_from_id(project,experiment,create_sample_process.id)
 
-        # process2_name = "Monte Carlo Simulation"
         compute_process = experiment. \
             create_process_from_template(Template.compute). \
             add_samples_to_process([sample])
+
+        compute_process.add_name("Monte Carlo Simulation")
 
         compute_process.set_value_of_setup_property('number_of_processors',5)
         compute_process.set_value_of_setup_property('memory_per_processor',16)

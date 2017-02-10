@@ -958,7 +958,7 @@ def _set_measurement_for_process_samples(project, experiment, process,
         return None
     return get_process_from_id(project, experiment, process_id)
 
-# -- support funcitons for Templet --
+# -- support funcitons for Template --
 def _get_all_templates():
     templates_array = api.get_all_templates()
     templates =  map((lambda x: make_object(x)), templates_array)
