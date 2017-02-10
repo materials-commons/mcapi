@@ -216,9 +216,12 @@ def set_measurement_for_process_samples(project_id, experiment_id, process_id,\
 # update process setup values
 
 def update_process_setup_properties(project_id, experiment_id, process, properties, remote=use_remote()):
-    properties_data = map(
-        (lambda p: p.__dict__),
-        properties)
+    #properties_data = map(
+    #    (lambda p: p.__dict__),
+    #    properties)
+    properties_data = []
+    for property in properties:
+        properties_data.append(update_process_setup_properties_make_data(property))
     data = {
         "template_id": process.template_id,
         "properties" : properties_data
@@ -226,7 +229,22 @@ def update_process_setup_properties(project_id, experiment_id, process, properti
     api_url = "projects/" + project_id + \
               "/experiments/" + experiment_id + \
               "/processes/" + process.id
+    index = 0
+    while (index < len(data["properties"])):
+        if not data["properties"][index]["required"]:
+            data["properties"][index]["required"] = False
+        index = index + 1
     return put(remote.make_url_v2(api_url), data)
+
+def update_process_setup_properties_make_data(property):
+    data = {}
+    if not property.required:
+        property.required = False
+    slot_list = ["attribute","choices","description","name","required","unit","units",
+        "value","id","setup_id","setup_attribute","otype"]
+    for slot in slot_list:
+        data[slot] = getattr(property,slot)
+    return data
 
 # templates
 

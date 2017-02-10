@@ -1,4 +1,4 @@
-from os import path as os_path
+import datetime
 from mcapi import create_project, get_all_templates
 from mcapi import list_projects
 from mcapi import get_process_from_id
@@ -75,6 +75,15 @@ class DemoProject:
         processes[3] = processes[3].add_samples_to_process(samples[4:5])
         processes[4] = processes[4].add_samples_to_process(samples[4:5])
 
+        count = 0
+        for process in processes:
+            processes[count] = get_process_from_id(project,experiment,process.id)
+            count = count + 1
+
+        processes[0] = self._setup_for_node(0,processes[0])
+        processes[3] = self._setup_for_node(3,processes[3])
+        processes[4] = self._setup_for_node(4,processes[4])
+
         return (project, experiment)
 
     # Support methods
@@ -143,9 +152,95 @@ class DemoProject:
             )
         return samples
 
+    def _setup_for_node(self,index,process):
+        if index == 0: # case: Create Sample: Lift 380 Castining Day #1
+            DAY = 24*60*60*1000
+            datevalue = \
+                DAY * \
+                (datetime.date(2016,8,19).toordinal() - datetime.date(1970, 1, 1).toordinal())
+            process.set_value_of_setup_property(
+                'manufacturer', 'Ohio State University')
+            #process.set_value_of_setup_property(
+            #    'manufacturing_date', datevalue)
+            # process.set_value_of_setup_property('production_method', 'cast')
+            process = process.update_setup_properties([
+                'manufacturer'
+                #,'manufacturing_date'
+                #,'production_method'
+            ])
+            process = process.update_setup_properties([
+                'manufacturer'
+            ])
+        if index == 3: # case: EBSD SEM Data Collection - 5 mm plate
+            process.set_value_of_setup_property('voltage', 31)
+            process.set_unit_of_setup_property('voltage', 'kV')
+            process.set_value_of_setup_property('sample_tilt', 70)
+            process.set_value_of_setup_property('scan_size', 2500)
+            process.set_value_of_setup_property('step_size', 1)
+            process.set_value_of_setup_property('working_distance', 20)
+            process = process.update_setup_properties([
+                'voltage', 'sample_tilt', 'scan_size','step_size','working_distance'
+            ])
+        if index == 4: # case: EPMA Data Collection - 5 mm plate - center
+            process.set_value_of_setup_property('voltage', 15)
+            process.set_unit_of_setup_property('voltage', 'kV')
+            process.set_value_of_setup_property('beam_current', 20)
+            process.set_unit_of_setup_property('beam_current', 'nA')
+            process.set_value_of_setup_property('step_size', 10)
+            process.set_value_of_setup_property('grid_dimensions', '20 x 20')
+            process.set_value_of_setup_property('location', 'center, mid-thickness')
+            process = process.update_setup_properties([
+                'voltage', 'beam_current', 'step_size','grid_dimensions','location'
+            ])
+        return process
+
 
 
 '''
+
+
+    def _setup_for_node(self,index,process):
+        #if index == 0: # case: Create Sample: Lift 380 Castining Day #1
+            #DAY = 24*60*60*1000
+            datevalue = \
+            #    DAY * \
+            #    (datetime.date(2016,8,19).toordinal() - datetime.date(1970, 1, 1).toordinal())
+            #process.set_value_of_setup_property(
+            #    'manufacturer', 'Ohio State University')
+            # process.set_value_of_setup_property(
+            #    'manufacturing_date', datevalue)
+            # process.set_unit_of_setup_property('production_method', 'cast')
+            # process = process.update_setup_properties([
+            #     'manufacturer', 'manufacturing_date', 'production_method'
+            # ])
+            #process = process.update_setup_properties([
+            #    'manufacturer'
+            #])
+        if index == 3: # case: EBSD SEM Data Collection - 5 mm plate
+            process.set_value_of_setup_property('voltage', 31)
+            process.set_unit_of_setup_property('voltage', 'kV')
+            process.set_value_of_setup_property('sample_tilt', 70)
+            process.set_value_of_setup_property('scan_size', 2500)
+            process.set_unit_of_setup_property('step_size', 1)
+            process.set_unit_of_setup_property('working_distance', 20)
+            process = process.update_setup_properties([
+                'voltage', 'sample_tilt', 'scan_size','step_size','working_distance'
+            ])
+        if index == 4: # case: EPMA Data Collection - 5 mm plate - center
+            process.set_value_of_setup_property('voltage', 15)
+            process.set_unit_of_setup_property('voltage', 'kV')
+            process.set_value_of_setup_property('beam_current', 20)
+            process.set_unit_of_setup_property('beam_current', 'nA')
+            process.set_unit_of_setup_property('step_size', 10)
+            process.set_value_of_setup_property('grid_dimensions', '20 x 20')
+            process.set_value_of_setup_property('location', 'center, mid-thickness')
+            process = process.update_setup_properties([
+                'voltage', 'beam_current', 'step_size','grid_dimensions','location'
+            ])
+        return process
+
+
+
         filepath_for_sample = self._make_data_dir_path('sem.tif')
         directory_path = "/FilesForSample"
         filename_for_sample = "SampleFile.tif"
