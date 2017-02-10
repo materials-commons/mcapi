@@ -11,34 +11,125 @@ class DemoProject:
     def build_project(self):
         project_name = "Demo Project"
         project_description = "A project for trying things out."
-        project = self._get_project(project_name)
+        experiment_name = "Microsegregation in HPDC L380"
+        experiment_description = "A demo experiment -  A study of microsegregation in High Pressure Die Cast L380."
+        processes_data = [
+            {
+                'name': 'Lift 380 Casting Day  # 1',
+                'template':Template.create
+            },
+            {
+                'name': 'Lift 380 Casting Day  # 1',
+                'template': Template.sectioning
+            },
+            {
+                'name': 'Casting L124',
+                'template': Template.sectioning
+            },
+            {
+                'name': 'Sectioning of Casting L124',
+                'tempate': Template.EBSD_SEM_Data_Collection
+            },
+            {
+                'name': 'EBSD SEM Data Collection - 5 mm plate',
+                'template': Template.EBSD_SEM_Data_Collection
+            },
+            {
+                'name': 'EPMA Data Collection - 5 mm plate - center',
+                'template': Template.EPMA_Data_Collection
+            }
+        ]
+
+        sample_names = [
+            'l380', 'L124', 'L124 - 2mm plate', 'L124 - 3mm plate',
+            'L124 - 5mm plate', 'L124 - 5mm plate - 3ST', 'L124 -tensil bar, gage'
+        ]
+
+        project = \
+            self._get_or_creaet_project(project_name, project_description)
+        experiment = \
+            self._get_or_create_experiment(project, experiment_name, experiment_description)
+
+        processes = []
+        for entry in processes_data:
+            process_name = entry['name']
+            template = entry['template']
+            process = self._get_or_create_process(experiment,process_name,template)
+            processes.append(process)
+
+        samples = []
+        samples.append(
+            self._get_or_create_output_sample_from_process(
+                processes[0], sample_names[0:1]
+            )
+        )
+        samples.append(
+            self._get_or_create_output_sample_from_process(
+                processes[1], sample_names[1:2]
+            )
+        )
+
+        samples.append(
+            self._get_or_create_output_sample_from_process(
+                processes[2], sample_names[2:]
+            )
+        )
+
+    # Support methods
+
+    def _get_or_create_project(self, project_name, project_description):
+        projects = list_projects()
+        project = None
+        for p in projects:
+            if p.name == project_name:
+                project = p
         if not project:
             project = create_project(
                 name=project_name,
                 description=project_description)
+        return project
 
-        experiment_name = "Demo Experiment"
-        experiment_description = "A demo experiment generated for your use"
-        experiment = self._get_experiment(project, experiment_name)
+    def _get_or_create_experiment(self, project, experiment_name,experiment_description):
+        experiments = project.fetch_experiments()
+        experiment = None
+        for ex in experiments:
+            if (ex.name == experiment_name):
+                experiment = ex
         if not experiment:
             experiment = project.create_experiment(
                 name=experiment_name,
                 description=experiment_description)
+        return experiment
 
-        process_name = "Setup_Samples"
-        create_sample_process = self. \
-            _get_process_with_template(experiment, process_name, Template.create)
-        if not create_sample_process:
-            create_sample_process = experiment.create_process_from_template(Template.create)
-            create_sample_process.add_name(process_name)
+    def _get_or_create_process(self, experiment, process_name, template_id):
+        experiment = experiment.fetch_and_add_processes()
+        processes = experiment.processes
+        selected_process = None
+        for process in processes:
+            if template_id == process.template_id and process_name == process.name:
+                selected_process = process
+        process = selected_process
+        if not process:
+            process = experiment.create_process_from_template(Template.create)
+            process.add_name(process_name)
+        return process
 
-        sample_name = 'Demo Sample'
-        sample = self._get_output_sample_from_process(create_sample_process, sample_name)
-        if not sample:
-            sample = create_sample_process.create_samples(
-                sample_names=[sample_name]
-            )[0]
+    def _get_or_create_output_sample_from_process(self, process, sample_names):
+        samples = process.output_samples
+        selected_samples = []
+        for sample in samples:
+            if sample.name in sample_names:
+                selected_samples.append(sample)
+        samples = selected_samples
+        if not samples:
+            samples = create_sample_process.create_samples(
+                sample_names=sample_names
+            )
+        return samples
 
+
+
+'''
         filepath_for_sample = self._make_data_dir_path('sem.tif')
         directory_path = "/FilesForSample"
         filename_for_sample = "SampleFile.tif"
@@ -79,42 +170,9 @@ class DemoProject:
         value_list = composition.value
 
         return (project, experiment)
+'''
 
-    # Support methods
-
-    def _get_project(self, project_name):
-        projects = list_projects()
-        project = None
-        for p in projects:
-            if p.name == project_name:
-                project = p
-        return project
-
-    def _get_experiment(self, project, experiment_name):
-        experiments = project.fetch_experiments()
-        experiment = None
-        for ex in experiments:
-            if (ex.name == experiment_name):
-                experiment = ex
-        return experiment
-
-    def _get_process_with_template(self, experiment, process_name, template_id):
-        experiment = experiment.fetch_and_add_processes()
-        processes = experiment.processes
-        selected_process = None
-        for process in processes:
-            if template_id == process.template_id and process_name == process.name:
-                selected_process = process
-        return selected_process
-
-    def _get_output_sample_from_process(self, process, sample_name):
-        samples = process.output_samples
-        selected_sample = None
-        for sample in samples:
-            if sample.name == sample_name:
-                selected_sample = sample
-        return selected_sample
-
+'''
     def _get_file_from_project(self, project, directory_path, filename):
         directory = project.get_directory(directory_path)
         children = directory.get_children()
@@ -135,3 +193,4 @@ class DemoProject:
         test_file = os_path.join(self.build_data_directory, file_name)
         return test_file
 
+'''
