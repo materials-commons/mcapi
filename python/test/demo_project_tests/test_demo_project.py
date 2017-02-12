@@ -8,11 +8,19 @@ class TestDemoProject(unittest.TestCase):
     def test_build_demo_project(self):
 
         # Expected test values
+        sample_names = [
+            'l380', 'L124', 'L124 - 2mm plate', 'L124 - 3mm plate',
+            'L124 - 5mm plate', 'L124 - 5mm plate - 3ST', 'L124 - tensil bar, gage'
+        ]
+        process_names = [
+            'Lift 380 Casting Day  # 1','Casting L124','Sectioning of Casting L124',
+            'EBSD SEM Data Collection - 5 mm plate','EPMA Data Collection - 5 mm plate - center'
+        ]
         expected = {
             'project_name': 'Demo Project',
             'experiment_name': 'Microsegregation in HPDC L380',
-            'process_names': [],
-            'sample_names': [],
+            'process_names': process_names,
+            'sample_names': sample_names,
         }
 
         builder = demo.DemoProject(self._make_test_dir_path())
@@ -31,8 +39,13 @@ class TestDemoProject(unittest.TestCase):
         self.assertEqual(project.id,experiment.project.id)
         self.assertEqual(project.name,expected['project_name'])
         self.assertEqual(experiment.name,expected['experiment_name'])
-        #self.assertEqual(len(experiment.processes),len(expected['process_names']))
-        #self.assertEqual(len(experiment.samples), len(expected['sample_names']))
+        self.assertEqual(len(experiment.processes),len(expected['process_names']))
+        print ""
+        print "----"
+        for sample in experiment.samples:
+            print sample.name
+        print "----"
+        self.assertEqual(len(experiment.samples), len(expected['sample_names']))
 
 
     def _make_test_dir_path(self):
