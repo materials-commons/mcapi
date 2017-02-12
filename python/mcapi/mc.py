@@ -358,7 +358,7 @@ class Sample(MCObject):
 
         self.property_set_id = ''
         self.project = None
-        self.process = None
+        self.experiment = None
 
         self.properties = []
 
@@ -378,6 +378,10 @@ class Sample(MCObject):
             if not array:
                 array = []
             setattr(self, a, array)
+
+        # to be filled in later
+        self.processes = []
+        self.files = []
 
         if name:
             self.name = name
@@ -878,11 +882,11 @@ def _fetch_experiments(project):
         experiments.append(experiment)
     return experiments
 
-def _fetch_samples_for_experiment(experiment,process):
+def _fetch_samples_for_experiment(experiment):
     samples_list = api.fetch_experiment_samples(experiment.project.id,experiment.id)
     samples = map((lambda x: make_object(x)), samples_list)
     samples = map((lambda x: _decorate_object_with(x, 'project', experiment.project)), samples)
-    samples = map((lambda x: _decorate_object_with(x, 'process', process)), samples)
+    samples = map((lambda x: _decorate_object_with(x, 'experiment', experiment)), samples)
     return samples
 
 def _fetch_processes_for_exeriment(experiment):
