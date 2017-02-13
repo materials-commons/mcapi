@@ -65,6 +65,6 @@ class TestSampleCreate(unittest.TestCase):
                 found_sample = es
         self.assertIsNotNone(found_sample,"The original sample is in the experiment")
         self.assertEqual(found_sample.project.id, self.project_id)
-        self.assertEqual(found_sample.process.id, self.process_id)
-        self.assertEqual(found_sample.process.experiment.id, self.experiment_id)
+        self.assertEqual(found_sample.experiment.id, self.experiment_id)
+
 

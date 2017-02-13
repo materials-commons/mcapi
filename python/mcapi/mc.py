@@ -216,12 +216,14 @@ class Experiment(MCObject):
     def process_special_objects(self):
         if (self.samples):
             self.samples = [make_object(s.input_data) for s in self.samples]
+        if (self.processes):
+            self.processes = [make_object(s.input_data) for s in self.processes]
 
     def create_process_from_template(self, template_id):
         return _create_process_from_template(self.project, self, template_id)
 
     def fetch_and_add_samples(self,process):
-        self.samples = _fetch_samples_for_experiment(self,process)
+        self.samples = _fetch_samples_for_experiment(self)
         return self
 
     def fetch_and_add_processes(self):
@@ -875,11 +877,8 @@ def _create_experiment(project, name, description):
 
 def _fetch_experiments(project):
     list_results = api.fetch_experiments(project.id)
-    experiments = []
-    for ex in list_results:
-        experiment = Experiment(data=ex)
-        experiment.project = project
-        experiments.append(experiment)
+    experiments = map((lambda x: make_object(x)), list_results)
+    experiments = map((lambda x: _decorate_object_with(x, 'project', project)), experiments)
     return experiments
 
 def _fetch_samples_for_experiment(experiment):
@@ -910,7 +909,16 @@ def _push_name_for_process(process):
 
 def _add_samples_to_process(project, experiment, process, samples):
     results = api.add_samples_to_process(project.id, experiment.id, process, samples)
-    process = make_object(results)
+    new_process = make_object(results)
+    for sample in new_process.input_samples:
+        sample.experiment = experiment
+        sample.project = project
+        found_sample = None
+        for existing_sample in process.input_samples:
+            if existing_sample.id == sample.id:
+                found_sample = existing_sample
+        if not found_sample:
+            process.input_samples.append(sample)
     process.project = project
     process.experiment = experiment
     return process

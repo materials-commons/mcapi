@@ -130,7 +130,7 @@ class TestWorkflow(unittest.TestCase):
 
         self.assertEqual(sample.id,sample_from_experiment.id)
         self.assertEqual(sample.project.id,sample_from_experiment.project.id)
-        self.assertEqual(sample.process.id,sample_from_experiment.process.id)
+        self.assertEqual(sample_from_experiment.experiment.id,experiment.id)
 
         self.assertIsNotNone(sample_file)
         self.assertIsNotNone(sample_file.name)

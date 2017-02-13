@@ -8,6 +8,8 @@ class TestDemoProject(unittest.TestCase):
     def test_build_demo_project(self):
 
         # Expected test values
+        project_name = 'Demo Project'
+        experiment_name = 'Microsegregation in HPDC L380'
         sample_names = [
             'l380', 'L124', 'L124 - 2mm plate', 'L124 - 3mm plate',
             'L124 - 5mm plate', 'L124 - 5mm plate - 3ST', 'L124 - tensil bar, gage'
@@ -16,12 +18,6 @@ class TestDemoProject(unittest.TestCase):
             'Lift 380 Casting Day  # 1','Casting L124','Sectioning of Casting L124',
             'EBSD SEM Data Collection - 5 mm plate','EPMA Data Collection - 5 mm plate - center'
         ]
-        expected = {
-            'project_name': 'Demo Project',
-            'experiment_name': 'Microsegregation in HPDC L380',
-            'process_names': process_names,
-            'sample_names': sample_names,
-        }
 
         builder = demo.DemoProject(self._make_test_dir_path())
 
@@ -32,21 +28,30 @@ class TestDemoProject(unittest.TestCase):
         self.assertIsNotNone(builder._template_id_with(table,'EPMA'))
 
         project, experiment = builder.build_project()
+
         self.assertIsNotNone(project)
         self.assertIsNotNone(experiment)
         self.assertIsNotNone(experiment.project)
         self.assertIsNotNone(experiment.processes)
         self.assertEqual(project.id,experiment.project.id)
-        self.assertEqual(project.name,expected['project_name'])
-        self.assertEqual(experiment.name,expected['experiment_name'])
-        self.assertEqual(len(experiment.processes),len(expected['process_names']))
-        print ""
-        print "----"
-        for sample in experiment.samples:
-            print sample.name
-        print "----"
-        self.assertEqual(len(experiment.samples), len(expected['sample_names']))
+        self.assertEqual(project.name,project_name)
+        self.assertEqual(experiment.name,experiment_name)
 
+        self.assertEqual(len(experiment.processes),len(process_names))
+        for name in process_names:
+            found_process = None
+            for process in experiment.processes:
+                if name == process.name:
+                    found_process = process
+            self.assertIsNotNone(found_process,"Expecting to find process.name == " + name)
+
+        self.assertEqual(len(experiment.samples),len(sample_names))
+        for name in sample_names:
+            found_sample = None
+            for sample in experiment.samples:
+                if name == sample.name:
+                    found_sample = sample
+            self.assertIsNotNone(found_sample, "Expecting to find sample.name == " + name)
 
     def _make_test_dir_path(self):
         self.assertTrue('TEST_DATA_DIR' in environ)
