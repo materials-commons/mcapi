@@ -45,10 +45,17 @@ class TestWorkflow(unittest.TestCase):
             sample_names=[sample_name]
         )
         sample = samples [0]
+        print "----"
+        print sample.processes
+        print "----"
 
-        experiment.fetch_and_add_samples(create_sample_process)
+        experiment.fetch_and_add_samples()
         samples_from_experiment = experiment.samples
         sample_from_experiment = samples_from_experiment[0]
+
+        print "----"
+        print sample_from_experiment.processes
+        print "----"
 
         filepath_for_sample = self.make_test_dir_path('sem.tif')
         filename_for_sample = "SampleFile.tif"

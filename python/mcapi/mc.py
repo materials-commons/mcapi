@@ -184,7 +184,7 @@ class Experiment(MCObject):
         self.aims = None
 
         self.samples = []
-        self.processes = []
+        self.processes = {} # a set
 
         if not data:
             data = {}
@@ -222,7 +222,7 @@ class Experiment(MCObject):
     def create_process_from_template(self, template_id):
         return _create_process_from_template(self.project, self, template_id)
 
-    def fetch_and_add_samples(self,process):
+    def fetch_and_add_samples(self):
         self.samples = _fetch_samples_for_experiment(self)
         return self
 
@@ -361,8 +361,10 @@ class Sample(MCObject):
         self.property_set_id = ''
         self.project = None
         self.experiment = None
-
         self.properties = []
+        # to be filled in later
+        self.processes = {}
+        self.files = []
 
         if not data:
             data = {}
@@ -381,16 +383,18 @@ class Sample(MCObject):
                 array = []
             setattr(self, a, array)
 
-        # to be filled in later
-        self.processes = []
-        self.files = []
-
         if name:
             self.name = name
 
     def process_special_objects(self):
         if (self.properties):
             self.properties = [make_measured_property(p.input_data) for p in self.properties]
+
+    def fetch_and_add_processes(self):
+        print "Called but not implemented 'Sample.fetch_and_add_processes()'"
+
+    def fetch_and_add_files(self):
+        print "Called but not implemented 'Sample.fetch_and_add_files()'"
 
 
 class Directory(MCObject):
