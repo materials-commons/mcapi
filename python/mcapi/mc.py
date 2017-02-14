@@ -3,8 +3,6 @@ import datetime
 from os import path as os_path
 from os import listdir
 from os import getcwd
-from os import pardir as parent_directory
-from pathlib import Path
 
 # -- top level project functions --
 def list_projects():

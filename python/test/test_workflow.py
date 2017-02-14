@@ -5,6 +5,7 @@ from os import path as os_path
 from mcapi import create_project, Template
 from mcapi import set_remote_config_url, get_remote_config_url
 from mcapi import get_process_from_id
+from mcapi import Sample
 
 url = 'http://mctest.localhost/api'
 
@@ -44,6 +45,11 @@ class TestWorkflow(unittest.TestCase):
         samples = create_sample_process.create_samples(
             sample_names=[sample_name]
         )
+        print "----"
+        print samples
+        print Sample(data=samples[0].input_data).processes
+        print "----"
+
         sample = samples [0]
         print "----"
         print sample.processes
