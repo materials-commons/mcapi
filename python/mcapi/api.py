@@ -104,6 +104,11 @@ def fetch_project(project_id, remote=use_remote()):
     return get(remote.make_url_v2(api_url), remote=remote)
 
 
+def fetch_project_sample_by_id(project_id, sample_id, remote=use_remote()):
+    api_url = "projects/" + project_id + "/samples/" + sample_id
+    return get(remote.make_url_v2(api_url), remote=remote)
+
+
 # Experiment
 
 def create_experiment(project_id, name, description, remote=use_remote()):

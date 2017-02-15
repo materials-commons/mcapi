@@ -158,6 +158,9 @@ class Project(MCObject):
     def fetch_experiments(self):
         return _fetch_experiments(self)
 
+    def fetch_sample_by_id(self,sample_id):
+        return _fetch_project_sample_by_id(self,sample_id)
+
 class Experiment(MCObject):
     def __init__(self, project_id=None, name=None, description=None,
                  data=None):
@@ -303,6 +306,9 @@ class Process(MCObject):
         return self
 
     def create_samples(self, sample_names):
+        if not self.category == 'create_sample':
+            # throw exception?
+            return None
         return _create_samples(self.project, self, sample_names)
 
     def add_samples_to_process(self, sample_names):
@@ -750,6 +756,7 @@ def make_base_object_for_type(data):
         if object_type == 'experiment':
             return Experiment(data=data)
         if object_type == 'sample':
+            obj = Sample(data=data)
             return Sample(data=data)
         if object_type == 'datadir':
             return Directory(data=data)
@@ -869,11 +876,17 @@ def _data_has_type(data):
 def _is_datetime(data):
     return _has_key('$reql_type$', data) and data['$reql_type$'] == 'TIME'
 
+# -- support functions for Project --
+def _fetch_project_sample_by_id(project,sample_id):
+    sample_json_dict = api.fetch_project_sample_by_id(project.id,sample_id)
+    sample = make_object(sample_json_dict)
+    sample.project = project
+    return sample
 
-# -- support function for Experiment --
+# -- support functions for Experiment --
 def _create_experiment(project, name, description):
-    experiment_json = api.create_experiment(project.id, name, description)
-    experiment = Experiment(data=experiment_json)
+    experiment_json_dict = api.create_experiment(project.id, name, description)
+    experiment = make_object(experiment_json_dict)
     experiment.project = project
     return experiment
 
@@ -983,12 +996,27 @@ def _get_all_templates():
 def _create_samples(project, process, sample_names):
     samples_array_dict = api.create_samples_in_project(project.id, process.id, sample_names)
     samples_array = samples_array_dict['samples']
-    samples = map((lambda x: make_object(x)), samples_array)
+    print samples_array
+    # NOTE: in this case, for this version of API, for the call implemented, the
+    # returned object is very sparse; hence the samples need to be refetched...
+    # however, the fetched object is missing the property_set_id, to add it..
+    lookup_table = {}
+    for simple_sample in samples_array:
+        lookup_table[simple_sample['id']] = simple_sample['property_set_id']
+    samples = map((lambda x: project.fetch_sample_by_id(x['id'])), samples_array)
+    samples = map((lambda x: _decorate_object_with(x, 'property_set_id', lookup_table[x.id])), samples)
     samples = map((lambda x: _decorate_object_with(x, 'project', project)), samples)
-    samples = map((lambda x: _decorate_object_with(x, 'process', process)), samples)
+    samples = map((lambda x: _decorate_object_with(x, 'experiment', process.experiment)), samples)
     samples_id_list = []
+    # NOTE: side effect to process.experiment
     for sample in samples:
         samples_id_list.append(sample.id)
+        sample_in_experiment = None
+        for s in process.experiment.samples:
+            if sample.id == s.id:
+                sample_in_experiment = s
+        if not sample_in_experiment:
+            process.experiment.samples.append(sample)
     api.add_samples_to_experiment(project.id,process.experiment.id,samples_id_list)
     return samples
 
