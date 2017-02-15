@@ -366,9 +366,9 @@ class Process(MCObject):
 
     def make_list_of_samples_with_property_set_ids(self, samples):
         # Note: samples must be output samples of the process
-        table = []
+        results = []
         if not self.output_samples:
-            return table
+            return results
 
         checked_sample_list = []
         for sample in self.output_samples:
@@ -378,22 +378,22 @@ class Process(MCObject):
                     check_sample = s
                     break
             if check_sample:
-                checked_sample_list = check_sample
+                checked_sample_list.append(check_sample)
         if not checked_sample_list:
-            return table
+            return results
 
         project = self.project
         for sample in checked_sample_list:
-            s = project._fetch_project_sample_by_id(sample.id)
+            s = project.fetch_sample_by_id(sample.id)
             processes = s.processes
             for process in processes:
                 if process.id == self.id:
-                    property_set_id = process.input_date['property_set_id']
-                    table.append = {
+                    property_set_id = process.input_data['property_set_id']
+                    results.append({
                         'property_set_id': property_set_id,
                         'sample': sample
-                    }
-        return table
+                    })
+        return results
 
 class Sample(MCObject):
     def __init__(self, name=None, data=None):
