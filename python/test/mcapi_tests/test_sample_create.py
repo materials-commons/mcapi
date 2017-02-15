@@ -85,6 +85,9 @@ class TestSampleCreate(unittest.TestCase):
         samples_b = process.create_samples(sample_names[2:4])
         samples = samples_a + samples_b
         self.assertEqual(len(sample_names),len(samples))
+        self.assertIsNotNone(process.output_samples)
+        self.assertEqual(len(process.output_samples),len(sample_names))
+
         index = 0
         while index < len(sample_names):
             error = "for index=" + str(index) + ", " + \
