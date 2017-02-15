@@ -67,6 +67,13 @@ class TestSampleCreate(unittest.TestCase):
         self.assertIsNotNone(found_sample,"The original sample is in the experiment")
         self.assertEqual(found_sample.project.id, self.project_id)
         self.assertEqual(found_sample.experiment.id, self.experiment_id)
+        self.assertEqual(len(found_sample.processes),1)
+        found_process = found_sample.processes[0]
+        found_process.project = found_sample.project
+        found_process.experiment = found_sample.experiment
+        process = found_process.fill_in_output_samples()
+        self.assertIsNotNone(process.output_samples)
+        self.assertEqual(len(process.output_samples),2)
 
 
     def test_create_samples_multiple(self):
@@ -99,14 +106,13 @@ class TestSampleCreate(unittest.TestCase):
 
         process_name = "Create Samples with process update"
         process = experiment.create_process_from_template(Template.create)
-        process.add_name(process_name)
         sample_names = ['Test Sample 7', 'Test Sample 8']
         samples = process.create_samples(sample_names)
+        process.fill_in_output_samples()
         self.assertIsNotNone(samples)
         self.assertEqual(len(samples),2)
-
         self.assertIsNotNone(process.output_samples)
-        self.assertTrue(len(process.output_samples) == 0)
+        self.assertTrue(len(process.output_samples) == 2)
 
         updated_experiment = experiment.fetch_and_add_processes()
         self.assertEqual(experiment,updated_experiment)
@@ -120,6 +126,5 @@ class TestSampleCreate(unittest.TestCase):
         experiment = experiment.fetch_and_add_samples()
         self.assertTrue(len(experiment.processes) == 1)
         updated_process = experiment.processes[0]
-        self.assertTrue(len(updated_process.output_samples) == 2)
 
         self.assertTrue(len(experiment.samples) == 2)

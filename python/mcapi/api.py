@@ -156,6 +156,12 @@ def push_name_for_process(project_id, process_id, name, remote=use_remote()):
     api_url = "projects/" + project_id + "/processes/" + process_id
     return put(remote.make_url_v2(api_url), data)
 
+def fetch_process_by_id(project_id, experiment_id, process_id, remote=use_remote()):
+    api_url = "projects/" + project_id \
+        + "/experiments/" + experiment_id \
+        +"/processes/" + process_id
+    return get(remote.make_url_v2(api_url))
+
 # Sample
 
 def create_samples_in_project(project_id, process_id, sample_names, remote=use_remote()):
@@ -212,6 +218,8 @@ def set_measurement_for_process_samples(project_id, experiment_id, process_id,\
         'process_id': process_id,
         'properties': [request_properties]
     }
+    print "---- payload to call: "
+    print data
     api_url = "projects/" + project_id + \
               "/experiments/" + experiment_id + \
               "/samples/measurements"

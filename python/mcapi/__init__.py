@@ -6,7 +6,7 @@ from mc import get_all_templates
 
 # NOTE: the following exports are for debugging/testing only
 # Prefer to use top level functions (above) or class methods
-from mc import _create_process_from_template, _add_samples_to_process
+from mc import _create_process_from_template, _add_input_samples_to_process
 from mc import _create_experiment
 from mc import _create_samples
 from mc import _create_file_with_upload

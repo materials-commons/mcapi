@@ -309,10 +309,12 @@ class Process(MCObject):
         if not self.category == 'create_sample':
             # throw exception?
             return None
-        return _create_samples(self.project, self, sample_names)
+        samples = _create_samples(self.project, self, sample_names)
+        self.fill_in_output_samples()
+        return samples
 
-    def add_samples_to_process(self, sample_names):
-        return _add_samples_to_process(self.project, self.experiment, self, sample_names)
+    def add_input_samples_to_process(self, samples):
+        return _add_input_samples_to_process(self.project, self.experiment, self, samples)
 
     def add_files(self, files_list):
         return _add_files_to_process(self.project, self.experiment, self, files_list)
@@ -348,14 +350,50 @@ class Process(MCObject):
                 prop_list.append(prop)
         return _update_process_setup_properties(self.project,self.experiment,self,prop_list)
 
+    def fill_in_output_samples(self):
+        detailed_process = _refetch_process(self)
+        self.output_samples = detailed_process.output_samples
+        return self
+
     def create_measurement(self,data):
         return make_measurement_object(data)
 
     def set_measurements_for_process_samples(self, property, measurements):
         return _set_measurement_for_process_samples(self.project, \
-                self.experiment, self, self.output_samples,\
+                self.experiment, self, \
+                self.make_list_of_samples_with_property_set_ids(self.output_samples), \
                 property, measurements)
 
+    def make_list_of_samples_with_property_set_ids(self, samples):
+        # Note: samples must be output samples of the process
+        table = []
+        if not self.output_samples:
+            return table
+
+        checked_sample_list = []
+        for sample in self.output_samples:
+            check_sample = None
+            for s in samples:
+                if s.id == sample.id:
+                    check_sample = s
+                    break
+            if check_sample:
+                checked_sample_list = check_sample
+        if not checked_sample_list:
+            return table
+
+        project = self.project
+        for sample in checked_sample_list:
+            s = project._fetch_project_sample_by_id(sample.id)
+            processes = s.processes
+            for process in processes:
+                if process.id == self.id:
+                    property_set_id = process.input_date['property_set_id']
+                    table.append = {
+                        'property_set_id': property_set_id,
+                        'sample': sample
+                    }
+        return table
 
 class Sample(MCObject):
     def __init__(self, name=None, data=None):
@@ -911,6 +949,15 @@ def _fetch_processes_for_exeriment(experiment):
     return processes
 
 # -- support functions for Process --
+def _refetch_process(process):
+    project = process.project
+    experiment = process.experiment
+    results = api.fetch_process_by_id(project.id, experiment.id, process.id)
+    process = make_object(results)
+    process.project = project
+    process.experiment = experiment
+    return process
+
 def _create_process_from_template(project, experiment, template_id):
     results = api.create_process_from_template(project.id, experiment.id, template_id)
     process = make_object(results)
@@ -922,10 +969,11 @@ def _push_name_for_process(process):
     results = api.push_name_for_process(process.project.id,process.id,process.name)
     return results
 
-def _add_samples_to_process(project, experiment, process, samples):
+def _add_input_samples_to_process(project, experiment, process, samples):
     results = api.add_samples_to_process(project.id, experiment.id, process, samples)
     new_process = make_object(results)
     for sample in new_process.input_samples:
+        print "considering: " + sample.name
         sample.experiment = experiment
         sample.project = project
         found_sample = None
@@ -933,6 +981,7 @@ def _add_samples_to_process(project, experiment, process, samples):
             if existing_sample.id == sample.id:
                 found_sample = existing_sample
         if not found_sample:
+            print "adding: " + sample.name
             process.input_samples.append(sample)
     process.project = project
     process.experiment = experiment
@@ -957,15 +1006,15 @@ def _update_process_setup_properties(project, experiment, process, prop_list):
 
 
 def _set_measurement_for_process_samples(project, experiment, process,
-            samples, property, measurements):
+            samples_with_property_set_ids, property, measurements):
     project_id = project.id
     experiment_id = experiment.id
     process_id = process.id
     samples_parameter = []
-    for sample in samples:
+    for table in samples_with_property_set_ids:
         samples_parameter.append({
-            'id': sample.id,
-            'property_set_id': sample.property_set_id
+            'id': table['sample'].id,
+            'property_set_id': table['property_set_id']
         })
     measurement_parameter = []
     for measurement in measurements:
