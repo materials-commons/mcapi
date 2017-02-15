@@ -60,10 +60,11 @@ class TestWorkflow(unittest.TestCase):
         )
         create_sample_process.add_files([sample_file])
         create_sample_process = get_process_from_id(project,experiment,create_sample_process.id)
+        create_sample_process.add_name("Create Simulation Sample")
 
         compute_process = experiment. \
             create_process_from_template(Template.compute). \
-            add_samples_to_process([sample])
+            add_input_samples_to_process([sample])
 
         compute_process.add_name("Monte Carlo Simulation")
 

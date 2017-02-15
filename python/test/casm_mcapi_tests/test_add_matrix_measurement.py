@@ -29,7 +29,6 @@ class TestAddMatrixMeasurements(unittest.TestCase):
             Template.primitive_crystal_structure)
         cls.sample_name = "pcs-sample-1"
         cls.sample = cls.process.create_samples(sample_names=[cls.sample_name])[0]
-        cls.process = cls.process.add_samples_to_process([cls.sample])
 
 
     def test_is_setup_correctly(self):

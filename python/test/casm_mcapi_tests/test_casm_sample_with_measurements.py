@@ -205,7 +205,6 @@ class TestPrinSample(unittest.TestCase):
 
         ## Create sample
         samples = create_sample_process.create_samples([sample_name])
-        create_sample_process = create_sample_process.add_samples_to_process(samples)
         # Sample attributes (how to check names?):
         # "name"
         _add_string_measurement(create_sample_process, 'name', casm_proj.name)
