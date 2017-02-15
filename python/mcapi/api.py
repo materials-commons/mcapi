@@ -218,8 +218,6 @@ def set_measurement_for_process_samples(project_id, experiment_id, process_id,\
         'process_id': process_id,
         'properties': [request_properties]
     }
-    print "---- payload to call: "
-    print data
     api_url = "projects/" + project_id + \
               "/experiments/" + experiment_id + \
               "/samples/measurements"
