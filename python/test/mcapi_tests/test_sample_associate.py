@@ -54,7 +54,7 @@ class TestSampleAssociate(unittest.TestCase):
 
     def test_associate_sample_with_process(self):
         process_with_sample = \
-            self.base_compute_process.add_samples_to_process([self.base_sample])
+            self.base_compute_process.add_input_samples_to_process([self.base_sample])
         self.assertEqual(process_with_sample.name, 'Computation')
         self.assertEqual(len(process_with_sample.input_samples), 1)
         self.assertEqual(process_with_sample.input_samples[0].name, self.base_sample.name)
