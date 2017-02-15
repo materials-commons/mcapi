@@ -981,7 +981,7 @@ def _set_measurement_for_process_samples(project, experiment, process,
             project_id, experiment_id, process_id, \
             samples_parameter, property, measurement_parameter)
     if not success_flag:
-        # throw exception?
+        print "mcapi.mc._set_measurement_for_process_samples - unexpectedly failed"
         return None
     return get_process_from_id(project, experiment, process_id)
 
@@ -996,7 +996,6 @@ def _get_all_templates():
 def _create_samples(project, process, sample_names):
     samples_array_dict = api.create_samples_in_project(project.id, process.id, sample_names)
     samples_array = samples_array_dict['samples']
-    print samples_array
     # NOTE: in this case, for this version of API, for the call implemented, the
     # returned object is very sparse; hence the samples need to be refetched...
     # however, the fetched object is missing the property_set_id, to add it..
