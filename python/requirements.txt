@@ -1,4 +1,6 @@
 python-magic
+requests
+rethinkdb
 pytest
 pathlib
-requests
+numpy
