@@ -1,14 +1,23 @@
-import datetime
 from mcapi import create_project, get_all_templates
 from mcapi import list_projects
 from mcapi import get_process_from_id
-
+from mcapi import Remote, Config, set_remote, use_remote
 
 class DemoProject:
-    def __init__(self,data_directory_path):
+    def __init__(self, host, data_directory_path, apikey):
         self.build_data_directory = data_directory_path
+        self.url = host + '/api'
+        self.apikey = apikey
+
+        config = Config(override_config={
+            "apikey": self.apikey,
+            "mcurl": self.url
+        })
+        remote = Remote(config=config)
+        set_remote(remote)
 
     def build_project(self):
+
         project_name = "Demo Project"
         project_description = "A project for trying things out."
         experiment_name = "Demo: Microsegregation in HPDC L380"

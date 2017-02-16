@@ -16,7 +16,7 @@ import hashlib
 
 # api.py
 def _delete(restpath, remote=mcapi.Remote()):
-    r = requests.delete(restpath, params=remote.params, verify=False)
+    r = requests.delete(restpath, params=remote.config.params, verify=False)
     if r.status_code == requests.codes.ok:
         return r.json()
     r.raise_for_status()
@@ -619,7 +619,7 @@ class CommonsCLIParser(object):
         project = mcapi.create_project(args.name, args.desc)
         #project = mcapi.create_project(args.name, args.desc, remote=remote)
         
-        print "Created new project at:", remote.mcurl
+        print "Created new project at:", remote.config.mcurl
         _print_projects([project], project)
 
     def clone(self):
@@ -657,10 +657,10 @@ class CommonsCLIParser(object):
         os.mkdir(os.path.join(dest,'.mc'))
         with open(_proj_config(dest), 'w') as f:
             # set a default current experiment? 
-            data = {'remote_url':remote.mcurl, 'project_id': args.id, 'experiment_id': None}
+            data = {'remote_url':remote.config.mcurl, 'project_id': args.id, 'experiment_id': None}
             json.dump(data, f)
         
-        print "Cloned project from", remote.mcurl, "to", dest
+        print "Cloned project from", remote.config.mcurl, "to", dest
         _print_projects([project])
 
     def ls(self):

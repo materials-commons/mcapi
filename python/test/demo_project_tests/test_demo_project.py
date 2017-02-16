@@ -1,4 +1,5 @@
 import unittest
+from mcapi import Config
 from os import environ
 from os import path as os_path
 import demo_project as demo
@@ -6,6 +7,9 @@ import demo_project as demo
 class TestDemoProject(unittest.TestCase):
 
     def test_build_demo_project(self):
+
+        mcapikey = "totally-bogus"
+        host = "http://mctest.localhost"
 
         # Expected test values
         project_name = 'Demo Project'
@@ -19,7 +23,7 @@ class TestDemoProject(unittest.TestCase):
             'EBSD SEM Data Collection - 5 mm plate','EPMA Data Collection - 5 mm plate - center'
         ]
 
-        builder = demo.DemoProject(self._make_test_dir_path())
+        builder = demo.DemoProject(host,self._make_test_dir_path(),mcapikey)
 
         table = builder._make_template_table()
         self.assertIsNotNone(builder._template_id_with(table,'Create'))

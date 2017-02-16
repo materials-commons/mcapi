@@ -20,7 +20,7 @@ class TestRemote(unittest.TestCase):
         self.assertIsNotNone(config.params)
         self.assertIsNotNone(config.params['apikey'])
         self.assertIsNotNone(config.mcurl)
-        self.assertEqual(remote.mcurl, config.mcurl)
+        self.assertEqual(remote.config.mcurl, config.mcurl)
 
     def test_with_config_settings(self):
         test_path = "test/path/for/config"

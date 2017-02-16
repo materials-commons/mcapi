@@ -7,9 +7,9 @@ class Remote(object):
             raise Exception("Remote not properly configured: mcapikey and mculr are reguired")
 
         self.config = config
-        self.mcurl = config.mcurl
-        self.params = config.params
+        # self.mcurl = config.mcurl
+        # self.params = config.params
 
     def make_url_v2(self, restpath):
-        p = self.mcurl + '/v2/' + restpath
+        p = self.config.mcurl + '/v2/' + restpath
         return p
