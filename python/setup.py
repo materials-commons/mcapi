@@ -19,3 +19,9 @@ setup(
     version='0.2',
     packages=['demo_project']
 )
+
+setup(
+    name='mcapi_dist',
+    version='0.1',
+    packages=['demo_project','mcapi']
+)
