@@ -114,7 +114,7 @@ before_script:
 #  - cat junk.txt
 
 script:
-  - coverage run --source mcapi -m py.test test
+  - coverage run --source mcapi,casm_mcapi,demo_project -m py.test test
   - coverage report -m
 
 after_failure:

@@ -18,7 +18,7 @@ class TestDemoProjectBasic(unittest.TestCase):
         self.assertEqual(get_remote_config_url(), url)
 
     def test_demo_project(self):
-        project_name = "Demo Project"
+        project_name = "Demo Test Project"
         project_description = "A project for trying things out."
         project = self._get_project(project_name)
         if not project:
