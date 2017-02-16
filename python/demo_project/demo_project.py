@@ -11,7 +11,7 @@ class DemoProject:
     def build_project(self):
         project_name = "Demo Project"
         project_description = "A project for trying things out."
-        experiment_name = "Microsegregation in HPDC L380"
+        experiment_name = "Demo: Microsegregation in HPDC L380"
         experiment_description = "A demo experiment -  A study of microsegregation in High Pressure Die Cast L380."
 
         project = \
@@ -70,10 +70,10 @@ class DemoProject:
                 processes[2], sample_names[2:]
             )
 
-        processes[1] = processes[1].add_samples_to_process(samples[0:1])
-        processes[2] = processes[2].add_samples_to_process(samples[1:2])
-        processes[3] = processes[3].add_samples_to_process(samples[4:5])
-        processes[4] = processes[4].add_samples_to_process(samples[4:5])
+        processes[1] = processes[1].add_input_samples_to_process(samples[0:1])
+        processes[2] = processes[2].add_input_samples_to_process(samples[1:2])
+        processes[3] = processes[3].add_input_samples_to_process(samples[4:5])
+        processes[4] = processes[4].add_input_samples_to_process(samples[4:5])
 
         count = 0
         for process in processes:
@@ -84,7 +84,73 @@ class DemoProject:
         processes[3] = self._setup_for_node(3,processes[3])
         processes[4] = self._setup_for_node(4,processes[4])
 
-        return (project, experiment)
+        filename_list = [
+            'LIFT Specimen Die.jpg',
+            'L124_photo.jpg',
+            'LIFT HPDC Samplesv3.xlsx',
+            'Measured Compositions_EzCast_Lift380.pptx',
+            'GSD_Results_L124_MC.xlsx',
+            'Grain_Size_EBSD_L380_comp_5mm.tiff',
+            'Grain_Size_EBSD_L380_comp_core.tiff',
+            'Grain_Size_EBSD_L380_comp_skin.tiff',
+            'Grain_Size_Vs_Distance.tiff',
+            'L124_plate_5mm_TT_GF2.txt',
+            'L124_plate_5mm_TT_IPF.tif',
+            'EPMA_Analysis_L124_Al.tiff',
+            'EPMA_Analysis_L124_Cu.tiff',
+            'EPMA_Analysis_L124_Si.tiff',
+            'ExperimentData_Lift380_L124_20161227.docx',
+            'Samples_Lift380_L124_20161227.xlsx'
+        ]
+
+        process_file_list = [
+            [0,2,3], [0,1], [1], [4,5,6,7,8,9,10], [11,12,13,14,15]
+        ]
+
+
+        project_directory_path = "/FilesForSample"
+        file_list = []
+        for filename in filename_list:
+            filepath_for_sample = self.build_data_directory + "/" + filename
+            sample_file = self._get_file_from_project(project, project_directory_path, filename)
+            if not sample_file:
+                sample_file = project.add_file_using_directory(
+                    project.add_directory(project_directory_path),
+                    filename,
+                    filepath_for_sample
+                )
+            file_list.append(sample_file)
+
+        process_index = 0
+        for file_index_list in process_file_list:
+            processes[process_index] = get_process_from_id(project, experiment, processes[process_index].id)
+            for file_index in file_index_list:
+                sample_file = file_list[file_index]
+                if not self._process_has_file(processes[process_index], sample_file):
+                    processes[process_index].add_files([sample_file])
+                    processes[process_index] = get_process_from_id(project, experiment, processes[process_index].id)
+            process_index += 1
+
+        measurement_data = {
+            "name": "Composition",
+            "attribute": "composition",
+            "otype": "composition",
+            "unit": "at%",
+            "value": [
+                {"element": "Al", "value": 94},
+                {"element": "Ca", "value": 1},
+                {"element": "Zr", "value": 5}],
+            "is_best_measure": True
+        }
+        measurement = processes[0].create_measurement(data=measurement_data)
+        measurement_property = {
+            "name": "Composition",
+            "attribute": "composition"
+        }
+        processes[0].set_measurements_for_process_samples(
+            measurement_property, [measurement])
+
+        return project
 
     # Support methods
 
@@ -154,18 +220,13 @@ class DemoProject:
 
     def _setup_for_node(self,index,process):
         if index == 0: # case: Create Sample: Lift 380 Castining Day #1
-            DAY = 24*60*60*1000
-            datevalue = \
-                DAY * \
-                (datetime.date(2016,8,19).toordinal() - datetime.date(1970, 1, 1).toordinal())
+            date_value = 1485977519347  # February 1, 2017
             process.set_value_of_setup_property(
                 'manufacturer', 'Ohio State University')
-            #process.set_value_of_setup_property(
-            #    'manufacturing_date', datevalue)
+            process.set_value_of_setup_property('manufacturing_date', date_value)
             # process.set_value_of_setup_property('production_method', 'cast')
             process = process.update_setup_properties([
-                'manufacturer'
-                #,'manufacturing_date'
+                'manufacturer','manufacturing_date'
                 #,'production_method'
             ])
             process = process.update_setup_properties([
@@ -194,59 +255,12 @@ class DemoProject:
             ])
         return process
 
-
-
-'''
-
-        filepath_for_sample = self._make_data_dir_path('sem.tif')
-        directory_path = "/FilesForSample"
-        filename_for_sample = "SampleFile.tif"
-        sample_file = self._get_file_from_project(project, directory_path, filename_for_sample)
-        if not sample_file:
-            sample_file = project.add_file_using_directory(
-                project.add_directory(directory_path),
-                filename_for_sample,
-                filepath_for_sample
-            )
-
-        create_sample_process = get_process_from_id(project, experiment, create_sample_process.id)
-        if not self._process_has_file(create_sample_process, sample_file):
-            create_sample_process.add_files([sample_file])
-            create_sample_process = get_process_from_id(project, experiment, create_sample_process.id)
-
-        measurement_data = {
-            "name": "Composition",
-            "attribute": "composition",
-            "otype": "composition",
-            "unit": "at%",
-            "value": [
-                {"element": "Al", "value": 94},
-                {"element": "Ca", "value": 1},
-                {"element": "Zr", "value": 5}],
-            "is_best_measure": True
-        }
-        measurement = create_sample_process.create_measurement(data=measurement_data)
-        measurement_property = {
-            "name": "Composition",
-            "attribute": "composition"
-        }
-        create_sample_process_updated = \
-            create_sample_process.set_measurements_for_process_samples(
-                measurement_property, [measurement])
-        measurement_out = create_sample_process_updated.measurements[0]
-        composition = measurement_out
-        value_list = composition.value
-
-        return (project, experiment)
-'''
-
-'''
     def _get_file_from_project(self, project, directory_path, filename):
         directory = project.get_directory(directory_path)
         children = directory.get_children()
         selected_file = None
         for entry in children:
-            if entry.otype == 'file' and entry.name == filename:
+            if entry.otype =='file' and entry.name == filename:
                 selected_file = entry
         return selected_file
 
@@ -256,9 +270,3 @@ class DemoProject:
             if check_file.id == file.id:
                 selected_file = check_file
         return selected_file
-
-    def _make_data_dir_path(self, file_name):
-        test_file = os_path.join(self.build_data_directory, file_name)
-        return test_file
-
-'''

@@ -306,7 +306,11 @@ class Process(MCObject):
         return self
 
     def create_samples(self, sample_names):
-        if not self.category == 'create_sample':
+        process_ok = self.category == 'create_sample' or self.category == 'sectioning'
+        if not process_ok:
+            print "Process.category is not either " \
+                  "'create_sample' or 'sectioning'; instead: " + \
+                  self.category + " -- returning None"
             # throw exception?
             return None
         samples = _create_samples(self.project, self, sample_names)
@@ -973,7 +977,6 @@ def _add_input_samples_to_process(project, experiment, process, samples):
     results = api.add_samples_to_process(project.id, experiment.id, process, samples)
     new_process = make_object(results)
     for sample in new_process.input_samples:
-        print "considering: " + sample.name
         sample.experiment = experiment
         sample.project = project
         found_sample = None
@@ -981,7 +984,6 @@ def _add_input_samples_to_process(project, experiment, process, samples):
             if existing_sample.id == sample.id:
                 found_sample = existing_sample
         if not found_sample:
-            print "adding: " + sample.name
             process.input_samples.append(sample)
     process.project = project
     process.experiment = experiment

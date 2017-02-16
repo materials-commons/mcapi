@@ -9,7 +9,7 @@ class TestDemoProject(unittest.TestCase):
 
         # Expected test values
         project_name = 'Demo Project'
-        experiment_name = 'Microsegregation in HPDC L380'
+        experiment_name = "Demo: Microsegregation in HPDC L380"
         sample_names = [
             'l380', 'L124', 'L124 - 2mm plate', 'L124 - 3mm plate',
             'L124 - 5mm plate', 'L124 - 5mm plate - 3ST', 'L124 - tensil bar, gage'
@@ -27,9 +27,12 @@ class TestDemoProject(unittest.TestCase):
         self.assertIsNotNone(builder._template_id_with(table,'EBSD SEM'))
         self.assertIsNotNone(builder._template_id_with(table,'EPMA'))
 
-        project, experiment = builder.build_project()
+        project = builder.build_project()
 
         self.assertIsNotNone(project)
+        experiments = project.fetch_experiments()
+        self.assertEqual(len(experiments),1)
+        experiment = experiments[0]
         self.assertIsNotNone(experiment)
         self.assertIsNotNone(experiment.project)
         self.assertIsNotNone(experiment.processes)
@@ -52,6 +55,74 @@ class TestDemoProject(unittest.TestCase):
                 if name == sample.name:
                     found_sample = sample
             self.assertIsNotNone(found_sample, "Expecting to find sample.name == " + name)
+
+        project_directory_path = "/FilesForSample"
+
+        filename_list = [
+            'LIFT Specimen Die.jpg',
+            'L124_photo.jpg',
+            'LIFT HPDC Samplesv3.xlsx',
+            'Measured Compositions_EzCast_Lift380.pptx',
+            'GSD_Results_L124_MC.xlsx',
+            'Grain_Size_EBSD_L380_comp_5mm.tiff',
+            'Grain_Size_EBSD_L380_comp_core.tiff',
+            'Grain_Size_EBSD_L380_comp_skin.tiff',
+            'Grain_Size_Vs_Distance.tiff',
+            'L124_plate_5mm_TT_GF2.txt',
+            'L124_plate_5mm_TT_IPF.tif',
+            'EPMA_Analysis_L124_Al.tiff',
+            'EPMA_Analysis_L124_Cu.tiff',
+            'EPMA_Analysis_L124_Si.tiff',
+            'ExperimentData_Lift380_L124_20161227.docx',
+            'Samples_Lift380_L124_20161227.xlsx'
+        ]
+
+        directory = project.get_directory_list(project_directory_path)[-1]
+        self.assertEqual(directory.otype,'datadir')
+        self.assertEqual(directory.name,project.name + project_directory_path)
+
+        project_files = directory.get_children()
+        self.assertEqual(len(project_files),len(filename_list))
+        for name in filename_list:
+            found_file = None
+            for file in project_files:
+                if name == file.name:
+                    found_file = file
+            self.assertIsNotNone(found_file, "Expecting to find file.name == " + name)
+
+        experiment = project.fetch_experiments()[0]
+        experiment = experiment.fetch_and_add_processes()
+        experiment = experiment.fetch_and_add_samples()
+        processes = experiment.processes
+
+        processes_reordered = []
+        for name in process_names:
+            for probe in processes:
+                if name == probe.name:
+                    processes_reordered.append(probe)
+        self.assertEqual(len(processes),len(processes_reordered))
+        processes = processes_reordered
+
+        for process in processes:
+            process.fill_in_output_samples()
+
+
+        process_file_list = [
+            [0,2,3], [0,1], [1], [4,5,6,7,8,9,10], [11,12,13,14,15]
+        ]
+
+        process_index = 0
+        for file_index_list in process_file_list:
+            process = processes[process_index]
+            for file_index in file_index_list:
+                name = filename_list[file_index]
+                found_file = None
+                for file in process.files:
+                    if name == file.name:
+                        found_file = file
+                error = "In process " + process.name + ": expecting to find file.name == " + name
+                self.assertIsNotNone(found_file, error)
+            process_index += 1
 
     def _make_test_dir_path(self):
         self.assertTrue('TEST_DATA_DIR' in environ)
