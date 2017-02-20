@@ -23,10 +23,25 @@ path = os_path.abspath(args.datapath)
 key = args.apikey
 
 # log_messages
-print "Running script to build demo project: "
-print "  host = " + host + ", "
-print "  key = " + key + ", "
-print "  path = " + path
+# print "Running script to build demo project: "
+# print "  host = " + host + ", "
+# print "  key = " + key + ", "
+# print "  path = " + path
+
+try:
+    builder = demo.DemoProject(host, path, key)
+    # a basic get request that makes no changes; will fail if there is a problem with the host or key
+    flag = builder.does_project_exist()
+
+    project = builder.build_project()
+
+    if flag:
+        print "Refreshed project with name = " + project.name
+    else:
+        print "Built project with name = " + project.name
+
+except Exception as err:
+    print 'Error: ', err
 
 '''
 if MCDB_PORT === 30815 and hostname == materialscommons.org then apihost = https://test.materialscommons.org

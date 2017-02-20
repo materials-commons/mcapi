@@ -16,9 +16,19 @@ class DemoProject:
         remote = Remote(config=config)
         set_remote(remote)
 
+        self.project_name = "Demo Project"
+
+    def does_project_exist(self):
+        projects = list_projects()
+        project = None
+        for p in projects:
+            if p.name == self.project_name:
+                project = p
+        return not not project
+
     def build_project(self):
 
-        project_name = "Demo Project"
+        project_name = self.project_name
         project_description = "A project for trying things out."
         experiment_name = "Demo: Microsegregation in HPDC L380"
         experiment_description = "A demo experiment -  A study of microsegregation in High Pressure Die Cast L380."
