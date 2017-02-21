@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import argparse
 from os import path as os_path
 import demo_project as demo
