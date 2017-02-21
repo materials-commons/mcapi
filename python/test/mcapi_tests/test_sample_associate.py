@@ -55,13 +55,24 @@ class TestSampleAssociate(unittest.TestCase):
     def test_associate_sample_with_process(self):
         process_with_sample = \
             self.base_compute_process.add_input_samples_to_process([self.base_sample])
+        # process_with_sample = process_with_sample.fill_in_input_samples()
         self.assertEqual(process_with_sample.name, 'Computation')
         self.assertEqual(len(process_with_sample.input_samples), 1)
         self.assertEqual(process_with_sample.input_samples[0].name, self.base_sample.name)
+        for samaple in process_with_sample.input_samples:
+            samaple.fetch_and_add_processes();
         found_process = None
+        print ''
+        print '----'
+        print process_with_sample.input_samples
+        print process_with_sample.input_samples[0]
+        print process_with_sample.input_samples[0].processes
+        print '----'
         for process in process_with_sample.input_samples[0].processes:
+            print process.process_type
             if process.process_type == 'analysis':
                 found_process = process
+        print '----'
         self.assertIsNotNone(found_process)
         self.assertEqual(found_process.id, process_with_sample.id)
 

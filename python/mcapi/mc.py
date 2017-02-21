@@ -359,6 +359,11 @@ class Process(MCObject):
         self.output_samples = detailed_process.output_samples
         return self
 
+    def fill_in_input_samples(self):
+        detailed_process = _refetch_process(self)
+        self.input_samples = detailed_process.input_samples
+        return self
+
     def create_measurement(self,data):
         return make_measurement_object(data)
 
@@ -437,7 +442,9 @@ class Sample(MCObject):
             self.properties = [make_measured_property(p.input_data) for p in self.properties]
 
     def fetch_and_add_processes(self):
-        print "Called but not implemented 'Sample.fetch_and_add_processes()'"
+        filled_in_sample = _fetch_sample_with_processes(self.project,self)
+        self.processes = filled_in_sample.processes
+        return self
 
     def fetch_and_add_files(self):
         print "Called but not implemented 'Sample.fetch_and_add_files()'"
@@ -1069,6 +1076,9 @@ def _create_samples(project, process, sample_names):
             process.experiment.samples.append(sample)
     api.add_samples_to_experiment(project.id,process.experiment.id,samples_id_list)
     return samples
+
+def _fetch_sample_with_processes(project,sample):
+    return make_object(api.fetch_sample_details(project.id,sample.id))
 
 # -- support function for Directory --
 def _fetch_directory(project, directory_id):

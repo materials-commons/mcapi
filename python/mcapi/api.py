@@ -212,6 +212,12 @@ def add_samples_to_experiment(project_id, experiment_id, sample_id_list,  remote
     api_url = "projects/" + project_id + "/experiments/" + experiment_id + "/samples"
     return post(remote.make_url_v2(api_url), data)
 
+def fetch_sample_details(project_id,sample_id, remote=None):
+    if not remote:
+        remote = use_remote()
+    api_url = "projects/" + project_id + "/samples/" + sample_id
+    return get(remote.make_url_v2(api_url))
+
 # Create sample process
 
 def get_process_from_id(project_id, experiment_id, process_id,  remote=None):
