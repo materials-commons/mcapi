@@ -255,11 +255,12 @@ class DemoProject:
             process.set_value_of_setup_property('voltage', 31)
             process.set_unit_of_setup_property('voltage', 'kV')
             process.set_value_of_setup_property('sample_tilt', 70)
-            process.set_value_of_setup_property('scan_size', 2500)
+            process.set_value_of_setup_property('scan_size_width', 2500)
+            process.set_value_of_setup_property('scan_size_height', 2500)
             process.set_value_of_setup_property('step_size', 1)
             process.set_value_of_setup_property('working_distance', 20)
             process = process.update_setup_properties([
-                'voltage', 'sample_tilt', 'scan_size','step_size','working_distance'
+                'voltage', 'sample_tilt', 'scan_size_width','scan_size_height','step_size','working_distance'
             ])
         if index == 4: # case: EPMA Data Collection - 5 mm plate - center
             process.set_value_of_setup_property('voltage', 15)
