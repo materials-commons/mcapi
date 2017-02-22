@@ -27,7 +27,6 @@ class DemoProject:
         return not not project
 
     def build_project(self):
-
         project_name = self.project_name
         project_description = "A project for trying things out."
         experiment_name = "Demo: Microsegregation in HPDC L380"
