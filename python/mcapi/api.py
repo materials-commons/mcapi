@@ -380,3 +380,13 @@ def add_files_to_process(project_id, experiment_id, process, files,  remote=None
               "/experiments/" + experiment_id + \
               "/processes/" + process.id
     return put(remote.make_url_v2(api_url), data)
+
+def file_rename(project_id, file_id, new_file_name, remote=None):
+    if not remote:
+        remote = use_remote()
+    data = {
+        "name": new_file_name
+    }
+    api_url = "projects/" + project_id + \
+              "/files/" + file_id
+    return put(remote.make_url_v2(api_url), data)

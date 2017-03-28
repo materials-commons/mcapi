@@ -597,6 +597,10 @@ class File(MCObject):
         filepath = _download_data_to_file(self._project, self, local_download_file_path)
         return filepath
 
+    def rename(self,new_file_name):
+        updated_file = _rename_file(self._project, self, new_file_name)
+        return updated_file
+        
 class Template(MCObject):
     # global static
     create = "global_Create Samples"
@@ -1098,12 +1102,19 @@ def _create_file_with_upload(project, directory, file_name, input_path):
     uploaded_file._directory = directory
     return uploaded_file
 
-
 def _download_data_to_file(project, file_object, output_file_path):
     project_id = project.id
     file_id = file_object.id
     output_file_path = api.file_download(project_id, file_id, output_file_path)
     return output_file_path
+
+def _rename_file(project, file, new_file_name):
+    project_id = project.id
+    file_id = file.id
+    results = api.file_rename(project_id, file_id, new_file_name)
+    updated_file = make_object(results)
+    updated_file._project = project
+    return updated_file
 
 # General support functions
 

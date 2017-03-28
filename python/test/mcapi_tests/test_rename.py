@@ -1,5 +1,9 @@
 import unittest
 from random import randint
+from os import environ
+from os import path as os_path
+from os.path import getsize
+from pathlib import Path
 from mcapi import set_remote_config_url, get_remote_config_url
 from mcapi import create_project
 
@@ -21,26 +25,47 @@ class TestRename(unittest.TestCase):
         project = create_project(cls.project_name, description)
         cls.project_id = project.id
         cls.project = project
+        print ''
+        print project.name
+
         cls.top_directory = project.get_top_directory()
         cls.test_dir_path_a = "/TestForRename/A"
-        cls.test_a_newname = "NewNameA"
         cls.directory_a = project.add_directory(cls.test_dir_path_a)
-        cls.test_dir_path_b = "/TestForRename/Another/B"
-        cls.test_b_newname = "NewNameA"
+        cls.test_dir_path_b = "/TestForRename/A/B"
         cls.directory_b = project.add_directory(cls.test_dir_path_b)
+        cls.test_dir_path_c = "/TestForRename/A/B/C"
+        cls.directory_c = project.add_directory(cls.test_dir_path_c)
+        cls.test_dir_path_d = "/TestForRename/A/B/D"
+        cls.directory_d = project.add_directory(cls.test_dir_path_d)
+        cls.test_dir_path_e = "/TestForRename/A/E"
+        cls.directory_e = project.add_directory(cls.test_dir_path_e)
+        cls.test_dir_path_f = "/TestForRename/F"
+        cls.directory_f = project.add_directory(cls.test_dir_path_f)
 
-        directory = cls.top_directory
-        filepath =
-        path = Path(self.filepath1)
-        file_name = path.parts[-1]
-        input_path = str(path.absolute())
-        byte_count = getsize(input_path)
-        test_file = _create_file_with_upload(project, directory, file_name, input_path)
-        self.assertIsNotNone(test_file)
-        self.assertEqual(test_file.size, byte_count)
+        cls.directory_for_rename_name = "/FilesForRename"
+        cls.directory_for_rename = project.add_directory(cls.directory_for_rename_name)
+        if 'TEST_DATA_DIR' in environ:
+            test_path = os_path.abspath(environ['TEST_DATA_DIR'])
+            file_path = os_path.join(test_path, 'test_upload_data', 'fractal.jpg')
+            path = Path(file_path)
+            cls.file_path = str(path.absolute())
+            cls.byte_count = getsize(file_path)
+            cls.original_filename = "FileForRename.jpg"
+            cls.test_file = project.add_file_using_directory(
+                cls.directory_for_rename,
+                cls.original_filename,
+                cls.file_path
+            )
 
 
     def test_is_setup_correctly(self):
+        self.assertTrue('TEST_DATA_DIR' in environ)
+        self.assertIsNotNone(self.file_path)
+        self.assertTrue(os_path.isfile(self.file_path))
+        self.assertIsNotNone(self.test_file)
+        self.assertEqual(self.test_file.size, self.byte_count)
+        self.assertEqual(self.test_file.name, self.original_filename)
+
         self.assertEqual(get_remote_config_url(), url)
         self.assertIsNotNone(self.project)
         self.assertIsNotNone(self.project.name)
@@ -51,9 +76,29 @@ class TestRename(unittest.TestCase):
         self.assertEqual(self.directory_a.name, self.project.name + self.test_dir_path_a)
         self.assertEqual(self.directory_b.name, self.project.name + self.test_dir_path_b)
 
-        directory_list = self.project.get_directory_list(self.test_dir_path_a)
+        directory_list = self.project.get_directory_list(self.test_dir_path_c)
         self.assertIsNotNone(directory_list)
-        print ''
-        print len(directory_list)
-        print directory_list[0].name
-        print directory_list[1].name
+        self.assertEqual(len(directory_list),4)
+        self.assertEqual(directory_list[1].name, self.project.name + self.test_dir_path_a)
+        self.assertEqual(directory_list[2].name, self.project.name + self.test_dir_path_b)
+        self.assertEqual(directory_list[3].name, self.project.name + self.test_dir_path_c)
+
+    def test_rename_file(self):
+        file = self.test_file
+        new_name = "NewName.jpg"
+        updated_file = file.rename(new_name)
+        self.assertEqual(updated_file.id,file.id)
+        self.assertEqual(updated_file.name,new_name)
+        self.assertEqual(updated_file._project,self.project)
+        directory_list = self.project.get_directory_list(self.directory_for_rename_name)
+        print (directory_list)
+        directory = directory_list[-1]
+        self.assertEqual(directory.id,self.directory_for_rename.id)
+        self.assertEqual(directory._project, self.project)
+        file_list = directory.get_children()
+        probe_file = file_list[0]
+        self.assertEqual(probe_file.id,file.id)
+        self.assertEqual(probe_file.name,new_name)
+        self.assertEqual(probe_file._project,self.project)
+        print (file_list)
+
