@@ -43,7 +43,7 @@ before_install:
   - sudo cat /etc/hosts
 
 install:
-  - nvm install v5.3.0
+  - nvm install v6.10
   - node --version
   - sudo apt-get install nginx
   - sudo apt-get install rethinkdb
