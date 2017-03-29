@@ -12,11 +12,10 @@ url = 'http://mctest.localhost/api'
 
 def fake_name(prefix):
     number = "%05d" % randint(0, 99999)
-    return prefix+number
+    return prefix + number
 
 
 class TestRename(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         set_remote_config_url(url)
@@ -57,7 +56,6 @@ class TestRename(unittest.TestCase):
                 cls.file_path
             )
 
-
     def test_is_setup_correctly(self):
         self.assertTrue('TEST_DATA_DIR' in environ)
         self.assertIsNotNone(self.file_path)
@@ -78,27 +76,26 @@ class TestRename(unittest.TestCase):
 
         directory_list = self.project.get_directory_list(self.test_dir_path_c)
         self.assertIsNotNone(directory_list)
-        self.assertEqual(len(directory_list),4)
+        self.assertEqual(len(directory_list), 4)
         self.assertEqual(directory_list[1].name, self.project.name + self.test_dir_path_a)
         self.assertEqual(directory_list[2].name, self.project.name + self.test_dir_path_b)
         self.assertEqual(directory_list[3].name, self.project.name + self.test_dir_path_c)
 
     def test_rename_file(self):
-        file = self.test_file
+        test_file = self.test_file
         new_name = "NewName.jpg"
-        updated_file = file.rename(new_name)
-        self.assertEqual(updated_file.id,file.id)
-        self.assertEqual(updated_file.name,new_name)
-        self.assertEqual(updated_file._project,self.project)
+        updated_file = test_file.rename(new_name)
+        self.assertEqual(updated_file.id, test_file.id)
+        self.assertEqual(updated_file.name, new_name)
+        self.assertEqual(updated_file._project, self.project)
         directory_list = self.project.get_directory_list(self.directory_for_rename_name)
         print (directory_list)
         directory = directory_list[-1]
-        self.assertEqual(directory.id,self.directory_for_rename.id)
+        self.assertEqual(directory.id, self.directory_for_rename.id)
         self.assertEqual(directory._project, self.project)
         file_list = directory.get_children()
         probe_file = file_list[0]
-        self.assertEqual(probe_file.id,file.id)
-        self.assertEqual(probe_file.name,new_name)
-        self.assertEqual(probe_file._project,self.project)
+        self.assertEqual(probe_file.id, test_file.id)
+        self.assertEqual(probe_file.name, new_name)
+        self.assertEqual(probe_file._project, self.project)
         print (file_list)
-

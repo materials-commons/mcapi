@@ -10,12 +10,13 @@ from mcapi import make_dir_tree_table
 
 url = 'http://mctest.localhost/api'
 
+
 def fake_name(prefix):
     number = "%05d" % randint(0, 99999)
-    return prefix+number
+    return prefix + number
+
 
 class TestFileDirectoryUpload(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         set_remote_config_url(url)
@@ -75,11 +76,11 @@ class TestFileDirectoryUpload(unittest.TestCase):
         path = os_path.join(local_dir_path, file_name)
         self.assertTrue(os_path.isfile(path))
 
-        file = directory.add_file(file_name, path)
-        self.assertIsNotNone(file)
-        self.assertEqual(file.name, file_name)
+        test_file = directory.add_file(file_name, path)
+        self.assertIsNotNone(test_file)
+        self.assertEqual(test_file.name, file_name)
         byte_count = getsize(path)
-        self.assertEqual(file.size, byte_count)
+        self.assertEqual(test_file.size, byte_count)
 
     def test_upload_files_by_dir(self):
         directory_name = fake_name("test_two_dir")
@@ -97,11 +98,11 @@ class TestFileDirectoryUpload(unittest.TestCase):
 
         relative_path = "test_dir"
 
-        dir_tree_table = make_dir_tree_table(local_dir_path,"sub_directory_b",relative_path,{})
-        self.assertEqual(dir_tree_table.keys()[0],relative_path)
+        dir_tree_table = make_dir_tree_table(local_dir_path, "sub_directory_b", relative_path, {})
+        self.assertEqual(dir_tree_table.keys()[0], relative_path)
 
         file_dict = dir_tree_table[relative_path]
-        self.assertEqual(len(file_dict.keys()),2)
+        self.assertEqual(len(file_dict.keys()), 2)
 
         dir_list = base_directory.get_descendant_list_by_path(relative_path)
         directory = dir_list[-1]
@@ -111,10 +112,10 @@ class TestFileDirectoryUpload(unittest.TestCase):
             file_name = key
             local_path = file_dict[key]
             self.assertTrue(os_path.isfile(local_path))
-            file = directory.add_file(file_name,local_path)
-            self.assertEqual(file.name, file_name)
+            test_file = directory.add_file(file_name, local_path)
+            self.assertEqual(test_file.name, file_name)
             byte_count = getsize(local_path)
-            self.assertEqual(file.size, byte_count)
+            self.assertEqual(test_file.size, byte_count)
 
     def test_file_dir_upload_inline(self):
         directory_name = fake_name("test_full_dir")
@@ -132,13 +133,13 @@ class TestFileDirectoryUpload(unittest.TestCase):
 
         dir_name = self.full_dir
 
-        dir_tree_table = make_dir_tree_table(local_base_path,dir_name,dir_name,{})
+        dir_tree_table = make_dir_tree_table(local_base_path, dir_name, dir_name, {})
         for relative_dir_path in dir_tree_table.keys():
             file_dict = dir_tree_table[relative_dir_path]
             dirs = base_directory.get_descendant_list_by_path(relative_dir_path)
             directory = dirs[-1]
             for file_name in file_dict.keys():
-                directory.add_file(file_name,file_dict[file_name])
+                directory.add_file(file_name, file_dict[file_name])
 
         children = base_directory.get_children()
         self.assertEqual(len(children), 1)
@@ -153,10 +154,10 @@ class TestFileDirectoryUpload(unittest.TestCase):
         c2 = d['sub_directory_a']
         c3 = d['sub_directory_b']
         c4 = d['sub_directory_c']
-        self.assertEqual(c1.otype,'file')
-        self.assertEqual(c2.otype,'directory')
-        self.assertEqual(c3.otype,'directory')
-        self.assertEqual(c4.otype,'directory')
+        self.assertEqual(c1.otype, 'file')
+        self.assertEqual(c2.otype, 'directory')
+        self.assertEqual(c3.otype, 'directory')
+        self.assertEqual(c4.otype, 'directory')
 
         children = c2.get_children()
         self.assertEqual(len(children), 1)
@@ -196,11 +197,11 @@ class TestFileDirectoryUpload(unittest.TestCase):
 
         dir_name = self.full_dir
 
-        results = base_directory.add_directory_tree(dir_name,local_base_path)
+        results = base_directory.add_directory_tree(dir_name, local_base_path)
 
         file_table = self.make_results_file_dictionary(results)
 
-        for file_name in ['TopLevel.txt','A.txt','B1.txt','B2.txt','C.txt']:
+        for file_name in ['TopLevel.txt', 'A.txt', 'B1.txt', 'B2.txt', 'C.txt']:
             self.assertTrue(file_name in file_table)
 
         base_dir_name = self.base_project_name + '/' + directory_name + '/'
@@ -216,8 +217,8 @@ class TestFileDirectoryUpload(unittest.TestCase):
         for name_path in name_path_list:
             file_name = name_path[0]
             path = name_path[1]
-            file = file_table[file_name]
-            self.assertEqual(file._parent.name,path)
+            test_file = file_table[file_name]
+            self.assertEqual(test_file._parent.name, path)
 
         directory = base_directory
         children = directory.get_children()
@@ -233,10 +234,10 @@ class TestFileDirectoryUpload(unittest.TestCase):
         c2 = d['sub_directory_a']
         c3 = d['sub_directory_b']
         c4 = d['sub_directory_c']
-        self.assertEqual(c1.otype,'file')
-        self.assertEqual(c2.otype,'directory')
-        self.assertEqual(c3.otype,'directory')
-        self.assertEqual(c4.otype,'directory')
+        self.assertEqual(c1.otype, 'file')
+        self.assertEqual(c2.otype, 'directory')
+        self.assertEqual(c3.otype, 'directory')
+        self.assertEqual(c4.otype, 'directory')
 
         children = c2.get_children()
         self.assertEqual(len(children), 1)
@@ -260,9 +261,6 @@ class TestFileDirectoryUpload(unittest.TestCase):
         self.assertEqual(c41.otype, 'file')
         self.assertEqual(c42.otype, 'directory')
 
-
-
-
     def get_base_local_test_dir(self):
         self.assertTrue('TEST_DATA_DIR' in environ)
         test_path = os_path.abspath(environ['TEST_DATA_DIR'])
@@ -276,17 +274,17 @@ class TestFileDirectoryUpload(unittest.TestCase):
         self.assertTrue(os_path.isdir(test_path))
         return os_path.join(test_path, dir_name)
 
-    def make_child_dict(self,child_list):
+    def make_child_dict(self, child_list):
         ret = {}
         for child in child_list:
             ret[child.name] = child
         return ret
 
-    def make_results_file_dictionary(self,file_list):
+    def make_results_file_dictionary(self, file_list):
         ret = {}
-        for file in file_list:
-            name = file.name
-            ret[name] = file
+        for f in file_list:
+            name = f.name
+            ret[name] = f
         return ret
 
     # Check that the empty dir, needed for the tests, exists.

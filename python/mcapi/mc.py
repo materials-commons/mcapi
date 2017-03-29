@@ -4,6 +4,7 @@ from os import path as os_path
 from os import listdir
 from os import getcwd
 
+
 # -- top level project functions --
 def list_projects():
     results = api.projects()
@@ -25,12 +26,13 @@ def fetch_project_by_id(project_id):
     return Project(data=results)
 
 
-def get_process_from_id(project,experiment,process_id):
+def get_process_from_id(project, experiment, process_id):
     results = api.get_process_from_id(project.id, experiment.id, process_id)
     process = make_object(results)
     process.project = project
     process.experiment = experiment
     return process
+
 
 # -- supporting classes
 
@@ -53,29 +55,40 @@ class MCObject(object):
         for a in attr:
             setattr(self, a, data.get(a, None))
 
-
     def process_special_objects(self):
         data = self.input_data
-        if not data: return
-        if _has_key('otype',data):
-            type = data['otype']
+        if not data:
+            return
+        if _has_key('otype', data):
+            obj_type = data['otype']
             # these types are properties and measurements and they get out of jail free
-            pass_types = ['number','string','boolean','date','selection','function',\
-                    'composition','vector','matrix']
-            if type in pass_types: return
+            pass_types = ['number', 'string', 'boolean', 'date', 'selection', 'function',
+                          'composition', 'vector', 'matrix']
+            if obj_type in pass_types:
+                return
 
             # these cases may need to be further investigated ???
             #  - some of these are sub-classes - to be revisited
-            unexpected_types = ['property','sample','experiment_task','experiment','settings']
-            if type in unexpected_types: return
-        if _has_key('value', data) and _has_key('element',data): return
-        if _has_key('value', data) and _has_key('name',data): return
-        if _has_key('value', data) and _has_key('unit',data): return
-        if _has_key('attribute',data) and data['attribute'] == 'instrument': return
-        if _has_key('starred',data): return
-        if _has_key('mime',data): return
-        if _has_key('property_set_id',data) and _has_key('name',data): return
-#   changed name of display function so that it will not interfere with searches
+            unexpected_types = ['property', 'sample', 'experiment_task', 'experiment', 'settings']
+            if obj_type in unexpected_types:
+                return
+        if _has_key('value', data) and _has_key('element', data):
+            return
+        if _has_key('value', data) and _has_key('name', data):
+            return
+        if _has_key('value', data) and _has_key('unit', data):
+            return
+        if _has_key('attribute', data) and data['attribute'] == 'instrument':
+            return
+        if _has_key('starred', data):
+            return
+        if _has_key('mime', data):
+            return
+        if _has_key('property_set_id', data) and _has_key('name', data):
+            return
+
+
+# changed name of display function so that it will not interfere with searches
 #        prrint "MCObject: called process_special_objects - possible error?"
 #        if _has_key('otype',data): prrint "otype = ",data['otype']
 #        prrint "input_data = ", self.input_data
@@ -158,8 +171,9 @@ class Project(MCObject):
     def fetch_experiments(self):
         return _fetch_experiments(self)
 
-    def fetch_sample_by_id(self,sample_id):
-        return _fetch_project_sample_by_id(self,sample_id)
+    def fetch_sample_by_id(self, sample_id):
+        return _fetch_project_sample_by_id(self, sample_id)
+
 
 class Experiment(MCObject):
     def __init__(self, project_id=None, name=None, description=None,
@@ -184,8 +198,10 @@ class Experiment(MCObject):
         self.goals = None
         self.aims = None
 
+        self.category = None
+
         self.samples = []
-        self.processes = {} # a set
+        self.processes = {}  # a set
 
         if not data:
             data = {}
@@ -215,9 +231,9 @@ class Experiment(MCObject):
             setattr(self, a, array)
 
     def process_special_objects(self):
-        if (self.samples):
+        if self.samples:
             self.samples = [make_object(s.input_data) for s in self.samples]
-        if (self.processes):
+        if self.processes:
             self.processes = [make_object(s.input_data) for s in self.processes]
 
     def create_process_from_template(self, template_id):
@@ -230,7 +246,6 @@ class Experiment(MCObject):
     def fetch_and_add_processes(self):
         self.processes = _fetch_processes_for_exeriment(self)
         return self
-
 
 
 class Process(MCObject):
@@ -247,6 +262,7 @@ class Process(MCObject):
         self.transformed_samples = []
         self.what = ''
         self.why = ''
+        self.category = None
 
         self.project = None
         self.experiment = None
@@ -275,32 +291,30 @@ class Process(MCObject):
         if description:
             self.description = description
 
-
     def process_special_objects(self):
-        if (self.setup):
+        if self.setup:
             for i in range(len(self.setup)):
                 self.setup[i] = self._transform_setup(self.setup[i])
-        if (self.measurements):
+        if self.measurements:
             self.measurements = [make_measurement_object(m) for m in self.measurements]
-        if (self.input_samples):
+        if self.input_samples:
             self.input_samples = [make_object(s.input_data) for s in self.input_samples]
-        if (self.output_samples):
+        if self.output_samples:
             self.output_samples = [make_object(s.input_data) for s in self.output_samples]
-        if (self.input_files):
+        if self.input_files:
             self.input_files = [make_object(s.input_data) for s in self.input_files]
-        if (self.output_files):
+        if self.output_files:
             self.output_files = [make_object(s.input_data) for s in self.output_files]
 
-
-    def _transform_setup(self,setup_element):
+    def _transform_setup(self, setup_element):
         setup_element.properties = [self._transform_property(prop) for prop in setup_element.properties]
         return setup_element
 
-    def _transform_property(self,property):
+    def _transform_property(self, property):
         prop = make_property_object(property)
         return prop
 
-    def add_name(self,process_name):
+    def add_name(self, process_name):
         self.name = process_name
         _push_name_for_process(self)
         return self
@@ -324,7 +338,7 @@ class Process(MCObject):
         return _add_files_to_process(self.project, self.experiment, self, files_list)
 
     def get_setup_properties_as_dictionary(self):
-        if (self.properties_dictionary):
+        if self.properties_dictionary:
             return self.properties_dictionary
         ret = {}
         for s in self.setup:
@@ -335,24 +349,24 @@ class Process(MCObject):
         self.properties_dictionary = ret
         return ret
 
-    def set_value_of_setup_property(self,name,value):
+    def set_value_of_setup_property(self, name, value):
         prop = self.get_setup_properties_as_dictionary()[name]
-        if (prop):
+        if prop:
             prop.value = value
 
-    def set_unit_of_setup_property(self,name,unit):
+    def set_unit_of_setup_property(self, name, unit):
         prop = self.get_setup_properties_as_dictionary()[name]
-        if (prop and (unit in prop.units)):
+        if prop and (unit in prop.units):
             prop.unit = unit
 
-    def update_setup_properties(self,name_list):
-        dict = self.get_setup_properties_as_dictionary()
+    def update_setup_properties(self, name_list):
+        prop_dict = self.get_setup_properties_as_dictionary()
         prop_list = []
         for name in name_list:
-            prop = dict[name]
-            if (prop):
+            prop = prop_dict[name]
+            if prop:
                 prop_list.append(prop)
-        return _update_process_setup_properties(self.project,self.experiment,self,prop_list)
+        return _update_process_setup_properties(self.project, self.experiment, self, prop_list)
 
     def fill_in_output_samples(self):
         detailed_process = _refetch_process(self)
@@ -364,14 +378,15 @@ class Process(MCObject):
         self.input_samples = detailed_process.input_samples
         return self
 
-    def create_measurement(self,data):
+    def create_measurement(self, data):
         return make_measurement_object(data)
 
-    def set_measurements_for_process_samples(self, property, measurements):
-        return _set_measurement_for_process_samples(self.project, \
-                self.experiment, self, \
-                self.make_list_of_samples_with_property_set_ids(self.output_samples), \
-                property, measurements)
+    def set_measurements_for_process_samples(self, measurement_property, measurements):
+        return _set_measurement_for_process_samples(self.project,
+                                                    self.experiment, self,
+                                                    self.make_list_of_samples_with_property_set_ids(
+                                                        self.output_samples),
+                                                    measurement_property, measurements)
 
     def make_list_of_samples_with_property_set_ids(self, samples):
         # Note: samples must be output samples of the process
@@ -404,6 +419,7 @@ class Process(MCObject):
                     })
         return results
 
+
 class Sample(MCObject):
     def __init__(self, name=None, data=None):
         self.id = None
@@ -423,7 +439,7 @@ class Sample(MCObject):
         # attr = ['id', 'name', 'description', 'birthtime', 'mtime', 'otype', 'owner']
         super(Sample, self).__init__(data)
 
-        attr = ['property_set_id','properties']
+        attr = ['property_set_id', 'properties']
         for a in attr:
             setattr(self, a, data.get(a, None))
 
@@ -438,11 +454,11 @@ class Sample(MCObject):
             self.name = name
 
     def process_special_objects(self):
-        if (self.properties):
+        if self.properties:
             self.properties = [make_measured_property(p.input_data) for p in self.properties]
 
     def fetch_and_add_processes(self):
-        filled_in_sample = _fetch_sample_with_processes(self.project,self)
+        filled_in_sample = _fetch_sample_with_processes(self.project, self)
         self.processes = filled_in_sample.processes
         return self
 
@@ -504,7 +520,7 @@ class Directory(MCObject):
             directory = make_object(dir_data)
             directory._project = self._project
             directory._parent = parent
-            parent = directory;
+            parent = directory
             dir_list.append(directory)
         return dir_list
 
@@ -515,8 +531,9 @@ class Directory(MCObject):
         return result
 
     def add_directory_tree(self, dir_name, input_dir_path, verbose=False):
-        if (not os_path.isdir(input_dir_path)): return self
-        dir_tree_table = make_dir_tree_table(input_dir_path,dir_name,dir_name,{})
+        if not os_path.isdir(input_dir_path):
+            return self
+        dir_tree_table = make_dir_tree_table(input_dir_path, dir_name, dir_name, {})
         result = []
         for relative_dir_path in dir_tree_table.keys():
             file_dict = dir_tree_table[relative_dir_path]
@@ -524,7 +541,7 @@ class Directory(MCObject):
             directory = dirs[-1]
             for file_name in file_dict.keys():
                 input_path = file_dict[file_name]
-                result.append(directory.add_file(file_name,input_path,verbose))
+                result.append(directory.add_file(file_name, input_path, verbose))
         return result
 
     def process_special_objects(self):
@@ -534,16 +551,16 @@ class Directory(MCObject):
 def make_dir_tree_table(base_path, dir_name, relative_base, table_so_far):
     local_path = os_path.join(base_path, dir_name)
     file_dictionary = {}
-    for file in listdir(local_path):
-        path = os_path.join(local_path, file)
-        if (os_path.isfile(path)):
-            file_dictionary[file] = path
+    for data_file in listdir(local_path):
+        path = os_path.join(local_path, data_file)
+        if os_path.isfile(path):
+            file_dictionary[data_file] = path
     table_so_far[relative_base] = file_dictionary
-    for dir in listdir(local_path):
-        path = os_path.join(local_path, dir)
-        base = os_path.join(relative_base, dir)
-        if (os_path.isdir(path)):
-            table_so_far = make_dir_tree_table(local_path, dir, base, table_so_far)
+    for directory in listdir(local_path):
+        path = os_path.join(local_path, directory)
+        base = os_path.join(relative_base, directory)
+        if os_path.isdir(path):
+            table_so_far = make_dir_tree_table(local_path, directory, base, table_so_far)
     return table_so_far
 
 
@@ -593,31 +610,34 @@ class File(MCObject):
     def process_special_objects(self):
         pass
 
-    def download_file_content(self,local_download_file_path):
+    def download_file_content(self, local_download_file_path):
         filepath = _download_data_to_file(self._project, self, local_download_file_path)
         return filepath
 
-    def rename(self,new_file_name):
+    def rename(self, new_file_name):
         updated_file = _rename_file(self._project, self, new_file_name)
         return updated_file
-        
+
+
 class Template(MCObject):
     # global static
     create = "global_Create Samples"
     compute = "global_Computation"
-    primitive_crystal_structure= "global_Primitive Crystal Structure"
+    primitive_crystal_structure = "global_Primitive Crystal Structure"
 
     def __init__(self, data=None):
         # attr = ['id', 'name', 'description', 'birthtime', 'mtime', 'otype', 'owner']
         super(Template, self).__init__(data)
 
-        #---- NOTE
-        #- Template is truncated, for now, as we only need the id to create
-        #- processes from a Template
-        #----
+        # ---- NOTE
+        # - Template is truncated, for now, as we only need the id to create
+        # - processes from a Template
+        # ----
+
 
 def get_all_templates():
     return _get_all_templates()
+
 
 class Measurement(MCObject):
     def __init__(self, data=None):
@@ -627,7 +647,7 @@ class Measurement(MCObject):
         self.unit = ''
         self.value = ''
         self.is_best_measure = False
-        attr = ['attribute','unit', 'value', 'is_best_measure']
+        attr = ['attribute', 'unit', 'value', 'is_best_measure']
         for a in attr:
             setattr(self, a, data.get(a, None))
 
@@ -673,25 +693,24 @@ class MeasurementInteger(Measurement):
         # attr = ['name', 'attribute', 'birthtime', 'mtime', 'otype', 'owner', 'unit', 'value']
         super(MeasurementInteger, self).__init__(data)
 
+
 class MeasurementNumber(Measurement):
     def __init__(self, data=None):
         # attr = ['name', 'attribute', 'birthtime', 'mtime', 'otype', 'owner', 'unit', 'value']
         super(MeasurementNumber, self).__init__(data)
+
 
 class MeasurementBoolean(Measurement):
     def __init__(self, data=None):
         # attr = ['name', 'attribute', 'birthtime', 'mtime', 'otype', 'owner', 'unit', 'value']
         super(MeasurementBoolean, self).__init__(data)
 
+
 class MeasurementSample(Measurement):
     def __init__(self, data=None):
         # attr = ['name', 'attribute', 'birthtime', 'mtime', 'otype', 'owner', 'unit', 'value']
         super(MeasurementSample, self).__init__(data)
 
-class MeasurementFile(Measurement):
-    def __init__(self, data=None):
-        # attr = ['name', 'attribute', 'birthtime', 'mtime', 'otype', 'owner', 'unit', 'value']
-        super(MeasurementFile, self).__init__(data)
 
 class Property(MCObject):
     def __init__(self, data=None):
@@ -704,8 +723,8 @@ class Property(MCObject):
         self.attribute = ''
         self.value = ''
 
-        self.units = []   # of string
-        self.choices = [] # of string
+        self.units = []  # of string
+        self.choices = []  # of string
 
         attr = ['setup_id', 'required', 'unit', 'attribute', 'value']
         for a in attr:
@@ -729,7 +748,7 @@ class MeasuredProperty(Property):
             setattr(self, a, data.get(a, []))
 
     def process_special_objects(self):
-        if (self.best_measure):
+        if self.best_measure:
             for i in range(len(self.best_measure)):
                 measure_data = self.best_measure[i]
                 measurement = make_measurement_object(measure_data)
@@ -809,7 +828,6 @@ def make_base_object_for_type(data):
         if object_type == 'experiment':
             return Experiment(data=data)
         if object_type == 'sample':
-            obj = Sample(data=data)
             return Sample(data=data)
         if object_type == 'datadir':
             return Directory(data=data)
@@ -833,9 +851,10 @@ def make_base_object_for_type(data):
             return MCObject(data=data)
         return MCObject(data=data)
 
+
 def make_property_object(obj):
     data = obj
-    if isinstance(obj,MCObject):
+    if isinstance(obj, MCObject):
         data = obj.input_data
     if _data_has_type(data):
         object_type = data['otype']
@@ -858,25 +877,28 @@ def make_property_object(obj):
             holder = VectorProperty(data=data)
         if object_type == 'matrix':
             holder = MatrixProperty(data=data)
-        if (not holder):
+        if not holder:
             raise Exception("No Property Object, unrecognized otype = " + object_type, data)
         holder.process_special_objects()
         return holder
     else:
         raise Exception("No Property Object, otype not defined", data)
 
+
 def make_datetime(data):
     timestamp = int(data['epoch_time'])
     return datetime.datetime.utcfromtimestamp(timestamp)
 
+
 def make_measured_property(data):
-    property = MeasuredProperty(data)
-    property.process_special_objects()
-    return property
+    measurement_property = MeasuredProperty(data)
+    measurement_property.process_special_objects()
+    return measurement_property
+
 
 def make_measurement_object(obj):
     data = obj
-    if isinstance(obj,MCObject):
+    if isinstance(obj, MCObject):
         data = obj.input_data
     if _data_has_type(data):
         object_type = data['otype']
@@ -903,12 +925,13 @@ def make_measurement_object(obj):
             holder = MeasurementSample(data=data)
         if object_type == 'file':
             holder = MeasurementFile(data=data)
-        if (holder):
+        if holder:
             holder.process_special_objects()
             return holder
         raise Exception("No Measurement Object, unrecognized otype = " + object_type, data)
     else:
         raise Exception("No Measurement Object, otype not defined", data)
+
 
 # -- general support functions
 def _is_object(value):
@@ -926,15 +949,18 @@ def _has_key(key, data):
 def _data_has_type(data):
     return _has_key('otype', data)
 
+
 def _is_datetime(data):
     return _has_key('$reql_type$', data) and data['$reql_type$'] == 'TIME'
 
+
 # -- support functions for Project --
-def _fetch_project_sample_by_id(project,sample_id):
-    sample_json_dict = api.fetch_project_sample_by_id(project.id,sample_id)
+def _fetch_project_sample_by_id(project, sample_id):
+    sample_json_dict = api.fetch_project_sample_by_id(project.id, sample_id)
     sample = make_object(sample_json_dict)
     sample.project = project
     return sample
+
 
 # -- support functions for Experiment --
 def _create_experiment(project, name, description):
@@ -943,25 +969,29 @@ def _create_experiment(project, name, description):
     experiment.project = project
     return experiment
 
+
 def _fetch_experiments(project):
     list_results = api.fetch_experiments(project.id)
     experiments = map((lambda x: make_object(x)), list_results)
     experiments = map((lambda x: _decorate_object_with(x, 'project', project)), experiments)
     return experiments
 
+
 def _fetch_samples_for_experiment(experiment):
-    samples_list = api.fetch_experiment_samples(experiment.project.id,experiment.id)
+    samples_list = api.fetch_experiment_samples(experiment.project.id, experiment.id)
     samples = map((lambda x: make_object(x)), samples_list)
     samples = map((lambda x: _decorate_object_with(x, 'project', experiment.project)), samples)
     samples = map((lambda x: _decorate_object_with(x, 'experiment', experiment)), samples)
     return samples
 
+
 def _fetch_processes_for_exeriment(experiment):
-    process_list = api.fetch_experiment_processes(experiment.project.id,experiment.id)
+    process_list = api.fetch_experiment_processes(experiment.project.id, experiment.id)
     processes = map((lambda x: make_object(x)), process_list)
     processes = map((lambda x: _decorate_object_with(x, 'project', experiment.project)), processes)
     processes = map((lambda x: _decorate_object_with(x, 'experiment', experiment)), processes)
     return processes
+
 
 # -- support functions for Process --
 def _refetch_process(process):
@@ -973,6 +1003,7 @@ def _refetch_process(process):
     process.experiment = experiment
     return process
 
+
 def _create_process_from_template(project, experiment, template_id):
     results = api.create_process_from_template(project.id, experiment.id, template_id)
     process = make_object(results)
@@ -980,9 +1011,11 @@ def _create_process_from_template(project, experiment, template_id):
     process.experiment = experiment
     return process
 
+
 def _push_name_for_process(process):
-    results = api.push_name_for_process(process.project.id,process.id,process.name)
+    results = api.push_name_for_process(process.project.id, process.id, process.name)
     return results
+
 
 def _add_input_samples_to_process(project, experiment, process, samples):
     results = api.add_samples_to_process(project.id, experiment.id, process, samples)
@@ -1011,7 +1044,7 @@ def _add_files_to_process(project, experiment, process, file_list):
 
 def _update_process_setup_properties(project, experiment, process, prop_list):
     results = api.update_process_setup_properties(
-            project.id, experiment.id, process, prop_list)
+        project.id, experiment.id, process, prop_list)
     process = make_object(results)
     process.project = project
     process.experiment = experiment
@@ -1019,7 +1052,7 @@ def _update_process_setup_properties(project, experiment, process, prop_list):
 
 
 def _set_measurement_for_process_samples(project, experiment, process,
-            samples_with_property_set_ids, property, measurements):
+                                         samples_with_property_set_ids, measurement_property, measurements):
     project_id = project.id
     experiment_id = experiment.id
     process_id = process.id
@@ -1036,22 +1069,24 @@ def _set_measurement_for_process_samples(project, experiment, process,
             'attribute': measurement.attribute,
             'otype': measurement.otype,
             'value': measurement.value,
-            'unit' : measurement.unit,
+            'unit': measurement.unit,
             'is_best_measure': measurement.is_best_measure
         })
-    success_flag = api.set_measurement_for_process_samples(\
-            project_id, experiment_id, process_id, \
-            samples_parameter, property, measurement_parameter)
+    success_flag = api.set_measurement_for_process_samples(
+        project_id, experiment_id, process_id,
+        samples_parameter, measurement_property, measurement_parameter)
     if not success_flag:
         print "mcapi.mc._set_measurement_for_process_samples - unexpectedly failed"
         return None
     return get_process_from_id(project, experiment, process_id)
 
+
 # -- support funcitons for Template --
 def _get_all_templates():
     templates_array = api.get_all_templates()
-    templates =  map((lambda x: make_object(x)), templates_array)
+    templates = map((lambda x: make_object(x)), templates_array)
     return templates
+
 
 # -- support functions for Sample --
 
@@ -1078,11 +1113,13 @@ def _create_samples(project, process, sample_names):
                 sample_in_experiment = s
         if not sample_in_experiment:
             process.experiment.samples.append(sample)
-    api.add_samples_to_experiment(project.id,process.experiment.id,samples_id_list)
+    api.add_samples_to_experiment(project.id, process.experiment.id, samples_id_list)
     return samples
 
-def _fetch_sample_with_processes(project,sample):
-    return make_object(api.fetch_sample_details(project.id,sample.id))
+
+def _fetch_sample_with_processes(project, sample):
+    return make_object(api.fetch_sample_details(project.id, sample.id))
+
 
 # -- support function for Directory --
 def _fetch_directory(project, directory_id):
@@ -1102,23 +1139,25 @@ def _create_file_with_upload(project, directory, file_name, input_path):
     uploaded_file._directory = directory
     return uploaded_file
 
+
 def _download_data_to_file(project, file_object, output_file_path):
     project_id = project.id
     file_id = file_object.id
     output_file_path = api.file_download(project_id, file_id, output_file_path)
     return output_file_path
 
-def _rename_file(project, file, new_file_name):
+
+def _rename_file(project, data_file, new_file_name):
     project_id = project.id
-    file_id = file.id
+    file_id = data_file.id
     results = api.file_rename(project_id, file_id, new_file_name)
     updated_file = make_object(results)
     updated_file._project = project
     return updated_file
 
+
 # General support functions
 
-def _decorate_object_with(object, attr_name, attr_value):
-    setattr(object, attr_name, attr_value)
-    return object
-
+def _decorate_object_with(obj, attr_name, attr_value):
+    setattr(obj, attr_name, attr_value)
+    return obj
