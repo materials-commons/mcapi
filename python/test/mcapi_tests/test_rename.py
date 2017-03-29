@@ -89,7 +89,6 @@ class TestRename(unittest.TestCase):
         self.assertEqual(updated_file.name, new_name)
         self.assertEqual(updated_file._project, self.project)
         directory_list = self.project.get_directory_list(self.directory_for_rename_name)
-        print (directory_list)
         directory = directory_list[-1]
         self.assertEqual(directory.id, self.directory_for_rename.id)
         self.assertEqual(directory._project, self.project)
@@ -98,4 +97,3 @@ class TestRename(unittest.TestCase):
         self.assertEqual(probe_file.id, test_file.id)
         self.assertEqual(probe_file.name, new_name)
         self.assertEqual(probe_file._project, self.project)
-        print (file_list)
