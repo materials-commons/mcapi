@@ -97,3 +97,11 @@ class TestRename(unittest.TestCase):
         self.assertEqual(probe_file.id, test_file.id)
         self.assertEqual(probe_file.name, new_name)
         self.assertEqual(probe_file._project, self.project)
+
+    def test_rename_directory(self):
+        directory = self.directory_b
+        self.assertEqual(directory._project, self.project)
+        self.assertEqual(directory.name, self.project.name + self.test_dir_path_b)
+        self.assertEqual(self.directory_c.name, self.project.name + self.test_dir_path_c)
+        updatedDirectory = directory.rename("XX")
+        self.assertEqual(updatedDirectory.path, self.project.name + "/TestForRename/A/XX")

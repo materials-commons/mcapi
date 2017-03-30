@@ -346,6 +346,19 @@ def directory_by_path(project_id, directory_id, path, remote=None):
     return post(remote.make_url_v2(api_url), data)
 
 
+def directory_rename(project_id, directory_id, new_name, remote=None):
+    if not remote:
+        remote = use_remote()
+    data = {
+        'rename': {
+            'new_name': new_name
+        }
+    }
+    api_url = "projects/" + project_id + \
+              "/directories/" + directory_id
+    return put(remote.make_url_v2(api_url), data)
+
+
 # file
 
 def file_upload(project_id, directory_id, file_name, input_path, remote=None):

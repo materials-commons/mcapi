@@ -498,6 +498,11 @@ class Directory(MCObject):
         if path:
             self.path = path
 
+    def rename(self, new_name):
+        dir_data = api.directory_rename(self._project.id, self.id, new_name)
+        directory = make_object(dir_data)
+        return directory
+
     def get_children(self):
         results = api.directory_by_id(self._project.id, self.id)
         ret = []
