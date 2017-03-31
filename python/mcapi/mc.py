@@ -134,6 +134,14 @@ class Project(MCObject):
     def process_special_objects(self):
         pass
 
+    def update(self, name, description=None):
+        if not description:
+            description = self.description
+        results = api.update_project(self.id, name, description)
+        project_id = results['id']
+        project = fetch_project_by_id(project_id)
+        return project
+
     def create_experiment(self, name, description):
         return _create_experiment(self, name, description)
 
@@ -500,8 +508,10 @@ class Directory(MCObject):
 
     def rename(self, new_name):
         dir_data = api.directory_rename(self._project.id, self.id, new_name)
-        directory = make_object(dir_data)
-        return directory
+        updated_directory = make_object(dir_data)
+        updated_directory._project = self._project;
+        updated_directory._parent = self._parent;
+        return updated_directory
 
     def get_children(self):
         results = api.directory_by_id(self._project.id, self.id)

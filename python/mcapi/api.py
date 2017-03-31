@@ -116,6 +116,16 @@ def fetch_project(project_id, remote=None):
     return get(remote.make_url_v2(api_url), remote=remote)
 
 
+def update_project(project_id, name, description, remote=None):
+    if not remote:
+        remote = use_remote()
+    data = {
+        "name": name,
+        "description": description
+    }
+    return put(remote.make_url_v2("projects/" + project_id), data)
+
+
 def fetch_project_sample_by_id(project_id, sample_id, remote=None):
     if not remote:
         remote = use_remote()
