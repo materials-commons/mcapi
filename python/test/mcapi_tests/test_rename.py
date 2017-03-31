@@ -1,4 +1,5 @@
 import unittest
+import pytest
 from random import randint
 from os import environ
 from os import path as os_path
@@ -105,3 +106,11 @@ class TestRename(unittest.TestCase):
         self.assertEqual(self.directory_c.name, self.project.name + self.test_dir_path_c)
         updatedDirectory = directory.rename("XX")
         self.assertEqual(updatedDirectory.path, self.project.name + "/TestForRename/A/XX")
+
+    def test_cannot_rename_top_level_directory(self):
+        top_directory = self.project.get_top_directory()
+        self.assertEqual(top_directory.path, self.project.name)
+        with pytest.raises(Exception):
+            updatedDirectory = top_directory.rename("XX")
+        top_directory = self.project.get_top_directory()
+        self.assertEqual(top_directory.path, self.project.name)
