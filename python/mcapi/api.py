@@ -369,17 +369,16 @@ def directory_rename(project_id, directory_id, new_name, remote=None):
     return put(remote.make_url_v2(api_url), data)
 
 
-def directory_move(project_id, old_directory_id, new_directory_id, file_id, remote=None):
+def directory_move(project_id, directory_id, new_directory_id, remote=None):
     if not remote:
         remote = use_remote()
     data = {
         'move': {
-            'old_directory_id': old_directory_id,
             'new_directory_id': new_directory_id
         }
     }
     api_url = "projects/" + project_id + \
-              "/files/" + file_id
+              "/directories/" + directory_id
     return put(remote.make_url_v2(api_url), data)
 
 
@@ -442,3 +441,18 @@ def file_rename(project_id, file_id, new_file_name, remote=None):
     api_url = "projects/" + project_id + \
               "/files/" + file_id
     return put(remote.make_url_v2(api_url), data)
+
+
+def file_move(project_id, old_directory_id, new_directory_id, file_id, remote=None):
+    if not remote:
+        remote = use_remote()
+    data = {
+        'move': {
+            'old_directory_id': old_directory_id,
+            'new_directory_id': new_directory_id
+        }
+    }
+    api_url = "projects/" + project_id + \
+              "/files/" + file_id
+    return put(remote.make_url_v2(api_url), data)
+

@@ -513,6 +513,15 @@ class Directory(MCObject):
         updated_directory._parent_id = self._parent_id
         return updated_directory
 
+    def move(self, new_directory):
+        project_id = self._project.id
+        new_directory_id = new_directory.id
+        results = api.directory_move(project_id, self.id, new_directory.id)
+        updated_directory = make_object(results)
+        updated_directory._project = self._project
+        updated_directory._parent_id = new_directory_id
+        return updated_directory
+
     def get_children(self):
         results = api.directory_by_id(self._project.id, self.id)
         ret = []
@@ -642,7 +651,7 @@ class File(MCObject):
         project_id = self._project.id
         old_directory_id = self._directory_id
         new_directory_id = new_directory.id
-        results = api.directory_move(project_id, old_directory_id, new_directory.id, self.id)
+        results = api.file_move(project_id, old_directory_id, new_directory.id, self.id)
         updated_file = make_object(results)
         updated_file._project = self._project
         updated_file._directory_id = new_directory_id
