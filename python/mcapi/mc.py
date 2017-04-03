@@ -173,7 +173,7 @@ class Project(MCObject):
     def add_file_using_directory(self, directory, file_name, local_input_path):
         uploaded_file = _create_file_with_upload(self, directory, file_name, local_input_path)
         uploaded_file._project = self
-        uploaded_file._parent = directory
+        uploaded_file._directory_id = directory.id
         return uploaded_file
 
     def fetch_experiments(self):
@@ -485,7 +485,7 @@ class Directory(MCObject):
 
         # additional fields
         self._project = None
-        self._parent = None
+        self._parent_id = None
 
         # NOTE: children are not stored locally, but always fetch from remote!
         # see self.getChild(name)
@@ -510,7 +510,7 @@ class Directory(MCObject):
         dir_data = api.directory_rename(self._project.id, self.id, new_name)
         updated_directory = make_object(dir_data)
         updated_directory._project = self._project
-        updated_directory._parent = self._parent
+        updated_directory._parent_id = self._parent_id
         return updated_directory
 
     def get_children(self):
@@ -520,10 +520,10 @@ class Directory(MCObject):
             its_type = dir_or_file['otype']
             if its_type == 'file':
                 obj = File(data=dir_or_file)
-                obj._directory = self
+                obj._directory_id = self.id
             if its_type == 'directory':
                 obj = Directory(data=dir_or_file)
-                obj._parent = self
+                obj._parent_id = self.id
             obj._project = self._project
             ret.append(obj)
         return ret
@@ -535,7 +535,7 @@ class Directory(MCObject):
         for dir_data in results['dirs']:
             directory = make_object(dir_data)
             directory._project = self._project
-            directory._parent = parent
+            directory._parent_id = parent.id
             parent = directory
             dir_list.append(directory)
         return dir_list
@@ -603,7 +603,7 @@ class File(MCObject):
 
         # additional fields
         self._project = None
-        self._directory = None
+        self._directory_id = None
 
         if not data:
             data = {}
@@ -640,12 +640,12 @@ class File(MCObject):
 
     def move(self, new_directory):
         project_id = self._project.id
-        old_directory_id = self._directory.id
+        old_directory_id = self._directory_id
         new_directory_id = new_directory.id
         results = api.directory_move(project_id, old_directory_id, new_directory.id, self.id)
         updated_file = make_object(results)
         updated_file._project = self._project
-        updated_file._directory = _fetch_directory(self._project,new_directory_id)
+        updated_file._directory_id = new_directory_id
         return updated_file
 
 

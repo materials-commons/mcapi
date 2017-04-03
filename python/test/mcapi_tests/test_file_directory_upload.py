@@ -204,7 +204,7 @@ class TestFileDirectoryUpload(unittest.TestCase):
         for file_name in ['TopLevel.txt', 'A.txt', 'B1.txt', 'B2.txt', 'C.txt']:
             self.assertTrue(file_name in file_table)
 
-        base_dir_name = self.base_project_name + '/' + directory_name + '/'
+        base_dir_name = '/' + directory_name + '/'
 
         name_path_list = [
             ['TopLevel.txt', base_dir_name + 'test_upload_dir'],
@@ -218,7 +218,9 @@ class TestFileDirectoryUpload(unittest.TestCase):
             file_name = name_path[0]
             path = name_path[1]
             test_file = file_table[file_name]
-            self.assertEqual(test_file._parent.name, path)
+            directory_list = project.get_directory_list(path)
+            directory = directory_list[-1]
+            self.assertEqual(test_file._directory_id, directory.id)
 
         directory = base_directory
         children = directory.get_children()
