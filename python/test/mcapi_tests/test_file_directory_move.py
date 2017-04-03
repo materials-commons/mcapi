@@ -1,5 +1,4 @@
 import unittest
-import pytest
 from random import randint
 from os import environ
 from os import path as os_path
@@ -56,6 +55,16 @@ class TestMove(unittest.TestCase):
                 cls.original_filename,
                 cls.file_path
             )
+            cls.test_file_c = project.add_file_using_directory(
+                cls.directory_c,
+                cls.original_filename,
+                cls.file_path
+            )
+            cls.test_file_d = project.add_file_using_directory(
+                cls.directory_d,
+                cls.original_filename,
+                cls.file_path
+            )
 
     def test_is_setup_correctly(self):
         self.assertTrue('TEST_DATA_DIR' in environ)
@@ -83,8 +92,8 @@ class TestMove(unittest.TestCase):
         self.assertEqual(directory_list[3].name, self.project.name + self.test_dir_path_c)
 
         file = self.test_file
-        self.assertEqual(file._directory.id, self.directory_for_file_move.id);
-        child_list = self.directory_for_file_move.get_children();
+        self.assertEqual(file._directory.id, self.directory_for_file_move.id)
+        child_list = self.directory_for_file_move.get_children()
         probe = child_list[0]
         self.assertEqual(file.id,probe.id)
         self.assertEqual(file.name,probe.name)
@@ -115,9 +124,31 @@ class TestMove(unittest.TestCase):
         self.assertEqual(directory.name, self.project.name + self.test_dir_path_b)
         self.assertEqual(target.name, self.project.name + self.test_dir_path_e)
         updatedDirectory = directory.move(target)
-        self.assertEqual(updatedDirectory.path, self.project.name + "/TestFormove/A/E/C")
+        self.assertEqual(updatedDirectory.path, self.project.name + "/TestForMove/A/E/B")
         self.assertEqual(updatedDirectory._project, self.project)
         self.assertEqual(updatedDirectory._parent_id,self.directory_e.id)
+
+        directory_list = self.project.get_directory_list("/TestForMove/A/E/B/C")
+        print(len(directory_list))
+        print(directory_list[-1].name)
+        self.assertEqual(directory_list[0].name, self.project.name + '/TestForMove')
+        self.assertEqual(directory_list[1].name, self.project.name + '/TestForMove/A')
+        self.assertEqual(directory_list[2].name, self.project.name + '/TestForMove/A/E')
+        self.assertEqual(directory_list[3].name, self.project.name + '/TestForMove/A/E/B')
+        self.assertEqual(directory_list[4].name, self.project.name + '/TestForMove/A/E/B/C')
+
+        print(directory_list[4].id)
+
+        directory_list = self.project.get_directory_list("/TestForMove/A/E/B/D")
+        print(len(directory_list))
+        print(directory_list[-1].name)
+        self.assertEqual(directory_list[0].name, self.project.name + '/TestForMove')
+        self.assertEqual(directory_list[1].name, self.project.name + '/TestForMove/A')
+        self.assertEqual(directory_list[2].name, self.project.name + '/TestForMove/A/E')
+        self.assertEqual(directory_list[3].name, self.project.name + '/TestForMove/A/E/B')
+        self.assertEqual(directory_list[4].name, self.project.name + '/TestForMove/A/E/B/D')
+
+        print(directory_list[4].id)
 
     # def test_cannot_move_top_level_directory(self):
     #     top_directory = self.project.get_top_directory()
