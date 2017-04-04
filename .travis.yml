@@ -98,6 +98,7 @@ before_script:
   - ./run.sh
   - popd
 
+  - gulp build-lib
   - gulp build-mcapi-server
   - sleep 5
   - node sbin/mcapi/mcapi.js -p $MCAPI_SERVER_PORT > ${MC_LOG_DIR}/mcapi.out.${SERVERTYPE} 2>&1&
@@ -110,15 +111,15 @@ before_script:
   - cp test/test_data/test_config_data/travisconfig.json ~/.materialscommons/config.json
 
   - sleep 20
-  - curl -o junk.txt http://mctest.localhost/api/v2/templates?apikey=totally-bogus
+#  - curl -o junk.txt http://mctest.localhost/api/v2/templates?apikey=totally-bogus
 #  - cat junk.txt
   - ps aux | grep nginx
 
 script:
-#  - coverage run --source mcapi,casm_mcapi,demo_project -m py.test test
-#  - coverage report -m
+  - coverage run --source mcapi,casm_mcapi,demo_project -m py.test test
+  - coverage report -m
 
 after_failure:
-#  - echo ${MC_LOG_DIR}/mcapi.out.${SERVERTYPE}
-#  - cat ${MC_LOG_DIR}/mcapi.out.${SERVERTYPE}
+  - echo ${MC_LOG_DIR}/mcapi.out.${SERVERTYPE}
+  - cat ${MC_LOG_DIR}/mcapi.out.${SERVERTYPE}
  
