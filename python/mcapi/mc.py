@@ -510,7 +510,9 @@ class Directory(MCObject):
         dir_data = api.directory_rename(self._project.id, self.id, new_name)
         updated_directory = make_object(dir_data)
         updated_directory._project = self._project
-        updated_directory._parent_id = self._parent_id
+        if not updated_directory._parent_id:
+            console.log("setting parent_id")
+            updated_directory._parent_id = new_directory_id
         return updated_directory
 
     def move(self, new_directory):
@@ -519,7 +521,9 @@ class Directory(MCObject):
         results = api.directory_move(project_id, self.id, new_directory.id)
         updated_directory = make_object(results)
         updated_directory._project = self._project
-        updated_directory._parent_id = new_directory_id
+        if not updated_directory._parent_id:
+            console.log("setting parent_id")
+            updated_directory._parent_id = new_directory_id
         return updated_directory
 
     def get_children(self):
@@ -544,7 +548,9 @@ class Directory(MCObject):
         for dir_data in results['dirs']:
             directory = make_object(dir_data)
             directory._project = self._project
-            directory._parent_id = parent.id
+            if not directory._parent_id:
+                console.log("setting parent_id")
+                directory._parent_id = parent.id
             parent = directory
             dir_list.append(directory)
         return dir_list
@@ -570,7 +576,8 @@ class Directory(MCObject):
         return result
 
     def process_special_objects(self):
-        pass
+        if self.parent:
+            self.parent_id = self.parent
 
 
 def make_dir_tree_table(base_path, dir_name, relative_base, table_so_far):
