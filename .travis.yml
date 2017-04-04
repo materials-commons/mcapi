@@ -116,8 +116,9 @@ before_script:
   - ps aux | grep nginx
 
 script:
-  - coverage run --source mcapi,casm_mcapi,demo_project -m py.test test
-  - coverage report -m
+  - pytest test
+#  - coverage run --source mcapi,casm_mcapi,demo_project -m py.test test
+#  - coverage report -m
 
 after_failure:
   - echo ${MC_LOG_DIR}/mcapi.out.${SERVERTYPE}
