@@ -25,9 +25,8 @@ class TestRename(unittest.TestCase):
         project = create_project(cls.project_name, description)
         cls.project_id = project.id
         cls.project = project
-        print ''
-        print project.name
 
+        cls.test_base_path = "/TestForRename"
         cls.top_directory = project.get_top_directory()
         cls.test_dir_path_a = "/TestForRename/A"
         cls.directory_a = project.add_directory(cls.test_dir_path_a)
@@ -53,12 +52,17 @@ class TestRename(unittest.TestCase):
         self.assertEqual(self.directory_a.name, self.project.name + self.test_dir_path_a)
         self.assertEqual(self.directory_b.name, self.project.name + self.test_dir_path_b)
 
-        directory_list = self.project.get_directory_list(self.test_dir_path_c)
+        directory_list = self.project.get_all_directories()
         self.assertIsNotNone(directory_list)
-        self.assertEqual(len(directory_list), 4)
-        self.assertEqual(directory_list[1].name, self.project.name + self.test_dir_path_a)
-        self.assertEqual(directory_list[2].name, self.project.name + self.test_dir_path_b)
-        self.assertEqual(directory_list[3].name, self.project.name + self.test_dir_path_c)
+        self.assertEqual(len(directory_list), 8)
+        self.assertEqual(directory_list[0].name, self.project.name)
+        self.assertEqual(directory_list[1].name, self.project.name + self.test_base_path)
+        self.assertEqual(directory_list[2].name, self.project.name + self.test_dir_path_a)
+        self.assertEqual(directory_list[3].name, self.project.name + self.test_dir_path_b)
+        self.assertEqual(directory_list[4].name, self.project.name + self.test_dir_path_c)
+        self.assertEqual(directory_list[5].name, self.project.name + self.test_dir_path_d)
+        self.assertEqual(directory_list[6].name, self.project.name + self.test_dir_path_e)
+        self.assertEqual(directory_list[7].name, self.project.name + self.test_dir_path_f)
 
     def test_rename_project(self):
         top_directory = self.project.get_top_directory()
@@ -71,9 +75,14 @@ class TestRename(unittest.TestCase):
         self.assertEqual(top_directory.path, project_name)
         self.assertEqual(project_name, new_name)
 
-        directory_list = updated_project.get_directory_list(self.test_dir_path_c)
+        directory_list = self.project.get_all_directories()
         self.assertIsNotNone(directory_list)
-        self.assertEqual(len(directory_list), 4)
-        self.assertEqual(directory_list[1].name, project_name + self.test_dir_path_a)
-        self.assertEqual(directory_list[2].name, project_name + self.test_dir_path_b)
-        self.assertEqual(directory_list[3].name, project_name + self.test_dir_path_c)
+        self.assertEqual(len(directory_list), 8)
+        self.assertEqual(directory_list[0].name, project_name)
+        self.assertEqual(directory_list[1].name, project_name + self.test_base_path)
+        self.assertEqual(directory_list[2].name, project_name + self.test_dir_path_a)
+        self.assertEqual(directory_list[3].name, project_name + self.test_dir_path_b)
+        self.assertEqual(directory_list[4].name, project_name + self.test_dir_path_c)
+        self.assertEqual(directory_list[5].name, project_name + self.test_dir_path_d)
+        self.assertEqual(directory_list[6].name, project_name + self.test_dir_path_e)
+        self.assertEqual(directory_list[7].name, project_name + self.test_dir_path_f)

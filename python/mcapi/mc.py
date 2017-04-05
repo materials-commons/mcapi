@@ -162,10 +162,17 @@ class Project(MCObject):
         results = api.directory_by_id(self.id, "all")
         directories = []
         for item in results:
+            item['otype'] = 'directory'
             directory = make_object(item)
             directory._project = self
             directories.append(directory)
         return directories
+
+    def get_directory(self,directory_id):
+        results = api.directory_by_id(self.id, directory_id)
+        directory = make_object(results)
+        directory._project = self
+        return directory
 
     def create_directory_list(self, path):
         directory = self.get_top_directory()
@@ -884,7 +891,10 @@ def make_base_object_for_type(data):
         if object_type == 'sample':
             return Sample(data=data)
         if object_type == 'datadir':
-            return Directory(data=data)
+            print 'make_base_object', object_type
+            base_object = Directory(data=data)
+            print base_object
+            return base_object
         if object_type == 'directory':
             return Directory(data=data)
         if object_type == 'datafile':
