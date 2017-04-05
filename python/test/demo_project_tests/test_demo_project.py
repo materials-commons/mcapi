@@ -82,8 +82,8 @@ class TestDemoProject(unittest.TestCase):
         ]
 
         directory = project.get_directory_list(project_directory_path)[-1]
-        self.assertEqual(directory.otype,'datadir')
-        self.assertEqual(directory.name,project.name + project_directory_path)
+        self.assertEqual(directory.otype,'directory')
+        self.assertEqual(directory.path,project.name + project_directory_path)
 
         project_files = directory.get_children()
         self.assertEqual(len(project_files),len(filename_list))
