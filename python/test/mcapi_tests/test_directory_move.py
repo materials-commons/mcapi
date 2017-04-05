@@ -1,9 +1,6 @@
 import unittest
+import pytest
 from random import randint
-from os import environ
-from os import path as os_path
-from os.path import getsize
-from pathlib import Path
 from mcapi import set_remote_config_url, get_remote_config_url
 from mcapi import create_project
 
@@ -91,10 +88,10 @@ class TestDirectoryMove(unittest.TestCase):
         self.assertEqual(directory_list[6].name, self.project.name + "/TestForMove/A/E/B/D")
         self.assertEqual(directory_list[7].name, self.project.name + self.test_dir_path_f)
 
-    # def test_cannot_move_top_level_directory(self):
-    #     top_directory = self.project.get_top_directory()
-    #     self.assertEqual(top_directory.path, self.project.name)
-    #     with pytest.raises(Exception):
-    #         updatedDirectory = top_directory.move("XX")
-    #     top_directory = self.project.get_top_directory()
-    #     self.assertEqual(top_directory.path, self.project.name)
+    def test_cannot_move_top_level_directory(self):
+        top_directory = self.project.get_top_directory()
+        self.assertEqual(top_directory.path, self.project.name)
+        with pytest.raises(Exception):
+            updatedDirectory = top_directory.move("XX")
+        top_directory = self.project.get_top_directory()
+        self.assertEqual(top_directory.path, self.project.name)
