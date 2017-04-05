@@ -23,6 +23,8 @@ class TestDirectory(unittest.TestCase):
         cls.base_project = project
         cls.test_dir_path = "/TestDir1/TestDir2/TestDir3"
         cls.directory_list = cls.base_project.create_directory_list(cls.test_dir_path)
+        cls.another_path = "/TestDir1/TestDir2/TestDir4"
+        cls.base_project.create_directory_list(cls.another_path)
 
     def test_is_setup_correctly(self):
         self.assertEqual(get_remote_config_url(), url)
@@ -39,11 +41,25 @@ class TestDirectory(unittest.TestCase):
             path2 = path2[:-1]
         self.assertEqual(path1, path2)
 
-    def test_get_dirs_from_project(self):
+    def test_get_all_dirs_from_project(self):
+        base = self.base_project_name
         directory_list = self.base_project.get_all_directories()
+        self.assertEqual(len(directory_list),5)
+        self.assertEqual(directory_list[0].name, base)
+        self.assertEqual(directory_list[1].name, base + '/TestDir1')
+        self.assertEqual(directory_list[2].name, base + '/TestDir1/TestDir2')
+        self.assertEqual(directory_list[3].name, base + '/TestDir1/TestDir2/TestDir3')
+        self.assertEqual(directory_list[4].name, base + '/TestDir1/TestDir2/TestDir4')
+
+    def test_dirs_by_path(self):
+        top_directory = self.base_project.get_top_directory()
+        self.assertIsNotNone(top_directory)
+        self.assertEqual(top_directory.name,self.base_project.name)
+
+        directory_list = top_directory.get_descendant_list_by_path(self.test_dir_path)
         self.assertIsNotNone(directory_list)
         last_directory = directory_list[-1]
-        path1 = "/" + last_directory.name.split("/", 1)[1]
+        path1 = "/" + last_directory.path.split("/", 1)[1]
         path2 = self.test_dir_path
         if path2.endswith("/"):
             path2 = path2[:-1]

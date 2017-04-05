@@ -172,6 +172,7 @@ class Project(MCObject):
         results = api.directory_by_id(self.id, directory_id)
         directory = make_object(results)
         directory._project = self
+        directory.shallow = False
         return directory
 
     def create_directory_list(self, path):
@@ -567,6 +568,21 @@ class Directory(MCObject):
             dir_list.append(directory)
         return dir_list
 
+    def get_descendant_list_by_path(self, path):
+        all_directories = self._project.get_all_directories()
+        dir_list = []
+        parent = self
+        full_path = self._project.name + path
+        for directory in all_directories:
+            dir_path = directory.name
+            if full_path.startswith(dir_path):
+                directory = self._project.get_directory(directory.id)
+                if not directory._parent_id:
+                    directory._parent_id = parent.id
+                parent = directory
+                dir_list.append(directory)
+        return dir_list
+
     def add_file(self, file_name, input_path, verbose=False):
         if verbose:
             print "uploading:", os_path.relpath(input_path, getcwd()), " as:", file_name
@@ -891,9 +907,7 @@ def make_base_object_for_type(data):
         if object_type == 'sample':
             return Sample(data=data)
         if object_type == 'datadir':
-            print 'make_base_object', object_type
             base_object = Directory(data=data)
-            print base_object
             return base_object
         if object_type == 'directory':
             return Directory(data=data)
