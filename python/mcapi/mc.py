@@ -50,6 +50,7 @@ class MCObject(object):
             data = {}
 
         self.input_data = data
+        self.shallow = True
 
         attr = ['id', 'name', 'description', 'birthtime', 'mtime', 'otype', 'owner']
         for a in attr:
@@ -86,12 +87,12 @@ class MCObject(object):
             return
         if _has_key('property_set_id', data) and _has_key('name', data):
             return
-
-
+# These print statements for debugging cases where special processing case is missed
 # changed name of display function so that it will not interfere with searches
 #        prrint "MCObject: called process_special_objects - possible error?"
 #        if _has_key('otype',data): prrint "otype = ",data['otype']
 #        prrint "input_data = ", self.input_data
+
 
 class Project(MCObject):
     def __init__(self, name="", description="", remote_url="", data=None):
@@ -151,24 +152,33 @@ class Project(MCObject):
 
     def get_top_directory(self):
         if not self._top:
-            self._set_top_directory(_fetch_directory(self, "top"))
+            results = api.directory_by_id(self.id, "top")
+            directory = make_object(results)
+            directory._project = self
+            self._set_top_directory(directory)
         return self._top
 
-    def get_directory_list(self, path):
+    def get_all_directories(self):
+        results = api.directory_by_id(self.id, "all")
+        directories = []
+        for item in results:
+            directory = make_object(item)
+            directory._project = self
+            directories.append(directory)
+        return directories
+
+    def create_directory_list(self, path):
         directory = self.get_top_directory()
         if path == "/":
             return [directory]
         if path.endswith("/"):
             path = path[0:-1]
-        return directory.get_descendant_list_by_path(path)
+        return directory.create_descendant_list_by_path(path)
 
     def add_directory(self, path):
-        directory = self.get_directory_list(path)[-1]
+        directory = self.create_directory_list(path)[-1]
         directory._project = self
         return directory
-
-    def get_directory(self, path):
-        return self.get_directory_list(path)[-1]
 
     def add_file_using_directory(self, directory, file_name, local_input_path):
         uploaded_file = _create_file_with_upload(self, directory, file_name, local_input_path)
@@ -527,8 +537,8 @@ class Directory(MCObject):
             ret.append(obj)
         return ret
 
-    def get_descendant_list_by_path(self, path):
-        results = api.directory_by_path(self._project.id, self.id, path)
+    def create_descendant_list_by_path(self, path):
+        results = api.create_fetch_all_directories_on_path(self._project.id, self.id, path)
         dir_list = []
         parent = self
         for dir_data in results['dirs']:
@@ -552,7 +562,7 @@ class Directory(MCObject):
         result = []
         for relative_dir_path in dir_tree_table.keys():
             file_dict = dir_tree_table[relative_dir_path]
-            dirs = self.get_descendant_list_by_path(relative_dir_path)
+            dirs = self.create_descendant_list_by_path(relative_dir_path)
             directory = dirs[-1]
             for file_name in file_dict.keys():
                 input_path = file_dict[file_name]
@@ -1134,14 +1144,6 @@ def _create_samples(project, process, sample_names):
 
 def _fetch_sample_with_processes(project, sample):
     return make_object(api.fetch_sample_details(project.id, sample.id))
-
-
-# -- support function for Directory --
-def _fetch_directory(project, directory_id):
-    results = api.directory_by_id(project.id, directory_id)
-    directory = make_object(results)
-    directory._project = project
-    return directory
 
 
 # -- support functions for File --

@@ -344,7 +344,7 @@ def directory_by_id(project_id, directory_id, remote=None):
     return get(remote.make_url_v2(api_url))
 
 
-def directory_by_path(project_id, directory_id, path, remote=None):
+def create_fetch_all_directories_on_path(project_id, directory_id, path, remote=None):
     if not remote:
         remote = use_remote()
     data = {
