@@ -168,6 +168,10 @@ class Project(MCObject):
             directories.append(directory)
         return directories
 
+    def get_directory_list(self,path):
+        top_directory = self.get_top_directory()
+        return top_directory.get_descendant_list_by_path(path)
+
     def get_directory(self,directory_id):
         results = api.directory_by_id(self.id, directory_id)
         directory = make_object(results)
@@ -591,12 +595,19 @@ class Directory(MCObject):
 
     def add_directory_tree(self, dir_name, input_dir_path, verbose=False):
         if not os_path.isdir(input_dir_path):
-            return self
+            return None
+        if verbose:
+            name = self.path
+            if self.shallow:
+                name = self.name
+            print "base directory: ", name
         dir_tree_table = make_dir_tree_table(input_dir_path, dir_name, dir_name, {})
         result = []
         for relative_dir_path in dir_tree_table.keys():
             file_dict = dir_tree_table[relative_dir_path]
             dirs = self.create_descendant_list_by_path(relative_dir_path)
+            if verbose:
+                print "relitive directory: ", relative_dir_path
             directory = dirs[-1]
             for file_name in file_dict.keys():
                 input_path = file_dict[file_name]
