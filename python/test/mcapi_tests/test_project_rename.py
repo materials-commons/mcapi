@@ -69,6 +69,7 @@ class TestRename(unittest.TestCase):
         project_name = updated_project.name
         top_directory = updated_project.get_top_directory()
         self.assertEqual(top_directory.path, project_name)
+        self.assertEqual(project_name, new_name)
 
         directory_list = updated_project.get_directory_list(self.test_dir_path_c)
         self.assertIsNotNone(directory_list)

@@ -183,7 +183,7 @@ class Project(MCObject):
     def add_file_using_directory(self, directory, file_name, local_input_path):
         uploaded_file = _create_file_with_upload(self, directory, file_name, local_input_path)
         uploaded_file._project = self
-        uploaded_file._parent = directory
+        uploaded_file._directory_id = directory.id
         return uploaded_file
 
     def fetch_experiments(self):
@@ -495,7 +495,7 @@ class Directory(MCObject):
 
         # additional fields
         self._project = None
-        self._parent = None
+        self._parent_id = None
 
         # NOTE: children are not stored locally, but always fetch from remote!
         # see self.getChild(name)
@@ -519,8 +519,17 @@ class Directory(MCObject):
     def rename(self, new_name):
         dir_data = api.directory_rename(self._project.id, self.id, new_name)
         updated_directory = make_object(dir_data)
-        updated_directory._project = self._project;
-        updated_directory._parent = self._parent;
+        updated_directory._project = self._project
+        return updated_directory
+
+    def move(self, new_directory):
+        project_id = self._project.id
+        new_directory_id = new_directory.id
+        results = api.directory_move(project_id, self.id, new_directory.id)
+        updated_directory = make_object(results)
+        updated_directory._project = self._project
+        if not updated_directory._parent_id:
+            updated_directory._parent_id = new_directory_id
         return updated_directory
 
     def get_children(self):
@@ -530,10 +539,11 @@ class Directory(MCObject):
             its_type = dir_or_file['otype']
             if its_type == 'file':
                 obj = File(data=dir_or_file)
+                obj._directory_id = self.id
             if its_type == 'directory':
                 obj = Directory(data=dir_or_file)
+                obj._parent_id = self.id
             obj._project = self._project
-            obj._parent = self
             ret.append(obj)
         return ret
 
@@ -544,7 +554,8 @@ class Directory(MCObject):
         for dir_data in results['dirs']:
             directory = make_object(dir_data)
             directory._project = self._project
-            directory._parent = parent
+            if not directory._parent_id:
+                directory._parent_id = parent.id
             parent = directory
             dir_list.append(directory)
         return dir_list
@@ -570,7 +581,11 @@ class Directory(MCObject):
         return result
 
     def process_special_objects(self):
-        pass
+        data = self.input_data
+        if not data:
+            return
+        if _has_key('parent', data):
+            self.parent_id = data['parent']
 
 
 def make_dir_tree_table(base_path, dir_name, relative_base, table_so_far):
@@ -612,7 +627,7 @@ class File(MCObject):
 
         # additional fields
         self._project = None
-        self._directory = None
+        self._directory_id = None
 
         if not data:
             data = {}
@@ -640,7 +655,21 @@ class File(MCObject):
         return filepath
 
     def rename(self, new_file_name):
-        updated_file = _rename_file(self._project, self, new_file_name)
+        project_id = self._project.id
+        file_id = self.id
+        results = api.file_rename(project_id, file_id, new_file_name)
+        updated_file = make_object(results)
+        updated_file._project = self._project
+        return updated_file
+
+    def move(self, new_directory):
+        project_id = self._project.id
+        old_directory_id = self._directory_id
+        new_directory_id = new_directory.id
+        results = api.file_move(project_id, old_directory_id, new_directory.id, self.id)
+        updated_file = make_object(results)
+        updated_file._project = self._project
+        updated_file._directory_id = new_directory_id
         return updated_file
 
 
@@ -1162,15 +1191,6 @@ def _download_data_to_file(project, file_object, output_file_path):
     file_id = file_object.id
     output_file_path = api.file_download(project_id, file_id, output_file_path)
     return output_file_path
-
-
-def _rename_file(project, data_file, new_file_name):
-    project_id = project.id
-    file_id = data_file.id
-    results = api.file_rename(project_id, file_id, new_file_name)
-    updated_file = make_object(results)
-    updated_file._project = project
-    return updated_file
 
 
 # General support functions
