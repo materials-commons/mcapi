@@ -204,6 +204,16 @@ class Project(MCObject):
     def fetch_sample_by_id(self, sample_id):
         return _fetch_project_sample_by_id(self, sample_id)
 
+    def delete(self, dryRun=False):
+        results = None
+        if dryRun:
+            results = api.delete_project_dry_run(self.id)
+        else:
+            results = api.delete_project(self.id)
+        self.delete_tally = DeleteTally(data=results)
+        return self
+
+
 
 class Experiment(MCObject):
     def __init__(self, project_id=None, name=None, description=None,
@@ -1033,11 +1043,17 @@ def make_measurement_object(obj):
 
 class DeleteTally(object):
     def __init__(self, data=None):
-        # for delete experiment
-        attr = ['datasets', 'best_measure_history', 'processes', 'samples', 'experiment_notes',
-                'experiment_task_processes', 'experiment_tasks', 'notes', 'reviews', 'experiments']
-        for a in attr:
-            setattr(self, a, data.get(a, None))
+        if data.get('project'):
+            # for delete project
+            attr = ['files', 'processes', 'datasets', 'project', 'experiments', 'samples']
+            for a in attr:
+                setattr(self, a, data.get(a, None))
+        else:
+            # for delete experiment
+            attr = ['datasets', 'best_measure_history', 'processes', 'samples', 'experiment_notes',
+                    'experiment_task_processes', 'experiment_tasks', 'notes', 'reviews', 'experiments']
+            for a in attr:
+                setattr(self, a, data.get(a, None))
 
 
 # -- general support functions

@@ -22,7 +22,7 @@ class TestDemoProject(unittest.TestCase):
             'Lift 380 Casting Day  # 1', 'Casting L124', 'Sectioning of Casting L124',
             'EBSD SEM Data Collection - 5 mm plate', 'EPMA Data Collection - 5 mm plate - center'
         ]
-        
+
         builder = demo.DemoProject(host,self._make_test_dir_path(),mcapikey)
 
         table = builder._make_template_table()

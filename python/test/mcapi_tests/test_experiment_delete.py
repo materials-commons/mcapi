@@ -2,7 +2,7 @@ import unittest
 from os import environ
 from os import path as os_path
 from random import randint
-from mcapi import set_remote_config_url,fetch_project_by_id
+from mcapi import set_remote_config_url
 import demo_project as demo
 import assert_helper as aid
 
