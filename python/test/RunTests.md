@@ -54,12 +54,12 @@ To Test
 Prior to running the test you will need to set an environment varialbe TEST_DATA_DIR
 to point to the directory python/test/test_data. That is:
 ```
-  cd to the python top level directory of the mcapi repo
+  cd to the python top level directory of the python section of the mcapi repo
   source set_test_dir.sh
 ```
 
 ```
-  cd to the python top level directory of the mcapi repo
+  cd to the python top level directory of the python section of the mcapi repo
   pytest -rap --setup-show -s test
 ```
 
