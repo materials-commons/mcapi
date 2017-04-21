@@ -277,6 +277,16 @@ class Experiment(MCObject):
         self.processes = _fetch_processes_for_exeriment(self)
         return self
 
+    def delete(self, dryRun=False, deleteProcessesAndSamples=False):
+        results = None
+        if dryRun:
+            results = api.delete_experiment_dry_run(self.project.id, self.id)
+        elif deleteProcessesAndSamples:
+            results = api.delete_experiment_fully(self.project.id, self.id)
+        else:
+            results = api.delete_experiment(self.project.id, self.id)
+        self.delete_tally = DeleteTally(data=results)
+        return self
 
 class Process(MCObject):
     def __init__(self, name=None, description=None, project_id=None, process_type=None, process_name=None, data=None):
@@ -1020,6 +1030,14 @@ def make_measurement_object(obj):
         raise Exception("No Measurement Object, unrecognized otype = " + object_type, data)
     else:
         raise Exception("No Measurement Object, otype not defined", data)
+
+class DeleteTally(object):
+    def __init__(self, data=None):
+        # for delete experiment
+        attr = ['datasets', 'best_measure_history', 'processes', 'samples', 'experiment_notes',
+                'experiment_task_processes', 'experiment_tasks', 'notes', 'reviews', 'experiments']
+        for a in attr:
+            setattr(self, a, data.get(a, None))
 
 
 # -- general support functions

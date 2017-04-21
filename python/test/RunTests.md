@@ -65,5 +65,5 @@ to point to the directory python/test/test_data. That is:
 
 And to run test using an individual test class, for example:
 ```
-  pytest -rap --setup-show -s test/test_sample_associate.py::TestSampleAssociate  
+  pytest -rap --setup-show -s test/mcapi_tests/test_sample_associate.py::TestSampleAssociate  
 ```

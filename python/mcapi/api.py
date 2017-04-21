@@ -55,6 +55,13 @@ def put(restpath, data, remote=None):
         return r.json()
     r.raise_for_status()
 
+def delete(restpath, remote=None):
+    if not remote:
+        remote = use_remote()
+    r = requests.delete(restpath, params=remote.config.params, verify=False)
+    if r.status_code == requests.codes.ok:
+        return r.json()
+    r.raise_for_status()
 
 def disable_warnings():
     """Temporary fix to disable requests' InsecureRequestWarning"""
@@ -173,6 +180,23 @@ def fetch_experiment_processes(project_id, experiment_id, remote=None):
     api_url = "/projects/" + project_id + "/experiments/" + experiment_id + "/processes"
     return get(remote.make_url_v2(api_url))
 
+def delete_experiment(project_id, experiment_id, remote=None):
+    if not remote:
+        remote = use_remote()
+    api_url = "/projects/" + project_id + "/experiments/" + experiment_id
+    return delete(remote.make_url_v2(api_url))
+
+def delete_experiment_fully(project_id, experiment_id, remote=None):
+    if not remote:
+        remote = use_remote()
+    api_url = "/projects/" + project_id + "/experiments/" + experiment_id + "/delete/fully"
+    return delete(remote.make_url_v2(api_url))
+
+def delete_experiment_dry_run(project_id, experiment_id, remote=None):
+    if not remote:
+        remote = use_remote()
+    api_url = "/projects/" + project_id + "/experiments/" + experiment_id + "/delete/dryrun"
+    return get(remote.make_url_v2(api_url))
 
 # Process
 
