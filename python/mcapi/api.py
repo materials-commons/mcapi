@@ -55,6 +55,7 @@ def put(restpath, data, remote=None):
         return r.json()
     r.raise_for_status()
 
+
 def delete(restpath, remote=None):
     if not remote:
         remote = use_remote()
@@ -62,6 +63,7 @@ def delete(restpath, remote=None):
     if r.status_code == requests.codes.ok:
         return r.json()
     r.raise_for_status()
+
 
 def disable_warnings():
     """Temporary fix to disable requests' InsecureRequestWarning"""
@@ -139,11 +141,13 @@ def fetch_project_sample_by_id(project_id, sample_id, remote=None):
     api_url = "projects/" + project_id + "/samples/" + sample_id
     return get(remote.make_url_v2(api_url), remote=remote)
 
+
 def delete_project(project_id, remote=None):
     if not remote:
         remote = use_remote()
     api_url = "/projects/" + project_id
     return delete(remote.make_url_v2(api_url))
+
 
 def delete_project_dry_run(project_id, remote=None):
     if not remote:
@@ -192,11 +196,13 @@ def fetch_experiment_processes(project_id, experiment_id, remote=None):
     api_url = "/projects/" + project_id + "/experiments/" + experiment_id + "/processes"
     return get(remote.make_url_v2(api_url))
 
+
 def delete_experiment(project_id, experiment_id, remote=None):
     if not remote:
         remote = use_remote()
     api_url = "/projects/" + project_id + "/experiments/" + experiment_id
     return delete(remote.make_url_v2(api_url))
+
 
 def delete_experiment_fully(project_id, experiment_id, remote=None):
     if not remote:
@@ -204,11 +210,13 @@ def delete_experiment_fully(project_id, experiment_id, remote=None):
     api_url = "/projects/" + project_id + "/experiments/" + experiment_id + "/delete/fully"
     return delete(remote.make_url_v2(api_url))
 
+
 def delete_experiment_dry_run(project_id, experiment_id, remote=None):
     if not remote:
         remote = use_remote()
     api_url = "/projects/" + project_id + "/experiments/" + experiment_id + "/delete/dryrun"
     return get(remote.make_url_v2(api_url))
+
 
 # Process
 
@@ -369,12 +377,14 @@ def get_all_templates(remote=None):
     api_url = "templates"
     return get(remote.make_url_v2(api_url))
 
+
 # users
 def get_all_users(remote=None):
     if not remote:
         remote = use_remote()
     api_url = "users"
     return get(remote.make_url(api_url))
+
 
 # directory
 
@@ -497,4 +507,3 @@ def file_move(project_id, old_directory_id, new_directory_id, file_id, remote=No
     api_url = "projects/" + project_id + \
               "/files/" + file_id
     return put(remote.make_url_v2(api_url), data)
-
