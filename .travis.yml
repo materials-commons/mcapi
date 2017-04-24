@@ -87,6 +87,7 @@ install:
 
 
 before_script:
+  - ps aux | grep nginx
   - sudo cp ${TEST_DATA_DIR}/test_config_data/mctest.localhost.conf /etc/nginx/conf.d/
   - sudo nginx
   - cd $MC_CLONE_DIR
