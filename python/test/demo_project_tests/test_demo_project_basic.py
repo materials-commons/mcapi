@@ -167,7 +167,10 @@ class TestDemoProjectBasic(unittest.TestCase):
         return selected_sample
 
     def _get_file_from_project(self, project, directory_path, filename):
-        directory = project.get_directory(directory_path)
+        directory_list = project.get_directory_list(directory_path)
+        directory = directory_list[-1]
+        if directory.shallow:
+            directory = project.get_directory(directory.id)
         children = directory.get_children()
         selected_file = None
         for entry in children:

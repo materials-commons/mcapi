@@ -55,6 +55,13 @@ def put(restpath, data, remote=None):
         return r.json()
     r.raise_for_status()
 
+def delete(restpath, remote=None):
+    if not remote:
+        remote = use_remote()
+    r = requests.delete(restpath, params=remote.config.params, verify=False)
+    if r.status_code == requests.codes.ok:
+        return r.json()
+    r.raise_for_status()
 
 def disable_warnings():
     """Temporary fix to disable requests' InsecureRequestWarning"""
@@ -132,6 +139,18 @@ def fetch_project_sample_by_id(project_id, sample_id, remote=None):
     api_url = "projects/" + project_id + "/samples/" + sample_id
     return get(remote.make_url_v2(api_url), remote=remote)
 
+def delete_project(project_id, remote=None):
+    if not remote:
+        remote = use_remote()
+    api_url = "/projects/" + project_id
+    return delete(remote.make_url_v2(api_url))
+
+def delete_project_dry_run(project_id, remote=None):
+    if not remote:
+        remote = use_remote()
+    api_url = "/projects/" + project_id + "/delete/dryrun"
+    return get(remote.make_url_v2(api_url))
+
 
 # Experiment
 
@@ -173,6 +192,23 @@ def fetch_experiment_processes(project_id, experiment_id, remote=None):
     api_url = "/projects/" + project_id + "/experiments/" + experiment_id + "/processes"
     return get(remote.make_url_v2(api_url))
 
+def delete_experiment(project_id, experiment_id, remote=None):
+    if not remote:
+        remote = use_remote()
+    api_url = "/projects/" + project_id + "/experiments/" + experiment_id
+    return delete(remote.make_url_v2(api_url))
+
+def delete_experiment_fully(project_id, experiment_id, remote=None):
+    if not remote:
+        remote = use_remote()
+    api_url = "/projects/" + project_id + "/experiments/" + experiment_id + "/delete/fully"
+    return delete(remote.make_url_v2(api_url))
+
+def delete_experiment_dry_run(project_id, experiment_id, remote=None):
+    if not remote:
+        remote = use_remote()
+    api_url = "/projects/" + project_id + "/experiments/" + experiment_id + "/delete/dryrun"
+    return get(remote.make_url_v2(api_url))
 
 # Process
 
@@ -344,7 +380,7 @@ def directory_by_id(project_id, directory_id, remote=None):
     return get(remote.make_url_v2(api_url))
 
 
-def directory_by_path(project_id, directory_id, path, remote=None):
+def create_fetch_all_directories_on_path(project_id, directory_id, path, remote=None):
     if not remote:
         remote = use_remote()
     data = {

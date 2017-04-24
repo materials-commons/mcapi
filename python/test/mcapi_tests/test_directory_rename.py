@@ -25,9 +25,8 @@ class TestRename(unittest.TestCase):
         project = create_project(cls.project_name, description)
         cls.project_id = project.id
         cls.project = project
-        print ''
-        print project.name
 
+        cls.test_base_path = "/TestForRename"
         cls.top_directory = project.get_top_directory()
         cls.test_dir_path_a = "/TestForRename/A"
         cls.directory_a = project.add_directory(cls.test_dir_path_a)
@@ -42,29 +41,7 @@ class TestRename(unittest.TestCase):
         cls.test_dir_path_f = "/TestForRename/F"
         cls.directory_f = project.add_directory(cls.test_dir_path_f)
 
-        cls.directory_for_rename_name = "/FilesForRename"
-        cls.directory_for_rename = project.add_directory(cls.directory_for_rename_name)
-        if 'TEST_DATA_DIR' in environ:
-            test_path = os_path.abspath(environ['TEST_DATA_DIR'])
-            file_path = os_path.join(test_path, 'test_upload_data', 'fractal.jpg')
-            path = Path(file_path)
-            cls.file_path = str(path.absolute())
-            cls.byte_count = getsize(file_path)
-            cls.original_filename = "FileForRename.jpg"
-            cls.test_file = project.add_file_using_directory(
-                cls.directory_for_rename,
-                cls.original_filename,
-                cls.file_path
-            )
-
     def test_is_setup_correctly(self):
-        self.assertTrue('TEST_DATA_DIR' in environ)
-        self.assertIsNotNone(self.file_path)
-        self.assertTrue(os_path.isfile(self.file_path))
-        self.assertIsNotNone(self.test_file)
-        self.assertEqual(self.test_file.size, self.byte_count)
-        self.assertEqual(self.test_file.name, self.original_filename)
-
         self.assertEqual(get_remote_config_url(), url)
         self.assertIsNotNone(self.project)
         self.assertIsNotNone(self.project.name)
@@ -74,30 +51,25 @@ class TestRename(unittest.TestCase):
         self.assertEqual(self.top_directory.name, self.project.name)
         self.assertEqual(self.directory_a.name, self.project.name + self.test_dir_path_a)
         self.assertEqual(self.directory_b.name, self.project.name + self.test_dir_path_b)
+        self.assertEqual(self.directory_c.name, self.project.name + self.test_dir_path_c)
+        self.assertEqual(self.directory_d.name, self.project.name + self.test_dir_path_d)
+        self.assertEqual(self.directory_e.name, self.project.name + self.test_dir_path_e)
+        self.assertEqual(self.directory_f.name, self.project.name + self.test_dir_path_f)
 
-        directory_list = self.project.get_directory_list(self.test_dir_path_c)
+        directory_list = self.project.get_all_directories()
         self.assertIsNotNone(directory_list)
-        self.assertEqual(len(directory_list), 4)
-        self.assertEqual(directory_list[1].name, self.project.name + self.test_dir_path_a)
-        self.assertEqual(directory_list[2].name, self.project.name + self.test_dir_path_b)
-        self.assertEqual(directory_list[3].name, self.project.name + self.test_dir_path_c)
-
-    def test_rename_file(self):
-        test_file = self.test_file
-        new_name = "NewName.jpg"
-        updated_file = test_file.rename(new_name)
-        self.assertEqual(updated_file.id, test_file.id)
-        self.assertEqual(updated_file.name, new_name)
-        self.assertEqual(updated_file._project, self.project)
-        directory_list = self.project.get_directory_list(self.directory_for_rename_name)
-        directory = directory_list[-1]
-        self.assertEqual(directory.id, self.directory_for_rename.id)
-        self.assertEqual(directory._project, self.project)
-        file_list = directory.get_children()
-        probe_file = file_list[0]
-        self.assertEqual(probe_file.id, test_file.id)
-        self.assertEqual(probe_file.name, new_name)
-        self.assertEqual(probe_file._project, self.project)
+        print ''
+        for directory in directory_list:
+            print directory.name
+        self.assertEqual(len(directory_list), 8)
+        self.assertEqual(directory_list[0].name, self.project.name)
+        self.assertEqual(directory_list[1].name, self.project.name + self.test_base_path)
+        self.assertEqual(directory_list[2].name, self.project.name + self.test_dir_path_a)
+        self.assertEqual(directory_list[3].name, self.project.name + self.test_dir_path_b)
+        self.assertEqual(directory_list[4].name, self.project.name + self.test_dir_path_c)
+        self.assertEqual(directory_list[5].name, self.project.name + self.test_dir_path_d)
+        self.assertEqual(directory_list[6].name, self.project.name + self.test_dir_path_e)
+        self.assertEqual(directory_list[7].name, self.project.name + self.test_dir_path_f)
 
     def test_rename_directory(self):
         directory = self.directory_b
@@ -106,6 +78,21 @@ class TestRename(unittest.TestCase):
         self.assertEqual(self.directory_c.name, self.project.name + self.test_dir_path_c)
         updatedDirectory = directory.rename("XX")
         self.assertEqual(updatedDirectory.path, self.project.name + "/TestForRename/A/XX")
+
+        directory_list = self.project.get_all_directories()
+        self.assertIsNotNone(directory_list)
+        print ''
+        for directory in directory_list:
+            print directory.name
+        self.assertEqual(len(directory_list), 8)
+        self.assertEqual(directory_list[0].name, self.project.name)
+        self.assertEqual(directory_list[1].name, self.project.name + self.test_base_path)
+        self.assertEqual(directory_list[2].name, self.project.name + self.test_dir_path_a)
+        self.assertEqual(directory_list[3].name, self.project.name + '/TestForRename/A/E')
+        self.assertEqual(directory_list[4].name, self.project.name + '/TestForRename/A/XX')
+        self.assertEqual(directory_list[5].name, self.project.name + '/TestForRename/A/XX/C')
+        self.assertEqual(directory_list[6].name, self.project.name + '/TestForRename/A/XX/D')
+        self.assertEqual(directory_list[7].name, self.project.name + self.test_dir_path_f)
 
     def test_cannot_rename_top_level_directory(self):
         top_directory = self.project.get_top_directory()

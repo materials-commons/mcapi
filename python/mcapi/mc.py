@@ -50,6 +50,7 @@ class MCObject(object):
             data = {}
 
         self.input_data = data
+        self.shallow = True
 
         attr = ['id', 'name', 'description', 'birthtime', 'mtime', 'otype', 'owner']
         for a in attr:
@@ -86,12 +87,12 @@ class MCObject(object):
             return
         if _has_key('property_set_id', data) and _has_key('name', data):
             return
-
-
+# These print statements for debugging cases where special processing case is missed
 # changed name of display function so that it will not interfere with searches
 #        prrint "MCObject: called process_special_objects - possible error?"
 #        if _has_key('otype',data): prrint "otype = ",data['otype']
 #        prrint "input_data = ", self.input_data
+
 
 class Project(MCObject):
     def __init__(self, name="", description="", remote_url="", data=None):
@@ -151,24 +152,45 @@ class Project(MCObject):
 
     def get_top_directory(self):
         if not self._top:
-            self._set_top_directory(_fetch_directory(self, "top"))
+            results = api.directory_by_id(self.id, "top")
+            directory = make_object(results)
+            directory._project = self
+            self._set_top_directory(directory)
         return self._top
 
-    def get_directory_list(self, path):
+    def get_all_directories(self):
+        results = api.directory_by_id(self.id, "all")
+        directories = []
+        for item in results:
+            item['otype'] = 'directory'
+            directory = make_object(item)
+            directory._project = self
+            directories.append(directory)
+        return directories
+
+    def get_directory_list(self,path):
+        top_directory = self.get_top_directory()
+        return top_directory.get_descendant_list_by_path(path)
+
+    def get_directory(self,directory_id):
+        results = api.directory_by_id(self.id, directory_id)
+        directory = make_object(results)
+        directory._project = self
+        directory.shallow = False
+        return directory
+
+    def create_directory_list(self, path):
         directory = self.get_top_directory()
         if path == "/":
             return [directory]
         if path.endswith("/"):
             path = path[0:-1]
-        return directory.get_descendant_list_by_path(path)
+        return directory.create_descendant_list_by_path(path)
 
     def add_directory(self, path):
-        directory = self.get_directory_list(path)[-1]
+        directory = self.create_directory_list(path)[-1]
         directory._project = self
         return directory
-
-    def get_directory(self, path):
-        return self.get_directory_list(path)[-1]
 
     def add_file_using_directory(self, directory, file_name, local_input_path):
         uploaded_file = _create_file_with_upload(self, directory, file_name, local_input_path)
@@ -181,6 +203,16 @@ class Project(MCObject):
 
     def fetch_sample_by_id(self, sample_id):
         return _fetch_project_sample_by_id(self, sample_id)
+
+    def delete(self, dryRun=False):
+        results = None
+        if dryRun:
+            results = api.delete_project_dry_run(self.id)
+        else:
+            results = api.delete_project(self.id)
+        self.delete_tally = DeleteTally(data=results)
+        return self
+
 
 
 class Experiment(MCObject):
@@ -255,6 +287,16 @@ class Experiment(MCObject):
         self.processes = _fetch_processes_for_exeriment(self)
         return self
 
+    def delete(self, dryRun=False, deleteProcessesAndSamples=False):
+        results = None
+        if dryRun:
+            results = api.delete_experiment_dry_run(self.project.id, self.id)
+        elif deleteProcessesAndSamples:
+            results = api.delete_experiment_fully(self.project.id, self.id)
+        else:
+            results = api.delete_experiment(self.project.id, self.id)
+        self.delete_tally = DeleteTally(data=results)
+        return self
 
 class Process(MCObject):
     def __init__(self, name=None, description=None, project_id=None, process_type=None, process_name=None, data=None):
@@ -537,8 +579,8 @@ class Directory(MCObject):
             ret.append(obj)
         return ret
 
-    def get_descendant_list_by_path(self, path):
-        results = api.directory_by_path(self._project.id, self.id, path)
+    def create_descendant_list_by_path(self, path):
+        results = api.create_fetch_all_directories_on_path(self._project.id, self.id, path)
         dir_list = []
         parent = self
         for dir_data in results['dirs']:
@@ -550,6 +592,21 @@ class Directory(MCObject):
             dir_list.append(directory)
         return dir_list
 
+    def get_descendant_list_by_path(self, path):
+        all_directories = self._project.get_all_directories()
+        dir_list = []
+        parent = self
+        full_path = self._project.name + path
+        for directory in all_directories:
+            dir_path = directory.name
+            if full_path.startswith(dir_path):
+                directory = self._project.get_directory(directory.id)
+                if not directory._parent_id:
+                    directory._parent_id = parent.id
+                parent = directory
+                dir_list.append(directory)
+        return dir_list
+
     def add_file(self, file_name, input_path, verbose=False):
         if verbose:
             print "uploading:", os_path.relpath(input_path, getcwd()), " as:", file_name
@@ -558,12 +615,19 @@ class Directory(MCObject):
 
     def add_directory_tree(self, dir_name, input_dir_path, verbose=False):
         if not os_path.isdir(input_dir_path):
-            return self
+            return None
+        if verbose:
+            name = self.path
+            if self.shallow:
+                name = self.name
+            print "base directory: ", name
         dir_tree_table = make_dir_tree_table(input_dir_path, dir_name, dir_name, {})
         result = []
         for relative_dir_path in dir_tree_table.keys():
             file_dict = dir_tree_table[relative_dir_path]
-            dirs = self.get_descendant_list_by_path(relative_dir_path)
+            dirs = self.create_descendant_list_by_path(relative_dir_path)
+            if verbose:
+                print "relitive directory: ", relative_dir_path
             directory = dirs[-1]
             for file_name in file_dict.keys():
                 input_path = file_dict[file_name]
@@ -874,7 +938,8 @@ def make_base_object_for_type(data):
         if object_type == 'sample':
             return Sample(data=data)
         if object_type == 'datadir':
-            return Directory(data=data)
+            base_object = Directory(data=data)
+            return base_object
         if object_type == 'directory':
             return Directory(data=data)
         if object_type == 'datafile':
@@ -975,6 +1040,20 @@ def make_measurement_object(obj):
         raise Exception("No Measurement Object, unrecognized otype = " + object_type, data)
     else:
         raise Exception("No Measurement Object, otype not defined", data)
+
+class DeleteTally(object):
+    def __init__(self, data=None):
+        if data.get('project'):
+            # for delete project
+            attr = ['files', 'processes', 'datasets', 'project', 'experiments', 'samples']
+            for a in attr:
+                setattr(self, a, data.get(a, None))
+        else:
+            # for delete experiment
+            attr = ['datasets', 'best_measure_history', 'processes', 'samples', 'experiment_notes',
+                    'experiment_task_processes', 'experiment_tasks', 'notes', 'reviews', 'experiments']
+            for a in attr:
+                setattr(self, a, data.get(a, None))
 
 
 # -- general support functions
@@ -1163,14 +1242,6 @@ def _create_samples(project, process, sample_names):
 
 def _fetch_sample_with_processes(project, sample):
     return make_object(api.fetch_sample_details(project.id, sample.id))
-
-
-# -- support function for Directory --
-def _fetch_directory(project, directory_id):
-    results = api.directory_by_id(project.id, directory_id)
-    directory = make_object(results)
-    directory._project = project
-    return directory
 
 
 # -- support functions for File --

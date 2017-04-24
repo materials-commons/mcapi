@@ -19,8 +19,8 @@ class TestDemoProject(unittest.TestCase):
             'L124 - 5mm plate', 'L124 - 5mm plate - 3ST', 'L124 - tensil bar, gage'
         ]
         process_names = [
-            'Lift 380 Casting Day  # 1','Casting L124','Sectioning of Casting L124',
-            'EBSD SEM Data Collection - 5 mm plate','EPMA Data Collection - 5 mm plate - center'
+            'Lift 380 Casting Day  # 1', 'Casting L124', 'Sectioning of Casting L124',
+            'EBSD SEM Data Collection - 5 mm plate', 'EPMA Data Collection - 5 mm plate - center'
         ]
 
         builder = demo.DemoProject(host,self._make_test_dir_path(),mcapikey)
@@ -82,8 +82,8 @@ class TestDemoProject(unittest.TestCase):
         ]
 
         directory = project.get_directory_list(project_directory_path)[-1]
-        self.assertEqual(directory.otype,'datadir')
-        self.assertEqual(directory.name,project.name + project_directory_path)
+        self.assertEqual(directory.otype,'directory')
+        self.assertEqual(directory.path,project.name + project_directory_path)
 
         project_files = directory.get_children()
         self.assertEqual(len(project_files),len(filename_list))
