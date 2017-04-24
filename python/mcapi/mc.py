@@ -35,9 +35,9 @@ def get_process_from_id(project, experiment, process_id):
 
 # -- top level user function ---
 def get_all_users():
-    results = api.get_all_users();
-    users =
-    return user
+    results = api.get_all_users()
+    users = map(make_object, results)
+    return users
 
 # -- supporting classes
 
@@ -99,6 +99,19 @@ class MCObject(object):
 #        if _has_key('otype',data): prrint "otype = ",data['otype']
 #        prrint "input_data = ", self.input_data
 
+class User(MCObject):
+    def __init__(self, data=None):
+        # normally, from the data base
+        self.id = ""
+        self.fullname = ""
+        self.email = ""
+
+        # attr = ['id', 'name', 'description', 'birthtime', 'mtime', 'otype', 'owner']
+        super(User, self).__init__(data)
+
+        attr = ['fullname', 'email']
+        for a in attr:
+            setattr(self, a, data.get(a, None))
 
 class Project(MCObject):
     def __init__(self, name="", description="", remote_url="", data=None):
@@ -960,7 +973,7 @@ def make_base_object_for_type(data):
         else:
             return MCObject(data=data)
     else:
-        if _has_key('fullname',data)
+        if _has_key('fullname',data):
             return User(data=data)
         if _has_key('unit', data):
             return MCObject(data=data)
