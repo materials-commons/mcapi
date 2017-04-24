@@ -113,6 +113,10 @@ class User(MCObject):
         for a in attr:
             setattr(self, a, data.get(a, None))
 
+    def canAccess(self, project):
+        results = api.user_can_access_project(self.id, project.id, project.name)
+        return results
+
 class Project(MCObject):
     def __init__(self, name="", description="", remote_url="", data=None):
         # normally, from the data base

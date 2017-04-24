@@ -16,12 +16,9 @@ class TestUser(unittest.TestCase):
         me = None
         user_list = get_all_users()
 
-        print user_list
-
         for user in user_list:
             if (user.id == my_id):
                 me = user
-        print user.input_data
         self.assertIsNotNone(me)
         self.assertEqual(me.fullname, "Test User1")
 

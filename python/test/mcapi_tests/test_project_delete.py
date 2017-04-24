@@ -3,18 +3,20 @@ import pytest
 from os import environ
 from os import path as os_path
 from random import randint
-from mcapi import set_remote_config_url,fetch_project_by_id, list_projects
+from mcapi import set_remote_config_url, fetch_project_by_id, list_projects
+from mcapi import use_remote as use_remote, set_remote, get_all_users
 import demo_project as demo
 import assert_helper as aid
 
 url = 'http://mctest.localhost/api'
 
+
 def _fake_name(prefix):
     number = "%05d" % randint(0, 99999)
-    return prefix+number
+    return prefix + number
+
 
 class TestProjectDelete(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         set_remote_config_url(url)
@@ -32,8 +34,8 @@ class TestProjectDelete(unittest.TestCase):
 
         deleted_project = project.delete()
 
-        self.assertEqual(deleted_project.id,project.id)
-        self.assertEqual(deleted_project.delete_tally.project['id'],project.id)
+        self.assertEqual(deleted_project.id, project.id)
+        self.assertEqual(deleted_project.delete_tally.project['id'], project.id)
 
         self.assertEqual(len(deleted_project.delete_tally.files), 16)
         self.assertEqual(len(deleted_project.delete_tally.processes), 5)
@@ -55,8 +57,8 @@ class TestProjectDelete(unittest.TestCase):
 
         deleted_project = project.delete(dryRun=True)
 
-        self.assertEqual(deleted_project.id,project.id)
-        self.assertEqual(deleted_project.delete_tally.project['id'],project.id)
+        self.assertEqual(deleted_project.id, project.id)
+        self.assertEqual(deleted_project.delete_tally.project['id'], project.id)
 
         self.assertEqual(len(deleted_project.delete_tally.files), 16)
         self.assertEqual(len(deleted_project.delete_tally.processes), 5)
@@ -78,11 +80,40 @@ class TestProjectDelete(unittest.TestCase):
             project.delete()
 
         projects = list_projects()
-        self.assertEqual(len(projects),0)
+        self.assertEqual(len(projects), 0)
+
+    def test_only_owner_can_delete(self):
+        self.helper = aid.AssertHelper(self)
+
+        project = self._build_project()
+
+        another_user_id = 'another@test.mc'
+        another_user_key = 'another-bogus-account'
+
+        users = get_all_users()
+        user = None
+        for probe in users:
+            if probe.id == another_user_id:
+                user = probe
+        self.assertIsNotNone(user)
+
+        user.canAccess(project)
+
+        self._set_up_remote_for(another_user_key)
+
+        with pytest.raises(Exception):
+            deleted_project = project.delete()
+
+        self._set_up_remote_for(self.mcapikey)
+
+    def _set_up_remote_for(self, key):
+        remote = use_remote()
+        remote.config.mcapikey = key
+        remote.config.params = {'apikey': key}
+        set_remote(remote)
 
     def _build_project(self):
-
-        project_name = _fake_name("ExpDeleteTest")
+        project_name = _fake_name("ProjectDeleteTest")
         print ""
         print "Project name: " + project_name
 
@@ -115,4 +146,3 @@ class TestProjectDelete(unittest.TestCase):
         self.assertIsNotNone(test_path)
         self.assertTrue(os_path.isdir(test_path))
         return test_path
-

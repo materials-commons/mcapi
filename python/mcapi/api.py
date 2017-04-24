@@ -386,6 +386,17 @@ def get_all_users(remote=None):
     return get(remote.make_url(api_url))
 
 
+def user_can_access_project(user_id, project_id, project_title, remote=None):
+    if not remote:
+        remote = use_remote()
+    api_url = "access/new"
+    data = {
+        "user_id": user_id,
+        "project_id": project_id,
+        "project_name": project_title
+    }
+    return post(remote.make_url(api_url), data)
+
 # directory
 
 def directory_by_id(project_id, directory_id, remote=None):
