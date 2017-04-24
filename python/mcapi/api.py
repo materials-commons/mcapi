@@ -369,6 +369,12 @@ def get_all_templates(remote=None):
     api_url = "templates"
     return get(remote.make_url_v2(api_url))
 
+# users
+def get_all_users(remote=None):
+    if not remote:
+        remote = use_remote()
+    api_url = "users"
+    return get(remote.make_url(api_url))
 
 # directory
 

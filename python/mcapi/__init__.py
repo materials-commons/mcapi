@@ -3,6 +3,7 @@ from remote import Remote
 from api import set_remote_config_url, get_remote_config_url, set_remote, use_remote
 from mc import Project, Experiment, Process, Sample, Template, Directory, File
 from mc import list_projects, create_project, fetch_project_by_id
+from mc import get_all_users
 from mc import get_process_from_id
 from mc import get_all_templates
 

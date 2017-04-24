@@ -33,9 +33,13 @@ def get_process_from_id(project, experiment, process_id):
     process.experiment = experiment
     return process
 
+# -- top level user function ---
+def get_all_users():
+    results = api.get_all_users();
+    users =
+    return user
 
 # -- supporting classes
-
 
 class MCObject(object):
     def __init__(self, data=None):
@@ -87,6 +91,8 @@ class MCObject(object):
             return
         if _has_key('property_set_id', data) and _has_key('name', data):
             return
+
+
 # These print statements for debugging cases where special processing case is missed
 # changed name of display function so that it will not interfere with searches
 #        prrint "MCObject: called process_special_objects - possible error?"
@@ -168,11 +174,11 @@ class Project(MCObject):
             directories.append(directory)
         return directories
 
-    def get_directory_list(self,path):
+    def get_directory_list(self, path):
         top_directory = self.get_top_directory()
         return top_directory.get_descendant_list_by_path(path)
 
-    def get_directory(self,directory_id):
+    def get_directory(self, directory_id):
         results = api.directory_by_id(self.id, directory_id)
         directory = make_object(results)
         directory._project = self
@@ -212,7 +218,6 @@ class Project(MCObject):
             results = api.delete_project(self.id)
         self.delete_tally = DeleteTally(data=results)
         return self
-
 
 
 class Experiment(MCObject):
@@ -297,6 +302,7 @@ class Experiment(MCObject):
             results = api.delete_experiment(self.project.id, self.id)
         self.delete_tally = DeleteTally(data=results)
         return self
+
 
 class Process(MCObject):
     def __init__(self, name=None, description=None, project_id=None, process_type=None, process_name=None, data=None):
@@ -954,6 +960,8 @@ def make_base_object_for_type(data):
         else:
             return MCObject(data=data)
     else:
+        if _has_key('fullname',data)
+            return User(data=data)
         if _has_key('unit', data):
             return MCObject(data=data)
         if _has_key('starred', data):
@@ -1040,6 +1048,7 @@ def make_measurement_object(obj):
         raise Exception("No Measurement Object, unrecognized otype = " + object_type, data)
     else:
         raise Exception("No Measurement Object, otype not defined", data)
+
 
 class DeleteTally(object):
     def __init__(self, data=None):
