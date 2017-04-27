@@ -87,10 +87,10 @@ install:
 
 
 before_script:
-  - ps aux | grep nginx
+# Note: nginx appears to have been started on install - so, reload should work
   - sudo cp ${TEST_DATA_DIR}/test_config_data/mctest.localhost.conf /etc/nginx/conf.d/
-# Note: the following appears unnecessary as nginx is running, apperently, as soon as it is installed
-#  - sudo nginx
+#   - sudo nginx -s reload - testing guard on line 119
+  - sudo nginx -V
   - cd $MC_CLONE_DIR
   - rethinkdb --driver-port $MCDB_PORT --cluster-port $RETHINKDB_CLUSTER_PORT --http-port $RETHINKDB_HTTP_PORT --daemon
   - sleep 5
@@ -115,9 +115,9 @@ before_script:
   - cp test/test_data/test_config_data/travisconfig.json ~/.materialscommons/config.json
 
   - sleep 20
-#  - curl -o junk.txt http://mctest.localhost/api/v2/templates?apikey=totally-bogus
-#  - cat junk.txt
-  - ps aux | grep nginx
+# Note: guard to prevent tests if host is not available
+  - curl -o junk.txt http://mctest.localhost/api/v2/templates?apikey=totally-bogus
+  - cat junk.txt
 
 script:
   - pytest test
