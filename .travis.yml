@@ -57,9 +57,10 @@ install:
   - npm install -g node-gyp@3.5.0
   - npm install -g gulp
   - mkdir .materialscommons
-  - git clone -b testing-delete --depth 1 https://github.com/materials-commons/materialscommons.org.git
+  - git clone -b testing-delete --depth 3 https://github.com/materials-commons/materialscommons.org.git
 
   - pushd materialscommons.org
+  - git log -1
   - export MC_CLONE_DIR=`pwd`
   - yarn install
 
@@ -90,13 +91,8 @@ install:
 
 before_script:
 # Note: nginx appears to have been started on install - so, reload should work
-  - cat /etc/nginx/nginx.conf
-  - cat ${TEST_DATA_DIR}/test_config_data/mctest.localhost.conf
   - sudo cp ${TEST_DATA_DIR}/test_config_data/mctest.localhost.conf /etc/nginx/conf.d/
   - sudo nginx -s reload
-  - sudo nginx -V
-  - sudo nginx -h
-  - ls /etc/nginx/conf.d/
   - cd $MC_CLONE_DIR
   - rethinkdb --driver-port $MCDB_PORT --cluster-port $RETHINKDB_CLUSTER_PORT --http-port $RETHINKDB_HTTP_PORT --daemon
   - sleep 5
@@ -117,13 +113,11 @@ before_script:
   - pwd
   - pip install coverage
   - python setup.py install
-#  - python print_modules.py
   - cp test/test_data/test_config_data/travisconfig.json ~/.materialscommons/config.json
 
   - sleep 20
 # Note: guard to prevent tests if host is not available
-  - curl -o junk.txt http://mctest.localhost/api/v2/templates?apikey=totally-bogus
-  - cat junk.txt
+  - curl -o junk.txt http://mctest.localhost/api/v2/templates
   - grep 'otype' junk.txt
 
 script:
@@ -134,5 +128,5 @@ script:
 after_failure:
   - echo ${MC_LOG_DIR}/mcapi.out.${SERVERTYPE}
   - cat ${MC_LOG_DIR}/mcapi.out.${SERVERTYPE}
-  - cat /var/log/nginx/access.log
+  - sudo cat /var/log/nginx/access.log
  
