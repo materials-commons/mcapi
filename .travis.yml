@@ -90,11 +90,12 @@ install:
 
 before_script:
 # Note: nginx appears to have been started on install - so, reload should work
+  - cat /etc/nginx/nginx.conf
   - cat ${TEST_DATA_DIR}/test_config_data/mctest.localhost.conf
   - sudo cp ${TEST_DATA_DIR}/test_config_data/mctest.localhost.conf /etc/nginx/conf.d/
   - sudo nginx -s reload
   - sudo nginx -V
-  - sudo nginx -T
+  - sudo nginx -h
   - ls /etc/nginx/conf.d/
   - cd $MC_CLONE_DIR
   - rethinkdb --driver-port $MCDB_PORT --cluster-port $RETHINKDB_CLUSTER_PORT --http-port $RETHINKDB_HTTP_PORT --daemon
@@ -133,4 +134,5 @@ script:
 after_failure:
   - echo ${MC_LOG_DIR}/mcapi.out.${SERVERTYPE}
   - cat ${MC_LOG_DIR}/mcapi.out.${SERVERTYPE}
+  - cat /var/log/nginx/access.log
  
