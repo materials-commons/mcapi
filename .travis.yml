@@ -90,9 +90,12 @@ install:
 
 before_script:
 # Note: nginx appears to have been started on install - so, reload should work
-#   - sudo cp ${TEST_DATA_DIR}/test_config_data/mctest.localhost.conf /etc/nginx/conf.d/
-#  - sudo nginx -V
+  - cat ${TEST_DATA_DIR}/test_config_data/mctest.localhost.conf
+  - sudo cp ${TEST_DATA_DIR}/test_config_data/mctest.localhost.conf /etc/nginx/conf.d/
   - sudo nginx -s reload
+  - sudo nginx -V
+  - sudo nginx -T
+  - ls /etc/nginx/conf.d/
   - cd $MC_CLONE_DIR
   - rethinkdb --driver-port $MCDB_PORT --cluster-port $RETHINKDB_CLUSTER_PORT --http-port $RETHINKDB_HTTP_PORT --daemon
   - sleep 5
@@ -119,6 +122,7 @@ before_script:
   - sleep 20
 # Note: guard to prevent tests if host is not available
   - curl -o junk.txt http://mctest.localhost/api/v2/templates?apikey=totally-bogus
+  - cat junk.txt
   - grep 'otype' junk.txt
 
 script:
