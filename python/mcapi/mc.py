@@ -33,6 +33,13 @@ def get_all_users():
     return users
 
 
+# -- top level template function ---
+def get_all_templates():
+    templates_array = api.get_all_templates()
+    templates = map((lambda x: make_object(x)), templates_array)
+    return templates
+
+
 # -- supporting classes
 
 class MCObject(object):
@@ -153,7 +160,8 @@ class Project(MCObject):
     def process_special_objects(self):
         pass
 
-    # Project - basic methods
+    # Project - basic functions: rename, put, delete
+
     def rename(self, name, description=None):
         if not description:
             description = self.description
@@ -175,7 +183,8 @@ class Project(MCObject):
         self.delete_tally = DeleteTally(data=results)
         return self
 
-    # Project - Experiment-related methods
+    # Project - Experiment-related methods - basic: create, get_by_id, get_all (in context)
+
     def create_experiment(self, name, description):
         experiment_json_dict = api.create_experiment(self.id, name, description)
         experiment = make_object(experiment_json_dict)
@@ -192,7 +201,8 @@ class Project(MCObject):
         experiments = map((lambda x: _decorate_object_with(x, 'project', self)), experiments)
         return experiments
 
-    # Project - Dirctroy-related methods
+    # Project - Dirctroy-related methods - basic: create, get_by_id, get_all (in context)
+
     def created_directory(self, name, path):
         # TODO: Project.create_directory(name, path)
         pass
@@ -320,6 +330,8 @@ class Experiment(MCObject):
         if self.processes:
             self.processes = [make_object(s.input_data) for s in self.processes]
 
+    # Experiment - basic functions: rename, put, delete
+
     def create_process_from_template(self, template_id):
         return _create_process_from_template(self.project, self, template_id)
 
@@ -416,6 +428,8 @@ class Process(MCObject):
     def _transform_property(self, property):
         prop = make_property_object(property)
         return prop
+
+    # Process - basic functions: rename, put, delete
 
     def add_name(self, process_name):
         self.name = process_name
@@ -560,6 +574,8 @@ class Sample(MCObject):
         if self.properties:
             self.properties = [make_measured_property(p.input_data) for p in self.properties]
 
+    # Sample - basic functions: rename, put, delete
+
     def fetch_and_add_processes(self):
         filled_in_sample = _fetch_sample_with_processes(self.project, self)
         self.processes = filled_in_sample.processes
@@ -600,6 +616,8 @@ class Directory(MCObject):
             self.name = name
         if path:
             self.path = path
+
+    # directory - basic functions: rename, move, put, delete
 
     def rename(self, new_name):
         dir_data = api.directory_rename(self._project.id, self.id, new_name)
@@ -757,6 +775,8 @@ class File(MCObject):
     def process_special_objects(self):
         pass
 
+    # File - basic functions: rename, move, put, delete
+
     def download_file_content(self, local_download_file_path):
         filepath = _download_data_to_file(self._project, self, local_download_file_path)
         return filepath
@@ -794,10 +814,6 @@ class Template(MCObject):
         # - Template is truncated, for now, as we only need the id to create
         # - processes from a Template
         # ----
-
-
-def get_all_templates():
-    return _get_all_templates()
 
 
 class Measurement(MCObject):
@@ -1245,13 +1261,6 @@ def _set_measurement_for_process_samples(project, experiment, process,
         print "mcapi.mc._set_measurement_for_process_samples - unexpectedly failed"
         return None
     return get_process_from_id(project, experiment, process_id)
-
-
-# -- support funcitons for Template --
-def _get_all_templates():
-    templates_array = api.get_all_templates()
-    templates = map((lambda x: make_object(x)), templates_array)
-    return templates
 
 
 # -- support functions for Sample --
