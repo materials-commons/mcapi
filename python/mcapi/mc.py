@@ -351,9 +351,20 @@ class Experiment(MCObject):
         self.delete_tally = DeleteTally(data=results)
         return self
 
+    # Experiment - Process-related methods - basic: create, get_by_id, get_all (in context)
+
     def create_process_from_template(self, template_id):
         return _create_process_from_template(self.project, self, template_id)
 
+    def get_process_by_id(self, id):
+        # TODO: Experiment.get_process_by_id(id)
+        pass
+
+    def get_all_processes(self):
+        # TODO: Experiment.get_all_processes()
+        pass
+
+    # Experiment - additional function
     def decorate_with_samples(self):
         self.samples = _fetch_samples_for_experiment(self)
         return self
