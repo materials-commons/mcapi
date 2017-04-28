@@ -2,7 +2,7 @@ import unittest
 from os import environ
 from os import path as os_path
 from mcapi import create_project, Template
-from mcapi import list_projects
+from mcapi import get_all_projects
 from mcapi import set_remote_config_url, get_remote_config_url
 from mcapi import get_process_from_id
 
@@ -134,7 +134,7 @@ class TestDemoProjectBasic(unittest.TestCase):
     # Support methods
 
     def _get_project(self, project_name):
-        projects = list_projects()
+        projects = get_all_projects()
         project = None
         for p in projects:
             if p.name == project_name:
@@ -142,7 +142,7 @@ class TestDemoProjectBasic(unittest.TestCase):
         return project
 
     def _get_experiment(self, project, experiment_name):
-        experiments = project.fetch_experiments()
+        experiments = project.get_all_experiments()
         experiment = None
         for ex in experiments:
             if (ex.name == experiment_name):

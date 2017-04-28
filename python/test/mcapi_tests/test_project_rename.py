@@ -68,7 +68,7 @@ class TestRename(unittest.TestCase):
         top_directory = self.project.get_top_directory()
         self.assertEqual(top_directory.path, self.project.name)
         new_name = fake_name("RenamedProject-")
-        updated_project = self.project.update(new_name,description="This project renamed by test code");
+        updated_project = self.project.rename(new_name, description="This project renamed by test code")
 
         project_name = updated_project.name
         top_directory = updated_project.get_top_directory()

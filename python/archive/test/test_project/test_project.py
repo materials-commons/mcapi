@@ -33,7 +33,7 @@ class TestProject(unittest.TestCase):
   
   def clear_local_projects(self):
     # checking if test projects already exist locally
-    projs = mcapi.list_projects(self.remote)
+    projs = mcapi.get_all_projects(self.remote)
     for case in self.cases["project"]:
       id = get_id(case["proj"], projs)
       if id is not None:
@@ -45,7 +45,7 @@ class TestProject(unittest.TestCase):
     """
     Test mcapi.project.list_projects
     """
-    projs = mcapi.list_projects(self.remote)
+    projs = mcapi.get_all_projects(self.remote)
     self.assertTrue(len(projs))
   
   def test_project(self):
@@ -68,7 +68,7 @@ class TestProject(unittest.TestCase):
     # test if project is listed
     # test creating Project instance by id and cloning
     self.clear_tmp()
-    projs = mcapi.list_projects(self.remote)
+    projs = mcapi.get_all_projects(self.remote)
     for case in cases:
       projname = case["proj"]
       localpath = join(fixtures.tmp_dir, projname)
@@ -142,7 +142,7 @@ class TestProject(unittest.TestCase):
     self.clear_tmp()
   
   def test_project_walk(self):
-    projs = mcapi.list_projects(self.remote)
+      projs = mcapi.get_all_projects(self.remote)
     
     # walk 3 projects with 1 dir & 1 file (if possible)
     N_proj = 0

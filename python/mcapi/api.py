@@ -118,12 +118,11 @@ def create_project(name, description, remote=None):
     return post(remote.make_url_v2("projects"), data)
 
 
-def fetch_project(project_id, remote=None):
+def get_project_by_id(project_id, remote=None):
     if not remote:
         remote = use_remote()
     api_url = "projects/" + project_id
     return get(remote.make_url_v2(api_url), remote=remote)
-
 
 def update_project(project_id, name, description, remote=None):
     if not remote:
@@ -135,12 +134,11 @@ def update_project(project_id, name, description, remote=None):
     return put(remote.make_url_v2("projects/" + project_id), data)
 
 
-def fetch_project_sample_by_id(project_id, sample_id, remote=None):
+def get_project_sample_by_id(project_id, sample_id, remote=None):
     if not remote:
         remote = use_remote()
     api_url = "projects/" + project_id + "/samples/" + sample_id
     return get(remote.make_url_v2(api_url), remote=remote)
-
 
 def delete_project(project_id, remote=None):
     if not remote:

@@ -3,7 +3,7 @@ import pytest
 from os import environ
 from os import path as os_path
 from random import randint
-from mcapi import set_remote_config_url, fetch_project_by_id, list_projects
+from mcapi import set_remote_config_url, get_project_by_id, get_all_projects
 from mcapi import use_remote as use_remote, set_remote, get_all_users
 import demo_project as demo
 import assert_helper as aid
@@ -44,7 +44,7 @@ class TestProjectDelete(unittest.TestCase):
         self.assertEqual(len(deleted_project.delete_tally.samples), 7)
 
         with pytest.raises(Exception):
-            fetch_project_by_id(project.id)
+            get_project_by_id(project.id)
 
     def test_delete_dry_run(self):
         self.helper = aid.AssertHelper(self)
@@ -73,16 +73,16 @@ class TestProjectDelete(unittest.TestCase):
 
         self._build_project()
 
-        projects = list_projects()
+        projects = get_all_projects()
         self.assertTrue(len(projects) > 0)
 
         for project in projects:
             project.delete()
 
-        projects = list_projects()
+        projects = get_all_projects()
         self.assertEqual(len(projects), 0)
 
-    @pytest.mark.skip("server for get_all_users not availble on Travis for testing - change .travis.yml")
+    # @pytest.mark.skip("server for get_all_users not availble on Travis for testing - change .travis.yml")
     def test_only_owner_can_delete(self):
         self.helper = aid.AssertHelper(self)
 
@@ -133,7 +133,7 @@ class TestProjectDelete(unittest.TestCase):
         name = 'Demo Project'
         self.helper.confirm_demo_project_content(project, name, 1)
 
-        project = project.update(project_name)
+        project = project.rename(project_name)
         self.assertEqual(project.name, project_name)
 
         return project

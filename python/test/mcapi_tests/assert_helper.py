@@ -162,7 +162,7 @@ class AssertHelper():
         return project
 
     def _get_experiment(self, project, experiment_name):
-        experiments = project.fetch_experiments()
+        experiments = project.get_all_experiments()
         experiment = None
         for ex in experiments:
             if (ex.name == experiment_name):

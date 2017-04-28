@@ -34,7 +34,7 @@ class TestDemoProject(unittest.TestCase):
         project = builder.build_project()
 
         self.assertIsNotNone(project)
-        experiments = project.fetch_experiments()
+        experiments = project.get_all_experiments()
         self.assertEqual(len(experiments),1)
         experiment = experiments[0]
         self.assertIsNotNone(experiment)
@@ -94,7 +94,7 @@ class TestDemoProject(unittest.TestCase):
                     found_file = file
             self.assertIsNotNone(found_file, "Expecting to find file.name == " + name)
 
-        experiment = project.fetch_experiments()[0]
+        experiment = project.get_all_experiments()[0]
         experiment = experiment.fetch_and_add_processes()
         experiment = experiment.fetch_and_add_samples()
         processes = experiment.processes

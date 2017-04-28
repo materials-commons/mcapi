@@ -90,7 +90,7 @@ class TestExperimentDelete(unittest.TestCase):
 
         self.assertEqual(deleted_experiment.delete_tally.experiments[0],self.old_experiment.id)
 
-        experiments = project.fetch_experiments()
+        experiments = project.get_all_experiments()
         self.assertEqual(len(experiments),2)
 
         old_experiment = None
@@ -141,7 +141,7 @@ class TestExperimentDelete(unittest.TestCase):
         self.assertEqual(len(deleted_experiment.delete_tally.experiments), 1)
         self.assertEqual(deleted_experiment.delete_tally.experiments[0],self.old_experiment.id)
 
-        experiments = project.fetch_experiments()
+        experiments = project.get_all_experiments()
         self.assertEqual(len(experiments),1)
         self.assertEqual(experiments[0].id,self.new_experiment.id)
 
@@ -166,16 +166,16 @@ class TestExperimentDelete(unittest.TestCase):
         name = 'Demo Project'
         self.helper.confirm_demo_project_content(project, name, 1)
 
-        project = project.update(project_name)
+        project = project.rename(project_name)
         self.assertEqual(project.name, project_name)
 
-        experiments = project.fetch_experiments()
+        experiments = project.get_all_experiments()
         old_experiment_id = experiments[0].id
 
         new_experiment_name = "Test: Additional Experiment"
         project = self.helper.add_additional_experiment(project, new_experiment_name)
 
-        experiments = project.fetch_experiments()
+        experiments = project.get_all_experiments()
         old_experiment = None
         new_experiment = None
         for experiment in experiments:

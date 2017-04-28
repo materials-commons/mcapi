@@ -32,14 +32,14 @@ class TestDirectoryPathCreate(unittest.TestCase):
         self.assertEqual(self.base_project_id, self.base_project.id)
 
     def test_get_top_dir_by_path(self):
-        directory1 = self.base_project.create_directory_list("/")[0]
+        directory1 = self.base_project.create_or_get_all_directories_on_path("/")[0]
         directory2 = self.base_project.get_top_directory()
         self.assertEqual(directory1.id, directory2.id)
         self.assertEqual(directory1._project, self.base_project)
         self.assertEqual(directory2._project, self.base_project)
 
     def test_create_dir_path_project(self):
-        directory_list = self.base_project.create_directory_list(self.test_dir_path)
+        directory_list = self.base_project.create_or_get_all_directories_on_path(self.test_dir_path)
         self.assertIsNotNone(directory_list)
         last_directory = directory_list[-1]
         path1 = "/" + last_directory.name.split("/", 1)[1]

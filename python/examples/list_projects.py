@@ -5,14 +5,14 @@ import mcapi, os
 
 # list local projects
 print "\nLocal projects:"
-locals = mcapi.list_projects(remote=None)
+locals = mcapi.get_all_projects(remote=None)
 for p in locals:
   print "\n", p['name']
   for key, val in p.iteritems():
     print "  ", key, ":", val
   
 print "\n\nRemote projects:"
-remotes = mcapi.list_projects(mcapi.mcorg())
+remotes = mcapi.get_all_projects(mcapi.mcorg())
 # list remote projects
 for p in remotes:
   print "\n", p['name']

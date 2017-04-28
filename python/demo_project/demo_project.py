@@ -1,5 +1,5 @@
 from mcapi import create_project, get_all_templates
-from mcapi import list_projects
+from mcapi import get_all_projects
 from mcapi import get_process_from_id
 from mcapi import Remote, Config, set_remote, use_remote
 
@@ -19,7 +19,7 @@ class DemoProject:
         self.project_name = "Demo Project"
 
     def does_project_exist(self):
-        projects = list_projects()
+        projects = get_all_projects()
         project = None
         for p in projects:
             if p.name == self.project_name:
@@ -187,7 +187,7 @@ class DemoProject:
         return found_id
 
     def _get_or_create_project(self, project_name, project_description):
-        projects = list_projects()
+        projects = get_all_projects()
         project = None
         for p in projects:
             if p.name == project_name:
@@ -199,7 +199,7 @@ class DemoProject:
         return project
 
     def _get_or_create_experiment(self, project, experiment_name,experiment_description):
-        experiments = project.fetch_experiments()
+        experiments = project.get_all_experiments()
         experiment = None
         for ex in experiments:
             if (ex.name == experiment_name):

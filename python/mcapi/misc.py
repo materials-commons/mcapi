@@ -165,7 +165,7 @@ def _proj_config(path=None):
 def _fetch_project_by_id(id, remote=None):
     if remote is None:
         remote = mcapi.Remote()
-    results = mcapi.api.fetch_project(id, remote)
+    results = mcapi.api.get_project_by_id(id, remote)
     return mcapi.Project(data=results)
 
 def _local_to_remote_relpath(proj, local_path):
@@ -448,8 +448,8 @@ class CommonsCLIParser(object):
         
         # ignore 'mc proj'
         args = parser.parse_args(sys.argv[2:])
-        
-        projects = mcapi.list_projects()
+
+        projects = mcapi.get_all_projects()
         
         current = None
         if _proj_path() is not None:

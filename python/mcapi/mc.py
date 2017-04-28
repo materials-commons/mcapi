@@ -6,7 +6,19 @@ from os import getcwd
 
 
 # -- top level project functions --
-def list_projects():
+def create_project(name, description):
+    results = api.create_project(name, description)
+    project_id = results['id']
+    project = get_project_by_id(project_id)
+    return project
+
+
+def get_project_by_id(project_id):
+    results = api.get_project_by_id(project_id)
+    return Project(data=results)
+
+
+def get_all_projects():
     results = api.projects()
     projects = []
     for r in results:
@@ -14,30 +26,12 @@ def list_projects():
     return projects
 
 
-def create_project(name, description):
-    results = api.create_project(name, description)
-    project_id = results['id']
-    project = fetch_project_by_id(project_id)
-    return project
-
-
-def fetch_project_by_id(project_id):
-    results = api.fetch_project(project_id)
-    return Project(data=results)
-
-
-def get_process_from_id(project, experiment, process_id):
-    results = api.get_process_from_id(project.id, experiment.id, process_id)
-    process = make_object(results)
-    process.project = project
-    process.experiment = experiment
-    return process
-
 # -- top level user function ---
 def get_all_users():
     results = api.get_all_users()
     users = map(make_object, results)
     return users
+
 
 # -- supporting classes
 
@@ -117,6 +111,7 @@ class User(MCObject):
         results = api.user_can_access_project(self.id, project.id, project.name)
         return results
 
+
 class Project(MCObject):
     def __init__(self, name="", description="", remote_url="", data=None):
         # normally, from the data base
@@ -158,16 +153,63 @@ class Project(MCObject):
     def process_special_objects(self):
         pass
 
-    def update(self, name, description=None):
+    # Project - basic methods
+    def rename(self, name, description=None):
         if not description:
             description = self.description
         results = api.update_project(self.id, name, description)
         project_id = results['id']
-        project = fetch_project_by_id(project_id)
+        project = get_project_by_id(project_id)
         return project
 
+    def put(self):
+        # TODO: Project.put()
+        pass
+
+    def delete(self, dryRun=False):
+        results = None
+        if dryRun:
+            results = api.delete_project_dry_run(self.id)
+        else:
+            results = api.delete_project(self.id)
+        self.delete_tally = DeleteTally(data=results)
+        return self
+
+    # Project - Experiment-related methods
     def create_experiment(self, name, description):
-        return _create_experiment(self, name, description)
+        experiment_json_dict = api.create_experiment(self.id, name, description)
+        experiment = make_object(experiment_json_dict)
+        experiment.project = self
+        return experiment
+
+    def get_experiment_by_id(self, id):
+        # TODO: Project.get_experiment_by_id(id)
+        pass
+
+    def get_all_experiments(self):
+        list_results = api.fetch_experiments(self.id)
+        experiments = map((lambda x: make_object(x)), list_results)
+        experiments = map((lambda x: _decorate_object_with(x, 'project', self)), experiments)
+        return experiments
+
+    # Project - Dirctroy-related methods
+    def created_directory(self, name, path):
+        # TODO: Project.create_directory(name, path)
+        pass
+
+    def get_directory_by_id(self, id):
+        # TODO: Project.get_dirctroy_by_id(id)
+        pass
+
+    def get_all_directories(self):
+        results = api.directory_by_id(self.id, "all")
+        directories = []
+        for item in results:
+            item['otype'] = 'directory'
+            directory = make_object(item)
+            directory._project = self
+            directories.append(directory)
+        return directories
 
     def _set_top_directory(self, directory):
         self._top = directory
@@ -181,16 +223,6 @@ class Project(MCObject):
             self._set_top_directory(directory)
         return self._top
 
-    def get_all_directories(self):
-        results = api.directory_by_id(self.id, "all")
-        directories = []
-        for item in results:
-            item['otype'] = 'directory'
-            directory = make_object(item)
-            directory._project = self
-            directories.append(directory)
-        return directories
-
     def get_directory_list(self, path):
         top_directory = self.get_top_directory()
         return top_directory.get_descendant_list_by_path(path)
@@ -202,7 +234,7 @@ class Project(MCObject):
         directory.shallow = False
         return directory
 
-    def create_directory_list(self, path):
+    def create_or_get_all_directories_on_path(self, path):
         directory = self.get_top_directory()
         if path == "/":
             return [directory]
@@ -211,7 +243,9 @@ class Project(MCObject):
         return directory.create_descendant_list_by_path(path)
 
     def add_directory(self, path):
-        directory = self.create_directory_list(path)[-1]
+        # TODO: Project.add_directory(path) - refactor this should check for and fail if path does not exist
+        # TODO: Project.add_directory(path) - refactor add optional flag to create parent path if it does note exist
+        directory = self.create_or_get_all_directories_on_path(path)[-1]
         directory._project = self
         return directory
 
@@ -221,20 +255,8 @@ class Project(MCObject):
         uploaded_file._directory_id = directory.id
         return uploaded_file
 
-    def fetch_experiments(self):
-        return _fetch_experiments(self)
-
     def fetch_sample_by_id(self, sample_id):
         return _fetch_project_sample_by_id(self, sample_id)
-
-    def delete(self, dryRun=False):
-        results = None
-        if dryRun:
-            results = api.delete_project_dry_run(self.id)
-        else:
-            results = api.delete_project(self.id)
-        self.delete_tally = DeleteTally(data=results)
-        return self
 
 
 class Experiment(MCObject):
@@ -319,6 +341,14 @@ class Experiment(MCObject):
             results = api.delete_experiment(self.project.id, self.id)
         self.delete_tally = DeleteTally(data=results)
         return self
+
+
+def get_process_from_id(project, experiment, process_id):
+    results = api.get_process_from_id(project.id, experiment.id, process_id)
+    process = make_object(results)
+    process.project = project
+    process.experiment = experiment
+    return process
 
 
 class Process(MCObject):
@@ -977,7 +1007,7 @@ def make_base_object_for_type(data):
         else:
             return MCObject(data=data)
     else:
-        if _has_key('fullname',data):
+        if _has_key('fullname', data):
             return User(data=data)
         if _has_key('unit', data):
             return MCObject(data=data)
@@ -1105,26 +1135,13 @@ def _is_datetime(data):
 
 # -- support functions for Project --
 def _fetch_project_sample_by_id(project, sample_id):
-    sample_json_dict = api.fetch_project_sample_by_id(project.id, sample_id)
+    sample_json_dict = api.get_project_sample_by_id(project.id, sample_id)
     sample = make_object(sample_json_dict)
     sample.project = project
     return sample
 
 
 # -- support functions for Experiment --
-def _create_experiment(project, name, description):
-    experiment_json_dict = api.create_experiment(project.id, name, description)
-    experiment = make_object(experiment_json_dict)
-    experiment.project = project
-    return experiment
-
-
-def _fetch_experiments(project):
-    list_results = api.fetch_experiments(project.id)
-    experiments = map((lambda x: make_object(x)), list_results)
-    experiments = map((lambda x: _decorate_object_with(x, 'project', project)), experiments)
-    return experiments
-
 
 def _fetch_samples_for_experiment(experiment):
     samples_list = api.fetch_experiment_samples(experiment.project.id, experiment.id)

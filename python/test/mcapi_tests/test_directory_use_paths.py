@@ -22,9 +22,9 @@ class TestDirectory(unittest.TestCase):
         cls.base_project_id = project.id
         cls.base_project = project
         cls.test_dir_path = "/TestDir1/TestDir2/TestDir3"
-        cls.directory_list = cls.base_project.create_directory_list(cls.test_dir_path)
+        cls.directory_list = cls.base_project.create_or_get_all_directories_on_path(cls.test_dir_path)
         cls.another_path = "/TestDir1/TestDir2/TestDir4"
-        cls.base_project.create_directory_list(cls.another_path)
+        cls.base_project.create_or_get_all_directories_on_path(cls.another_path)
 
     def test_is_setup_correctly(self):
         self.assertEqual(get_remote_config_url(), url)
