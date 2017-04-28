@@ -114,7 +114,7 @@ class User(MCObject):
         for a in attr:
             setattr(self, a, data.get(a, None))
 
-    def canAccess(self, project):
+    def can_access(self, project):
         results = api.user_can_access_project(self.id, project.id, project.name)
         return results
 
@@ -134,6 +134,7 @@ class Project(MCObject):
         # additional fields
         self._top = None
         self.source = remote_url
+        self.delete_tally = {}
 
         if not data:
             data = {}
@@ -174,9 +175,8 @@ class Project(MCObject):
         # TODO: Project.put()
         pass
 
-    def delete(self, dryRun=False):
-        results = None
-        if dryRun:
+    def delete(self, dry_run=False):
+        if dry_run:
             results = api.delete_project_dry_run(self.id)
         else:
             results = api.delete_project(self.id)
@@ -191,7 +191,7 @@ class Project(MCObject):
         experiment.project = self
         return experiment
 
-    def get_experiment_by_id(self, id):
+    def get_experiment_by_id(self, experiment_id):
         # TODO: Project.get_experiment_by_id(id)
         pass
 
@@ -207,7 +207,7 @@ class Project(MCObject):
         # TODO: Project.create_directory(name, path)
         pass
 
-    def get_directory_by_id(self, id):
+    def get_directory_by_id(self, directory_id):
         # TODO: Project.get_dirctroy_by_id(id)
         pass
 
@@ -303,6 +303,7 @@ class Experiment(MCObject):
 
         self.samples = []
         self.processes = {}  # a set
+        self.delete_tally = {}
 
         if not data:
             data = {}
@@ -347,11 +348,10 @@ class Experiment(MCObject):
         # TODO: Experiment.put()
         pass
 
-    def delete(self, dryRun=False, deleteProcessesAndSamples=False):
-        results = None
-        if dryRun:
+    def delete(self, dry_run=False, delete_processes_and_samples=False):
+        if dry_run:
             results = api.delete_experiment_dry_run(self.project.id, self.id)
-        elif deleteProcessesAndSamples:
+        elif delete_processes_and_samples:
             results = api.delete_experiment_fully(self.project.id, self.id)
         else:
             results = api.delete_experiment(self.project.id, self.id)
@@ -369,10 +369,10 @@ class Experiment(MCObject):
         process.experiment = experiment
         return process
 
-    def get_process_by_id(self, id):
+    def get_process_by_id(self, process_id):
         project = self.project
         experiment = self
-        results = api.get_process_from_id(project.id, experiment.id, id)
+        results = api.get_process_from_id(project.id, experiment.id, process_id)
         process = make_object(results)
         process.project = project
         process.experiment = experiment
@@ -462,8 +462,8 @@ class Process(MCObject):
         setup_element.properties = [self._transform_property(prop) for prop in setup_element.properties]
         return setup_element
 
-    def _transform_property(self, property):
-        prop = make_property_object(property)
+    def _transform_property(self, process_property):
+        prop = make_property_object(process_property)
         return prop
 
     # Process - basic rethods: rename, put, delete
@@ -492,7 +492,7 @@ class Process(MCObject):
         self.decorate_with_output_samples()
         return samples
 
-    def get_sample_by_id(self, id):
+    def get_sample_by_id(self, process_id):
         # TODO: Process.get_sample_by_id(id)
         pass
 
@@ -720,7 +720,7 @@ class Directory(MCObject):
         if not data:
             return
         if _has_key('parent', data):
-            self.parent_id = data['parent']
+            self._parent_id = data['parent']
 
     # directory - basic methods: rename, move, put, delete
     def rename(self, new_name):
@@ -833,7 +833,6 @@ def make_dir_tree_table(base_path, dir_name, relative_base, table_so_far):
         if os_path.isdir(path):
             table_so_far = make_dir_tree_table(local_path, directory, base, table_so_far)
     return table_so_far
-
 
 
 class File(MCObject):
@@ -1251,6 +1250,7 @@ def _decorate_object_with(obj, attr_name, attr_value):
     setattr(obj, attr_name, attr_value)
     return obj
 
+
 def _is_object(value):
     return isinstance(value, dict)
 
@@ -1270,8 +1270,8 @@ def _data_has_type(data):
 def _is_datetime(data):
     return _has_key('$reql_type$', data) and data['$reql_type$'] == 'TIME'
 
-# -- support functions for Process --
 
+# -- support functions for Process --
 
 
 def _add_input_samples_to_process(project, experiment, process, samples):
@@ -1336,6 +1336,3 @@ def _set_measurement_for_process_samples(project, experiment, process,
         print "mcapi.mc._set_measurement_for_process_samples - unexpectedly failed"
         return None
     return experiment.get_process_by_id(process_id)
-
-
-

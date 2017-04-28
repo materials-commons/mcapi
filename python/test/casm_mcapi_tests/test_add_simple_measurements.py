@@ -1,22 +1,19 @@
 import unittest
-import pytest
 from random import randint
 from mcapi import set_remote_config_url
 from mcapi import create_project, Template
-from casm_mcapi import _add_integer_measurement,\
-    _add_string_measurement,_add_boolean_measurement,_add_number_measurement
-
+from casm_mcapi import _add_integer_measurement, \
+    _add_string_measurement, _add_boolean_measurement, _add_number_measurement
 
 url = 'http://mctest.localhost/api'
 
 
 def fake_name(prefix):
     number = "%05d" % randint(0, 99999)
-    return prefix+number
+    return prefix + number
 
 
 class TestSetSimpleMeasurements(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         set_remote_config_url(url)
@@ -58,23 +55,22 @@ class TestSetSimpleMeasurements(unittest.TestCase):
         self.assertEqual(sample.name, self.sample_name)
         self.assertEqual(sample.name, samples[0].name)
 
-
     def test_set_integer_measurement(self):
         attribute = "spacing"
         value = 5
         name = "Gap Spacing"
-        type = "integer"
+        otype = "integer"
         process = _add_integer_measurement(
             self.process, attribute, value, name=name)
         sample_out = process.output_samples[0]
         properties_out = sample_out.properties
         table = self.make_properties_dictionary(properties_out)
-        property = table[name]
-        self.assertEqual(len(property.best_measure),1)
-        measurement_out = property.best_measure[0]
+        selected_property = table[name]
+        self.assertEqual(len(selected_property.best_measure), 1)
+        measurement_out = selected_property.best_measure[0]
         self.assertEqual(measurement_out.name, name)
         self.assertEqual(measurement_out.attribute, attribute)
-        self.assertEqual(measurement_out.otype, type)
+        self.assertEqual(measurement_out.otype, otype)
         self.assertEqual(measurement_out.unit, "")
         self.assertEqual(measurement_out.value, value)
 
@@ -82,18 +78,18 @@ class TestSetSimpleMeasurements(unittest.TestCase):
         attribute = "label"
         value = "booloo ball"
         name = "Gingle Snit"
-        type = "string"
+        otype = "string"
         process = _add_string_measurement(
             self.process, attribute, value, name=name)
         sample_out = process.output_samples[0]
         properties_out = sample_out.properties
         table = self.make_properties_dictionary(properties_out)
-        property = table[name]
-        self.assertEqual(len(property.best_measure),1)
-        measurement_out = property.best_measure[0]
+        selected_property = table[name]
+        self.assertEqual(len(selected_property.best_measure), 1)
+        measurement_out = selected_property.best_measure[0]
         self.assertEqual(measurement_out.name, name)
         self.assertEqual(measurement_out.attribute, attribute)
-        self.assertEqual(measurement_out.otype, type)
+        self.assertEqual(measurement_out.otype, otype)
         self.assertEqual(measurement_out.unit, "")
         self.assertEqual(measurement_out.value, value)
 
@@ -101,18 +97,18 @@ class TestSetSimpleMeasurements(unittest.TestCase):
         attribute = "flag"
         value = True
         name = "Shift"
-        type = "boolean"
-        process = _add_boolean_measurement(
+        otype = "boolean"
+        selected_process = _add_boolean_measurement(
             self.process, attribute, value, name=name)
-        sample_out = process.output_samples[0]
+        sample_out = selected_process.output_samples[0]
         properties_out = sample_out.properties
         table = self.make_properties_dictionary(properties_out)
-        property = table[name]
-        self.assertEqual(len(property.best_measure),1)
-        measurement_out = property.best_measure[0]
+        selected_property = table[name]
+        self.assertEqual(len(selected_property.best_measure), 1)
+        measurement_out = selected_property.best_measure[0]
         self.assertEqual(measurement_out.name, name)
         self.assertEqual(measurement_out.attribute, attribute)
-        self.assertEqual(measurement_out.otype, type)
+        self.assertEqual(measurement_out.otype, otype)
         self.assertEqual(measurement_out.unit, "")
         self.assertEqual(measurement_out.value, value)
 
@@ -120,24 +116,24 @@ class TestSetSimpleMeasurements(unittest.TestCase):
         attribute = "scale"
         value = 7
         name = "Scaling Factor"
-        type = "number"
+        otype = "number"
         process = _add_number_measurement(
             self.process, attribute, value, name=name)
         sample_out = process.output_samples[0]
         properties_out = sample_out.properties
         table = self.make_properties_dictionary(properties_out)
-        property = table[name]
-        self.assertEqual(len(property.best_measure),1)
-        measurement_out = property.best_measure[0]
+        selected_property = table[name]
+        self.assertEqual(len(selected_property.best_measure), 1)
+        measurement_out = selected_property.best_measure[0]
         self.assertEqual(measurement_out.name, name)
         self.assertEqual(measurement_out.attribute, attribute)
-        self.assertEqual(measurement_out.otype, type)
+        self.assertEqual(measurement_out.otype, otype)
         self.assertEqual(measurement_out.unit, "")
         self.assertEqual(measurement_out.value, value)
 
     def make_properties_dictionary(self, properties):
         ret = {}
-        for property in properties:
-            name = property.name
-            ret[name] = property
+        for the_property in properties:
+            name = the_property.name
+            ret[name] = the_property
         return ret

@@ -4,16 +4,15 @@ from mcapi import set_remote_config_url
 from mcapi import create_project, Template
 from casm_mcapi import _add_selection_measurement
 
-
 url = 'http://mctest.localhost/api'
 
 
 def fake_name(prefix):
     number = "%05d" % randint(0, 99999)
-    return prefix+number
+    return prefix + number
+
 
 class TestAddChoiceMeasurements(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         set_remote_config_url(url)
@@ -29,7 +28,6 @@ class TestAddChoiceMeasurements(unittest.TestCase):
             Template.primitive_crystal_structure)
         cls.sample_name = "pcs-sample-1"
         cls.sample = cls.process.create_samples(sample_names=[cls.sample_name])[0]
-
 
     def test_is_setup_correctly(self):
         self.assertIsNotNone(self.project)
@@ -56,15 +54,15 @@ class TestAddChoiceMeasurements(unittest.TestCase):
 
     def test_measurement_attribute_lattice_system_direct(self):
         choices = \
-        [
-            {"name": "Triclinic", "value": "triclinic"},        # 0
-            {"name": "Monoclinic", "value": "monoclinic"},      # 1
-            {"name": "Orthorhombic","value": "orthorhombic"},   # 2
-            {"name": "Tetragonal","value": "tetragonal"},       # 3
-            {"name": "Hexagonal","value": "hexagonal"},         # 4
-            {"name": "Rhombohedral","value": "rhombohedral"},   # 5
-            {"name": "Cubic","value": "cubic"}                  # 6
-        ]
+            [
+                {"name": "Triclinic", "value": "triclinic"},  # 0
+                {"name": "Monoclinic", "value": "monoclinic"},  # 1
+                {"name": "Orthorhombic", "value": "orthorhombic"},  # 2
+                {"name": "Tetragonal", "value": "tetragonal"},  # 3
+                {"name": "Hexagonal", "value": "hexagonal"},  # 4
+                {"name": "Rhombohedral", "value": "rhombohedral"},  # 5
+                {"name": "Cubic", "value": "cubic"}  # 6
+            ]
         value = choices[4]['value']
         name = "Lattice System"
         attribute = "lattice_system"
@@ -76,36 +74,36 @@ class TestAddChoiceMeasurements(unittest.TestCase):
                 "units": [],
                 "value": value,
                 "is_best_measure": True}
-        property = {
+        property_data = {
             "name": "Lattice System",
             "attribute": "lattice_system"
         }
         measurement = self.process.create_measurement(data=data)
         process_out = self.process.set_measurements_for_process_samples(
-            property, [measurement])
+            property_data, [measurement])
         sample_out = process_out.output_samples[0]
         properties_out = sample_out.properties
         table = self.make_properties_dictionary(properties_out)
-        property = table[name]
-        self.assertEqual(len(property.best_measure), 1)
-        measurement_out = property.best_measure[0]
+        property_data = table[name]
+        self.assertEqual(len(property_data.best_measure), 1)
+        measurement_out = property_data.best_measure[0]
         self.assertEqual(measurement_out.name, name)
         self.assertEqual(measurement_out.attribute, attribute)
         self.assertEqual(measurement_out.otype, "selection")
         self.assertEqual(measurement_out.unit, "")
         self.assertEqual(measurement_out.value, value)
 
-    def test_measurement_attribute_lattice_system_direct(self):
+    def test_measurement_attribute_lattice_system(self):
         choices = \
-        [
-            {"name": "Triclinic", "value": "triclinic"},        # 0
-            {"name": "Monoclinic", "value": "monoclinic"},      # 1
-            {"name": "Orthorhombic","value": "orthorhombic"},   # 2
-            {"name": "Tetragonal","value": "tetragonal"},       # 3
-            {"name": "Hexagonal","value": "hexagonal"},         # 4
-            {"name": "Rhombohedral","value": "rhombohedral"},   # 5
-            {"name": "Cubic","value": "cubic"}                  # 6
-        ]
+            [
+                {"name": "Triclinic", "value": "triclinic"},  # 0
+                {"name": "Monoclinic", "value": "monoclinic"},  # 1
+                {"name": "Orthorhombic", "value": "orthorhombic"},  # 2
+                {"name": "Tetragonal", "value": "tetragonal"},  # 3
+                {"name": "Hexagonal", "value": "hexagonal"},  # 4
+                {"name": "Rhombohedral", "value": "rhombohedral"},  # 5
+                {"name": "Cubic", "value": "cubic"}  # 6
+            ]
         value = choices[4]['value']
         name = "Lattice System"
         attribute = "lattice_system"
@@ -115,19 +113,18 @@ class TestAddChoiceMeasurements(unittest.TestCase):
         sample_out = process.output_samples[0]
         properties_out = sample_out.properties
         table = self.make_properties_dictionary(properties_out)
-        property = table[name]
-        self.assertEqual(len(property.best_measure),1)
-        measurement_out = property.best_measure[0]
+        selected_property = table[name]
+        self.assertEqual(len(selected_property.best_measure), 1)
+        measurement_out = selected_property.best_measure[0]
         self.assertEqual(measurement_out.name, name)
         self.assertEqual(measurement_out.attribute, attribute)
         self.assertEqual(measurement_out.otype, "selection")
         self.assertEqual(measurement_out.unit, "")
         self.assertEqual(measurement_out.value, value)
 
-    def make_properties_dictionary(self,properties):
+    def make_properties_dictionary(self, properties):
         ret = {}
-        for property in properties:
-            name = property.name
-            ret[name] = property
+        for the_property in properties:
+            name = the_property.name
+            ret[name] = the_property
         return ret
-

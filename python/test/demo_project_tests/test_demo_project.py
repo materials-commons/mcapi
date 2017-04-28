@@ -3,8 +3,8 @@ from os import environ
 from os import path as os_path
 import demo_project as demo
 
-class TestDemoProject(unittest.TestCase):
 
+class TestDemoProject(unittest.TestCase):
     def test_build_demo_project(self):
 
         mcapikey = "totally-bogus"
@@ -22,36 +22,36 @@ class TestDemoProject(unittest.TestCase):
             'EBSD SEM Data Collection - 5 mm plate', 'EPMA Data Collection - 5 mm plate - center'
         ]
 
-        builder = demo.DemoProject(host,self._make_test_dir_path(),mcapikey)
+        builder = demo.DemoProject(host, self._make_test_dir_path(), mcapikey)
 
         table = builder._make_template_table()
-        self.assertIsNotNone(builder._template_id_with(table,'Create'))
-        self.assertIsNotNone(builder._template_id_with(table,'Sectioning'))
-        self.assertIsNotNone(builder._template_id_with(table,'EBSD SEM'))
-        self.assertIsNotNone(builder._template_id_with(table,'EPMA'))
+        self.assertIsNotNone(builder._template_id_with(table, 'Create'))
+        self.assertIsNotNone(builder._template_id_with(table, 'Sectioning'))
+        self.assertIsNotNone(builder._template_id_with(table, 'EBSD SEM'))
+        self.assertIsNotNone(builder._template_id_with(table, 'EPMA'))
 
         project = builder.build_project()
 
         self.assertIsNotNone(project)
         experiments = project.get_all_experiments()
-        self.assertEqual(len(experiments),1)
+        self.assertEqual(len(experiments), 1)
         experiment = experiments[0]
         self.assertIsNotNone(experiment)
         self.assertIsNotNone(experiment.project)
         self.assertIsNotNone(experiment.processes)
-        self.assertEqual(project.id,experiment.project.id)
-        self.assertEqual(project.name,project_name)
-        self.assertEqual(experiment.name,experiment_name)
+        self.assertEqual(project.id, experiment.project.id)
+        self.assertEqual(project.name, project_name)
+        self.assertEqual(experiment.name, experiment_name)
 
-        self.assertEqual(len(experiment.processes),len(process_names))
+        self.assertEqual(len(experiment.processes), len(process_names))
         for name in process_names:
             found_process = None
             for process in experiment.processes:
                 if name == process.name:
                     found_process = process
-            self.assertIsNotNone(found_process,"Expecting to find process.name == " + name)
+            self.assertIsNotNone(found_process, "Expecting to find process.name == " + name)
 
-        self.assertEqual(len(experiment.samples),len(sample_names))
+        self.assertEqual(len(experiment.samples), len(sample_names))
         for name in sample_names:
             found_sample = None
             for sample in experiment.samples:
@@ -81,16 +81,16 @@ class TestDemoProject(unittest.TestCase):
         ]
 
         directory = project.get_directory_list(project_directory_path)[-1]
-        self.assertEqual(directory.otype,'directory')
-        self.assertEqual(directory.path,project.name + project_directory_path)
+        self.assertEqual(directory.otype, 'directory')
+        self.assertEqual(directory.path, project.name + project_directory_path)
 
         project_files = directory.get_children()
-        self.assertEqual(len(project_files),len(filename_list))
+        self.assertEqual(len(project_files), len(filename_list))
         for name in filename_list:
             found_file = None
-            for file in project_files:
-                if name == file.name:
-                    found_file = file
+            for the_file in project_files:
+                if name == the_file.name:
+                    found_file = the_file
             self.assertIsNotNone(found_file, "Expecting to find file.name == " + name)
 
         experiment = project.get_all_experiments()[0]
@@ -103,15 +103,14 @@ class TestDemoProject(unittest.TestCase):
             for probe in processes:
                 if name == probe.name:
                     processes_reordered.append(probe)
-        self.assertEqual(len(processes),len(processes_reordered))
+        self.assertEqual(len(processes), len(processes_reordered))
         processes = processes_reordered
 
         for process in processes:
             process.decorate_with_output_samples()
 
-
         process_file_list = [
-            [0,2,3], [0,1], [1], [4,5,6,7,8,9,10], [11,12,13,14,15]
+            [0, 2, 3], [0, 1], [1], [4, 5, 6, 7, 8, 9, 10], [11, 12, 13, 14, 15]
         ]
 
         process_index = 0
@@ -120,9 +119,9 @@ class TestDemoProject(unittest.TestCase):
             for file_index in file_index_list:
                 name = filename_list[file_index]
                 found_file = None
-                for file in process.files:
-                    if name == file.name:
-                        found_file = file
+                for the_file in process.files:
+                    if name == the_file.name:
+                        found_file = the_file
                 error = "In process " + process.name + ": expecting to find file.name == " + name
                 self.assertIsNotNone(found_file, error)
             process_index += 1
@@ -136,4 +135,3 @@ class TestDemoProject(unittest.TestCase):
         self.assertIsNotNone(test_path)
         self.assertTrue(os_path.isdir(test_path))
         return test_path
-

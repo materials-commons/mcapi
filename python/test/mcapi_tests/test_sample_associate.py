@@ -5,11 +5,10 @@ from mcapi import create_project, Template
 
 def fake_name(prefix):
     number = "%05d" % randint(0, 99999)
-    return prefix+number
+    return prefix + number
 
 
 class TestSampleAssociate(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         cls.base_project_name = "Project-TestSampleAssociate"
@@ -60,7 +59,7 @@ class TestSampleAssociate(unittest.TestCase):
         self.assertEqual(len(process_with_sample.input_samples), 1)
         self.assertEqual(process_with_sample.input_samples[0].name, self.base_sample.name)
         for sample in process_with_sample.input_samples:
-            sample.decorate_with_processes();
+            sample.decorate_with_processes()
         found_process = None
         print ''
         print '----'
@@ -75,4 +74,3 @@ class TestSampleAssociate(unittest.TestCase):
         print '----'
         self.assertIsNotNone(found_process)
         self.assertEqual(found_process.id, process_with_sample.id)
-

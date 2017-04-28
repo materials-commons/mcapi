@@ -5,20 +5,19 @@ from os import path as os_path
 from random import randint
 from mcapi import set_remote_config_url
 from mcapi import create_project
-from casm_mcapi import _add_string_measurement,\
-    _add_numpy_matrix_measurement, _add_vector_measurement,\
+from casm_mcapi import _add_string_measurement, \
+    _add_numpy_matrix_measurement, _add_vector_measurement, \
     _add_list_measurement, _add_integer_measurement, _add_file_measurement
-
 
 url = 'http://mctest.localhost/api'
 
 
 def fake_name(prefix):
     number = "%05d" % randint(0, 99999)
-    return prefix+number
+    return prefix + number
+
 
 class TestPrinSample(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         set_remote_config_url(url)
@@ -47,7 +46,7 @@ class TestPrinSample(unittest.TestCase):
         directory = self.project.get_top_directory()
         file_name = 'fractal.jpg'
         file_path = self.make_test_dir_path(file_name)
-        mcfile = self.project.add_file_using_directory(directory,file_name,file_path)
+        mcfile = self.project.add_file_using_directory(directory, file_name, file_path)
 
         process = self.create_prim_sample(self.experiment, self.project, sample_name, mcfile)
         self.assertIsNotNone(process)
@@ -57,7 +56,7 @@ class TestPrinSample(unittest.TestCase):
         self.assertTrue(process.does_transform)
         sample_out = process.output_samples[0]
         self.assertIsNotNone(sample_out)
-        self.assertEqual(sample_out.name,sample_name)
+        self.assertEqual(sample_out.name, sample_name)
         properties_out = sample_out.properties
         table = self.make_properties_dictionary(properties_out)
         props = self.project.prim
@@ -77,30 +76,30 @@ class TestPrinSample(unittest.TestCase):
             {'type': 'integer', 'name': 'n_independent_compositions', 'value': props.n_independent_compositions}
         ]
         for t in basic_tests:
-            self.assert_basic_property(table,t['type'],t['name'],t['value'])
+            self.assert_basic_property(table, t['type'], t['name'], t['value'])
 
         name = 'lattice_matrix'
-        property = table[name]
+        property_data = table[name]
         attribute = name
-        measurement_out = property.best_measure[0]
+        measurement_out = property_data.best_measure[0]
         self.assertEqual(measurement_out.name, name)
         self.assertEqual(measurement_out.attribute, attribute)
         self.assertEqual(measurement_out.otype, 'matrix')
         self.assertEqual(measurement_out.unit, "")
-        self.assertEqual(measurement_out.value['otype'],'float')
         self.assertEqual(measurement_out.value['otype'], 'float')
-        self.assertEqual(measurement_out.value['dimensions'],list(props.lattice_matrix.shape))
-        self.assertEqual(measurement_out.value['otype'],'float')
+        self.assertEqual(measurement_out.value['otype'], 'float')
+        self.assertEqual(measurement_out.value['dimensions'], list(props.lattice_matrix.shape))
+        self.assertEqual(measurement_out.value['otype'], 'float')
 
         resulting_value = numpy.array(measurement_out.value['value'])
         self.assertTrue(numpy.array_equal(resulting_value, props.lattice_matrix))
-        self.assertEqual(resulting_value.shape,props.lattice_matrix.shape)
+        self.assertEqual(resulting_value.shape, props.lattice_matrix.shape)
 
         name = 'lattice_parameters'
-        property = table[name]
+        property_data = table[name]
         attribute = name
         value = props.lattice_parameters
-        measurement_out = property.best_measure[0]
+        measurement_out = property_data.best_measure[0]
         self.assertEqual(measurement_out.name, name)
         self.assertEqual(measurement_out.attribute, attribute)
         self.assertEqual(measurement_out.otype, "vector")
@@ -109,25 +108,24 @@ class TestPrinSample(unittest.TestCase):
         self.assertEqual(measurement_out.value['dimensions'], len(value))
         self.assertEqual(measurement_out.value['value'], value)
 
-
         name = 'casm_prism_file'
-        property = table[name]
+        property_data = table[name]
         attribute = name
-        file = mcfile
-        measurement_out = property.best_measure[0]
+        the_file = mcfile
+        measurement_out = property_data.best_measure[0]
         self.assertEqual(measurement_out.name, name)
         self.assertEqual(measurement_out.attribute, attribute)
         self.assertEqual(measurement_out.otype, "file")
         self.assertEqual(measurement_out.unit, "")
-        self.assertEqual(measurement_out.value['file_id'], file.id)
-        self.assertEqual(measurement_out.value['file_name'], file.name)
+        self.assertEqual(measurement_out.value['file_id'], the_file.id)
+        self.assertEqual(measurement_out.value['file_name'], the_file.name)
 
         name = 'elements'
-        property = table[name]
+        property_data = table[name]
         attribute = name
         value = props.elements
         value_type = 'string'
-        measurement_out = property.best_measure[0]
+        measurement_out = property_data.best_measure[0]
         self.assertEqual(measurement_out.name, name)
         self.assertEqual(measurement_out.attribute, attribute)
         self.assertEqual(measurement_out.otype, "vector")
@@ -137,11 +135,11 @@ class TestPrinSample(unittest.TestCase):
         self.assertEqual(measurement_out.value['value'], value)
 
         name = 'components'
-        property = table[name]
+        property_data = table[name]
         attribute = name
         value = props.elements
         value_type = 'string'
-        measurement_out = property.best_measure[0]
+        measurement_out = property_data.best_measure[0]
         self.assertEqual(measurement_out.name, name)
         self.assertEqual(measurement_out.attribute, attribute)
         self.assertEqual(measurement_out.otype, "vector")
@@ -150,16 +148,15 @@ class TestPrinSample(unittest.TestCase):
         self.assertEqual(measurement_out.value['dimensions'], len(value))
         self.assertEqual(measurement_out.value['value'], value)
 
-
-    def assert_basic_property(self,table,type,name,value):
+    def assert_basic_property(self, table, otype, name, value):
         message = "Property: " + name
-        property = table[name]
+        property_data = table[name]
         attribute = name
-        self.assertEqual(len(property.best_measure),1)
-        measurement_out = property.best_measure[0]
+        self.assertEqual(len(property_data.best_measure), 1)
+        measurement_out = property_data.best_measure[0]
         self.assertEqual(measurement_out.name, name)
         self.assertEqual(measurement_out.attribute, attribute)
-        self.assertEqual(measurement_out.otype, type)
+        self.assertEqual(measurement_out.otype, otype)
         self.assertEqual(measurement_out.unit, "")
         self.assertEqual(measurement_out.value, value, message)
 
@@ -172,11 +169,11 @@ class TestPrinSample(unittest.TestCase):
         self.assertTrue(os_path.isfile(test_file))
         return test_file
 
-    def make_properties_dictionary(self,properties):
+    def make_properties_dictionary(self, properties):
         ret = {}
-        for property in properties:
-            name = property.name
-            ret[name] = property
+        for property_data in properties:
+            name = property_data.name
+            ret[name] = property_data
         return ret
 
     def create_prim_sample(self, expt, casm_proj, sample_name, mcfile):
@@ -200,11 +197,14 @@ class TestPrinSample(unittest.TestCase):
               The Process that created the sample
         """
 
-        ## Process that will create samples
+        # Process that will create samples
         create_sample_process = expt.create_process_from_template("global_Primitive Crystal Structure")
 
-        ## Create sample
-        samples = create_sample_process.create_samples([sample_name])
+        # Create sample
+        # samples = # not currently used, fund function called
+        # in case there are important side effects
+        create_sample_process.create_samples([sample_name])
+
         # Sample attributes (how to check names?):
         # "name"
         _add_string_measurement(create_sample_process, 'name', casm_proj.name)
@@ -325,9 +325,10 @@ class TestPrinSample(unittest.TestCase):
     def mock_prim(self):
         return PrimMock()
 
+
 class PrimMock(object):
-    def __init__ (self):
-        self.lattice_matrix = numpy.array([[1.0,2.0,3.0],[4.0,5.0,6.0],[7.0,8.0,9.0]])
+    def __init__(self):
+        self.lattice_matrix = numpy.array([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]])
         self.lattice_parameters = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0]
         self.lattice_symmetry_s = "tetragonal"
         self.lattice_symmetry_hm = 'D2h'
@@ -337,9 +338,7 @@ class PrimMock(object):
         self.crystal_family = 'tetragonal'
         self.crystal_system = 'tetragonal'
         self.space_group_number = 'space_group'
-        self.elements=['Al','NI']
-        self.components=['Al','NI']
+        self.elements = ['Al', 'NI']
+        self.components = ['Al', 'NI']
         self.n_independent_compositions = 5
         self.degrees_of_freedom = "displacement"
-
-

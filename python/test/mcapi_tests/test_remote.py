@@ -6,7 +6,6 @@ from mcapi import Remote
 
 
 class TestRemote(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         test_data_dir = "test/test_config_data/"
@@ -29,7 +28,6 @@ class TestRemote(unittest.TestCase):
         self.assertIsNotNone(remote.make_url_v2(test_path))
         self.assertTrue(config.mcurl in remote.make_url_v2(test_path))
         self.assertTrue(test_path in remote.make_url_v2(test_path))
-
 
     def make_test_dir_path(self):
         self.assertTrue('TEST_DATA_DIR' in environ)

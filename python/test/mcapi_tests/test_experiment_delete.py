@@ -75,7 +75,7 @@ class TestExperimentDelete(unittest.TestCase):
         self.assertEqual(experiment.project,project)
         self.assertEqual(experiment.project.id,project.id)
 
-        deleted_experiment = experiment.delete(dryRun=True)
+        deleted_experiment = experiment.delete(dry_run=True)
 
         self.assertEqual(len(deleted_experiment.delete_tally.datasets), 0)
         self.assertEqual(len(deleted_experiment.delete_tally.best_measure_history), 1)
@@ -127,7 +127,7 @@ class TestExperimentDelete(unittest.TestCase):
         self.assertEqual(experiment.project,project)
         self.assertEqual(experiment.project.id,project.id)
 
-        deleted_experiment = experiment.delete(deleteProcessesAndSamples=True)
+        deleted_experiment = experiment.delete(delete_processes_and_samples=True)
 
         self.assertEqual(len(deleted_experiment.delete_tally.datasets), 0)
         self.assertEqual(len(deleted_experiment.delete_tally.best_measure_history), 1)

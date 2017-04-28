@@ -40,7 +40,7 @@ class TestDemoProjectBasic(unittest.TestCase):
         self.assertEqual(experiment_name, experiment.name)
         self.assertEqual(experiment_description, experiment.description)
         self.assertIsNotNone(experiment.project)
-        self.assertEqual(experiment.project.id,project.id)
+        self.assertEqual(experiment.project.id, project.id)
 
         process_name = "Setup_Samples"
         create_sample_process = self. \
@@ -56,9 +56,9 @@ class TestDemoProjectBasic(unittest.TestCase):
         self.assertEqual(create_sample_process.process_type, 'create')
         self.assertTrue(create_sample_process.does_transform)
         self.assertIsNotNone(create_sample_process.project)
-        self.assertEqual(create_sample_process.project.id,project.id)
+        self.assertEqual(create_sample_process.project.id, project.id)
         self.assertIsNotNone(create_sample_process.experiment)
-        self.assertEqual(create_sample_process.experiment.id,experiment.id)
+        self.assertEqual(create_sample_process.experiment.id, experiment.id)
 
         sample_name = 'Demo Sample'
         sample = self._get_output_sample_from_process(create_sample_process, sample_name)
@@ -144,7 +144,7 @@ class TestDemoProjectBasic(unittest.TestCase):
         experiments = project.get_all_experiments()
         experiment = None
         for ex in experiments:
-            if (ex.name == experiment_name):
+            if ex.name == experiment_name:
                 experiment = ex
         return experiment
 
@@ -173,14 +173,14 @@ class TestDemoProjectBasic(unittest.TestCase):
         children = directory.get_children()
         selected_file = None
         for entry in children:
-            if entry.otype =='file' and entry.name == filename:
+            if entry.otype == 'file' and entry.name == filename:
                 selected_file = entry
         return selected_file
 
-    def _process_has_file(self, process, file):
+    def _process_has_file(self, process, file_arg):
         selected_file = None
         for check_file in process.files:
-            if check_file.id == file.id:
+            if check_file.id == file_arg.id:
                 selected_file = check_file
         return selected_file
 
@@ -192,4 +192,3 @@ class TestDemoProjectBasic(unittest.TestCase):
         test_file = os_path.join(test_path, 'test_upload_data', file_name)
         self.assertTrue(os_path.isfile(test_file))
         return test_file
-

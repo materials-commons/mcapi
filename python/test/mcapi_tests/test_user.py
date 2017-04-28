@@ -19,7 +19,7 @@ class TestUser(unittest.TestCase):
         user_list = get_all_users()
 
         for user in user_list:
-            if (user.id == my_id):
+            if user.id == my_id:
                 me = user
         self.assertIsNotNone(me)
         self.assertEqual(me.fullname, "Test User1")
@@ -27,7 +27,7 @@ class TestUser(unittest.TestCase):
         another_id = "another@test.mc"
         another = None
         for user in user_list:
-            if (user.id == another_id):
+            if user.id == another_id:
                 another = user
         self.assertIsNotNone(another)
         self.assertEqual(another.fullname, "Test User2")

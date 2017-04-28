@@ -55,7 +55,7 @@ class TestProjectDelete(unittest.TestCase):
 
         self.helper.confirm_demo_project_content(project, project_name, 1)
 
-        deleted_project = project.delete(dryRun=True)
+        deleted_project = project.delete(dry_run=True)
 
         self.assertEqual(deleted_project.id, project.id)
         self.assertEqual(deleted_project.delete_tally.project['id'], project.id)
@@ -103,7 +103,7 @@ class TestProjectDelete(unittest.TestCase):
         self._set_up_remote_for(another_user_key)
 
         with pytest.raises(Exception):
-            deleted_project = project.delete()
+            project.delete()
 
         self._set_up_remote_for(self.mcapikey)
 

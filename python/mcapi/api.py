@@ -124,6 +124,7 @@ def get_project_by_id(project_id, remote=None):
     api_url = "projects/" + project_id
     return get(remote.make_url_v2(api_url), remote=remote)
 
+
 def update_project(project_id, name, description, remote=None):
     if not remote:
         remote = use_remote()
@@ -139,6 +140,7 @@ def get_project_sample_by_id(project_id, sample_id, remote=None):
         remote = use_remote()
     api_url = "projects/" + project_id + "/samples/" + sample_id
     return get(remote.make_url_v2(api_url), remote=remote)
+
 
 def delete_project(project_id, remote=None):
     if not remote:
@@ -394,6 +396,7 @@ def user_can_access_project(user_id, project_id, project_title, remote=None):
         "project_name": project_title
     }
     return post(remote.make_url(api_url), data)
+
 
 # directory
 

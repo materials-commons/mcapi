@@ -1,10 +1,5 @@
 import unittest
-import pytest
 from random import randint
-from os import environ
-from os import path as os_path
-from os.path import getsize
-from pathlib import Path
 from mcapi import set_remote_config_url, get_remote_config_url
 from mcapi import create_project
 

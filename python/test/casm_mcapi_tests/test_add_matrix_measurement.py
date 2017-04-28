@@ -10,10 +10,10 @@ url = 'http://mctest.localhost/api'
 
 def fake_name(prefix):
     number = "%05d" % randint(0, 99999)
-    return prefix+number
+    return prefix + number
+
 
 class TestAddMatrixMeasurements(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         set_remote_config_url(url)
@@ -29,7 +29,6 @@ class TestAddMatrixMeasurements(unittest.TestCase):
             Template.primitive_crystal_structure)
         cls.sample_name = "pcs-sample-1"
         cls.sample = cls.process.create_samples(sample_names=[cls.sample_name])[0]
-
 
     def test_is_setup_correctly(self):
         self.assertIsNotNone(self.project)
@@ -55,65 +54,64 @@ class TestAddMatrixMeasurements(unittest.TestCase):
         self.assertEqual(sample.name, samples[0].name)
 
     def test_add_or_update_attribute_lattice_direct(self):
-        value = np.array([[1.0,2.0,3.0],[4.0,5.0,6.0],[7.0,8.0,9.0]])
-        data = {"name":"Lattice",
-            "attribute":"lattice",
-            "otype":"matrix",
-            "unit":"",
-            "units": [],
-            "value": {
-                "dimensions": [3,3],
-                "otype": "float",
-                "value": value.tolist()
-            },
-            "is_best_measure":True}
-        property = {
+        value = np.array([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]])
+        data = {"name": "Lattice",
+                "attribute": "lattice",
+                "otype": "matrix",
+                "unit": "",
+                "units": [],
+                "value": {
+                    "dimensions": [3, 3],
+                    "otype": "float",
+                    "value": value.tolist()
+                },
+                "is_best_measure": True}
+        property_data = {
             "name": "Lattice",
             "attribute": "lattice"
         }
         measurement = self.process.create_measurement(data=data)
-        process_out = self.process.set_measurements_for_process_samples(\
-                property, [measurement])
+        process_out = self.process.set_measurements_for_process_samples(
+            property_data, [measurement])
         sample_out = process_out.output_samples[0]
         properties_out = sample_out.properties
         table = self.make_properties_dictionary(properties_out)
-        property = table["Lattice"]
-        self.assertEqual(len(property.best_measure),1)
-        measurement_out = property.best_measure[0]
-        self.assertEqual(measurement_out.name,measurement.name)
-        self.assertEqual(measurement_out.name,"Lattice")
-        self.assertEqual(measurement_out.attribute,"lattice")
-        self.assertEqual(measurement_out.otype,"matrix")
-        self.assertEqual(measurement_out.unit,"")
+        property_data = table["Lattice"]
+        self.assertEqual(len(property_data.best_measure), 1)
+        measurement_out = property_data.best_measure[0]
+        self.assertEqual(measurement_out.name, measurement.name)
+        self.assertEqual(measurement_out.name, "Lattice")
+        self.assertEqual(measurement_out.attribute, "lattice")
+        self.assertEqual(measurement_out.otype, "matrix")
+        self.assertEqual(measurement_out.unit, "")
         self.assertEqual(measurement_out.value['value'], value.tolist())
 
     def test_add_or_update_attribute_lattice(self):
-        value = np.array([[1.0,2.0,3.0],[4.0,5.0,6.0],[7.0,8.0,9.0]])
+        value = np.array([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]])
         name = "Lattice"
-        type = "lattice"
+        measurement_type = "lattice"
         process = _add_numpy_matrix_measurement(
-            self.process, type, value, name=name)
+            self.process, measurement_type, value, name=name)
         sample_out = process.output_samples[0]
         properties_out = sample_out.properties
         table = self.make_properties_dictionary(properties_out)
-        property = table[name]
-        self.assertEqual(len(property.best_measure),1)
-        measurement_out = property.best_measure[0]
-        self.assertEqual(measurement_out.name,name)
-        self.assertEqual(measurement_out.attribute,"lattice")
-        self.assertEqual(measurement_out.otype,"matrix")
-        self.assertEqual(measurement_out.unit,"")
-        self.assertEqual(measurement_out.value['dimensions'],list(value.shape))
-        self.assertEqual(measurement_out.value['otype'],'float')
+        selected_property = table[name]
+        self.assertEqual(len(selected_property.best_measure), 1)
+        measurement_out = selected_property.best_measure[0]
+        self.assertEqual(measurement_out.name, name)
+        self.assertEqual(measurement_out.attribute, "lattice")
+        self.assertEqual(measurement_out.otype, "matrix")
+        self.assertEqual(measurement_out.unit, "")
+        self.assertEqual(measurement_out.value['dimensions'], list(value.shape))
+        self.assertEqual(measurement_out.value['otype'], 'float')
 
         resulting_value = np.array(measurement_out.value['value'])
         self.assertTrue(np.array_equal(resulting_value, value))
-        self.assertEqual(resulting_value.shape,value.shape)
+        self.assertEqual(resulting_value.shape, value.shape)
 
-    def make_properties_dictionary(self,properties):
+    def make_properties_dictionary(self, properties):
         ret = {}
-        for property in properties:
-            name = property.name
-            ret[name] = property
+        for the_property in properties:
+            name = the_property.name
+            ret[name] = the_property
         return ret
-

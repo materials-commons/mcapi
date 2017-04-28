@@ -1,19 +1,17 @@
 import unittest
 import pytest
-from mcapi import Config
 from os import environ
 from os import path as os_path
 import demo_project as demo
 
-class TestDemoProject(unittest.TestCase):
 
+class TestDemoProject(unittest.TestCase):
     def test_build_demo_project(self):
         with pytest.raises(Exception) as exception_info:
-
             mcapikey = "totally-bogus"
             host = "http://noda.host"
 
-            builder = demo.DemoProject(host,self._make_test_dir_path(),mcapikey)
+            builder = demo.DemoProject(host, self._make_test_dir_path(), mcapikey)
 
             builder.build_project()
         self.assertTrue(str(exception_info.type).find("ConnectionError") > 0)
