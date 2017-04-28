@@ -4,7 +4,6 @@ from os import path as os_path
 from mcapi import create_project, Template
 from mcapi import get_all_projects
 from mcapi import set_remote_config_url, get_remote_config_url
-from mcapi import get_process_from_id
 
 url = 'http://mctest.localhost/api'
 
@@ -86,10 +85,10 @@ class TestDemoProjectBasic(unittest.TestCase):
         self.assertIsNotNone(sample_file.name)
         self.assertEqual(sample_file.name, filename_for_sample)
 
-        create_sample_process = get_process_from_id(project, experiment, create_sample_process.id)
+        create_sample_process = experiment.get_process_by_id(create_sample_process.id)
         if not self._process_has_file(create_sample_process, sample_file):
             create_sample_process.add_files([sample_file])
-            create_sample_process = get_process_from_id(project, experiment, create_sample_process.id)
+            create_sample_process = experiment.get_process_by_id(create_sample_process.id)
         self.assertIsNotNone(create_sample_process.files)
         self.assertEqual(len(create_sample_process.files), 1)
         file1 = create_sample_process.files[0]

@@ -1,5 +1,4 @@
 import unittest
-from mcapi import Config
 from os import environ
 from os import path as os_path
 import demo_project as demo

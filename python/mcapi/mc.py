@@ -357,8 +357,13 @@ class Experiment(MCObject):
         return _create_process_from_template(self.project, self, template_id)
 
     def get_process_by_id(self, id):
-        # TODO: Experiment.get_process_by_id(id)
-        pass
+        project = self.project
+        experiment = self
+        results = api.get_process_from_id(project.id, experiment.id, id)
+        process = make_object(results)
+        process.project = project
+        process.experiment = experiment
+        return process
 
     def get_all_processes(self):
         # TODO: Experiment.get_all_processes()
@@ -372,15 +377,6 @@ class Experiment(MCObject):
     def decorate_with_processes(self):
         self.processes = _fetch_processes_for_exeriment(self)
         return self
-
-
-
-def get_process_from_id(project, experiment, process_id):
-    results = api.get_process_from_id(project.id, experiment.id, process_id)
-    process = make_object(results)
-    process.project = project
-    process.experiment = experiment
-    return process
 
 
 class Process(MCObject):
@@ -1280,7 +1276,7 @@ def _set_measurement_for_process_samples(project, experiment, process,
     if not success_flag:
         print "mcapi.mc._set_measurement_for_process_samples - unexpectedly failed"
         return None
-    return get_process_from_id(project, experiment, process_id)
+    return experiment.get_process_by_id(process_id)
 
 
 # -- support functions for Sample --

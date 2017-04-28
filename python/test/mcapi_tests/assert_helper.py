@@ -1,4 +1,4 @@
-from mcapi import get_process_from_id, Template
+from mcapi import Template
 
 
 class AssertHelper():
@@ -83,7 +83,7 @@ class AssertHelper():
         experiment = self._get_experiment(project, experiment_name)
         self.tester.assertIsNotNone(experiment)
 
-        experiment = experiment.fetch_and_add_processes()
+        experiment = experiment.decorate_with_processes()
         experiment = experiment.decorate_with_samples()
         processes = experiment.processes
 

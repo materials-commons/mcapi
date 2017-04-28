@@ -4,7 +4,7 @@ from os import environ
 from os import path as os_path
 from random import randint
 from mcapi import set_remote_config_url
-from mcapi import create_project, Template, get_process_from_id
+from mcapi import create_project
 from casm_mcapi import _add_string_measurement,\
     _add_numpy_matrix_measurement, _add_vector_measurement,\
     _add_list_measurement, _add_integer_measurement, _add_file_measurement
@@ -318,10 +318,7 @@ class TestPrinSample(unittest.TestCase):
             'degrees_of_freedom',
             prim.degrees_of_freedom)
 
-        create_sample_process = get_process_from_id(
-            expt.project,
-            expt,
-            create_sample_process.id)
+        create_sample_process = expt.get_process_by_id(create_sample_process.id)
 
         return create_sample_process
 

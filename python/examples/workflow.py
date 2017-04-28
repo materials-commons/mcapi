@@ -2,7 +2,7 @@ from random import randint
 from os import path as os_path
 from os import environ
 import sys
-from mcapi import create_project, Template, get_remote_config_url, get_process_from_id
+from mcapi import create_project, Template, get_remote_config_url, get_process_by_id
 
 def fake_name(prefix):
     number="%05d" % randint(0,99999)
@@ -70,7 +70,7 @@ sample_file = project.add_file_using_directory(
     filepath_for_sample
 )
 create_sample_process.add_files([sample_file])
-create_sample_process = get_process_from_id(project,experiment,create_sample_process.id)
+create_sample_process = get_process_by_id(project, experiment, create_sample_process.id)
 print "Created a 'Create Sample' process with sample: ", sample_name
 print "   and attached file:", filename_for_sample," in directory /FilesForSample"
 
@@ -97,7 +97,7 @@ compute_file = project.add_file_using_directory(
     filepath_for_compute
 )
 compute_process.add_files([compute_file])
-compute_process = get_process_from_id(project,experiment,compute_process.id)
+compute_process = get_process_by_id(project, experiment, compute_process.id)
 print "Created a 'Compute' process with attached file:", filename_for_compute," in directory /FilesForCompute"
 print "    and properties of: number of processors = 5, memory per processor = 16gb,"
 print "    wall time = 12h, and the submit script = 'exec.sh' "

@@ -4,8 +4,6 @@ from os import environ
 from os import path as os_path
 from mcapi import create_project, Template
 from mcapi import set_remote_config_url, get_remote_config_url
-from mcapi import get_process_from_id
-from mcapi import Sample
 
 url = 'http://mctest.localhost/api'
 
@@ -59,7 +57,7 @@ class TestWorkflow(unittest.TestCase):
             filepath_for_sample
         )
         create_sample_process.add_files([sample_file])
-        create_sample_process = get_process_from_id(project,experiment,create_sample_process.id)
+        create_sample_process = experiment.get_process_by_id(create_sample_process.id)
         create_sample_process.add_name("Create Simulation Sample")
 
         compute_process = experiment. \
@@ -86,7 +84,7 @@ class TestWorkflow(unittest.TestCase):
             filepath_for_compute
         )
         compute_process.add_files([compute_file])
-        compute_process = get_process_from_id(project,experiment,compute_process.id)
+        compute_process = experiment.get_process_by_id(compute_process.id)
 
         measurement_data = {
             "name":"Composition",

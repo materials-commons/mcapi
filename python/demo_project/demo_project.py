@@ -1,7 +1,6 @@
 from mcapi import create_project, get_all_templates
 from mcapi import get_all_projects
-from mcapi import get_process_from_id
-from mcapi import Remote, Config, set_remote, use_remote
+from mcapi import Remote, Config, set_remote
 
 class DemoProject:
     def __init__(self, host, data_directory_path, apikey):
@@ -95,7 +94,7 @@ class DemoProject:
 
         count = 0
         for process in processes:
-            processes[count] = get_process_from_id(project,experiment,process.id)
+            processes[count] = experiment.get_process_by_id(process.id)
             count = count + 1
 
         processes[0] = self._setup_for_node(0,processes[0])
@@ -141,12 +140,12 @@ class DemoProject:
 
         process_index = 0
         for file_index_list in process_file_list:
-            processes[process_index] = get_process_from_id(project, experiment, processes[process_index].id)
+            processes[process_index] = experiment.get_process_by_id(processes[process_index].id)
             for file_index in file_index_list:
                 sample_file = file_list[file_index]
                 if not self._process_has_file(processes[process_index], sample_file):
                     processes[process_index].add_files([sample_file])
-                    processes[process_index] = get_process_from_id(project, experiment, processes[process_index].id)
+                    processes[process_index] = experiment.get_process_by_id(processes[process_index].id)
             process_index += 1
 
         measurement_data = {
