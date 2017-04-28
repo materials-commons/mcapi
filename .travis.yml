@@ -117,7 +117,7 @@ before_script:
 
   - sleep 20
 # Note: guard to prevent tests if host is not available
-  - curl -o junk.txt http://mctest.localhost/api/v2/templates
+  - curl -o junk.txt http://mctest.localhost/api/v2/templates?apikey=totally-bogus
   - grep 'otype' junk.txt
 
 script:
