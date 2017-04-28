@@ -160,7 +160,7 @@ class Project(MCObject):
     def process_special_objects(self):
         pass
 
-    # Project - basic functions: rename, put, delete
+    # Project - basic rethods: rename, put, delete
 
     def rename(self, name, description=None):
         if not description:
@@ -260,13 +260,20 @@ class Project(MCObject):
         return directory
 
     def add_file_using_directory(self, directory, file_name, local_input_path):
-        uploaded_file = _create_file_with_upload(self, directory, file_name, local_input_path)
+        project_id = self.id
+        directory_id = directory.id
+        results = api.file_upload(project_id, directory_id, file_name, local_input_path)
+        uploaded_file = make_object(results)
         uploaded_file._project = self
+        uploaded_file._directory = directory
         uploaded_file._directory_id = directory.id
         return uploaded_file
 
     def fetch_sample_by_id(self, sample_id):
-        return _fetch_project_sample_by_id(self, sample_id)
+        sample_json_dict = api.get_project_sample_by_id(self.id, sample_id)
+        sample = make_object(sample_json_dict)
+        sample.project = self
+        return sample
 
 
 class Experiment(MCObject):
@@ -330,7 +337,7 @@ class Experiment(MCObject):
         if self.processes:
             self.processes = [make_object(s.input_data) for s in self.processes]
 
-    # Experiment - basic functions: rename, put, delete
+    # Experiment - basic rethods: rename, put, delete
 
     def rename(self, name):
         # TODO: Experiment.rename(name)
@@ -354,7 +361,13 @@ class Experiment(MCObject):
     # Experiment - Process-related methods - basic: create, get_by_id, get_all (in context)
 
     def create_process_from_template(self, template_id):
-        return _create_process_from_template(self.project, self, template_id)
+        project = self.project
+        experiment = self
+        results = api.create_process_from_template(project.id, experiment.id, template_id)
+        process = make_object(results)
+        process.project = project
+        process.experiment = experiment
+        return process
 
     def get_process_by_id(self, id):
         project = self.project
@@ -369,13 +382,21 @@ class Experiment(MCObject):
         # TODO: Experiment.get_all_processes()
         pass
 
-    # Experiment - additional function
+    # Experiment - additional rethod
     def decorate_with_samples(self):
-        self.samples = _fetch_samples_for_experiment(self)
+        samples_list = api.fetch_experiment_samples(self.project.id, self.id)
+        samples = map((lambda x: make_object(x)), samples_list)
+        samples = map((lambda x: _decorate_object_with(x, 'project', self.project)), samples)
+        samples = map((lambda x: _decorate_object_with(x, 'experiment', self)), samples)
+        self.samples = samples
         return self
 
     def decorate_with_processes(self):
-        self.processes = _fetch_processes_for_exeriment(self)
+        process_list = api.fetch_experiment_processes(self.project.id, self.id)
+        processes = map((lambda x: make_object(x)), process_list)
+        processes = map((lambda x: _decorate_object_with(x, 'project', self.project)), processes)
+        processes = map((lambda x: _decorate_object_with(x, 'experiment', self)), processes)
+        self.processes = processes
         return self
 
 
@@ -445,7 +466,7 @@ class Process(MCObject):
         prop = make_property_object(property)
         return prop
 
-    # Process - basic functions: rename, put, delete
+    # Process - basic rethods: rename, put, delete
 
     def rename(self, process_name):
         results = api.push_name_for_process(self.project.id, self.id, process_name)
@@ -467,7 +488,7 @@ class Process(MCObject):
                   self.category + " -- returning None"
             # throw exception?
             return None
-        samples = _create_samples(self.project, self, sample_names)
+        samples = self._create_samples(sample_names)
         self.decorate_with_output_samples()
         return samples
 
@@ -562,18 +583,46 @@ class Process(MCObject):
                                                         self.output_samples),
                                                     measurement_property, measurements)
 
-    # Process - additional functions
+    # Process - additional methods
     def decorate_with_output_samples(self):
-        detailed_process = _refetch_process(self)
+        detailed_process = self.experiment.get_process_by_id(self.id)
         self.output_samples = detailed_process.output_samples
         return self
 
     def decorate_with_input_samples(self):
-        detailed_process = _refetch_process(self)
+        detailed_process = self.experiment.get_process_by_id(self.id)
         self.input_samples = detailed_process.input_samples
         return self
 
+    # Process - internal (private method)
 
+    def _create_samples(self, sample_names):
+        project = self.project
+        process = self
+        samples_array_dict = api.create_samples_in_project(project.id, process.id, sample_names)
+        samples_array = samples_array_dict['samples']
+        # NOTE: in this case, for this version of API, for the call implemented, the
+        # returned object is very sparse; hence the samples need to be refetched...
+        # however, the fetched object is missing the property_set_id, to add it..
+        lookup_table = {}
+        for simple_sample in samples_array:
+            lookup_table[simple_sample['id']] = simple_sample['property_set_id']
+        samples = map((lambda x: project.fetch_sample_by_id(x['id'])), samples_array)
+        samples = map((lambda x: _decorate_object_with(x, 'property_set_id', lookup_table[x.id])), samples)
+        samples = map((lambda x: _decorate_object_with(x, 'project', project)), samples)
+        samples = map((lambda x: _decorate_object_with(x, 'experiment', process.experiment)), samples)
+        samples_id_list = []
+        # NOTE: side effect to process.experiment
+        for sample in samples:
+            samples_id_list.append(sample.id)
+            sample_in_experiment = None
+            for s in process.experiment.samples:
+                if sample.id == s.id:
+                    sample_in_experiment = s
+            if not sample_in_experiment:
+                process.experiment.samples.append(sample)
+        api.add_samples_to_experiment(project.id, process.experiment.id, samples_id_list)
+        return samples
 
 
 class Sample(MCObject):
@@ -613,15 +662,25 @@ class Sample(MCObject):
         if self.properties:
             self.properties = [make_measured_property(p.input_data) for p in self.properties]
 
-    # Sample - basic functions: rename, put, delete
+    # Sample - basic methods: rename, put, delete
+    def rename(self, name):
+        # TODO: Sample.rename(name)
+        pass
 
-    def fetch_and_add_processes(self):
-        filled_in_sample = _fetch_sample_with_processes(self.project, self)
+    def put(self):
+        # TODO: Sample.put()
+        pass
+
+    def delete(self):
+        # TODO: Sample.rename(name)
+        # NOTE: most likely, not a good idea - should be done by delete project?
+        pass
+
+    # Sample - additional methods
+    def decorate_with_processes(self):
+        filled_in_sample = make_object(api.fetch_sample_details(self.project.id, self.id))
         self.processes = filled_in_sample.processes
         return self
-
-    def fetch_and_add_files(self):
-        print "Called but not implemented 'Sample.fetch_and_add_files()'"
 
 
 class Directory(MCObject):
@@ -656,8 +715,14 @@ class Directory(MCObject):
         if path:
             self.path = path
 
-    # directory - basic functions: rename, move, put, delete
+    def process_special_objects(self):
+        data = self.input_data
+        if not data:
+            return
+        if _has_key('parent', data):
+            self.parent_id = data['parent']
 
+    # directory - basic methods: rename, move, put, delete
     def rename(self, new_name):
         dir_data = api.directory_rename(self._project.id, self.id, new_name)
         updated_directory = make_object(dir_data)
@@ -673,6 +738,14 @@ class Directory(MCObject):
         if not updated_directory._parent_id:
             updated_directory._parent_id = new_directory_id
         return updated_directory
+
+    def put(self):
+        # TODO Directory.put()
+        pass
+
+    def delete(self):
+        # TODO Directory.delete() ?? only when empty
+        pass
 
     def get_children(self):
         results = api.directory_by_id(self._project.id, self.id)
@@ -744,14 +817,8 @@ class Directory(MCObject):
                 result.append(directory.add_file(file_name, input_path, verbose))
         return result
 
-    def process_special_objects(self):
-        data = self.input_data
-        if not data:
-            return
-        if _has_key('parent', data):
-            self.parent_id = data['parent']
 
-
+# -- helper function for Directory.add_directory_tree - above
 def make_dir_tree_table(base_path, dir_name, relative_base, table_so_far):
     local_path = os_path.join(base_path, dir_name)
     file_dictionary = {}
@@ -766,6 +833,7 @@ def make_dir_tree_table(base_path, dir_name, relative_base, table_so_far):
         if os_path.isdir(path):
             table_so_far = make_dir_tree_table(local_path, directory, base, table_so_far)
     return table_so_far
+
 
 
 class File(MCObject):
@@ -814,11 +882,7 @@ class File(MCObject):
     def process_special_objects(self):
         pass
 
-    # File - basic functions: rename, move, put, delete
-
-    def download_file_content(self, local_download_file_path):
-        filepath = _download_data_to_file(self._project, self, local_download_file_path)
-        return filepath
+    # File - basic methods: rename, move, put, delete
 
     def rename(self, new_file_name):
         project_id = self._project.id
@@ -837,6 +901,21 @@ class File(MCObject):
         updated_file._project = self._project
         updated_file._directory_id = new_directory_id
         return updated_file
+
+    def put(self):
+        # TODO File.put()
+        pass
+
+    def detele(self):
+        # TODO File.delete()
+        pass
+
+    # File - additional methods
+    def download_file_content(self, local_download_file_path):
+        project_id = self._project.id
+        file_id = self.id
+        output_file_path = api.file_download(project_id, file_id, local_download_file_path)
+        return output_file_path
 
 
 class Template(MCObject):
@@ -1168,6 +1247,10 @@ class DeleteTally(object):
 
 
 # -- general support functions
+def _decorate_object_with(obj, attr_name, attr_value):
+    setattr(obj, attr_name, attr_value)
+    return obj
+
 def _is_object(value):
     return isinstance(value, dict)
 
@@ -1187,50 +1270,8 @@ def _data_has_type(data):
 def _is_datetime(data):
     return _has_key('$reql_type$', data) and data['$reql_type$'] == 'TIME'
 
-
-# -- support functions for Project --
-def _fetch_project_sample_by_id(project, sample_id):
-    sample_json_dict = api.get_project_sample_by_id(project.id, sample_id)
-    sample = make_object(sample_json_dict)
-    sample.project = project
-    return sample
-
-
-# -- support functions for Experiment --
-
-def _fetch_samples_for_experiment(experiment):
-    samples_list = api.fetch_experiment_samples(experiment.project.id, experiment.id)
-    samples = map((lambda x: make_object(x)), samples_list)
-    samples = map((lambda x: _decorate_object_with(x, 'project', experiment.project)), samples)
-    samples = map((lambda x: _decorate_object_with(x, 'experiment', experiment)), samples)
-    return samples
-
-
-def _fetch_processes_for_exeriment(experiment):
-    process_list = api.fetch_experiment_processes(experiment.project.id, experiment.id)
-    processes = map((lambda x: make_object(x)), process_list)
-    processes = map((lambda x: _decorate_object_with(x, 'project', experiment.project)), processes)
-    processes = map((lambda x: _decorate_object_with(x, 'experiment', experiment)), processes)
-    return processes
-
-
 # -- support functions for Process --
-def _refetch_process(process):
-    project = process.project
-    experiment = process.experiment
-    results = api.fetch_process_by_id(project.id, experiment.id, process.id)
-    process = make_object(results)
-    process.project = project
-    process.experiment = experiment
-    return process
 
-
-def _create_process_from_template(project, experiment, template_id):
-    results = api.create_process_from_template(project.id, experiment.id, template_id)
-    process = make_object(results)
-    process.project = project
-    process.experiment = experiment
-    return process
 
 
 def _add_input_samples_to_process(project, experiment, process, samples):
@@ -1297,59 +1338,4 @@ def _set_measurement_for_process_samples(project, experiment, process,
     return experiment.get_process_by_id(process_id)
 
 
-# -- support functions for Sample --
 
-def _create_samples(project, process, sample_names):
-    samples_array_dict = api.create_samples_in_project(project.id, process.id, sample_names)
-    samples_array = samples_array_dict['samples']
-    # NOTE: in this case, for this version of API, for the call implemented, the
-    # returned object is very sparse; hence the samples need to be refetched...
-    # however, the fetched object is missing the property_set_id, to add it..
-    lookup_table = {}
-    for simple_sample in samples_array:
-        lookup_table[simple_sample['id']] = simple_sample['property_set_id']
-    samples = map((lambda x: project.fetch_sample_by_id(x['id'])), samples_array)
-    samples = map((lambda x: _decorate_object_with(x, 'property_set_id', lookup_table[x.id])), samples)
-    samples = map((lambda x: _decorate_object_with(x, 'project', project)), samples)
-    samples = map((lambda x: _decorate_object_with(x, 'experiment', process.experiment)), samples)
-    samples_id_list = []
-    # NOTE: side effect to process.experiment
-    for sample in samples:
-        samples_id_list.append(sample.id)
-        sample_in_experiment = None
-        for s in process.experiment.samples:
-            if sample.id == s.id:
-                sample_in_experiment = s
-        if not sample_in_experiment:
-            process.experiment.samples.append(sample)
-    api.add_samples_to_experiment(project.id, process.experiment.id, samples_id_list)
-    return samples
-
-
-def _fetch_sample_with_processes(project, sample):
-    return make_object(api.fetch_sample_details(project.id, sample.id))
-
-
-# -- support functions for File --
-def _create_file_with_upload(project, directory, file_name, input_path):
-    project_id = project.id
-    directory_id = directory.id
-    results = api.file_upload(project_id, directory_id, file_name, input_path)
-    uploaded_file = make_object(results)
-    uploaded_file._project = project
-    uploaded_file._directory = directory
-    return uploaded_file
-
-
-def _download_data_to_file(project, file_object, output_file_path):
-    project_id = project.id
-    file_id = file_object.id
-    output_file_path = api.file_download(project_id, file_id, output_file_path)
-    return output_file_path
-
-
-# General support functions
-
-def _decorate_object_with(obj, attr_name, attr_value):
-    setattr(obj, attr_name, attr_value)
-    return obj
