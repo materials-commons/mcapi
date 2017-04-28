@@ -47,7 +47,7 @@ class TestDemoProjectBasic(unittest.TestCase):
             _get_process_with_template(experiment, process_name, Template.create)
         if not create_sample_process:
             create_sample_process = experiment.create_process_from_template(Template.create)
-            create_sample_process.add_name(process_name)
+            create_sample_process = create_sample_process.rename(process_name)
         self.assertIsNotNone(create_sample_process)
         self.assertIsNotNone(create_sample_process.id)
         self.assertIsNotNone(create_sample_process.name)

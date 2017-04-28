@@ -42,7 +42,7 @@ class TestCreateSampleDate(unittest.TestCase):
     def test_set_date_from_raw_data(self):
 
         process = self.experiment.create_process_from_template(Template.create)
-        process.add_name("Testing01")
+        process.rename("Testing01")
 
         name_list = ['manufacturing_date']
         dict = process.get_setup_properties_as_dictionary()
@@ -85,7 +85,7 @@ class TestCreateSampleDate(unittest.TestCase):
     def test_setting_manufacturing_fixed_date_setup(self):
 
         process = self.experiment.create_process_from_template(Template.create)
-        process.add_name("Testing02")
+        process.rename("Testing02")
         value = self.test_date_value
         process.set_value_of_setup_property('manufacturing_date', value)
         process_updated = process.update_setup_properties(['manufacturing_date'])
@@ -109,7 +109,7 @@ class TestCreateSampleDate(unittest.TestCase):
         self.assertEqual(value,self.test_date_value)
 
         process = self.experiment.create_process_from_template(Template.create)
-        process.add_name("Testing03")
+        process.rename("Testing03")
         process.set_value_of_setup_property('manufacturing_date', value)
         process_updated = process.update_setup_properties(['manufacturing_date'])
         self.assertEqual(process_updated.setup[0].properties[2].value,value)

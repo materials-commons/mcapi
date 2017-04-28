@@ -447,11 +447,18 @@ class Process(MCObject):
 
     # Process - basic functions: rename, put, delete
 
-    def add_name(self, process_name):
-        self.name = process_name
-        _push_name_for_process(self)
-        return self
+    def rename(self, process_name):
+        results = api.push_name_for_process(self.project.id, self.id, process_name)
+        process = make_object(results)
+        process.project = self.project
+        process.experiment = self.experiment
+        return process
 
+    def put(self):
+        # TODO Process.put()
+        pass
+
+    # Process - Sample-related methods - create, get_by_id, get_all
     def create_samples(self, sample_names):
         process_ok = self.category == 'create_sample' or self.category == 'sectioning'
         if not process_ok:
@@ -461,15 +468,26 @@ class Process(MCObject):
             # throw exception?
             return None
         samples = _create_samples(self.project, self, sample_names)
-        self.fill_in_output_samples()
+        self.decorate_with_output_samples()
         return samples
+
+    def get_sample_by_id(self, id):
+        # TODO: Process.get_sample_by_id(id)
+        pass
+
+    def get_all_samples(self):
+        # TODO: Process.get_all_samples()
+        pass
 
     def add_input_samples_to_process(self, samples):
         return _add_input_samples_to_process(self.project, self.experiment, self, samples)
 
+    # Process - File-related methods - truncated?
+    # TODO: should Process have File-related create, get_by_id, get_all?
     def add_files(self, files_list):
         return _add_files_to_process(self.project, self.experiment, self, files_list)
 
+    # Process - SetupProperties-related methods - special methods
     def get_setup_properties_as_dictionary(self):
         if self.properties_dictionary:
             return self.properties_dictionary
@@ -501,26 +519,6 @@ class Process(MCObject):
                 prop_list.append(prop)
         return _update_process_setup_properties(self.project, self.experiment, self, prop_list)
 
-    def fill_in_output_samples(self):
-        detailed_process = _refetch_process(self)
-        self.output_samples = detailed_process.output_samples
-        return self
-
-    def fill_in_input_samples(self):
-        detailed_process = _refetch_process(self)
-        self.input_samples = detailed_process.input_samples
-        return self
-
-    def create_measurement(self, data):
-        return make_measurement_object(data)
-
-    def set_measurements_for_process_samples(self, measurement_property, measurements):
-        return _set_measurement_for_process_samples(self.project,
-                                                    self.experiment, self,
-                                                    self.make_list_of_samples_with_property_set_ids(
-                                                        self.output_samples),
-                                                    measurement_property, measurements)
-
     def make_list_of_samples_with_property_set_ids(self, samples):
         # Note: samples must be output samples of the process
         results = []
@@ -551,6 +549,31 @@ class Process(MCObject):
                         'sample': sample
                     })
         return results
+
+    # Process - Measurement-related methods - special treatment
+
+    def create_measurement(self, data):
+        return make_measurement_object(data)
+
+    def set_measurements_for_process_samples(self, measurement_property, measurements):
+        return _set_measurement_for_process_samples(self.project,
+                                                    self.experiment, self,
+                                                    self.make_list_of_samples_with_property_set_ids(
+                                                        self.output_samples),
+                                                    measurement_property, measurements)
+
+    # Process - additional functions
+    def decorate_with_output_samples(self):
+        detailed_process = _refetch_process(self)
+        self.output_samples = detailed_process.output_samples
+        return self
+
+    def decorate_with_input_samples(self):
+        detailed_process = _refetch_process(self)
+        self.input_samples = detailed_process.input_samples
+        return self
+
+
 
 
 class Sample(MCObject):
@@ -1208,11 +1231,6 @@ def _create_process_from_template(project, experiment, template_id):
     process.project = project
     process.experiment = experiment
     return process
-
-
-def _push_name_for_process(process):
-    results = api.push_name_for_process(process.project.id, process.id, process.name)
-    return results
 
 
 def _add_input_samples_to_process(project, experiment, process, samples):

@@ -37,7 +37,7 @@ class TestWorkflow(unittest.TestCase):
             description=experiment_description)
 
         create_sample_process = experiment.create_process_from_template(Template.create)
-        create_sample_process.add_name("Create Simulation Sample")
+        create_sample_process.rename("Create Simulation Sample")
 
         sample_name = 'Test Sample 1'
         samples = create_sample_process.create_samples(
@@ -58,13 +58,13 @@ class TestWorkflow(unittest.TestCase):
         )
         create_sample_process.add_files([sample_file])
         create_sample_process = experiment.get_process_by_id(create_sample_process.id)
-        create_sample_process.add_name("Create Simulation Sample")
+        create_sample_process.rename("Create Simulation Sample")
 
         compute_process = experiment. \
             create_process_from_template(Template.compute). \
             add_input_samples_to_process([sample])
 
-        compute_process.add_name("Monte Carlo Simulation")
+        compute_process.rename("Monte Carlo Simulation")
 
         compute_process.set_value_of_setup_property('number_of_processors',5)
         compute_process.set_value_of_setup_property('memory_per_processor',16)

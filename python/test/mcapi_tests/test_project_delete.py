@@ -82,7 +82,7 @@ class TestProjectDelete(unittest.TestCase):
         projects = get_all_projects()
         self.assertEqual(len(projects), 0)
 
-    # @pytest.mark.skip("server for get_all_users not availble on Travis for testing - change .travis.yml")
+    @pytest.mark.skip("server for get_all_users not availble on Travis for testing - change .travis.yml")
     def test_only_owner_can_delete(self):
         self.helper = aid.AssertHelper(self)
 

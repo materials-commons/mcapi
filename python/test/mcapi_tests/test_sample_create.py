@@ -39,7 +39,7 @@ class TestSampleCreate(unittest.TestCase):
     def test_create_samples_basic(self):
         process_name = "Create Samples for basic test"
         process = self.experiment.create_process_from_template(Template.create)
-        process.add_name(process_name)
+        process.rename(process_name)
         self.assertIsNotNone(process)
         self.assertIsNotNone(process.category)
         self.assertEqual(process.category,'create_sample')
@@ -71,7 +71,7 @@ class TestSampleCreate(unittest.TestCase):
         found_process = found_sample.processes[0]
         found_process.project = found_sample.project
         found_process.experiment = found_sample.experiment
-        process = found_process.fill_in_output_samples()
+        process = found_process.decorate_with_output_samples()
         self.assertIsNotNone(process.output_samples)
         self.assertEqual(len(process.output_samples),2)
 
@@ -79,7 +79,7 @@ class TestSampleCreate(unittest.TestCase):
     def test_create_samples_multiple(self):
         process_name = "Create Samples for double-add test"
         process = self.experiment.create_process_from_template(Template.create)
-        process.add_name(process_name)
+        process.rename(process_name)
         sample_names = ['Test Sample 3', 'Test Sample 4','Test Sample 5', 'Test Sample 6']
         samples_a = process.create_samples(sample_names[0:2])
         samples_b = process.create_samples(sample_names[2:4])
@@ -111,7 +111,7 @@ class TestSampleCreate(unittest.TestCase):
         process = experiment.create_process_from_template(Template.create)
         sample_names = ['Test Sample 7', 'Test Sample 8']
         samples = process.create_samples(sample_names)
-        process.fill_in_output_samples()
+        process.decorate_with_output_samples()
         self.assertIsNotNone(samples)
         self.assertEqual(len(samples),2)
         self.assertIsNotNone(process.output_samples)

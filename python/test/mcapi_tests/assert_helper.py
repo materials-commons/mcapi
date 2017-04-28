@@ -96,7 +96,7 @@ class AssertHelper():
         processes = processes_reordered
 
         for process in processes:
-            process.fill_in_output_samples()
+            process.decorate_with_output_samples()
 
 
         process_file_list = [
@@ -135,7 +135,7 @@ class AssertHelper():
             _get_process_with_template(experiment, process_name, Template.create)
         if not create_sample_process:
             create_sample_process = experiment.create_process_from_template(Template.create)
-            create_sample_process.add_name(process_name)
+            create_sample_process = create_sample_process.rename(process_name)
         self.tester.assertIsNotNone(create_sample_process)
         self.tester.assertIsNotNone(create_sample_process.id)
         self.tester.assertIsNotNone(create_sample_process.name)

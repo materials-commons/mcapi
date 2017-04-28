@@ -219,7 +219,7 @@ class DemoProject:
         process = selected_process
         if not process:
             process = experiment.create_process_from_template(template_id)
-            process.add_name(process_name)
+            process.rename(process_name)
         return process
 
     def _get_or_create_output_sample_from_process(self, process, sample_names):

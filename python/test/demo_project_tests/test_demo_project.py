@@ -107,7 +107,7 @@ class TestDemoProject(unittest.TestCase):
         processes = processes_reordered
 
         for process in processes:
-            process.fill_in_output_samples()
+            process.decorate_with_output_samples()
 
 
         process_file_list = [
