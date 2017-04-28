@@ -117,7 +117,7 @@ class TestSampleCreate(unittest.TestCase):
         self.assertIsNotNone(process.output_samples)
         self.assertTrue(len(process.output_samples) == 2)
 
-        updated_experiment = experiment.fetch_and_add_processes()
+        updated_experiment = experiment.decorate_with_processes()
         self.assertEqual(experiment,updated_experiment)
         self.assertTrue(len(experiment.processes) == 1)
         updated_process = experiment.processes[0]
@@ -126,7 +126,7 @@ class TestSampleCreate(unittest.TestCase):
 
         self.assertTrue(len(experiment.samples) == 2)
 
-        experiment = experiment.fetch_and_add_samples()
+        experiment = experiment.decorate_with_samples()
         self.assertTrue(len(experiment.processes) == 1)
         updated_process = experiment.processes[0]
 

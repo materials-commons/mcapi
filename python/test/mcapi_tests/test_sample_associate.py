@@ -60,7 +60,7 @@ class TestSampleAssociate(unittest.TestCase):
         self.assertEqual(len(process_with_sample.input_samples), 1)
         self.assertEqual(process_with_sample.input_samples[0].name, self.base_sample.name)
         for samaple in process_with_sample.input_samples:
-            samaple.fetch_and_add_processes();
+            samaple.decorate_with_processes();
         found_process = None
         print ''
         print '----'

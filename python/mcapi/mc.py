@@ -332,16 +332,13 @@ class Experiment(MCObject):
 
     # Experiment - basic functions: rename, put, delete
 
-    def create_process_from_template(self, template_id):
-        return _create_process_from_template(self.project, self, template_id)
+    def rename(self, name):
+        # TODO: Experiment.rename(name)
+        pass
 
-    def fetch_and_add_samples(self):
-        self.samples = _fetch_samples_for_experiment(self)
-        return self
-
-    def fetch_and_add_processes(self):
-        self.processes = _fetch_processes_for_exeriment(self)
-        return self
+    def put(self):
+        # TODO: Experiment.put()
+        pass
 
     def delete(self, dryRun=False, deleteProcessesAndSamples=False):
         results = None
@@ -353,6 +350,18 @@ class Experiment(MCObject):
             results = api.delete_experiment(self.project.id, self.id)
         self.delete_tally = DeleteTally(data=results)
         return self
+
+    def create_process_from_template(self, template_id):
+        return _create_process_from_template(self.project, self, template_id)
+
+    def decorate_with_samples(self):
+        self.samples = _fetch_samples_for_experiment(self)
+        return self
+
+    def decorate_with_processes(self):
+        self.processes = _fetch_processes_for_exeriment(self)
+        return self
+
 
 
 def get_process_from_id(project, experiment, process_id):

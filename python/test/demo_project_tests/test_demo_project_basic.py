@@ -150,7 +150,7 @@ class TestDemoProjectBasic(unittest.TestCase):
         return experiment
 
     def _get_process_with_template(self, experiment, process_name, template_id):
-        experiment = experiment.fetch_and_add_processes()
+        experiment = experiment.decorate_with_processes()
         processes = experiment.processes
         selected_process = None
         for process in processes:

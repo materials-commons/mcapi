@@ -47,7 +47,7 @@ class TestWorkflow(unittest.TestCase):
         )
 
         sample = samples [0]
-        experiment.fetch_and_add_samples()
+        experiment.decorate_with_samples()
         samples_from_experiment = experiment.samples
         sample_from_experiment = samples_from_experiment[0]
 

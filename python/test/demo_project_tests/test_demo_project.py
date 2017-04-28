@@ -95,8 +95,8 @@ class TestDemoProject(unittest.TestCase):
             self.assertIsNotNone(found_file, "Expecting to find file.name == " + name)
 
         experiment = project.get_all_experiments()[0]
-        experiment = experiment.fetch_and_add_processes()
-        experiment = experiment.fetch_and_add_samples()
+        experiment = experiment.decorate_with_processes()
+        experiment = experiment.decorate_with_samples()
         processes = experiment.processes
 
         processes_reordered = []
