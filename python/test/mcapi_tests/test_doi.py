@@ -64,7 +64,7 @@ class TestDoi(unittest.TestCase):
         results = self._getDoiMetadata()
         self.assertIsNotNone(results)
         self.assertIsNotNone(results['success'])
-        self.assertEqual(results['success'],doi)
+        self.assertEqual(results['success'], doi)
 
         results = self._getDoiLink()
         url = results['val']
@@ -117,7 +117,7 @@ class TestDoi(unittest.TestCase):
         experiment_id = self.experiment.id
         dataset_id = self.dataset_id
         return api.create_doi(project_id, experiment_id, dataset_id,
-                             title, description, author, publication_year)
+                              title, description, author, publication_year)
 
     def _getDoiMetadata(self):
         project_id = self.project.id
