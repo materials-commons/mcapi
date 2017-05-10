@@ -533,6 +533,15 @@ def create_dataset(project_id, experiment_id, title, description, remote=None):
               "/datasets"
     return post(remote.make_url_v2(api_url), data)
 
+def check_statue_of_doi_server(project_id, experiment_id, dataset_id, remote=None):
+    if not remote:
+        remote = use_remote()
+    api_url = "projects/" + project_id + \
+              "/experiments/" + experiment_id + \
+              "/datasets/" + dataset_id + \
+              "/doiserverstatus"
+    return get(remote.make_url_v2(api_url))
+
 def create_doi(project_id, experiment_id, dataset_id, title, description, author, year, remote=None):
     if not remote:
         remote = use_remote()
@@ -547,3 +556,21 @@ def create_doi(project_id, experiment_id, dataset_id, title, description, author
               "/datasets/" + dataset_id + \
               "/doi"
     return post(remote.make_url_v2(api_url), data)
+
+def get_doi_metadata(project_id, experiment_id, dataset_id, remote=None):
+    if not remote:
+        remote = use_remote()
+    api_url = "projects/" + project_id + \
+              "/experiments/" + experiment_id + \
+              "/datasets/" + dataset_id + \
+              "/doi"
+    return get(remote.make_url_v2(api_url))
+
+def get_doi_link(project_id, experiment_id, dataset_id, remote=None):
+    if not remote:
+        remote = use_remote()
+    api_url = "projects/" + project_id + \
+              "/experiments/" + experiment_id + \
+              "/datasets/" + dataset_id + \
+              "/doi/link"
+    return get(remote.make_url_v2(api_url))

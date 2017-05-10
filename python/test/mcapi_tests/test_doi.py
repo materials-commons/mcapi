@@ -44,13 +44,32 @@ class TestDoi(unittest.TestCase):
 
         results = self._addDataset(title, description)
         # oops - dataset does not return otype!
-        # self.assertEqual(results['otype'], 'dataset')
+        # self.assertEqual(results['otype'], 'dataset') # issue #1049
+        # TODO: add otype to dataset in backend issue #1049
+
         self.assertEqual(results['title'], title)
 
         self.dataset_id = results['id']
 
-        results = self._restCallToCreateDOI(title,description,author,publication_year)
-        print results
+        ok = self._checkStatusOfDoiServer()
+        self.assertTrue(ok)
+
+        results = self._createDOI(title, description, author, publication_year)
+        self.assertIsNotNone(results)
+        self.assertIsNotNone(results['val'])
+        self.assertIsNotNone(results['val']['doi'])
+
+        doi = results['val']['doi']
+
+        results = self._getDoiMetadata()
+        self.assertIsNotNone(results)
+        self.assertIsNotNone(results['success'])
+        self.assertEqual(results['success'],doi)
+
+        results = self._getDoiLink()
+        url = results['val']
+        self.assertTrue(url.find("ezid.lib.purdue.edu") > -1)
+        self.assertTrue(url.find("doi:10.5072") > -1)
 
     def _build_project(self):
         project_name = _fake_name("ProjectDeleteTest")
@@ -87,9 +106,27 @@ class TestDoi(unittest.TestCase):
         results = api.create_dataset(project_id, experiment_id, title, description)
         return results
 
-    def _restCallToCreateDOI(self, title, description, author, publication_year):
+    def _checkStatusOfDoiServer(self):
+        project_id = self.project.id
+        experiment_id = self.experiment.id
+        dataset_id = self.dataset_id
+        return api.check_statue_of_doi_server(project_id, experiment_id, dataset_id)
+
+    def _createDOI(self, title, description, author, publication_year):
         project_id = self.project.id
         experiment_id = self.experiment.id
         dataset_id = self.dataset_id
         return api.create_doi(project_id, experiment_id, dataset_id,
                              title, description, author, publication_year)
+
+    def _getDoiMetadata(self):
+        project_id = self.project.id
+        experiment_id = self.experiment.id
+        dataset_id = self.dataset_id
+        return api.get_doi_metadata(project_id, experiment_id, dataset_id)
+
+    def _getDoiLink(self):
+        project_id = self.project.id
+        experiment_id = self.experiment.id
+        dataset_id = self.dataset_id
+        return api.get_doi_link(project_id, experiment_id, dataset_id)
