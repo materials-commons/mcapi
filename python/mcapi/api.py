@@ -519,3 +519,31 @@ def file_move(project_id, old_directory_id, new_directory_id, file_id, remote=No
     api_url = "projects/" + project_id + \
               "/files/" + file_id
     return put(remote.make_url_v2(api_url), data)
+
+# for testing only
+def create_dataset(project_id, experiment_id, title, description, remote=None):
+    if not remote:
+        remote = use_remote()
+    data = {
+        'title': title,
+        'description': description
+    }
+    api_url = "projects/" + project_id + \
+              "/experiments/" + experiment_id + \
+              "/datasets"
+    return post(remote.make_url_v2(api_url), data)
+
+def create_doi(project_id, experiment_id, dataset_id, title, description, author, year, remote=None):
+    if not remote:
+        remote = use_remote()
+    data = {
+        'title': title,
+        'description': description,
+        'author': author,
+        'publication_year': year
+    }
+    api_url = "projects/" + project_id + \
+              "/experiments/" + experiment_id + \
+              "/datasets/" + dataset_id + \
+              "/doi"
+    return post(remote.make_url_v2(api_url), data)

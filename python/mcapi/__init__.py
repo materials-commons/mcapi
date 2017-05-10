@@ -8,4 +8,7 @@ from mc import get_all_templates
 
 from mc import make_dir_tree_table
 
+# for testing only!
+import api as __api
+
 __all__ = dir()
