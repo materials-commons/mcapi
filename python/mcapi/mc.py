@@ -253,6 +253,53 @@ class Process(MCObject):
         if description:
             self.description = description
 
+    def pretty_print(self, shift=0, indent=2):
+        
+        n_indent = 0
+        def _print(s, n_indent):
+            print " "*shift + " "*indent*n_indent + s
+        
+        _print("name: " + str(self.name), n_indent)
+        _print("description: " + str(self.description), n_indent)
+        _print("id: " + str(self.id), n_indent)
+        _print("process_type: " + str(self.process_type), n_indent)
+        _print("template_id: " + str(self.template_id), n_indent)
+        if self.project is not None:
+            _print("project.name: " + str(self.project.name), n_indent)
+            _print("project.id: " + str(self.project.id), n_indent)
+        if self.experiment is not None:
+            _print("experiment.name: " + str(self.experiment.name), n_indent)
+            _print("experiment.id: " + str(self.experiment.id), n_indent)
+        _print("owner: " + str(self.owner), n_indent)
+        
+        def _print_objects(title, obj_list, n_indent):
+            if len(obj_list):
+                _print(title + ": ", n_indent)
+                n_indent += 1
+                for obj in obj_list:
+                    _print(str(obj.name) + " " + str(obj.id), n_indent)
+                n_indent -= 1
+        
+        def _print_measurements(measurements, n_indent):
+            if len(measurements):
+                _print("measurements: ", n_indent)
+                n_indent += 1
+                for obj in measurements:
+                    _print(str(obj.attribute) + " " + str(obj.id), n_indent)
+                n_indent -= 1
+        
+        _print_objects("input_files", self.input_files, n_indent)
+        _print_objects("output_files", self.output_files, n_indent)
+        _print_objects("input_samples", self.input_samples, n_indent)
+        _print_objects("output_samples", self.output_samples, n_indent)
+        _print("does_transform: " + str(self.does_transform), n_indent)
+        _print_objects("transformed_samples", self.transformed_samples, n_indent)
+        _print_measurements(self.measurements, n_indent)
+        
+        # setup
+        # properties_dictionary
+        
+
 
     def process_special_objects(self):
         if (self.setup):
@@ -325,6 +372,8 @@ class Process(MCObject):
         return _set_measurement_for_process_samples(self.project, \
                 self.experiment, self, self.output_samples,\
                 property, measurements)
+    
+    
 
 
 class Sample(MCObject):
