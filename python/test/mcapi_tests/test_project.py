@@ -2,7 +2,7 @@ import unittest
 from random import randint
 from mcapi import set_remote_config_url, get_remote_config_url
 from mcapi import Project
-from mcapi import list_projects
+from mcapi import get_all_projects
 from mcapi import create_project
 
 
@@ -24,7 +24,7 @@ class TestProject(unittest.TestCase):
         self.assertEqual(get_remote_config_url(), url)
 
     def test_list_projects_object(self):
-        projects = list_projects()
+        projects = get_all_projects()
         project = projects[0]
         self.assertIsNotNone(project.name)
         self.assertTrue(isinstance(project, Project))

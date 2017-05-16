@@ -7,8 +7,6 @@ from os import path as os_path
 from os.path import getsize, exists, isfile
 from pathlib import Path
 from mcapi import set_remote_config_url, get_remote_config_url, create_project
-from mcapi import _create_file_with_upload, _download_data_to_file
-
 
 remote_url = 'http://mctest.localhost/api'
 
@@ -45,21 +43,7 @@ class TestFileDownload(unittest.TestCase):
         self.assertEqual(self.image_file.size, self.byte_count)
         self.assertEqual(self.image_file.name, self.image_file_name)
 
-    def test_download_image_file_internal(self):
-        self.setup_test_files()
-        project = self.base_project
-        test_file = self.image_file
-        download_file_path = tempfile.gettempdir() + "/" + test_file.name
-        if exists(download_file_path):
-            remove(download_file_path)
-
-        filepath = _download_data_to_file(project, test_file, download_file_path)
-
-        self.assertTrue(exists(filepath))
-        self.assertTrue(isfile(filepath))
-        self.assertTrue(filecmp.cmp(self.make_test_dir_path('fractal.jpg'), filepath))
-
-    def test_download_image_file_external(self):
+    def test_download_image_file(self):
         self.setup_test_files()
         project = self.base_project
         test_file = self.image_file
@@ -73,21 +57,7 @@ class TestFileDownload(unittest.TestCase):
         self.assertTrue(isfile(filepath))
         self.assertTrue(filecmp.cmp(self.make_test_dir_path('fractal.jpg'), filepath))
 
-    def test_download_text_onext_file_internal(self):
-        self.setup_test_files()
-        project = self.base_project
-        test_file = self.no_ext_file
-        download_file_path = tempfile.gettempdir() + "/" + test_file.name
-        if exists(download_file_path):
-            remove(download_file_path)
-
-        filepath = _download_data_to_file(project, test_file, download_file_path)
-
-        self.assertTrue(exists(filepath))
-        self.assertTrue(isfile(filepath))
-        self.assertTrue(filecmp.cmp(self.make_test_dir_path('NOEXT'), filepath))
-
-    def test_download_text_onext_file_external(self):
+    def test_download_text_no_ext_file(self):
         self.setup_test_files()
         project = self.base_project
         test_file = self.no_ext_file
@@ -116,10 +86,12 @@ class TestFileDownload(unittest.TestCase):
             self.image_file_name = path.parts[-1]
             input_path = str(path.absolute())
             self.byte_count = getsize(input_path)
-            self.image_file = _create_file_with_upload(self.base_project, self.base_directory, self.image_file_name, input_path)
+            self.image_file = self.base_project \
+                .add_file_using_directory(self.base_directory, self.image_file_name, input_path)
         if not hasattr(self, 'no_ext_file_name'):
             path = Path(self.make_test_dir_path('NOEXT'))
             self.no_ext_file_name = path.parts[-1]
             input_path = str(path.absolute())
             self.no_ext_file_byte_count = getsize(input_path)
-            self.no_ext_file = _create_file_with_upload(self.base_project, self.base_directory, self.no_ext_file_name, input_path)
+            self.no_ext_file = self.base_project \
+                .add_file_using_directory(self.base_directory, self.no_ext_file_name, input_path)

@@ -29,7 +29,6 @@ class TestMeasurementComposition(unittest.TestCase):
         cls.sample = cls.process.create_samples(
             sample_names=[cls.sample_name]
         )[0]
-        cls.process = cls.process.add_samples_to_process([cls.sample])
 
     def test_is_setup_correctly(self):
         self.assertIsNotNone(self.project)

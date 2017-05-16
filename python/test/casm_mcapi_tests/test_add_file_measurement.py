@@ -8,16 +8,15 @@ from mcapi import set_remote_config_url
 from mcapi import create_project, Template
 from casm_mcapi import _add_file_measurement
 
-
 url = 'http://mctest.localhost/api'
 
 
 def fake_name(prefix):
     number = "%05d" % randint(0, 99999)
-    return prefix+number
+    return prefix + number
+
 
 class TestAddFileMeasurements(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         set_remote_config_url(url)
@@ -33,10 +32,8 @@ class TestAddFileMeasurements(unittest.TestCase):
             Template.primitive_crystal_structure)
         cls.sample_name = "pcs-sample-1"
         cls.sample = cls.process.create_samples(sample_names=[cls.sample_name])[0]
-        cls.process = cls.process.add_samples_to_process([cls.sample])
         cls.test_dir_path = "/testDir1/testdir2/testdir3"
         cls.filename = "test.jpg"
-
 
     def test_is_setup_correctly(self):
         self.assertIsNotNone(self.project)
@@ -63,7 +60,7 @@ class TestAddFileMeasurements(unittest.TestCase):
 
     def test_measurement_file_direct(self):
         self.setup_each_test()
-        file = self.file
+        the_file = self.file
 
         name = "Measurement File"
         attribute = "file"
@@ -74,56 +71,56 @@ class TestAddFileMeasurements(unittest.TestCase):
                 "unit": "",
                 "units": [],
                 "value": {
-                    "file_id": file.id,
-                    "file_name": file.name
+                    "file_id": the_file.id,
+                    "file_name": the_file.name
                 },
                 "is_best_measure": True}
-        property = {
+        property_data = {
             "name": name,
             "attribute": attribute
         }
         measurement = self.process.create_measurement(data=data)
         process_out = self.process.set_measurements_for_process_samples(
-            property, [measurement])
+            property_data, [measurement])
         sample_out = process_out.output_samples[0]
         properties_out = sample_out.properties
         table = self.make_properties_dictionary(properties_out)
-        property = table[name]
-        self.assertEqual(len(property.best_measure), 1)
-        measurement_out = property.best_measure[0]
+        property_data = table[name]
+        self.assertEqual(len(property_data.best_measure), 1)
+        measurement_out = property_data.best_measure[0]
         self.assertEqual(measurement_out.name, name)
         self.assertEqual(measurement_out.attribute, attribute)
         self.assertEqual(measurement_out.otype, "file")
         self.assertEqual(measurement_out.unit, "")
-        self.assertEqual(measurement_out.value['file_id'], file.id)
-        self.assertEqual(measurement_out.value['file_name'], file.name)
+        self.assertEqual(measurement_out.value['file_id'], the_file.id)
+        self.assertEqual(measurement_out.value['file_name'], the_file.name)
 
     def test_measurement_attribute_lattice_system_direct(self):
         self.setup_each_test()
-        file = self.file
+        the_file = self.file
         name = "Measurement File"
         attribute = "file"
 
         process = _add_file_measurement(
-            self.process, attribute, file, name=name)
+            self.process, attribute, the_file, name=name)
         sample_out = process.output_samples[0]
         properties_out = sample_out.properties
         table = self.make_properties_dictionary(properties_out)
-        property = table[name]
-        self.assertEqual(len(property.best_measure),1)
-        measurement_out = property.best_measure[0]
+        selected_property = table[name]
+        self.assertEqual(len(selected_property.best_measure), 1)
+        measurement_out = selected_property.best_measure[0]
         self.assertEqual(measurement_out.name, name)
         self.assertEqual(measurement_out.attribute, attribute)
         self.assertEqual(measurement_out.otype, "file")
         self.assertEqual(measurement_out.unit, "")
-        self.assertEqual(measurement_out.value['file_id'], file.id)
-        self.assertEqual(measurement_out.value['file_name'], file.name)
+        self.assertEqual(measurement_out.value['file_id'], the_file.id)
+        self.assertEqual(measurement_out.value['file_name'], the_file.name)
 
-    def make_properties_dictionary(self,properties):
+    def make_properties_dictionary(self, properties):
         ret = {}
-        for property in properties:
-            name = property.name
-            ret[name] = property
+        for the_property in properties:
+            name = the_property.name
+            ret[name] = the_property
         return ret
 
     def setup_each_test(self):

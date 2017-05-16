@@ -4,17 +4,15 @@ from mcapi import set_remote_config_url
 from mcapi import create_project, Template
 from casm_mcapi import _set_measurement
 
-
 url = 'http://mctest.localhost/api'
 
 
 def fake_name(prefix):
     number = "%05d" % randint(0, 99999)
-    return prefix+number
+    return prefix + number
 
 
 class TestSetMeasurement(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         set_remote_config_url(url)
@@ -32,7 +30,6 @@ class TestSetMeasurement(unittest.TestCase):
         cls.sample = cls.process.create_samples(
             sample_names=[cls.sample_name]
         )[0]
-        cls.process = cls.process.add_samples_to_process([cls.sample])
 
     def test_is_setup_correctly(self):
         self.assertIsNotNone(self.project)
@@ -59,19 +56,19 @@ class TestSetMeasurement(unittest.TestCase):
 
     def test_measurement_attribute_name(self):
         value = "Test Primitive Crystal Structure"
-        data = {"name":"Name",
-            "attribute":"name",
-            "otype":"string",
-            "unit":"",
-            "units": [],
-            "value":value,
-            "is_best_measure":True}
+        data = {"name": "Name",
+                "attribute": "name",
+                "otype": "string",
+                "unit": "",
+                "units": [],
+                "value": value,
+                "is_best_measure": True}
         measurement = self.process.create_measurement(data=data)
-        self.assertEqual(measurement.name,"Name")
-        self.assertEqual(measurement.attribute,"name")
-        self.assertEqual(measurement.otype,"string")
-        self.assertEqual(measurement.unit,"")
-        self.assertEqual(measurement.value,value)
+        self.assertEqual(measurement.name, "Name")
+        self.assertEqual(measurement.attribute, "name")
+        self.assertEqual(measurement.otype, "string")
+        self.assertEqual(measurement.unit, "")
+        self.assertEqual(measurement.value, value)
 
     def test_inline_pretest_set_measurement_basic(self):
         attribute = "name"
@@ -81,22 +78,22 @@ class TestSetMeasurement(unittest.TestCase):
             "name": measurement_name,
             "attribute": attribute,
             "otype": "string",
-            "unit":"",
+            "unit": "",
             "units": [],
             "value": measurement_value,
             "is_best_measure": True
-            }
+        }
         measurement_property = {
             "name": measurement_name,
             "attribute": attribute
         }
         process = self.process
         measurement = process.create_measurement(data=measurement_data)
-        self.assertEqual(measurement.name,measurement_name)
-        self.assertEqual(measurement.attribute,attribute)
-        self.assertEqual(measurement.otype,"string")
-        self.assertEqual(measurement.unit,"")
-        self.assertEqual(measurement.value,measurement_value)
+        self.assertEqual(measurement.name, measurement_name)
+        self.assertEqual(measurement.attribute, attribute)
+        self.assertEqual(measurement.otype, "string")
+        self.assertEqual(measurement.unit, "")
+        self.assertEqual(measurement.value, measurement_value)
         process_out = process.set_measurements_for_process_samples(
             measurement_property, [measurement])
         sample_out = process_out.output_samples[0]
@@ -116,13 +113,13 @@ class TestSetMeasurement(unittest.TestCase):
             "name": measurement_name,
             "attribute": attribute,
             "otype": "string",
-            "unit":"",
+            "unit": "",
             "units": [],
             "value": measurement_value,
             "is_best_measure": True
-            }
+        }
         process = _set_measurement(
-               self.process, attribute, measurement_data, measurement_name)
+            self.process, attribute, measurement_data, measurement_name)
         sample_out = process.output_samples[0]
         properties_out = sample_out.properties
         measurement_out = properties_out[0].best_measure[0]

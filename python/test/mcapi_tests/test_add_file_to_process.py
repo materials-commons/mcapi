@@ -4,7 +4,7 @@ from os import environ
 from os import path as os_path
 from os.path import getsize
 from pathlib import Path as PathClass
-from mcapi import create_project, Template, get_process_from_id
+from mcapi import create_project, Template
 
 
 def fake_name(prefix):
@@ -80,7 +80,7 @@ class TestAddFileToProcess(unittest.TestCase):
 
         self.assertEqual(file1.id, file2.id)
 
-        process = get_process_from_id(self.project,self.experiment,self.process.id)
+        process = self.experiment.get_process_by_id(self.process.id)
         self.assertIsNotNone(process.files)
         self.assertEqual(len(process.files), 1)
         file2 = process.files[0]

@@ -9,10 +9,10 @@ url = 'http://mctest.localhost/api'
 
 def fake_name(prefix):
     number = "%05d" % randint(0, 99999)
-    return prefix+number
+    return prefix + number
+
 
 class TestAddListMeasurements(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         set_remote_config_url(url)
@@ -28,8 +28,6 @@ class TestAddListMeasurements(unittest.TestCase):
             Template.primitive_crystal_structure)
         cls.sample_name = "pcs-sample-1"
         cls.sample = cls.process.create_samples(sample_names=[cls.sample_name])[0]
-        cls.process = cls.process.add_samples_to_process([cls.sample])
-
 
     def test_is_setup_correctly(self):
         self.assertIsNotNone(self.project)
@@ -55,7 +53,7 @@ class TestAddListMeasurements(unittest.TestCase):
         self.assertEqual(sample.name, samples[0].name)
 
     def test_add_or_update_list_float_direct(self):
-        value = [1.0,2.0,3.0,4.0,5.0,6.0]
+        value = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0]
         value_type = 'float'
         attribute = "mumble"
         name = "A List"
@@ -73,19 +71,19 @@ class TestAddListMeasurements(unittest.TestCase):
             },
             "is_best_measure": True
         }
-        property = {
+        property_data = {
             "name": name,
             "attribute": attribute
         }
         measurement = self.process.create_measurement(data=measurement_data)
         process_out = self.process.set_measurements_for_process_samples(
-            property, [measurement])
+            property_data, [measurement])
         sample_out = process_out.output_samples[0]
         properties_out = sample_out.properties
         table = self.make_properties_dictionary(properties_out)
-        property = table[name]
-        self.assertEqual(len(property.best_measure),1)
-        measurement_out = property.best_measure[0]
+        property_data = table[name]
+        self.assertEqual(len(property_data.best_measure), 1)
+        measurement_out = property_data.best_measure[0]
         self.assertEqual(measurement_out.name, measurement.name)
         self.assertEqual(measurement_out.name, name)
         self.assertEqual(measurement_out.attribute, attribute)
@@ -96,7 +94,7 @@ class TestAddListMeasurements(unittest.TestCase):
         self.assertEqual(measurement_out.value['value'], value)
 
     def test_add_or_update__list_string(self):
-        value = ['A','B','C']
+        value = ['A', 'B', 'C']
         value_type = 'string'
         attribute = "mumble"
         name = "A List"
@@ -105,9 +103,9 @@ class TestAddListMeasurements(unittest.TestCase):
         sample_out = process.output_samples[0]
         properties_out = sample_out.properties
         table = self.make_properties_dictionary(properties_out)
-        property = table[name]
-        self.assertEqual(len(property.best_measure),1)
-        measurement_out = property.best_measure[0]
+        selected_property = table[name]
+        self.assertEqual(len(selected_property.best_measure), 1)
+        measurement_out = selected_property.best_measure[0]
         self.assertEqual(measurement_out.name, name)
         self.assertEqual(measurement_out.attribute, attribute)
         self.assertEqual(measurement_out.otype, "vector")
@@ -116,10 +114,9 @@ class TestAddListMeasurements(unittest.TestCase):
         self.assertEqual(measurement_out.value['dimensions'], len(value))
         self.assertEqual(measurement_out.value['value'], value)
 
-    def make_properties_dictionary(self,properties):
+    def make_properties_dictionary(self, properties):
         ret = {}
-        for property in properties:
-            name = property.name
-            ret[name] = property
+        for the_property in properties:
+            name = the_property.name
+            ret[name] = the_property
         return ret
-

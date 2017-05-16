@@ -27,10 +27,8 @@ class TestMeasurementPrimitiveCrystalStructure(unittest.TestCase):
         cls.experiment_id = cls.experiment.id
         cls.process = cls.experiment.create_process_from_template(Template.primitive_crystal_structure)
         cls.sample_name = "pcs-sample-1"
-        cls.sample = cls.process.create_samples(
-            sample_names=[cls.sample_name]
-        )[0]
-        cls.process = cls.process.add_samples_to_process([cls.sample])
+        cls.samples = cls.process.create_samples(sample_names=[cls.sample_name])
+        cls.sample = cls.samples[0]
 
     def test_is_setup_correctly(self):
         self.assertIsNotNone(self.project)
@@ -47,13 +45,25 @@ class TestMeasurementPrimitiveCrystalStructure(unittest.TestCase):
         self.assertEqual(self.process.process_type, 'create')
         self.assertTrue(self.process.does_transform)
 
-        sample = self.sample
+        list = self.process.make_list_of_samples_with_property_set_ids(self.samples)
+        self.assertTrue(len(list), 1)
+        self.assertIsNotNone(list[0]['property_set_id'])
+        self.assertIsNotNone(list[0]['sample'])
+        self.assertIsNotNone(list[0]['sample'].id)
+        self.assertIsNotNone(list[0]['sample'].name)
+        self.assertEqual(list[0]['sample'].id, self.sample.id)
+        self.assertEqual(list[0]['sample'].name, self.sample.name)
+
         samples = self.process.output_samples
-        self.assertIsNotNone(sample)
-        self.assertIsNotNone(sample.name)
-        self.assertIsNotNone(sample.property_set_id)
-        self.assertEqual(sample.name, self.sample_name)
-        self.assertEqual(sample.name, samples[0].name)
+        self.assertIsNotNone(samples)
+        self.assertEqual(len(samples),1)
+        output_sample = samples[0]
+        self.assertIsNotNone(output_sample)
+        self.assertIsNotNone(output_sample.id)
+        self.assertIsNotNone(output_sample.name)
+        self.assertEqual(output_sample.id, self.sample.id)
+        self.assertEqual(output_sample.name, self.sample.name)
+
 
     def test_measurement_attribute_name(self):
         value = "Test Primitive Crystal Structure"

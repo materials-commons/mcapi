@@ -1,3 +1,5 @@
+dist: trusty
+
 sudo: require
 
 notifications:
@@ -31,6 +33,8 @@ env:
     - RETHINKDB_CLUSTER_PORT=31815
     - RETHINKDB_HTTP_PORT=8090
 
+git:
+  depth: 3
 
 before_install:
     # RethinkDB
@@ -43,7 +47,7 @@ before_install:
   - sudo cat /etc/hosts
 
 install:
-  - nvm install v5.3.0
+  - nvm install v6.10
   - node --version
   - sudo apt-get install nginx
   - sudo apt-get install rethinkdb
@@ -53,9 +57,10 @@ install:
   - npm install -g node-gyp@3.5.0
   - npm install -g gulp
   - mkdir .materialscommons
-  - git clone -b sprint --depth 1 https://github.com/materials-commons/materialscommons.org.git
+  - git clone -b testing-delete --depth 3 https://github.com/materials-commons/materialscommons.org.git
 
   - pushd materialscommons.org
+  - git log -1
   - export MC_CLONE_DIR=`pwd`
   - yarn install
 
@@ -85,12 +90,13 @@ install:
 
 
 before_script:
+# Note: nginx appears to have been started on install - so, reload should work
   - sudo cp ${TEST_DATA_DIR}/test_config_data/mctest.localhost.conf /etc/nginx/conf.d/
-  - sudo nginx
+  - sudo nginx -s reload
   - cd $MC_CLONE_DIR
   - rethinkdb --driver-port $MCDB_PORT --cluster-port $RETHINKDB_CLUSTER_PORT --http-port $RETHINKDB_HTTP_PORT --daemon
   - sleep 5
-  - rethinkdb restore 'test_data/test_ready_rethinkdb_dump_2017-02-01.tar.gz' --connect $MCDB_CONNECTION --force
+  - rethinkdb restore 'test_data/test_rethinkdb_dump.tar.gz' --connect $MCDB_CONNECTION --force
   - sleep 5
 
   - cd backend
@@ -98,6 +104,7 @@ before_script:
   - ./run.sh
   - popd
 
+  - gulp build-lib
   - gulp build-mcapi-server
   - sleep 5
   - node sbin/mcapi/mcapi.js -p $MCAPI_SERVER_PORT > ${MC_LOG_DIR}/mcapi.out.${SERVERTYPE} 2>&1&
@@ -106,18 +113,20 @@ before_script:
   - pwd
   - pip install coverage
   - python setup.py install
-#  - python print_modules.py
   - cp test/test_data/test_config_data/travisconfig.json ~/.materialscommons/config.json
 
   - sleep 20
-#  - curl -o junk.txt http://mctest.localhost/api/v2/templates?apikey=totally-bogus
-#  - cat junk.txt
+# Note: guard to prevent tests if host is not available
+  - curl -o junk.txt http://mctest.localhost/api/v2/templates?apikey=totally-bogus
+  - grep 'otype' junk.txt
 
 script:
-  - coverage run --source mcapi -m py.test test
-  - coverage report -m
+  - pytest test
+#  - coverage run --source mcapi,casm_mcapi,demo_project -m py.test test
+#  - coverage report -m
 
 after_failure:
   - echo ${MC_LOG_DIR}/mcapi.out.${SERVERTYPE}
   - cat ${MC_LOG_DIR}/mcapi.out.${SERVERTYPE}
+  - sudo cat /var/log/nginx/access.log
  

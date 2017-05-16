@@ -4,7 +4,6 @@ from os import path as os_path
 from os.path import getsize
 from pathlib import Path
 from mcapi import set_remote_config_url, get_remote_config_url, create_project
-from mcapi import _create_file_with_upload
 
 
 url = 'http://mctest.localhost/api'
@@ -43,7 +42,7 @@ class TestFileUpload(unittest.TestCase):
         file_name = path.parts[-1]
         input_path = str(path.absolute())
         byte_count = getsize(input_path)
-        test_file = _create_file_with_upload(project, directory, file_name, input_path)
+        test_file = project.add_file_using_directory(directory, file_name, input_path)
         self.assertIsNotNone(test_file)
         self.assertEqual(test_file.size, byte_count)
 
@@ -56,13 +55,13 @@ class TestFileUpload(unittest.TestCase):
         file_name = path.parts[-1]
         input_path = str(path.absolute())
         byte_count = getsize(input_path)
-        file1 = _create_file_with_upload(project, directory, file_name, input_path)
+        file1 = project.add_file_using_directory(directory, file_name, input_path)
         self.assertIsNotNone(file)
         self.assertEqual(file1.size, byte_count)
         self.assertEqual(file1.name, file_name)
 
         # redundent calls work - return equivlent descriptor
-        file2 = _create_file_with_upload(project, directory, file_name, input_path)
+        file2 = project.add_file_using_directory(directory, file_name, input_path)
         self.assertIsNotNone(file)
         self.assertEqual(file1.size, file2.size)
         self.assertEqual(file1.name, file2.name)

@@ -1,2 +1,0 @@
-# mcapi
-Materials Commons API

@@ -1,21 +1,18 @@
 import unittest
 from random import randint
-from mcapi import api
-from mcapi import set_remote_config_url, get_remote_config_url
+from mcapi import set_remote_config_url
 from mcapi import create_project
 from mcapi import Template
-
 
 url = 'http://mctest.localhost/api'
 
 
 def fake_name(prefix):
     number = "%05d" % randint(0, 99999)
-    return prefix+number
+    return prefix + number
 
 
 class TestProcessSetup(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         set_remote_config_url(url)
@@ -43,52 +40,52 @@ class TestProcessSetup(unittest.TestCase):
         self.assertIsNotNone(self.process_compute.process_type)
         self.assertEqual(self.process_compute.process_type, 'analysis')
         self.assertFalse(self.process_compute.does_transform)
-        self.assertEqual(len(self.process_compute.setup),1)
+        self.assertEqual(len(self.process_compute.setup), 1)
         self.assertEqual(len(self.process_compute.setup[0].properties), 4)
-        self.assertEqual(self.process_compute.setup[0].properties[0].otype,'string')
+        self.assertEqual(self.process_compute.setup[0].properties[0].otype, 'string')
 
     def test_units(self):
-        dict = self.process_compute.get_setup_properties_as_dictionary()
-        self.assertEqual(dict['memory_per_processor'].units, ['b', 'kb', 'mb', 'gb'])
-        self.assertEqual(dict['walltime'].units, ['h', 'm', 's'])
+        dictionary = self.process_compute.get_setup_properties_as_dictionary()
+        self.assertEqual(dictionary['memory_per_processor'].units, ['b', 'kb', 'mb', 'gb'])
+        self.assertEqual(dictionary['walltime'].units, ['h', 'm', 's'])
 
     def test_type(self):
-        dict = self.process_compute.get_setup_properties_as_dictionary()
-        self.assertEqual(dict['submit_script'].otype, 'string')
-        self.assertEqual(dict['walltime'].otype, 'number')
-        self.assertEqual(dict['memory_per_processor'].otype, 'number')
-        self.assertEqual(dict['number_of_processors'].otype, 'number')
+        dictionary = self.process_compute.get_setup_properties_as_dictionary()
+        self.assertEqual(dictionary['submit_script'].otype, 'string')
+        self.assertEqual(dictionary['walltime'].otype, 'number')
+        self.assertEqual(dictionary['memory_per_processor'].otype, 'number')
+        self.assertEqual(dictionary['number_of_processors'].otype, 'number')
 
     def test_local_update_number_no_unit_property(self):
-        self.process_compute.set_value_of_setup_property('number_of_processors',5)
+        self.process_compute.set_value_of_setup_property('number_of_processors', 5)
         prop = self.process_compute.get_setup_properties_as_dictionary()['number_of_processors']
         self.assertEqual(5, prop.value)
 
     def test_local_update_number_with_unit_property(self):
-        self.process_compute.set_value_of_setup_property('walltime',12)
-        self.process_compute.set_unit_of_setup_property('walltime','h')
+        self.process_compute.set_value_of_setup_property('walltime', 12)
+        self.process_compute.set_unit_of_setup_property('walltime', 'h')
         prop = self.process_compute.get_setup_properties_as_dictionary()['walltime']
         self.assertEqual(12, prop.value)
         self.assertEqual('h', prop.unit)
 
     def test_local_update_string_property(self):
-        self.process_compute.set_value_of_setup_property('submit_script',"exec.sh")
+        self.process_compute.set_value_of_setup_property('submit_script', "exec.sh")
         prop = self.process_compute.get_setup_properties_as_dictionary()['submit_script']
         self.assertEqual("exec.sh", prop.value)
 
     def test_remote_update_properties(self):
-        self.process_compute.set_value_of_setup_property('number_of_processors',5)
-        self.process_compute.set_value_of_setup_property('walltime',12)
-        self.process_compute.set_unit_of_setup_property('walltime','h')
-        self.process_compute.set_value_of_setup_property('submit_script',"exec.sh")
+        self.process_compute.set_value_of_setup_property('number_of_processors', 5)
+        self.process_compute.set_value_of_setup_property('walltime', 12)
+        self.process_compute.set_unit_of_setup_property('walltime', 'h')
+        self.process_compute.set_value_of_setup_property('submit_script', "exec.sh")
         new_process = self.process_compute.update_setup_properties([
-                'number_of_processors','walltime','submit_script'
-            ])
-        self.assertEqual(self.process_compute.id,new_process.id)
+            'number_of_processors', 'walltime', 'submit_script'
+        ])
+        self.assertEqual(self.process_compute.id, new_process.id)
         prop = new_process.get_setup_properties_as_dictionary()['walltime']
-        self.assertEqual(prop.value,12)
-        self.assertEqual(prop.unit,'h')
+        self.assertEqual(prop.value, 12)
+        self.assertEqual(prop.unit, 'h')
         prop = new_process.get_setup_properties_as_dictionary()['number_of_processors']
-        self.assertEqual(prop.value,5)
+        self.assertEqual(prop.value, 5)
         prop = new_process.get_setup_properties_as_dictionary()['submit_script']
-        self.assertEqual(prop.value,"exec.sh")
+        self.assertEqual(prop.value, "exec.sh")
