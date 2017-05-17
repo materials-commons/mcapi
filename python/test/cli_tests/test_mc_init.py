@@ -16,9 +16,13 @@ class TestMCInit(unittest.TestCase):
         mcapi.set_remote_config_url(url)
         if not 'TEST_DATA_DIR' in os.environ:
             raise Exception("No TEST_DATA_DIR environment variable")
-        cls.proj_path = os.path.join(os.environ['TEST_DATA_DIR'], 'cli_test_project', 'CLITest')
+        cli_test_project_path = os.path.join(os.environ['TEST_DATA_DIR'], 'cli_test_project')
+        cls.proj_path = os.path.join(cli_test_project_path, 'CLITest')
         cls.clean()
-        os.mkdir(cls.proj_path)
+        if not os.path.exists(cli_test_project_path):
+            os.mkdir(cli_test_project_path)
+        if not os.path.exists(cls.proj_path):
+            os.mkdir(cls.proj_path)
         
     @classmethod
     def clean(cls):
