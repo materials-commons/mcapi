@@ -19,7 +19,7 @@ def templates_subcommand():
         description='List process templates',
         prog='mc templates')
     parser.add_argument('names', nargs='*', default=None, help='Template names (or id if --id given)')
-    parser.add_argument('--id', action="store_true", default=False, help='Input teamplate id instead of name')
+    parser.add_argument('--id', action="store_true", default=False, help='Input template id instead of name')
     parser.add_argument('--json', action="store_true", default=False, help='Print JSON exactly')
     
     # ignore 'mc templates'
@@ -69,8 +69,8 @@ def templates_subcommand():
                     properties = s['properties']
                     if len(properties):
                         print "\nProcess attributes: ", s['name'], "\n"
-                        df = pandas.DataFrame.from_records(properties, columns=['name', 'attribute', 'otype', 'unit'])
-                        print(tabulate(df, showindex=False, headers=['name', 'attribute', 'otype', 'unit']))
+                        df = pandas.DataFrame.from_records(properties, columns=['name', 'attribute', 'otype', 'units'])
+                        print(tabulate(df, showindex=False, headers=['name', 'attribute', 'otype', 'units']))
                     
                 
     return
