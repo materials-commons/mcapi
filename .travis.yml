@@ -128,5 +128,4 @@ script:
 after_failure:
   - echo ${MC_LOG_DIR}/mcapi.out.${SERVERTYPE}
   - cat ${MC_LOG_DIR}/mcapi.out.${SERVERTYPE}
-  - sudo cat /var/log/nginx/access.log
  
