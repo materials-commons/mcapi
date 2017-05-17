@@ -1,0 +1,9 @@
+#!/usr/bin/env python
+
+# sketch of a command line interface
+import mcapi.cli   
+import types
+
+if __name__ == "__main__":
+    cli = mcapi.cli.CommonsCLIParser()
+

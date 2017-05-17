@@ -4,3 +4,5 @@ rethinkdb
 pytest
 pathlib
 numpy
+pandas
+tabulate
