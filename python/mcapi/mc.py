@@ -208,8 +208,11 @@ class Project(MCObject):
         pass
 
     def get_directory_by_id(self, directory_id):
-        # TODO: Project.get_dirctroy_by_id(id)
-        pass
+        results = api.directory_by_id(self.id, directory_id)
+        directory = make_object(results)
+        directory._project = self
+        directory.shallow = False
+        return directory
 
     def get_all_directories(self):
         results = api.directory_by_id(self.id, "all")
@@ -238,11 +241,7 @@ class Project(MCObject):
         return top_directory.get_descendant_list_by_path(path)
 
     def get_directory(self, directory_id):
-        results = api.directory_by_id(self.id, directory_id)
-        directory = make_object(results)
-        directory._project = self
-        directory.shallow = False
-        return directory
+        return self.get_directory(directory_id)
 
     def create_or_get_all_directories_on_path(self, path):
         directory = self.get_top_directory()
@@ -862,7 +861,7 @@ class Directory(MCObject):
             file_dict = dir_tree_table[relative_dir_path]
             dirs = self.create_descendant_list_by_path(relative_dir_path)
             if verbose:
-                print "relitive directory: ", relative_dir_path
+                print "relative directory: ", relative_dir_path
             directory = dirs[-1]
             for file_name in file_dict.keys():
                 input_path = file_dict[file_name]
@@ -970,6 +969,9 @@ class File(MCObject):
         file_id = self.id
         output_file_path = api.file_download(project_id, file_id, local_download_file_path)
         return output_file_path
+    
+    def parent(self):
+        return self._project.get_directory_by_id(self._directory_id)
 
 
 class Template(MCObject):
