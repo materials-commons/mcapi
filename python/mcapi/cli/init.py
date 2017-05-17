@@ -3,7 +3,8 @@ import sys
 import json
 import argparse
 import mcapi
-from mcapi.cli.functions import _mc_remotes, _print_projects, _proj_config
+from mcapi.cli.functions import _mc_remotes, _print_projects, _proj_config, \
+    make_local_project
 
 def init_subcommand():
         """
@@ -28,6 +29,14 @@ def init_subcommand():
             exit(1)
         remote=remotes[args.remote]
         
+        if os.path.exists(".mc"):
+            try:
+                proj = make_local_project()
+                print "Already in project.  name:", proj.name, "  id:", proj.id
+                return
+            except:
+                raise Exception(".mc directory exists, but could not find existing project")
+            
         name = os.path.basename(os.getcwd())
         
         project = mcapi.create_project(name, args.desc)
