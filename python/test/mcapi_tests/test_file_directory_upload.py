@@ -197,7 +197,7 @@ class TestFileDirectoryUpload(unittest.TestCase):
 
         dir_name = self.full_dir
 
-        results = base_directory.add_directory_tree(dir_name, local_base_path)
+        results, error = base_directory.add_directory_tree(dir_name, local_base_path)
 
         file_table = self.make_results_file_dictionary(results)
 
