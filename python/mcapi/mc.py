@@ -241,7 +241,7 @@ class Project(MCObject):
         return top_directory.get_descendant_list_by_path(path)
 
     def get_directory(self, directory_id):
-        return self.get_directory(directory_id)
+        return self.get_directory_by_id(directory_id)
 
     def create_or_get_all_directories_on_path(self, path):
         directory = self.get_top_directory()
