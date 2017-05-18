@@ -32,6 +32,10 @@ env:
     - MC_SERVICE_PORT=5000
     - RETHINKDB_CLUSTER_PORT=31815
     - RETHINKDB_HTTP_PORT=8090
+    - MC_DOI_SERVICE_URL=https://ezid.lib.purdue.edu/
+    - MC_DOI_PUBLISHER='Materials Commons'
+    - MC_DOI_PUBLICATION_BASE=http://mcpub.localhost/#/details
+    - MC_DOI_NAMESPACE='doi:10.5072/FK2'
 
 git:
   depth: 3
@@ -57,7 +61,7 @@ install:
   - npm install -g node-gyp@3.5.0
   - npm install -g gulp
   - mkdir .materialscommons
-  - git clone -b testing-delete --depth 3 https://github.com/materials-commons/materialscommons.org.git
+  - git clone -b sprint --depth 3 https://github.com/materials-commons/materialscommons.org.git
 
   - pushd materialscommons.org
   - git log -1
@@ -128,5 +132,3 @@ script:
 after_failure:
   - echo ${MC_LOG_DIR}/mcapi.out.${SERVERTYPE}
   - cat ${MC_LOG_DIR}/mcapi.out.${SERVERTYPE}
-  - sudo cat /var/log/nginx/access.log
- 
