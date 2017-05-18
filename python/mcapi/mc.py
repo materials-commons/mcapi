@@ -208,8 +208,11 @@ class Project(MCObject):
         pass
 
     def get_directory_by_id(self, directory_id):
-        # TODO: Project.get_dirctroy_by_id(id)
-        pass
+        results = api.directory_by_id(self.id, directory_id)
+        directory = make_object(results)
+        directory._project = self
+        directory.shallow = False
+        return directory
 
     def get_all_directories(self):
         results = api.directory_by_id(self.id, "all")
@@ -238,11 +241,7 @@ class Project(MCObject):
         return top_directory.get_descendant_list_by_path(path)
 
     def get_directory(self, directory_id):
-        results = api.directory_by_id(self.id, directory_id)
-        directory = make_object(results)
-        directory._project = self
-        directory.shallow = False
-        return directory
+        return self.get_directory_by_id(directory_id)
 
     def create_or_get_all_directories_on_path(self, path):
         directory = self.get_top_directory()
@@ -442,6 +441,54 @@ class Process(MCObject):
             self.name = name
         if description:
             self.description = description
+
+    def pretty_print(self, shift=0, indent=2):
+        
+        n_indent = 0
+        def _print(s, n_indent):
+            print " "*shift + " "*indent*n_indent + s
+        
+        _print("name: " + str(self.name), n_indent)
+        _print("description: " + str(self.description), n_indent)
+        _print("id: " + str(self.id), n_indent)
+        _print("process_type: " + str(self.process_type), n_indent)
+        _print("template_id: " + str(self.template_id), n_indent)
+        if self.project is not None:
+            _print("project.name: " + str(self.project.name), n_indent)
+            _print("project.id: " + str(self.project.id), n_indent)
+        if self.experiment is not None:
+            _print("experiment.name: " + str(self.experiment.name), n_indent)
+            _print("experiment.id: " + str(self.experiment.id), n_indent)
+        _print("owner: " + str(self.owner), n_indent)
+        
+        def _print_objects(title, obj_list, n_indent):
+            if len(obj_list):
+                _print(title + ": ", n_indent)
+                n_indent += 1
+                for obj in obj_list:
+                    _print(str(obj.name) + " " + str(obj.id), n_indent)
+                n_indent -= 1
+        
+        def _print_measurements(measurements, n_indent):
+            if len(measurements):
+                _print("measurements: ", n_indent)
+                n_indent += 1
+                for obj in measurements:
+                    _print(str(obj.attribute) + " " + str(obj.id), n_indent)
+                n_indent -= 1
+        
+        _print_objects("input_files", self.input_files, n_indent)
+        _print_objects("output_files", self.output_files, n_indent)
+        _print_objects("input_samples", self.input_samples, n_indent)
+        _print_objects("output_samples", self.output_samples, n_indent)
+        _print("does_transform: " + str(self.does_transform), n_indent)
+        _print_objects("transformed_samples", self.transformed_samples, n_indent)
+        _print_measurements(self.measurements, n_indent)
+        
+        # setup
+        # properties_dictionary
+        
+
 
     def process_special_objects(self):
         if self.setup:
@@ -790,13 +837,16 @@ class Directory(MCObject):
                 dir_list.append(directory)
         return dir_list
 
-    def add_file(self, file_name, input_path, verbose=False):
+    def add_file(self, file_name, input_path, verbose=False, limit=50):
+        file_size_MB = os_path.getsize(input_path) >> 20
+        if file_size_MB > limit:
+            raise Exception("File too large (>" + str(limit) + "MB), skipping. File size: " + str(file_size_MB) + "M")
         if verbose:
             print "uploading:", os_path.relpath(input_path, getcwd()), " as:", file_name
         result = self._project.add_file_using_directory(self, file_name, input_path)
         return result
 
-    def add_directory_tree(self, dir_name, input_dir_path, verbose=False):
+    def add_directory_tree(self, dir_name, input_dir_path, verbose=False, limit=50):
         if not os_path.isdir(input_dir_path):
             return None
         if verbose:
@@ -806,16 +856,20 @@ class Directory(MCObject):
             print "base directory: ", name
         dir_tree_table = make_dir_tree_table(input_dir_path, dir_name, dir_name, {})
         result = []
+        error = {}
         for relative_dir_path in dir_tree_table.keys():
             file_dict = dir_tree_table[relative_dir_path]
             dirs = self.create_descendant_list_by_path(relative_dir_path)
             if verbose:
-                print "relitive directory: ", relative_dir_path
+                print "relative directory: ", relative_dir_path
             directory = dirs[-1]
             for file_name in file_dict.keys():
                 input_path = file_dict[file_name]
-                result.append(directory.add_file(file_name, input_path, verbose))
-        return result
+                try:
+                    result.append(directory.add_file(file_name, input_path, verbose, limit))
+                except Exception as e:
+                    error[input_path] = e
+        return result, error
 
 
 # -- helper function for Directory.add_directory_tree - above
@@ -915,6 +969,9 @@ class File(MCObject):
         file_id = self.id
         output_file_path = api.file_download(project_id, file_id, local_download_file_path)
         return output_file_path
+    
+    def parent(self):
+        return self._project.get_directory_by_id(self._directory_id)
 
 
 class Template(MCObject):
