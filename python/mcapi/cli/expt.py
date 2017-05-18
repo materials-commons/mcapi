@@ -1,6 +1,6 @@
 import sys
 import argparse
-from mcapi.cli.functions import make_local_project, _get_experiments, \
+from mcapi.cli.functions import make_local_project, make_local_expt, \
     set_current_experiment, _print_experiments
 
 def expt_subcommand():
@@ -21,13 +21,15 @@ def expt_subcommand():
     parser.add_argument('-s', '--set', action="store_true", default=False, help='Set current experiment')
     parser.add_argument('--id', action="store_true", default=False, help='Input experiment id instead of name')
     parser.add_argument('--desc', type=str, default="", help='Experiment description')
+    parser.add_argument('-n', '--dry-run', action="store_true", default=False, help='Dry run deletion')
+    parser.add_argument('-a', '--all', action="store_true", default=False, help='Delete all samples and processes')
     #parser.add_argument('-m', '--rename', type=str, default='origin', help='Rename experiment')
     
     # ignore 'mc expt'
     args = parser.parse_args(sys.argv[2:])
     
     proj = make_local_project()
-    expt_list = _get_experiments(proj)
+    expt_list = proj.get_all_experiments()
     expts = {e.name:e for e in expt_list}
     expt_ids = {e.id:e for e in expt_list}
     
@@ -48,10 +50,14 @@ def expt_subcommand():
     elif args.delete:
         for name in args.expts:
             if args.id:
-                _delete_experiment(proj.id, expt_ids[name])
+                _expts = expt_ids
             else:
-                _delete_experiment(proj.id, expts[name])
+                _expts = expts
+            _expts[name].delete(dry_run=args.dry_run, delete_processes_and_samples=args.all)
             print 'Deleted experiment:', name
+            for key, val in _expts[name].delete_tally.__dict__.iteritems():
+                print key, val
+            print ""
     
     elif args.set:
         if len(args.expts) != 1:
@@ -67,7 +73,7 @@ def expt_subcommand():
     
     elif args.list:
         
-        _print_experiments(_get_experiments(proj), make_local_expt(proj))
+        _print_experiments(proj.get_all_experiments(), make_local_expt(proj))
     
     return
 
