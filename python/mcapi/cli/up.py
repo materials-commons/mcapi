@@ -36,19 +36,19 @@ def up_subcommand():
     args = parser.parse_args(sys.argv[2:])
     
     limit = args.limit[0]
+    proj = make_local_project()
     
     local_abspaths = set([os.path.abspath(p) for p in args.paths])
     if not args.recursive:
         dirs = [p for p in local_abspaths if os.path.isdir(p)]
         for d in dirs:
             local_abspaths.remove(d)
-            print "d:", d
-            print "os.listdir(d):", os.listdir(d)
             files = [os.path.join(p, f) for f in os.listdir(d) if os.path.isfile(os.path.join(p,f))]
-            print "files:", files
             local_abspaths.update(files)
     
-    proj = make_local_project()
+    if args.recursive and proj.local_path in local_abspaths:
+        # treat upload of everything specially
+        local_abspaths = set([os.path.join(proj.local_path, f) for f in os.listdir(proj.local_path) if f != ".mc"])
     
     for p in local_abspaths:
         if os.path.isfile(p):
