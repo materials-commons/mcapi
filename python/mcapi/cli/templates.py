@@ -2,8 +2,12 @@ import sys
 import argparse
 import json
 from tabulate import tabulate
-from mcapi.cli.functions import _templates
+import mcapi
 import pandas
+
+def _templates(remote=mcapi.Remote()):
+    return mcapi.api.get(remote.make_url_v2('templates'), remote=remote)
+
 
 def templates_subcommand():
     """

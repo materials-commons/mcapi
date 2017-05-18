@@ -70,7 +70,7 @@ class TestMCClone(unittest.TestCase):
         testargs = ['mc', 'clone', proj_dict['CLITest'].id]
         with captured_output(testargs, wd=self.cli_test_project_path) as (sout, serr):
             clone_subcommand()
-        print_stringIO(sout)
+        #print_stringIO(sout)
         out = sout.getvalue().splitlines()
         self.assertTrue(re.match("Cloned project", out[0]))
         self.assertEqual('CLITest', out[3].split()[0])
