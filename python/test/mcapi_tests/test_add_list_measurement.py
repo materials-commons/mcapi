@@ -2,7 +2,7 @@ import unittest
 from random import randint
 from mcapi import set_remote_config_url
 from mcapi import create_project, Template
-from casm_mcapi import _add_list_measurement
+# from casm_mcapi import _add_list_measurement
 
 url = 'http://mctest.localhost/api'
 
@@ -98,8 +98,8 @@ class TestAddListMeasurements(unittest.TestCase):
         value_type = 'string'
         attribute = "mumble"
         name = "A List"
-        process = _add_list_measurement(
-            self.process, attribute, value, value_type, name=name)
+        process = self.process
+        process = process.add_list_measurement(attribute, value, value_type, name=name)
         sample_out = process.output_samples[0]
         properties_out = sample_out.properties
         table = self.make_properties_dictionary(properties_out)
