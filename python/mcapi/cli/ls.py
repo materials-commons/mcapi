@@ -2,11 +2,13 @@ import sys
 import os
 import argparse
 import mcapi
-from mcapi.cli.functions import make_local_project, _get_file_or_directory
+from mcapi.cli.functions import make_local_project
 import copy
 import time
 import hashlib
 import pandas
+from tabulate import tabulate
+from sortedcontainers import SortedSet
 
 #  Want to print something like: 
 #
@@ -53,14 +55,14 @@ def _ls_group(proj, paths, files_only=True, checksum=False, json=False, id=False
         'r_mtime', 'r_size', 'r_type',
         'eq', 'name', 'id']
     data_init = {k:'-' for k in columns}
-    files = set()
-    dirs = set()
-    remotes = set()
+    files = SortedSet()
+    dirs = SortedSet()
+    remotes = SortedSet()
     
     for path in paths:
         
         data = copy.deepcopy(data_init)
-        data['name'] = os.path.basename(path)
+        data['name'] = os.path.relpath(path, os.getcwd())
         l_checksum = None
         
         # locals
@@ -78,7 +80,7 @@ def _ls_group(proj, paths, files_only=True, checksum=False, json=False, id=False
                 dirs.add(path)
         
         # remotes
-        obj = _get_file_or_directory(proj, path)
+        obj = proj.get_by_local_path(path)
         if obj is not None:
             if obj.mtime:
                 data['r_mtime'] = time.strftime("%b %Y %H:%M:%S", time.localtime(obj.mtime))
@@ -156,16 +158,16 @@ def ls_subcommand():
         if os.path.exists(d):
             _locals = [os.path.join(d, f) for f in os.listdir(d)]
         
-        if os.path.abspath(d) == proj.path:
+        if os.path.abspath(d) == proj.local_path:
             remote_dir = proj.get_top_directory()
         else:
-            remote_dir = _get_file_or_directory(proj, d)
+            remote_dir = proj.get_by_local_path(d)
         
         _remotes = []
         if remote_dir is not None:
             _remotes = [os.path.join(d, child.name) for child in remote_dir.get_children()]
         
-        _local_abspaths = set(_locals + _remotes)
+        _local_abspaths = SortedSet(_locals + _remotes)
             
         (df, files, dirs, remotes) = _ls_group(proj, _local_abspaths,
             files_only=False, checksum=args.checksum, json=args.json)
@@ -176,7 +178,8 @@ def ls_subcommand():
         else:
             if df.shape[0]:
                 print os.path.relpath(d, os.getcwd()) + ":"
-                print df.to_string(index=False)
+                #print df.to_string(index=False)
+                print tabulate(df, showindex=False, headers=df.columns, tablefmt="plain")
                 print ""
     
     return

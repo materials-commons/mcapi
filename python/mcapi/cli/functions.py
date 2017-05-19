@@ -9,12 +9,6 @@ from tabulate import tabulate
 import requests
 import hashlib
 
-# api.py
-def _delete(restpath, remote=mcapi.Remote()):
-    r = requests.delete(restpath, params=remote.params, verify=False)
-    if r.status_code == requests.codes.ok:
-        return r.json()
-    r.raise_for_status()
 
 # mc.py - project object - with approperate mapping to api.py
 def _experiments(project_id, remote=mcapi.Remote()):
@@ -28,21 +22,6 @@ def _experiments(project_id, remote=mcapi.Remote()):
     """
     return mcapi.api.get(remote.make_url_v2('projects/' + project_id + '/experiments'), remote=remote)
 
-# where used? - does this need to be extended to create a list of lightweight objects
-def _templates(remote=mcapi.Remote()):
-    return mcapi.api.get(remote.make_url_v2('templates'), remote=remote)
-
-# mc.py - experiment object? does this actually work?
-def _delete_experiment(project_id, experiment_id, remote=mcapi.Remote()):
-    """
-    delete experiment for specified project
-
-    Returns
-    ----------
-      results: result
-
-    """
-    return _delete(remote.make_url_v2('projects/' + project_id + '/experiments'), remote=remote)
 
 # mc.py - project object
 def _get_experiments(proj):
@@ -157,54 +136,6 @@ def _proj_config(path=None):
         return None
     return os.path.join(dirpath, '.mc', 'config.json')
 
-def _fetch_project_by_id(id, remote=None):
-    if remote is None:
-        remote = mcapi.Remote()
-    results = mcapi.api.fetch_project(id, remote)
-    return mcapi.Project(data=results)
-
-def _local_to_remote_relpath(proj, local_path):
-    """
-    Arguments:
-        proj: mcapi.Project, with proj.path indicating local project location
-        local_path: path to file or directory in local tree
-    
-    Returns:
-        remote_path: relative path from the 'top' directory
-    """
-    return os.path.relpath(local_path, proj.path)
-
-def _obj_path_to_local_path(proj, obj_path):
-    """
-    Arguments:
-        proj: mcapi.Project, with proj.path indicating local project location
-        obj_path: Directory.path or File.path
-            currently this begins with 'top', instead of being relative to 'top'
-    
-    Returns:
-        local_path: absolute path to file or directory locally
-    """
-    return os.path.join(os.path.dirname(proj.path), obj_path)
-
-def _get_file_or_directory(proj, local_path):
-    """
-    Arguments:
-        proj: mcapi.Project
-        local_path: file or directory local path equivalant
-    
-    Returns:
-        obj: mcapi.File, mcapi.Directory, or None
-    """
-    if os.path.abspath(local_path) == proj.path:
-        return proj.get_top_directory()
-    names = string.split(os.path.relpath(local_path, proj.path), '/')
-    curr = proj.get_top_directory()
-    for n in names:
-        nextchild = filter(lambda x: x.name == n, curr.get_children())
-        if len(nextchild) == 0:
-            return None
-        curr = nextchild[0]
-    return curr    
 
 def make_local_project(path=None):
     # get config
@@ -224,13 +155,13 @@ def make_local_project(path=None):
     # get mcapi.Project
     proj =  mcapi.get_project_by_id(j['project_id'])
     
-    proj.path = _proj_path(path)
+    proj.local_path = _proj_path(path)
     proj.remote = remote
     return proj
 
 
 def make_local_expt(proj):
-    with open(_proj_config(proj.path)) as f:
+    with open(_proj_config(proj.local_path)) as f:
         j = json.load(f)
     
     for expt in _get_experiments(proj):
@@ -240,7 +171,7 @@ def make_local_expt(proj):
     return None
 
 def set_current_experiment(proj, expt):
-    config_path = _proj_config(proj.path)
+    config_path = _proj_config(proj.local_path)
     with open(config_path, 'r') as f:
         data = json.load(f)
     data['experiment_id'] = expt.id
