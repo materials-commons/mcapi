@@ -2,7 +2,8 @@ import unittest
 from random import randint
 from mcapi import set_remote_config_url
 from mcapi import create_project, Template
-from casm_mcapi import _add_selection_measurement
+#from casm_mcapi import _add_integer_measurement, \
+#    _add_string_measurement, _add_boolean_measurement, _add_number_measurement
 
 url = 'http://mctest.localhost/api'
 
@@ -12,7 +13,7 @@ def fake_name(prefix):
     return prefix + number
 
 
-class TestAddChoiceMeasurements(unittest.TestCase):
+class TestSetSimpleMeasurements(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         set_remote_config_url(url)
@@ -27,7 +28,9 @@ class TestAddChoiceMeasurements(unittest.TestCase):
         cls.process = cls.experiment.create_process_from_template(
             Template.primitive_crystal_structure)
         cls.sample_name = "pcs-sample-1"
-        cls.sample = cls.process.create_samples(sample_names=[cls.sample_name])[0]
+        cls.sample = cls.process.create_samples(
+            sample_names=[cls.sample_name]
+        )[0]
 
     def test_is_setup_correctly(self):
         self.assertIsNotNone(self.project)
@@ -52,63 +55,12 @@ class TestAddChoiceMeasurements(unittest.TestCase):
         self.assertEqual(sample.name, self.sample_name)
         self.assertEqual(sample.name, samples[0].name)
 
-    def test_measurement_attribute_lattice_system_direct(self):
-        choices = \
-            [
-                {"name": "Triclinic", "value": "triclinic"},  # 0
-                {"name": "Monoclinic", "value": "monoclinic"},  # 1
-                {"name": "Orthorhombic", "value": "orthorhombic"},  # 2
-                {"name": "Tetragonal", "value": "tetragonal"},  # 3
-                {"name": "Hexagonal", "value": "hexagonal"},  # 4
-                {"name": "Rhombohedral", "value": "rhombohedral"},  # 5
-                {"name": "Cubic", "value": "cubic"}  # 6
-            ]
-        value = choices[4]['value']
-        name = "Lattice System"
-        attribute = "lattice_system"
-
-        data = {"name": name,
-                "attribute": attribute,
-                "otype": "selection",
-                "unit": "",
-                "units": [],
-                "value": value,
-                "is_best_measure": True}
-        property_data = {
-            "name": "Lattice System",
-            "attribute": "lattice_system"
-        }
-        measurement = self.process.create_measurement(data=data)
-        process_out = self.process.set_measurements_for_process_samples(
-            property_data, [measurement])
-        sample_out = process_out.output_samples[0]
-        properties_out = sample_out.properties
-        table = self.make_properties_dictionary(properties_out)
-        property_data = table[name]
-        self.assertEqual(len(property_data.best_measure), 1)
-        measurement_out = property_data.best_measure[0]
-        self.assertEqual(measurement_out.name, name)
-        self.assertEqual(measurement_out.attribute, attribute)
-        self.assertEqual(measurement_out.otype, "selection")
-        self.assertEqual(measurement_out.unit, "")
-        self.assertEqual(measurement_out.value, value)
-
-    def test_measurement_attribute_lattice_system(self):
-        choices = \
-            [
-                {"name": "Triclinic", "value": "triclinic"},  # 0
-                {"name": "Monoclinic", "value": "monoclinic"},  # 1
-                {"name": "Orthorhombic", "value": "orthorhombic"},  # 2
-                {"name": "Tetragonal", "value": "tetragonal"},  # 3
-                {"name": "Hexagonal", "value": "hexagonal"},  # 4
-                {"name": "Rhombohedral", "value": "rhombohedral"},  # 5
-                {"name": "Cubic", "value": "cubic"}  # 6
-            ]
-        value = choices[4]['value']
-        name = "Lattice System"
-        attribute = "lattice_system"
-
-        process = _add_selection_measurement(
+    def test_set_integer_measurement(self):
+        attribute = "spacing"
+        value = 5
+        name = "Gap Spacing"
+        otype = "integer"
+        process = _add_integer_measurement(
             self.process, attribute, value, name=name)
         sample_out = process.output_samples[0]
         properties_out = sample_out.properties
@@ -118,7 +70,64 @@ class TestAddChoiceMeasurements(unittest.TestCase):
         measurement_out = selected_property.best_measure[0]
         self.assertEqual(measurement_out.name, name)
         self.assertEqual(measurement_out.attribute, attribute)
-        self.assertEqual(measurement_out.otype, "selection")
+        self.assertEqual(measurement_out.otype, otype)
+        self.assertEqual(measurement_out.unit, "")
+        self.assertEqual(measurement_out.value, value)
+
+    def test_set_string_measurement(self):
+        attribute = "label"
+        value = "booloo ball"
+        name = "Gingle Snit"
+        otype = "string"
+        process = _add_string_measurement(
+            self.process, attribute, value, name=name)
+        sample_out = process.output_samples[0]
+        properties_out = sample_out.properties
+        table = self.make_properties_dictionary(properties_out)
+        selected_property = table[name]
+        self.assertEqual(len(selected_property.best_measure), 1)
+        measurement_out = selected_property.best_measure[0]
+        self.assertEqual(measurement_out.name, name)
+        self.assertEqual(measurement_out.attribute, attribute)
+        self.assertEqual(measurement_out.otype, otype)
+        self.assertEqual(measurement_out.unit, "")
+        self.assertEqual(measurement_out.value, value)
+
+    def test_set_boolean_measurement(self):
+        attribute = "flag"
+        value = True
+        name = "Shift"
+        otype = "boolean"
+        selected_process = _add_boolean_measurement(
+            self.process, attribute, value, name=name)
+        sample_out = selected_process.output_samples[0]
+        properties_out = sample_out.properties
+        table = self.make_properties_dictionary(properties_out)
+        selected_property = table[name]
+        self.assertEqual(len(selected_property.best_measure), 1)
+        measurement_out = selected_property.best_measure[0]
+        self.assertEqual(measurement_out.name, name)
+        self.assertEqual(measurement_out.attribute, attribute)
+        self.assertEqual(measurement_out.otype, otype)
+        self.assertEqual(measurement_out.unit, "")
+        self.assertEqual(measurement_out.value, value)
+
+    def test_set_number_measurement(self):
+        attribute = "scale"
+        value = 7
+        name = "Scaling Factor"
+        otype = "number"
+        process = _add_number_measurement(
+            self.process, attribute, value, name=name)
+        sample_out = process.output_samples[0]
+        properties_out = sample_out.properties
+        table = self.make_properties_dictionary(properties_out)
+        selected_property = table[name]
+        self.assertEqual(len(selected_property.best_measure), 1)
+        measurement_out = selected_property.best_measure[0]
+        self.assertEqual(measurement_out.name, name)
+        self.assertEqual(measurement_out.attribute, attribute)
+        self.assertEqual(measurement_out.otype, otype)
         self.assertEqual(measurement_out.unit, "")
         self.assertEqual(measurement_out.value, value)
 

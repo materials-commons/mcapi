@@ -690,6 +690,16 @@ class Process(MCObject):
         }
         return self.set_measurement(attrname, measurement_data, name)
 
+    def add_selection_measurement(self, attrname, value, name=None):
+        measurement_data = {
+            "attribute": attrname,
+            "otype": "selection",
+            "value": value,
+            "is_best_measure": True
+        }
+        return self.set_measurement(attrname, measurement_data, name)
+
+
     # Process - additional methods
     def decorate_with_output_samples(self):
         detailed_process = self.experiment.get_process_by_id(self.id)
