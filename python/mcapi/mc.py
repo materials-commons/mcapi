@@ -699,6 +699,18 @@ class Process(MCObject):
         }
         return self.set_measurement(attrname, measurement_data, name)
 
+    def add_vector_measurement(self, attrname, value, name=None):
+        measurement_data = {
+            "attribute": attrname,
+            "otype": "vector",
+            "value": {
+                "dimensions": len(value),
+                "otype": "float",
+                "value": value
+            },
+            "is_best_measure": True
+        }
+        return self.set_measurement(attrname, measurement_data, name)
 
     # Process - additional methods
     def decorate_with_output_samples(self):

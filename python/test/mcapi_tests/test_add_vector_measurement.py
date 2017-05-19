@@ -89,8 +89,9 @@ class TestAddVectorMeasurements(unittest.TestCase):
         name = "Parameters"
         attribute = "parameters"
         value = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0]
-        process = _add_vector_measurement(
-            self.process, attribute, value, name=name)
+
+        process = self.process
+        process = process.add_vector_measurement(attribute, value, name=name)
         sample_out = process.output_samples[0]
         properties_out = sample_out.properties
         table = self.make_properties_dictionary(properties_out)
