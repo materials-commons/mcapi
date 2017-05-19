@@ -677,6 +677,19 @@ class Process(MCObject):
         }
         return self.set_measurement(attrname, measurement_data, name)
 
+    def add_numpy_matrix_measurement(self, attrname, value, name=None):
+        measurement_data = {
+            "attribute": attrname,
+            "otype": "matrix",
+            "value": {
+                "dimensions": list(value.shape),
+                "otype": "float",
+                "value": value.tolist()
+            },
+            "is_best_measure": True
+        }
+        return self.set_measurement(attrname, measurement_data, name)
+
     # Process - additional methods
     def decorate_with_output_samples(self):
         detailed_process = self.experiment.get_process_by_id(self.id)
