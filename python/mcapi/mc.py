@@ -629,6 +629,41 @@ class Process(MCObject):
             measurements
         )
 
+    def set_measurement(self, attribute, measurement_data, name=None):
+        if (not name):
+            name = attribute
+
+        if not "name" in measurement_data:
+            measurement_data['name'] = name
+
+        if not "attribute" in measurement_data:
+            measurement_data['attribute'] = attribute
+
+        if not "unit" in measurement_data:
+            measurement_data['unit'] = ""
+
+        measurement = self.create_measurement(data=measurement_data)
+
+        measurement_property = {
+            "name": name,
+            "attribute": attribute
+        }
+
+        return self.set_measurements_for_process_samples(
+            measurement_property, [measurement])
+
+    def add_file_measurement(self, attrname, file, name=None):
+        measurement_data = {
+            "attribute": attrname,
+            "otype": "file",
+            "value": {
+                "file_id": file.id,
+                "file_name": file.name
+            },
+            "is_best_measure": True
+        }
+        return self.set_measurement(attrname, measurement_data, name)
+
     # Process - additional methods
     def decorate_with_output_samples(self):
         detailed_process = self.experiment.get_process_by_id(self.id)

@@ -6,7 +6,7 @@ from os.path import getsize
 from pathlib import Path as PathClass
 from mcapi import set_remote_config_url
 from mcapi import create_project, Template
-from casm_mcapi import _add_file_measurement
+# from casm_mcapi import _add_file_measurement
 
 url = 'http://mctest.localhost/api'
 
@@ -101,8 +101,8 @@ class TestAddFileMeasurements(unittest.TestCase):
         name = "Measurement File"
         attribute = "file"
 
-        process = _add_file_measurement(
-            self.process, attribute, the_file, name=name)
+        process = self.process
+        process = process.add_file_measurement(attribute, the_file, name=name)
         sample_out = process.output_samples[0]
         properties_out = sample_out.properties
         table = self.make_properties_dictionary(properties_out)
