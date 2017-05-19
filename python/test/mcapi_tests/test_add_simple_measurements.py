@@ -2,8 +2,6 @@ import unittest
 from random import randint
 from mcapi import set_remote_config_url
 from mcapi import create_project, Template
-#from casm_mcapi import _add_integer_measurement, \
-#    _add_string_measurement, _add_boolean_measurement, _add_number_measurement
 
 url = 'http://mctest.localhost/api'
 

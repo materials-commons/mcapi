@@ -5,9 +5,6 @@ from os import path as os_path
 from random import randint
 from mcapi import set_remote_config_url
 from mcapi import create_project
-#from casm_mcapi import _add_string_measurement, \
-#    _add_numpy_matrix_measurement, _add_vector_measurement, \
-#    _add_list_measurement, _add_integer_measurement, _add_file_measurement
 
 url = 'http://mctest.localhost/api'
 

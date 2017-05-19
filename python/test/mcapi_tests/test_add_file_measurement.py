@@ -6,7 +6,6 @@ from os.path import getsize
 from pathlib import Path as PathClass
 from mcapi import set_remote_config_url
 from mcapi import create_project, Template
-# from casm_mcapi import _add_file_measurement
 
 url = 'http://mctest.localhost/api'
 
