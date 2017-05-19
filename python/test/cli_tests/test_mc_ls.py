@@ -177,37 +177,57 @@ class TestMCUp(unittest.TestCase):
         self.assertEqual(out[2].split()[7], '-')
         self.assertEqual(out[3].split()[4], 'file')
         self.assertEqual(out[3].split()[7], '-')
-        self.assertEqual(out[7].split()[4], 'file')
-        self.assertEqual(out[7].split()[7], '-')
+        self.assertEqual(out[4].split()[4], 'dir')
+        self.assertEqual(out[4].split()[7], '-')
         self.assertEqual(out[8].split()[4], 'file')
         self.assertEqual(out[8].split()[7], '-')
-        self.assertEqual(out[9].split()[4], 'dir')
+        self.assertEqual(out[9].split()[4], 'file')
         self.assertEqual(out[9].split()[7], '-')
+        
 
         testargs = ['mc', 'up', self.dirs[1]]
         with captured_output(testargs, wd=self.proj_path) as (sout, serr):
             up_subcommand()
         #print_stringIO(sout)
         
-        testargs = ['mc', 'ls', self.dirs[0], self.dirs[1]]
+        testargs = ['mc', 'ls', self.dirs[0], self.dirs[1], '--checksum']
         with captured_output(testargs, wd=self.proj_path) as (sout, serr):
             ls_subcommand()
         #print_stringIO(sout)
         out = sout.getvalue().splitlines()
         self.assertEqual(out[2].split()[4], 'file')
-        self.assertNotEqual(out[2].split()[6], '-')
-        self.assertEqual(out[2].split()[7], 'file')
+        self.assertEqual(out[2].split()[7], '-')
         self.assertEqual(out[3].split()[4], 'file')
-        self.assertNotEqual(out[3].split()[6], '-')
-        self.assertEqual(out[3].split()[7], 'file')
+        self.assertEqual(out[3].split()[7], '-')
+        self.assertEqual(out[4].split()[4], 'dir')
+        self.assertNotEqual(out[4].split()[6], '-')
+        self.assertEqual(out[4].split()[7], 'dir')
         
-        self.assertEqual(out[7].split()[4], 'file')
-        self.assertEqual(out[7].split()[7], '-')
         self.assertEqual(out[8].split()[4], 'file')
-        self.assertEqual(out[8].split()[7], '-')
-        self.assertEqual(out[9].split()[4], 'dir')
+        self.assertNotEqual(out[8].split()[6], '-')
+        self.assertEqual(out[8].split()[7], 'file')
+        self.assertEqual(out[8].split()[8], 'True')
+        self.assertEqual(out[9].split()[4], 'file')
         self.assertNotEqual(out[9].split()[6], '-')
-        self.assertEqual(out[9].split()[7], 'dir')
+        self.assertEqual(out[9].split()[7], 'file')
+        
+        # test equivalence check
+        with open(self.files[4][0], 'w') as f:
+            f.write("changed")
+        
+        testargs = ['mc', 'ls', self.dirs[0], self.dirs[1], '--checksum']
+        with captured_output(testargs, wd=self.proj_path) as (sout, serr):
+            ls_subcommand()
+        #print_stringIO(sout)
+        out = sout.getvalue().splitlines()
+        self.assertEqual(out[8].split()[8], 'False')
+        
+        # test json
+        testargs = ['mc', 'ls', self.dirs[0], self.dirs[1], '--checksum']
+        with captured_output(testargs, wd=self.proj_path) as (sout, serr):
+            ls_subcommand()
+        #print_stringIO(sout)
+        self.assertTrue(True)
     
     @classmethod
     def tearDownClass(cls):

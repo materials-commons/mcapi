@@ -7,6 +7,8 @@ import copy
 import time
 import hashlib
 import pandas
+from tabulate import tabulate
+from sortedcontainers import SortedSet
 
 #  Want to print something like: 
 #
@@ -53,9 +55,9 @@ def _ls_group(proj, paths, files_only=True, checksum=False, json=False, id=False
         'r_mtime', 'r_size', 'r_type',
         'eq', 'name', 'id']
     data_init = {k:'-' for k in columns}
-    files = set()
-    dirs = set()
-    remotes = set()
+    files = SortedSet()
+    dirs = SortedSet()
+    remotes = SortedSet()
     
     for path in paths:
         
@@ -165,7 +167,7 @@ def ls_subcommand():
         if remote_dir is not None:
             _remotes = [os.path.join(d, child.name) for child in remote_dir.get_children()]
         
-        _local_abspaths = set(_locals + _remotes)
+        _local_abspaths = SortedSet(_locals + _remotes)
             
         (df, files, dirs, remotes) = _ls_group(proj, _local_abspaths,
             files_only=False, checksum=args.checksum, json=args.json)
@@ -176,7 +178,8 @@ def ls_subcommand():
         else:
             if df.shape[0]:
                 print os.path.relpath(d, os.getcwd()) + ":"
-                print df.to_string(index=False)
+                #print df.to_string(index=False)
+                print tabulate(df, showindex=False, headers=df.columns, tablefmt="plain")
                 print ""
     
     return
