@@ -409,8 +409,9 @@ class Process(MCObject):
         # attr = ['id', 'name', 'description', 'birthtime', 'mtime', 'otype', 'owner']
         super(Process, self).__init__(data)
 
-        attr = ['files', 'output_samples', 'input_samples', 'setup', 'process_type', 'does_transform',
-                'template_id', 'note', 'template_name', 'input_files', 'output_files']
+        attr = ['files', 'measurements', 'output_samples', 'input_samples', 'setup',
+                'process_type', 'does_transform', 'template_id', 'note',
+                'template_name', 'input_files', 'output_files' ]
         for a in attr:
             setattr(self, a, data.get(a, None))
 
