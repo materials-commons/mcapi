@@ -1,5 +1,6 @@
 import api
 import datetime
+import string
 from os import path as os_path
 from os import listdir
 from os import getcwd
@@ -157,6 +158,13 @@ class Project(MCObject):
 
         if id:
             data['id'] = id
+        
+        # Reserved for use by CLI:
+        
+        # "local_path" to where Project files have been downloaded on local machine
+        self.local_path = None
+        # Remote instance, where Project is saved. Similar to source
+        self.remote = None
 
     def process_special_objects(self):
         pass
@@ -201,7 +209,7 @@ class Project(MCObject):
         experiments = map((lambda x: _decorate_object_with(x, 'project', self)), experiments)
         return experiments
 
-    # Project - Dirctroy-related methods - basic: create, get_by_id, get_all (in context)
+    # Project - Directory-related methods - basic: create, get_by_id, get_all (in context)
 
     def created_directory(self, name, path):
         # TODO: Project.create_directory(name, path)
@@ -274,6 +282,31 @@ class Project(MCObject):
         sample.project = self
         return sample
 
+    # Project - File or Directory-related methods - basic: get_by_local_path
+
+    def get_by_local_path(self, local_path):
+        """
+        Uses path on local machine to get a File or Directory
+        
+        Arguments:
+            proj: mcapi.Project
+            local_path: file or directory local path equivalant
+        
+        Returns:
+            obj: mcapi.File, mcapi.Directory, or None
+        """
+        if self.local_path is None:
+            raise Exception("Error in Project.get_by_local_path: Project.local_path is None")
+        if os_path.abspath(local_path) == self.local_path:
+            return self.get_top_directory()
+        names = string.split(os_path.relpath(local_path, self.local_path), '/')
+        curr = self.get_top_directory()
+        for n in names:
+            nextchild = filter(lambda x: x.name == n, curr.get_children())
+            if len(nextchild) == 0:
+                return None
+            curr = nextchild[0]
+        return curr
 
 class Experiment(MCObject):
     def __init__(self, project_id=None, name=None, description=None,
@@ -972,7 +1005,12 @@ class File(MCObject):
     
     def parent(self):
         return self._project.get_directory_by_id(self._directory_id)
-
+    
+    def local_path(self):
+        parent = self.parent()
+        proj = parent._project
+        proj_dirname = os_path.dirname(proj.local_path)
+        return os_path.join(proj_dirname, os_path.join(parent.path, self.name))
 
 class Template(MCObject):
     # global static

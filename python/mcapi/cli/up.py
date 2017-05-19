@@ -1,7 +1,22 @@
 import sys
 import os
 import argparse
-from mcapi.cli.functions import make_local_project, _get_file_or_directory
+from mcapi.cli.functions import make_local_project
+
+def _local_to_remote_relpath(proj, local_path):
+    """
+    Arguments:
+        proj: mcapi.Project, with proj.local_path indicating local project location
+        local_path: path to file or directory in local tree
+    
+    Returns:
+        remote_path: relative path from the 'top' directory
+    """
+    remote_relpath = os.path.relpath(local_path, proj.local_path)
+    if remote_relpath == ".":
+        remote_relpath = "/"
+    return remote_relpath
+            
 
 def up_subcommand():
     """
@@ -21,41 +36,41 @@ def up_subcommand():
     args = parser.parse_args(sys.argv[2:])
     
     limit = args.limit[0]
-    
-    local_abspaths = [os.path.abspath(p) for p in args.paths]
-    
     proj = make_local_project()
+    
+    local_abspaths = set([os.path.abspath(p) for p in args.paths])
+    if not args.recursive:
+        dirs = [p for p in local_abspaths if os.path.isdir(p)]
+        for d in dirs:
+            local_abspaths.remove(d)
+            files = [os.path.join(p, f) for f in os.listdir(d) if os.path.isfile(os.path.join(p,f))]
+            local_abspaths.update(files)
+    
+    if args.recursive and proj.local_path in local_abspaths:
+        # treat upload of everything specially
+        local_abspaths = set([os.path.join(proj.local_path, f) for f in os.listdir(proj.local_path) if f != ".mc"])
     
     for p in local_abspaths:
         if os.path.isfile(p):
             #print "uploading:", p
-            dir = _get_file_or_directory(proj, os.path.dirname(p))
-            if dir is None:
-                dir = proj.get_directory(os.path.dirname(_local_to_remote_relpath(proj, p)))
+            remote_relpath = _local_to_remote_relpath(proj, os.path.dirname(p))
+            dir = proj.create_or_get_all_directories_on_path(remote_relpath)[-1]
             try:
                 result = dir.add_file(os.path.basename(p), p, verbose=True, limit=limit)
             except Exception as e:
                 print "Could not upload:", p
                 print "Error:"
                 print e
-            # This should indicate if file already existed on Materials Commons
-            #print result.path + ":", result
+        
         elif os.path.isdir(p) and args.recursive:
             #print "uploading:", p
-            dir = _get_file_or_directory(proj, os.path.dirname(p))
-            if dir is None:
-                dir = proj.get_directory(os.path.dirname(_local_to_remote_relpath(proj, p)))
+            remote_relpath = _local_to_remote_relpath(proj, os.path.dirname(p))
+            dir = proj.create_or_get_all_directories_on_path(remote_relpath)[-1]
             result, error = dir.add_directory_tree(os.path.basename(p), os.path.dirname(p), verbose=True, limit=limit)
             if len(error):
                 for file in error:
                     print "Could not upload:", file
                     print "Error:"
                     print error[file]
-                
-            #for f in result:
-            #    # This should indicate if file already existed on Materials Commons
-            #    print f.path + ":", f
-        else:
-            print "error uploading:", os.path.relpath(p, os.getcwd())
-            print "use -r option to upload directory contents, recursively"
+        
     return

@@ -6,3 +6,4 @@ pathlib
 numpy
 pandas
 tabulate
+sortedcontainers
