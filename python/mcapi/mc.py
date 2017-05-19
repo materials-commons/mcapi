@@ -443,11 +443,12 @@ class Process(MCObject):
             self.description = description
 
     def pretty_print(self, shift=0, indent=2):
-        
+
         n_indent = 0
+
         def _print(s, n_indent):
-            print " "*shift + " "*indent*n_indent + s
-        
+            print " " * shift + " " * indent * n_indent + s
+
         _print("name: " + str(self.name), n_indent)
         _print("description: " + str(self.description), n_indent)
         _print("id: " + str(self.id), n_indent)
@@ -460,7 +461,7 @@ class Process(MCObject):
             _print("experiment.name: " + str(self.experiment.name), n_indent)
             _print("experiment.id: " + str(self.experiment.id), n_indent)
         _print("owner: " + str(self.owner), n_indent)
-        
+
         def _print_objects(title, obj_list, n_indent):
             if len(obj_list):
                 _print(title + ": ", n_indent)
@@ -468,7 +469,7 @@ class Process(MCObject):
                 for obj in obj_list:
                     _print(str(obj.name) + " " + str(obj.id), n_indent)
                 n_indent -= 1
-        
+
         def _print_measurements(measurements, n_indent):
             if len(measurements):
                 _print("measurements: ", n_indent)
@@ -476,7 +477,7 @@ class Process(MCObject):
                 for obj in measurements:
                     _print(str(obj.attribute) + " " + str(obj.id), n_indent)
                 n_indent -= 1
-        
+
         _print_objects("input_files", self.input_files, n_indent)
         _print_objects("output_files", self.output_files, n_indent)
         _print_objects("input_samples", self.input_samples, n_indent)
@@ -484,11 +485,9 @@ class Process(MCObject):
         _print("does_transform: " + str(self.does_transform), n_indent)
         _print_objects("transformed_samples", self.transformed_samples, n_indent)
         _print_measurements(self.measurements, n_indent)
-        
+
         # setup
         # properties_dictionary
-        
-
 
     def process_special_objects(self):
         if self.setup:
@@ -548,12 +547,12 @@ class Process(MCObject):
         pass
 
     def add_input_samples_to_process(self, samples):
-        return _add_input_samples_to_process(self.project, self.experiment, self, samples)
+        return self._add_input_samples_to_process(samples)
 
     # Process - File-related methods - truncated?
     # TODO: should Process have File-related create, get_by_id, get_all?
     def add_files(self, files_list):
-        return _add_files_to_process(self.project, self.experiment, self, files_list)
+        return self._add_files_to_process(files_list)
 
     # Process - SetupProperties-related methods - special methods
     def get_setup_properties_as_dictionary(self):
@@ -585,7 +584,7 @@ class Process(MCObject):
             prop = prop_dict[name]
             if prop:
                 prop_list.append(prop)
-        return _update_process_setup_properties(self.project, self.experiment, self, prop_list)
+        return self._update_process_setup_properties(prop_list)
 
     def make_list_of_samples_with_property_set_ids(self, samples):
         # Note: samples must be output samples of the process
@@ -624,11 +623,11 @@ class Process(MCObject):
         return make_measurement_object(data)
 
     def set_measurements_for_process_samples(self, measurement_property, measurements):
-        return _set_measurement_for_process_samples(self.project,
-                                                    self.experiment, self,
-                                                    self.make_list_of_samples_with_property_set_ids(
-                                                        self.output_samples),
-                                                    measurement_property, measurements)
+        return self._set_measurement_for_process_samples(
+            self.make_list_of_samples_with_property_set_ids(self.output_samples),
+            measurement_property,
+            measurements
+        )
 
     # Process - additional methods
     def decorate_with_output_samples(self):
@@ -642,6 +641,73 @@ class Process(MCObject):
         return self
 
     # Process - internal (private method)
+    def _set_measurement_for_process_samples(self, samples_with_property_set_ids, measurement_property, measurements):
+        project_id = self.project.id
+        experiment_id = self.experiment.id
+        process_id = self.id
+        samples_parameter = []
+        for table in samples_with_property_set_ids:
+            samples_parameter.append({
+                'id': table['sample'].id,
+                'property_set_id': table['property_set_id']
+            })
+        measurement_parameter = []
+        for measurement in measurements:
+            measurement_parameter.append({
+                'name': measurement.name,
+                'attribute': measurement.attribute,
+                'otype': measurement.otype,
+                'value': measurement.value,
+                'unit': measurement.unit,
+                'is_best_measure': measurement.is_best_measure
+            })
+        success_flag = api.set_measurement_for_process_samples(
+            project_id, experiment_id, process_id,
+            samples_parameter, measurement_property, measurement_parameter)
+        if not success_flag:
+            print "mcapi.mc._set_measurement_for_process_samples - unexpectedly failed"
+            return None
+        return self.experiment.get_process_by_id(process_id)
+
+    def _add_input_samples_to_process(self, samples):
+        project = self.project
+        experiment = self.experiment
+        process = self
+        results = api.add_samples_to_process(project.id, experiment.id, process, samples)
+        new_process = make_object(results)
+        for sample in new_process.input_samples:
+            sample.experiment = experiment
+            sample.project = project
+            found_sample = None
+            for existing_sample in process.input_samples:
+                if existing_sample.id == sample.id:
+                    found_sample = existing_sample
+            if not found_sample:
+                process.input_samples.append(sample)
+        process.project = project
+        process.experiment = experiment
+        return process
+
+    def _add_files_to_process(self, file_list):
+        project = self.project
+        experiment = self.experiment
+        process = self
+        results = api.add_files_to_process(project.id, experiment.id, process, file_list)
+        process = make_object(results)
+        process.project = project
+        process.experiment = experiment
+        return process
+
+    def _update_process_setup_properties(self, prop_list):
+        project = self.project
+        experiment = self.experiment
+        process = self
+        results = api.update_process_setup_properties(
+            project.id, experiment.id, process, prop_list)
+        process = make_object(results)
+        process.project = project
+        process.experiment = experiment
+        return process
 
     def _create_samples(self, sample_names):
         project = self.project
@@ -969,7 +1035,7 @@ class File(MCObject):
         file_id = self.id
         output_file_path = api.file_download(project_id, file_id, local_download_file_path)
         return output_file_path
-    
+
     def parent(self):
         return self._project.get_directory_by_id(self._directory_id)
 
@@ -1326,70 +1392,3 @@ def _data_has_type(data):
 
 def _is_datetime(data):
     return _has_key('$reql_type$', data) and data['$reql_type$'] == 'TIME'
-
-
-# -- support functions for Process --
-
-
-def _add_input_samples_to_process(project, experiment, process, samples):
-    results = api.add_samples_to_process(project.id, experiment.id, process, samples)
-    new_process = make_object(results)
-    for sample in new_process.input_samples:
-        sample.experiment = experiment
-        sample.project = project
-        found_sample = None
-        for existing_sample in process.input_samples:
-            if existing_sample.id == sample.id:
-                found_sample = existing_sample
-        if not found_sample:
-            process.input_samples.append(sample)
-    process.project = project
-    process.experiment = experiment
-    return process
-
-
-def _add_files_to_process(project, experiment, process, file_list):
-    results = api.add_files_to_process(project.id, experiment.id, process, file_list)
-    process = make_object(results)
-    process.project = project
-    process.experiment = experiment
-    return process
-
-
-def _update_process_setup_properties(project, experiment, process, prop_list):
-    results = api.update_process_setup_properties(
-        project.id, experiment.id, process, prop_list)
-    process = make_object(results)
-    process.project = project
-    process.experiment = experiment
-    return process
-
-
-def _set_measurement_for_process_samples(project, experiment, process,
-                                         samples_with_property_set_ids, measurement_property, measurements):
-    project_id = project.id
-    experiment_id = experiment.id
-    process_id = process.id
-    samples_parameter = []
-    for table in samples_with_property_set_ids:
-        samples_parameter.append({
-            'id': table['sample'].id,
-            'property_set_id': table['property_set_id']
-        })
-    measurement_parameter = []
-    for measurement in measurements:
-        measurement_parameter.append({
-            'name': measurement.name,
-            'attribute': measurement.attribute,
-            'otype': measurement.otype,
-            'value': measurement.value,
-            'unit': measurement.unit,
-            'is_best_measure': measurement.is_best_measure
-        })
-    success_flag = api.set_measurement_for_process_samples(
-        project_id, experiment_id, process_id,
-        samples_parameter, measurement_property, measurement_parameter)
-    if not success_flag:
-        print "mcapi.mc._set_measurement_for_process_samples - unexpectedly failed"
-        return None
-    return experiment.get_process_by_id(process_id)
