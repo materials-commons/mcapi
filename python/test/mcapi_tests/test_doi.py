@@ -5,7 +5,7 @@ from os import path as os_path
 from random import randint
 from mcapi import set_remote_config_url
 # see test below
-#from mcapi import __api as api
+from mcapi import __api as api
 import demo_project as demo
 import assert_helper as aid
 
@@ -24,8 +24,7 @@ class TestDoi(unittest.TestCase):
         cls.mcapikey = "totally-bogus"
         cls.host = "http://mctest.localhost"
 
-    # TODO: update DOI test to get is working
-    @pytest.mark.skip("DOI test requires addiitonal configuration")
+    @pytest.mark.skip("Prevent frequent use of DOI test site and resources")
     def test_doi(self):
         self.helper = aid.AssertHelper(self)
 
@@ -47,9 +46,7 @@ class TestDoi(unittest.TestCase):
         publication_year = "2016"
 
         results = self._addDataset(title, description)
-        # oops - dataset does not return otype!
-        # self.assertEqual(results['otype'], 'dataset') # issue #1049
-        # TODO: add otype to dataset in backend issue #1049
+        self.assertEqual(results['otype'], 'dataset')
 
         self.assertEqual(results['title'], title)
 
