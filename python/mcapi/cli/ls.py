@@ -60,7 +60,7 @@ def _ls_group(proj, paths, files_only=True, checksum=False, json=False, id=False
     for path in paths:
         
         data = copy.deepcopy(data_init)
-        data['name'] = os.path.basename(path)
+        data['name'] = os.path.relpath(path, os.getcwd())
         l_checksum = None
         
         # locals

@@ -5,6 +5,7 @@ import mcapi
 from cli_test_functions import working_dir, captured_output, print_stringIO
 from mcapi.cli.init import init_subcommand
 from mcapi.cli.up import up_subcommand
+from mcapi.cli.ls import ls_subcommand
 from mcapi.cli.functions import make_local_project
 
 url = 'http://mctest.localhost/api'
@@ -105,72 +106,108 @@ class TestMCUp(unittest.TestCase):
     def get_proj(self):
         return make_local_project(self.proj_path)
 
-    def test_one_in_top(self):
-        # upload 1 file (in top directory)
-        testargs = ['mc', 'up', self.files[0][0]]
+    def test_one_file(self):
+        # ls 1 file (in top directory)
+        testargs = ['mc', 'ls', self.files[2][0]]
+        with captured_output(testargs, wd=self.proj_path) as (sout, serr):
+            ls_subcommand()
+        #print_stringIO(sout)
+        out = sout.getvalue().splitlines()
+        self.assertEqual(out[1].split()[4], 'file')
+        self.assertEqual(out[1].split()[6], '-')
+        self.assertEqual(out[1].split()[7], '-')
+        self.assertEqual(out[1].split()[9], 'level_1/file_A.txt')
+        self.assertEqual(out[1].split()[10], '-')
+        
+        testargs = ['mc', 'up', self.files[2][0]]
         with captured_output(testargs, wd=self.proj_path) as (sout, serr):
             up_subcommand()
         #print_stringIO(sout)
-        out = sout.getvalue().splitlines()
-        proj = self.get_proj()
         
-        file = proj.get_by_local_path(self.files[0][0])
-        self.assertTrue(isinstance(file, mcapi.File))
-        self.assertEqual(file.name, os.path.basename(self.files[0][0]))
-        self.assertEqual(file._directory_id, proj.get_top_directory().id)
+        testargs = ['mc', 'ls', self.files[2][0]]
+        with captured_output(testargs, wd=self.proj_path) as (sout, serr):
+            ls_subcommand()
+        #print_stringIO(sout)
+        out = sout.getvalue().splitlines()
+        self.assertEqual(out[1].split()[4], 'file')
+        self.assertNotEqual(out[1].split()[6], '-')
+        self.assertEqual(out[1].split()[7], 'file')
+        self.assertEqual(out[1].split()[9], 'level_1/file_A.txt')
+        self.assertNotEqual(out[1].split()[10], '-')
+        
+    def test_one_dir(self):
+        # ls directory
+        testargs = ['mc', 'ls', self.dirs[0]]
+        with captured_output(testargs, wd=self.proj_path) as (sout, serr):
+            ls_subcommand()
+        #print_stringIO(sout)
+        out = sout.getvalue().splitlines()
+        self.assertEqual(out[2].split()[4], 'file')
+        self.assertEqual(out[2].split()[7], '-')
+        self.assertEqual(out[3].split()[4], 'file')
+        self.assertEqual(out[3].split()[7], '-')
+        self.assertEqual(out[4].split()[4], 'dir')
+        self.assertEqual(out[4].split()[7], '-')
+        
+        testargs = ['mc', 'up', self.files[2][0], self.files[3][0]]
+        with captured_output(testargs, wd=self.proj_path) as (sout, serr):
+            up_subcommand()
+        #print_stringIO(sout)
+        
+        testargs = ['mc', 'ls', self.dirs[0]]
+        with captured_output(testargs, wd=self.proj_path) as (sout, serr):
+            ls_subcommand()
+        #print_stringIO(sout)
+        out = sout.getvalue().splitlines()
+        self.assertEqual(out[2].split()[4], 'file')
+        self.assertNotEqual(out[2].split()[7], '-')
+        self.assertEqual(out[3].split()[4], 'file')
+        self.assertNotEqual(out[3].split()[7], '-')
+        self.assertEqual(out[4].split()[4], 'dir')
+        self.assertEqual(out[4].split()[7], '-')
     
-    def test_one_with_intermediate(self):
-        # upload 1 file (in level_2 directory)
-        testargs = ['mc', 'up', self.files[4][0]]
+    def test_two_dir(self):
+        # ls two directories
+        testargs = ['mc', 'ls', self.dirs[0], self.dirs[1]]
         with captured_output(testargs, wd=self.proj_path) as (sout, serr):
-            up_subcommand()
+            ls_subcommand()
         #print_stringIO(sout)
         out = sout.getvalue().splitlines()
-        proj = self.get_proj()
-        
-        file = proj.get_by_local_path(self.files[4][0])
-        parent = proj.get_directory_by_id(file._directory_id)
-        self.assertTrue(isinstance(file, mcapi.File))
-        self.assertEqual(file.name, os.path.basename(self.files[4][0]))
-        self.assertEqual(file._directory_id, parent.id)
-        self.assertEqual(parent.path, "CLITest/level_1/level_2")
+        self.assertEqual(out[2].split()[4], 'file')
+        self.assertEqual(out[2].split()[7], '-')
+        self.assertEqual(out[3].split()[4], 'file')
+        self.assertEqual(out[3].split()[7], '-')
+        self.assertEqual(out[7].split()[4], 'file')
+        self.assertEqual(out[7].split()[7], '-')
+        self.assertEqual(out[8].split()[4], 'file')
+        self.assertEqual(out[8].split()[7], '-')
+        self.assertEqual(out[9].split()[4], 'dir')
+        self.assertEqual(out[9].split()[7], '-')
 
-
-    def test_recursive_all(self):
-        # upload everything
-        testargs = ['mc', 'up', '-r', '.']
+        testargs = ['mc', 'up', self.dirs[1]]
         with captured_output(testargs, wd=self.proj_path) as (sout, serr):
             up_subcommand()
         #print_stringIO(sout)
-        out = sout.getvalue().splitlines()
-        proj = self.get_proj()
         
-        for d in self.dirs:
-            dir = proj.get_by_local_path(d)
-            self.assertTrue(isinstance(dir, mcapi.Directory))
-    
-        for f in self.files:
-            file = proj.get_by_local_path(f[0])
-            self.assertTrue(isinstance(file, mcapi.File))
-    
-    
-    def test_recursive(self):
-        # upload files in level_1 and level_2
-        testargs = ['mc', 'up', '-r', self.dirs[0]]
+        testargs = ['mc', 'ls', self.dirs[0], self.dirs[1]]
         with captured_output(testargs, wd=self.proj_path) as (sout, serr):
-            up_subcommand()
+            ls_subcommand()
         #print_stringIO(sout)
         out = sout.getvalue().splitlines()
-        proj = self.get_proj()
+        self.assertEqual(out[2].split()[4], 'file')
+        self.assertNotEqual(out[2].split()[6], '-')
+        self.assertEqual(out[2].split()[7], 'file')
+        self.assertEqual(out[3].split()[4], 'file')
+        self.assertNotEqual(out[3].split()[6], '-')
+        self.assertEqual(out[3].split()[7], 'file')
         
-        for d in self.dirs:
-            dir = proj.get_by_local_path(d)
-            self.assertTrue(isinstance(dir, mcapi.Directory))
-    
-        for f in self.files[2:]:
-            file = proj.get_by_local_path(f[0])
-            self.assertTrue(isinstance(file, mcapi.File))
-    
+        self.assertEqual(out[7].split()[4], 'file')
+        self.assertEqual(out[7].split()[7], '-')
+        self.assertEqual(out[8].split()[4], 'file')
+        self.assertEqual(out[8].split()[7], '-')
+        self.assertEqual(out[9].split()[4], 'dir')
+        self.assertNotEqual(out[9].split()[6], '-')
+        self.assertEqual(out[9].split()[7], 'dir')
     
     @classmethod
     def tearDownClass(cls):

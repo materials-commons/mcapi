@@ -113,7 +113,7 @@ class TestMCUp(unittest.TestCase):
 
     def test_one_in_top(self):
         self.assertFalse(os.path.exists(self.files[0][0]))
-        # upload 1 file (in top directory)
+        # download 1 file (in top directory)
         testargs = ['mc', 'down', self.files[0][0]]
         with captured_output(testargs, wd=self.proj_path) as (sout, serr):
             down_subcommand()
@@ -122,7 +122,7 @@ class TestMCUp(unittest.TestCase):
     
     def test_one_with_intermediate(self):
         self.assertFalse(os.path.exists(self.files[4][0]))
-        # upload 1 file (in top directory)
+        # download 1 file (in level_2 directory)
         testargs = ['mc', 'down', self.files[4][0]]
         with captured_output(testargs, wd=self.proj_path) as (sout, serr):
             down_subcommand()
@@ -151,7 +151,7 @@ class TestMCUp(unittest.TestCase):
             self.assertFalse(os.path.exists(d))
         for f in self.files[2:]:
             self.assertFalse(os.path.exists(f[0]))
-        # upload files in level_1 and level_2
+        # download files in level_1 and level_2
         testargs = ['mc', 'down', '-r', self.dirs[0]]
         with captured_output(testargs, wd=self.proj_path) as (sout, serr):
             down_subcommand()
