@@ -5,9 +5,9 @@ from os import path as os_path
 from random import randint
 from mcapi import set_remote_config_url
 from mcapi import create_project
-from casm_mcapi import _add_string_measurement, \
-    _add_numpy_matrix_measurement, _add_vector_measurement, \
-    _add_list_measurement, _add_integer_measurement, _add_file_measurement
+#from casm_mcapi import _add_string_measurement, \
+#    _add_numpy_matrix_measurement, _add_vector_measurement, \
+#    _add_list_measurement, _add_integer_measurement, _add_file_measurement
 
 url = 'http://mctest.localhost/api'
 
@@ -207,7 +207,7 @@ class TestPrinSample(unittest.TestCase):
 
         # Sample attributes (how to check names?):
         # "name"
-        _add_string_measurement(create_sample_process, 'name', casm_proj.name)
+        create_sample_process.add_string_measurement('name', casm_proj.name)
 
         prim = casm_proj.prim
 
@@ -217,28 +217,23 @@ class TestPrinSample(unittest.TestCase):
         #     "system" ("triclinic", "monoclinic", "orthorhombic", "tetragonal",
         #               "hexagonal", "rhombohedral", "cubic")
         #     "symmetry" (Schoenflies symbol)
-        _add_numpy_matrix_measurement(
-            create_sample_process,
+        create_sample_process.add_numpy_matrix_measurement(
             'lattice_matrix',
             prim.lattice_matrix)
 
-        _add_vector_measurement(
-            create_sample_process,
+        create_sample_process.add_vector_measurement(
             'lattice_parameters',
             prim.lattice_parameters)
 
-        _add_string_measurement(
-            create_sample_process,
+        create_sample_process.add_string_measurement(
             'lattice_point_group_schonflies',
             prim.lattice_symmetry_s)
 
-        _add_string_measurement(
-            create_sample_process,
+        create_sample_process.add_string_measurement(
             'lattice_point_group_hermann_mauguin',
             prim.lattice_symmetry_hm)
 
-        _add_string_measurement(
-            create_sample_process,
+        create_sample_process.add_string_measurement(
             'lattice_system',
             prim.lattice_system)
 
@@ -250,71 +245,60 @@ class TestPrinSample(unittest.TestCase):
         #                        "tetragonal", "hexagonal", "cubic")
         #      "crystal_system" ("triclinic", "monoclinic", "orthorhombic",
         #                        "tetragonal", "hexagonal", "trigonal", "cubic")
-        _add_string_measurement(
-            create_sample_process,
+        create_sample_process.add_string_measurement(
             'crystal_point_group_schonflies',
             prim.crystal_symmetry_s)
 
-        _add_string_measurement(
-            create_sample_process,
+        create_sample_process.add_string_measurement(
             'crystal_point_group_hermann_mauguin',
             prim.crystal_symmetry_hm)
 
-        _add_string_measurement(
-            create_sample_process,
+        create_sample_process.add_string_measurement(
             'crystal_family',
             prim.crystal_family)
 
-        _add_string_measurement(
-            create_sample_process,
+        create_sample_process.add_string_measurement(
             'crystal_system',
             prim.crystal_system)
 
         # right now, this is a string giving a range of possible values based on the
         #   crystal point group
-        _add_string_measurement(
-            create_sample_process,
+        create_sample_process.add_string_measurement(
             'space_group_number',
             prim.space_group_number)
 
         # "casm_prim_file"
-        _add_file_measurement(create_sample_process, 'casm_prism_file', mcfile)
+        create_sample_process.add_file_measurement('casm_prism_file', mcfile)
 
         # "elements" - currently only elemental components are allowed
-        _add_list_measurement(
-            create_sample_process,
+        create_sample_process.add_list_measurement(
             'elements',
             prim.elements,
             'string')
 
         # "n_elements"
-        _add_integer_measurement(
-            create_sample_process,
+        create_sample_process.add_integer_measurement(
             'n_elements',
             len(prim.elements))
 
         # "components" - currently only elemental components are allowed
-        _add_list_measurement(
-            create_sample_process,
+        create_sample_process.add_list_measurement(
             'components',
             prim.components,
             'string')
 
         # "n_components"
-        _add_integer_measurement(
-            create_sample_process,
+        create_sample_process.add_integer_measurement(
             'n_components',
             len(prim.components))
 
         # "n_independent_compositions"
-        _add_integer_measurement(
-            create_sample_process,
+        create_sample_process.add_integer_measurement(
             'n_independent_compositions',
             prim.n_independent_compositions)
 
         # "degrees_of_freedom" ("occupation", "displacement", "strain")
-        _add_string_measurement(
-            create_sample_process,
+        create_sample_process.add_string_measurement(
             'degrees_of_freedom',
             prim.degrees_of_freedom)
 
