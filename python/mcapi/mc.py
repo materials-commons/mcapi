@@ -216,15 +216,48 @@ class Project(MCObject):
         directory._project = self
         return directory
 
-    def add_file_using_directory(self, directory, file_name, local_input_path):
+    def add_file_using_directory(self, directory, file_name, local_path, verbose=False, limit=50):
+        file_size_MB = os_path.getsize(local_path) >> 20
+        if file_size_MB > limit:
+            raise Exception("File too large (>" + str(limit) + "MB), skipping. File size: " + str(file_size_MB) + "M")
+        if verbose:
+            print "uploading:", os_path.relpath(local_path, getcwd()), " as:", file_name
         project_id = self.id
         directory_id = directory.id
-        results = api.file_upload(project_id, directory_id, file_name, local_input_path)
+        results = api.file_upload(project_id, directory_id, file_name, local_path)
         uploaded_file = make_object(results)
         uploaded_file._project = self
         uploaded_file._directory = directory
         uploaded_file._directory_id = directory.id
         return uploaded_file
+    
+    def add_file_by_local_path(self, local_path, verbose=False, limit=50):
+        """
+        Upload a file, specified by local_path, creating intermediate 
+        directories as necessary
+        
+        Example:
+           self.local_path = "/path/to/Proj"
+           local_path = "/path/to/Proj/test_dir/file_A.txt" -> upload file_A.txt
+        """
+        dir_path = self._local_path_to_path(os_path.dirname(local_path))
+        dir = self.create_or_get_all_directories_on_path(dir_path)[-1]
+        return self.add_file_using_directory(dir, os_path.basename(local_path),
+            local_path, verbose, limit)
+
+    def add_directory_tree_by_local_path(self, local_path, verbose=False, limit=50):
+        """
+        Upload a directory, specified by local_path, and all its contents 
+        creating intermediate directories as necessary
+        
+        Example:
+           self.local_path = "/path/to/Proj"
+           local_path = "/path/to/Proj/test_dir/dir_A" -> upload dir_A and all contents
+        """
+        path = self._local_path_to_path(os_path.dirname(local_path))
+        dir = self.create_or_get_all_directories_on_path(path)[-1]
+        return dir.add_directory_tree(os_path.basename(local_path), 
+            os_path.dirname(local_path), verbose, limit)
 
     def fetch_sample_by_id(self, sample_id):
         sample_json_dict = api.get_project_sample_by_id(self.id, sample_id)
@@ -257,6 +290,14 @@ class Project(MCObject):
                 return None
             curr = nextchild[0]
         return curr
+    
+    def _local_path_to_path(self, local_path):
+        local_path = os_path.abspath(local_path)
+        if local_path == self.local_path:
+            return "/"
+        else:
+            return os_path.relpath(local_path, self.local_path)
+
 
 class Experiment(MCObject):
     def __init__(self, project_id=None, name=None, description=None,
@@ -687,6 +728,20 @@ class Process(MCObject):
         }
         return self.set_measurement(attrname, measurement_data, name)
 
+    # NOTE: no covering test or example for this function - probably works - Terry, Jan 20, 2016
+    def add_sample_measurement(self, attrname, sample, name=None):
+        measurement_data = {
+            "attribute": attrname,
+            "otype": "sample",
+            "value": {
+                "sample_id": sample.id,
+                "sample_name": sample.name,
+                "property_set_id": sample.property_set_id
+            },
+            "is_best_measure": True
+        }
+        return self.set_measurement(attrname, measurement_data, name)
+
     def add_list_measurement(self, attrname, value, value_type, name=None):
         measurement_data = {
             "attribute": attrname,
@@ -1010,12 +1065,7 @@ class Directory(MCObject):
         return dir_list
 
     def add_file(self, file_name, input_path, verbose=False, limit=50):
-        file_size_MB = os_path.getsize(input_path) >> 20
-        if file_size_MB > limit:
-            raise Exception("File too large (>" + str(limit) + "MB), skipping. File size: " + str(file_size_MB) + "M")
-        if verbose:
-            print "uploading:", os_path.relpath(input_path, getcwd()), " as:", file_name
-        result = self._project.add_file_using_directory(self, file_name, input_path)
+        result = self._project.add_file_using_directory(self, file_name, input_path, verbose, limit)
         return result
 
     def add_directory_tree(self, dir_name, input_dir_path, verbose=False, limit=50):

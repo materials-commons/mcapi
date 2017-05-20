@@ -53,10 +53,8 @@ def up_subcommand():
     for p in local_abspaths:
         if os.path.isfile(p):
             #print "uploading:", p
-            remote_relpath = _local_to_remote_relpath(proj, os.path.dirname(p))
-            dir = proj.create_or_get_all_directories_on_path(remote_relpath)[-1]
             try:
-                result = dir.add_file(os.path.basename(p), p, verbose=True, limit=limit)
+                result = proj.add_file_by_local_path(p, verbose=True, limit=limit)
             except Exception as e:
                 print "Could not upload:", p
                 print "Error:"
@@ -64,9 +62,7 @@ def up_subcommand():
         
         elif os.path.isdir(p) and args.recursive:
             #print "uploading:", p
-            remote_relpath = _local_to_remote_relpath(proj, os.path.dirname(p))
-            dir = proj.create_or_get_all_directories_on_path(remote_relpath)[-1]
-            result, error = dir.add_directory_tree(os.path.basename(p), os.path.dirname(p), verbose=True, limit=limit)
+            result, error = proj.add_directory_tree_by_local_path(p, verbose=True, limit=limit)
             if len(error):
                 for file in error:
                     print "Could not upload:", file
