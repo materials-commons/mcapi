@@ -13,8 +13,8 @@ class TestMCProj(unittest.TestCase):
     
     def test_mc_proj(self):
         testargs = ['mc', 'proj']
-        with captured_output(testargs) as (sout, serr):
-            proj_subcommand()
+        with captured_output() as (sout, serr):
+            proj_subcommand(testargs)
         #print_stringIO(sout)
         out = sout.getvalue().splitlines()
         err = serr.getvalue().splitlines()

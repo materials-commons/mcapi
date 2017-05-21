@@ -1,12 +1,12 @@
-import os
 import sys
+import os
 import json
 import argparse
 import mcapi
 from mcapi.cli.functions import _mc_remotes, _print_projects, _proj_config, \
     make_local_project
 
-def init_subcommand():
+def init_subcommand(argv=sys.argv):
         """
         Initialize a new project
         
@@ -20,7 +20,7 @@ def init_subcommand():
         parser.add_argument('--desc', type=str, default='', help='Project description')
         
         # ignore 'mc init'
-        args = parser.parse_args(sys.argv[2:])
+        args = parser.parse_args(argv[2:])
         
         remotes = _mc_remotes()
         if not args.remote in remotes:

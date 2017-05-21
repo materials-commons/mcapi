@@ -3,7 +3,7 @@ import argparse
 from mcapi.cli.functions import make_local_project, make_local_expt, \
     set_current_experiment, _print_experiments
 
-def expt_subcommand():
+def expt_subcommand(argv=sys.argv):
     """
     List, create, delete, and modify experiments
     
@@ -26,7 +26,7 @@ def expt_subcommand():
     #parser.add_argument('-m', '--rename', type=str, default='origin', help='Rename experiment')
     
     # ignore 'mc expt'
-    args = parser.parse_args(sys.argv[2:])
+    args = parser.parse_args(argv[2:])
     
     proj = make_local_project()
     expt_list = proj.get_all_experiments()

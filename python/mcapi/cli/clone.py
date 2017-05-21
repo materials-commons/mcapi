@@ -6,7 +6,7 @@ import mcapi
 from mcapi.cli.functions import _proj_path, _proj_config, _print_projects, _mc_remotes
 
 
-def clone_subcommand():
+def clone_subcommand(argv=sys.argv):
     """
     'Clone' a project, i.e. set the local directory tree where files should
     be uploaded/downloaded. Creates a '.mc/config.json'.
@@ -21,7 +21,7 @@ def clone_subcommand():
     parser.add_argument('--remote', type=str, default='origin', help='Remote name')
     
     # ignore 'mc clone'
-    args = parser.parse_args(sys.argv[2:])
+    args = parser.parse_args(argv[2:])
     
     remotes = _mc_remotes()
     if not args.remote in remotes:

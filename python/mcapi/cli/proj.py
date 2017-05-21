@@ -3,7 +3,7 @@ import argparse
 import mcapi
 from mcapi.cli.functions import _proj_path, make_local_project, _print_projects
 
-def proj_subcommand():
+def proj_subcommand(argv=sys.argv):
     """
     Show list of projects
     
@@ -20,7 +20,7 @@ def proj_subcommand():
     parser.add_argument('-n', '--dry-run', action="store_true", default=False, help='Dry run deletion')
     
     # ignore 'mc proj'
-    args = parser.parse_args(sys.argv[2:])
+    args = parser.parse_args(argv[2:])
     
     if args.delete:
         print "delete:", args.delete

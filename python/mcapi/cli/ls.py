@@ -67,7 +67,7 @@ def _ls_group(proj, paths, files_only=True, checksum=False, json=False, id=False
         
         # locals
         if os.path.exists(path):
-            data['l_mtime'] = time.strftime("%b %Y %H:%M:%S", time.localtime(os.path.getmtime(path)))
+            data['l_mtime'] = time.strftime("%b %Y %d %H:%M:%S", time.localtime(os.path.getmtime(path)))
             data['l_size'] = _humanize(os.path.getsize(path))
             if os.path.isfile(path):
                 data['l_type'] = 'file'
@@ -82,16 +82,18 @@ def _ls_group(proj, paths, files_only=True, checksum=False, json=False, id=False
         # remotes
         obj = proj.get_by_local_path(path)
         if obj is not None:
-            if obj.mtime:
-                data['r_mtime'] = time.strftime("%b %Y %H:%M:%S", time.localtime(obj.mtime))
             data['r_size'] = _humanize(obj.size)
             if isinstance(obj, mcapi.File):
+                if obj.mtime:
+                    data['r_mtime'] = obj.mtime.strftime("%b %Y %d %H:%M:%S")
                 data['r_type'] = 'file'
                 if checksum and l_checksum is not None:
                     data['eq'] = (obj.checksum == l_checksum)
                 files.add(path)
                 remotes.add(obj)
             elif isinstance(obj, mcapi.Directory):
+                if obj.mtime:
+                    data['r_mtime'] = obj.time.strftime("%b %Y %d %H:%M:%S")
                 data['r_type'] = 'dir'
                 dirs.add(path)
                 if not files_only:
@@ -112,7 +114,7 @@ def _humanize(file_size_bytes):
             return str(_size) + key
 
 
-def ls_subcommand():
+def ls_subcommand(argv=sys.argv):
     """
     'ls' a project directory to see local and remote files and directories.
     
@@ -127,7 +129,7 @@ def ls_subcommand():
     parser.add_argument('--json', action="store_true", default=False, help='Print JSON exactly')
     
     # ignore 'mc ls'
-    args = parser.parse_args(sys.argv[2:])
+    args = parser.parse_args(argv[2:])
     
     local_abspaths = [os.path.abspath(p) for p in args.paths]
     

@@ -15,8 +15,8 @@ class TestMCTemplates(unittest.TestCase):
     
     def test_mc_templates_all(self):
         testargs = ['mc', 'templates']
-        with captured_output(testargs) as (sout, serr):
-            templates_subcommand()
+        with captured_output() as (sout, serr):
+            templates_subcommand(testargs)
         #print_stringIO(sout)
         out = sout.getvalue().splitlines()
         err = serr.getvalue().splitlines()
@@ -34,8 +34,8 @@ class TestMCTemplates(unittest.TestCase):
     
     def test_mc_templates_all_json(self):
         testargs = ['mc', 'templates', '--json']
-        with captured_output(testargs) as (sout, serr):
-            templates_subcommand()
+        with captured_output() as (sout, serr):
+            templates_subcommand(testargs)
         #print_stringIO(sout)
         templates = json.loads(sout.getvalue())
         self.assertTrue(True)
@@ -43,8 +43,8 @@ class TestMCTemplates(unittest.TestCase):
      
     def test_mc_templates_by_name(self):
         testargs = ['mc', 'templates', 'Create Samples']
-        with captured_output(testargs) as (sout, serr):
-            templates_subcommand()
+        with captured_output() as (sout, serr):
+            templates_subcommand(testargs)
         #print_stringIO(sout)
         out = sout.getvalue().splitlines()
         err = serr.getvalue().splitlines()
@@ -52,16 +52,16 @@ class TestMCTemplates(unittest.TestCase):
     
     def test_mc_templates_by_name_json(self):
         testargs = ['mc', 'templates', '--json', 'Create Samples']
-        with captured_output(testargs) as (sout, serr):
-            templates_subcommand()
+        with captured_output() as (sout, serr):
+            templates_subcommand(testargs)
         #print_stringIO(sout)
         template = json.loads(sout.getvalue())
         self.assertTrue(True)
     
     def test_mc_templates_by_id(self):
         testargs = ['mc', 'templates', '--id', 'global_Create Samples']
-        with captured_output(testargs) as (sout, serr):
-            templates_subcommand()
+        with captured_output() as (sout, serr):
+            templates_subcommand(testargs)
         #print_stringIO(sout)
         out = sout.getvalue().splitlines()
         err = serr.getvalue().splitlines()
@@ -69,8 +69,8 @@ class TestMCTemplates(unittest.TestCase):
     
     def test_mc_templates_by_id_json(self):
         testargs = ['mc', 'templates', '--json', '--id', 'global_Create Samples']
-        with captured_output(testargs) as (sout, serr):
-            templates_subcommand()
+        with captured_output() as (sout, serr):
+            templates_subcommand(testargs)
         #2print_stringIO(sout)
         template = json.loads(sout.getvalue())
         self.assertTrue(True)

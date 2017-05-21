@@ -1,5 +1,7 @@
 import api
 import string
+import hashlib
+import copy
 from os import path as os_path
 from os import listdir
 from os import getcwd
@@ -219,7 +221,8 @@ class Project(MCObject):
     def add_file_using_directory(self, directory, file_name, local_path, verbose=False, limit=50):
         file_size_MB = os_path.getsize(local_path) >> 20
         if file_size_MB > limit:
-            raise Exception("File too large (>" + str(limit) + "MB), skipping. File size: " + str(file_size_MB) + "M")
+            msg = "File too large (>{0}MB), skipping. File size: {1}M".format(limit, file_size_MB)
+            raise Exception(msg)
         if verbose:
             print "uploading:", os_path.relpath(local_path, getcwd()), " as:", file_name
         project_id = self.id
@@ -279,7 +282,8 @@ class Project(MCObject):
             obj: mcapi.File, mcapi.Directory, or None
         """
         if self.local_path is None:
-            raise Exception("Error in Project.get_by_local_path: Project.local_path is None")
+            msg = "Error in Project.get_by_local_path: Project.local_path is None"
+            raise Exception(msg)
         if os_path.abspath(local_path) == self.local_path:
             return self.get_top_directory()
         names = string.split(os_path.relpath(local_path, self.local_path), '/')
@@ -291,13 +295,53 @@ class Project(MCObject):
             curr = nextchild[0]
         return curr
     
+    def file_exists_by_local_path(self, local_path, checksum=False):
+        """
+        Check if files exists locally and remotely. Optionally compares md5 hash.
+        
+        Returns:
+            file_exists [, checksum_equal]
+            
+            file_exists: bool
+                True if file exists locally and remotely
+            
+            checksum_equal:
+                Returns (local checksum == remote checksum), if 'checksum' == True,
+        """
+        if os_path.exists(local_path) and os_path.isfile(local_path):
+            obj = self.get_by_local_path(local_path)
+            if isinstance(obj, File):
+                if checksum:
+                    with open(local_path, 'r') as f:
+                        l_checksum = hashlib.md5(f.read()).hexdigest()
+                    return True, (obj.checksum == l_checksum)
+                else:
+                    return True
+        return False
+    
     def _local_path_to_path(self, local_path):
         local_path = os_path.abspath(local_path)
         if local_path == self.local_path:
             return "/"
         else:
             return os_path.relpath(local_path, self.local_path)
+    
+    # Project - Processes
 
+    def get_all_processes(self):
+        process_list = api.fetch_project_processes(self.id, self.remote)
+        processes = map((lambda x: make_object(x)), process_list)
+        processes = map((lambda x: _decorate_object_with(x, 'project', self)), processes)
+        return processes
+    
+    # Project - Samples
+
+    def get_all_samples(self):
+        sample_list = api.fetch_project_samples(self.id, self.remote)
+        samples = map((lambda x: make_object(x)), samples_list)
+        samples = map((lambda x: _decorate_object_with(x, 'project', self)), samples)
+        return samples
+        
 
 class Experiment(MCObject):
     def __init__(self, project_id=None, name=None, description=None,
@@ -402,24 +446,37 @@ class Experiment(MCObject):
         return process
 
     def get_all_processes(self):
-        # TODO: Experiment.get_all_processes()
-        pass
-
-    # Experiment - additional rethod
-    def decorate_with_samples(self):
-        samples_list = api.fetch_experiment_samples(self.project.id, self.id)
-        samples = map((lambda x: make_object(x)), samples_list)
-        samples = map((lambda x: _decorate_object_with(x, 'project', self.project)), samples)
-        samples = map((lambda x: _decorate_object_with(x, 'experiment', self)), samples)
-        self.samples = samples
-        return self
-
-    def decorate_with_processes(self):
         process_list = api.fetch_experiment_processes(self.project.id, self.id)
         processes = map((lambda x: make_object(x)), process_list)
         processes = map((lambda x: _decorate_object_with(x, 'project', self.project)), processes)
         processes = map((lambda x: _decorate_object_with(x, 'experiment', self)), processes)
-        self.processes = processes
+        return processes
+
+    # Experiment - Process-related methods - basic: create, get_by_id, get_all (in context)
+
+    def get_sample_by_id(self, sample_id):
+        project = self.project
+        experiment = self
+        results = api.get_sample_from_id(project.id, experiment.id, process_id)
+        sample = make_object(results)
+        sample.project = project
+        sample.experiment = experiment
+        return sample
+
+    def get_all_samples(self):
+        samples_list = api.fetch_experiment_samples(self.project.id, self.id)
+        samples = map((lambda x: make_object(x)), samples_list)
+        samples = map((lambda x: _decorate_object_with(x, 'project', self.project)), samples)
+        samples = map((lambda x: _decorate_object_with(x, 'experiment', self)), samples)
+        return samples
+    
+    # Experiment - additional method
+    def decorate_with_samples(self):
+        self.samples = self.get_all_samples()
+        return self
+
+    def decorate_with_processes(self):
+        self.processes = self.get_all_processes()
         return self
 
 
@@ -469,29 +526,36 @@ class Process(MCObject):
     def pretty_print(self, shift=0, indent=2):
 
         n_indent = 0
+        
+        def _str(val):
+            result = str(val)
+            if ' ' in result:
+                result = "'" + result + "'"
+            return result
 
         def _print(s, n_indent):
             print " " * shift + " " * indent * n_indent + s
 
-        _print("name: " + str(self.name), n_indent)
-        _print("description: " + str(self.description), n_indent)
-        _print("id: " + str(self.id), n_indent)
-        _print("process_type: " + str(self.process_type), n_indent)
-        _print("template_id: " + str(self.template_id), n_indent)
+        _print("name: " + _str(self.name), n_indent)
+        n_indent += 1
+        _print("description: " + _str(self.description), n_indent)
+        _print("id: " + _str(self.id), n_indent)
+        _print("process_type: " + _str(self.process_type), n_indent)
+        _print("template_id: " + _str(self.template_id), n_indent)
         if self.project is not None:
-            _print("project.name: " + str(self.project.name), n_indent)
-            _print("project.id: " + str(self.project.id), n_indent)
+            _print("project.name: " + _str(self.project.name), n_indent)
+            _print("project.id: " + _str(self.project.id), n_indent)
         if self.experiment is not None:
-            _print("experiment.name: " + str(self.experiment.name), n_indent)
-            _print("experiment.id: " + str(self.experiment.id), n_indent)
-        _print("owner: " + str(self.owner), n_indent)
+            _print("experiment.name: " + _str(self.experiment.name), n_indent)
+            _print("experiment.id: " + _str(self.experiment.id), n_indent)
+        _print("owner: " + _str(self.owner), n_indent)
 
         def _print_objects(title, obj_list, n_indent):
             if len(obj_list):
                 _print(title + ": ", n_indent)
                 n_indent += 1
                 for obj in obj_list:
-                    _print(str(obj.name) + " " + str(obj.id), n_indent)
+                    _print(_str(obj.name) + " " + _str(obj.id), n_indent)
                 n_indent -= 1
 
         def _print_measurements(measurements, n_indent):
@@ -499,17 +563,18 @@ class Process(MCObject):
                 _print("measurements: ", n_indent)
                 n_indent += 1
                 for obj in measurements:
-                    _print(str(obj.attribute) + " " + str(obj.id), n_indent)
+                    _print(_str(obj.attribute) + " " + _str(obj.id), n_indent)
                 n_indent -= 1
 
         _print_objects("input_files", self.input_files, n_indent)
         _print_objects("output_files", self.output_files, n_indent)
         _print_objects("input_samples", self.input_samples, n_indent)
         _print_objects("output_samples", self.output_samples, n_indent)
-        _print("does_transform: " + str(self.does_transform), n_indent)
+        _print("does_transform: " + _str(self.does_transform), n_indent)
         _print_objects("transformed_samples", self.transformed_samples, n_indent)
         _print_measurements(self.measurements, n_indent)
-
+        n_indent -= 1
+        
         # setup
         # properties_dictionary
 
@@ -1311,7 +1376,7 @@ def make_object(data):
     if _is_object(data):
         holder = make_base_object_for_type(data)
         for key in data.keys():
-            value = data[key]
+            value = copy.deepcopy(data[key])
             if _is_object(value):
                 value = make_object(value)
             elif _is_list(value):

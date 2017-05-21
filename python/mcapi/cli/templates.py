@@ -9,7 +9,7 @@ def _templates(remote=mcapi.Remote()):
     return mcapi.api.get(remote.make_url_v2('templates'), remote=remote)
 
 
-def templates_subcommand():
+def templates_subcommand(argv=sys.argv):
     """
     Show list of process templates
     
@@ -24,10 +24,10 @@ def templates_subcommand():
         prog='mc templates')
     parser.add_argument('names', nargs='*', default=None, help='Template names (or id if --id given)')
     parser.add_argument('--id', action="store_true", default=False, help='Input template id instead of name')
-    parser.add_argument('--json', action="store_true", default=False, help='Print JSON exactly')
+    parser.add_argument('--json', action="store_true", default=False, help='Print JSON data')
     
     # ignore 'mc templates'
-    args = parser.parse_args(sys.argv[2:])
+    args = parser.parse_args(argv[2:])
     
     data = _templates()
     

@@ -18,7 +18,7 @@ def _local_to_remote_relpath(proj, local_path):
     return remote_relpath
             
 
-def up_subcommand():
+def up_subcommand(argv=sys.argv):
     """
     upload files to Materials Commons
     
@@ -33,7 +33,7 @@ def up_subcommand():
     parser.add_argument('--limit', nargs=1, type=float, default=[50], help='File size upload limit (MB). Default=50MB.')
     
     # ignore 'mc up'
-    args = parser.parse_args(sys.argv[2:])
+    args = parser.parse_args(argv[2:])
     
     limit = args.limit[0]
     proj = make_local_project()

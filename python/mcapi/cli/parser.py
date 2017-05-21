@@ -11,6 +11,7 @@ from mcapi.cli.ls import ls_subcommand
 from mcapi.cli.up import up_subcommand
 from mcapi.cli.down import down_subcommand
 from mcapi.cli.templates import templates_subcommand
+from mcapi.cli.proc import ProcSubcommand
 import StringIO
 import imp
 
@@ -25,10 +26,11 @@ class CommonsCLIParser(object):
         {'name':'ls', 'desc': 'List local and remote directory contents', 'subcommand': ls_subcommand},
         {'name':'up', 'desc': 'Upload files', 'subcommand': up_subcommand},
         {'name':'down', 'desc': 'Download files', 'subcommand': down_subcommand},
-        {'name':'templates', 'desc': 'List process templates', 'subcommand': templates_subcommand}
+        {'name':'templates', 'desc': 'List process templates', 'subcommand': templates_subcommand},
+        {'name':'proc', 'desc': 'List processes', 'subcommand': ProcSubcommand()}
     ]
     
-    def __init__(self):
+    def __init__(self, argv):
         
         usage_help = StringIO.StringIO()
         usage_help.write("mc <command> [<args>]\n\n")
@@ -51,18 +53,18 @@ class CommonsCLIParser(object):
             usage=usage_help.getvalue())
         parser.add_argument('command', help='Subcommand to run')
         
-        if len(sys.argv) < 2:
+        if len(argv) < 2:
             parser.print_help()
             return
         
         # parse_args defaults to [1:] for args, but you need to
         # exclude the rest of the args too, or validation will fail
-        args = parser.parse_args(sys.argv[1:2])
+        args = parser.parse_args(argv[1:2])
         
         if hasattr(self, args.command):
-            getattr(self, args.command)()
+            getattr(self, args.command)(argv)
         elif args.command in standard_interfaces:
-            standard_interfaces[args.command]['subcommand']()
+            standard_interfaces[args.command]['subcommand'](argv)
         elif args.command in custom_interfaces:
             # load module and run command
             modulename = custom_interfaces[args.command]['module']
@@ -70,7 +72,7 @@ class CommonsCLIParser(object):
             f, filename, description = imp.find_module(modulename)
             try:
                 module = imp.load_module(modulename, f, filename, description)
-                getattr(module, subcommandname)()
+                getattr(module, subcommandname)(argv)
             finally:
                 if f:
                     f.close()

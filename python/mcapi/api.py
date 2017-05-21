@@ -156,6 +156,13 @@ def delete_project_dry_run(project_id, remote=None):
     return get(remote.make_url_v2(api_url))
 
 
+def fetch_project_processes(project_id, remote=None):
+    if not remote:
+        remote = use_remote()
+    api_url = "/projects/" + project_id + "/processes"
+    return get(remote.make_url_v2(api_url))
+
+
 # Experiment
 
 def create_experiment(project_id, name, description, remote=None):
