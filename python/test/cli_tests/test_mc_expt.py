@@ -48,27 +48,27 @@ class TestMCExpt(unittest.TestCase):
 
     def test_mc_expt(self):
         testargs = ['mc', 'init']
-        with captured_output(testargs, wd=self.proj_path) as (sout, serr):
-            init_subcommand()
+        with captured_output(wd=self.proj_path) as (sout, serr):
+            init_subcommand(testargs)
         #print_stringIO(sout)
         out = sout.getvalue().splitlines()
         self.assertEqual(out[0], "Created new project at: " + url)
         
         testargs = ['mc', 'expt', '-c', 'test_A']
-        with captured_output(testargs, wd=self.proj_path) as (sout, serr):
-            expt_subcommand()
+        with captured_output(wd=self.proj_path) as (sout, serr):
+            expt_subcommand(testargs)
         #print_stringIO(sout)
         out = sout.getvalue().splitlines()
         self.assertTrue(re.match("Created experiment: test_A", out[0]))
-        self.assertTrue(re.match("set current experiment: 'test_A'", out[1]))
+        self.assertTrue(re.match("Set current experiment: 'test_A'", out[1]))
     
         testargs = ['mc', 'expt', '-c', 'test_B']
-        with captured_output(testargs, wd=self.proj_path) as (sout, serr):
-            expt_subcommand()
+        with captured_output(wd=self.proj_path) as (sout, serr):
+            expt_subcommand(testargs)
         #print_stringIO(sout)
         out = sout.getvalue().splitlines()
         self.assertTrue(re.match("Created experiment: test_B", out[0]))
-        self.assertTrue(re.match("set current experiment: 'test_B'", out[1]))
+        self.assertTrue(re.match("Set current experiment: 'test_B'", out[1]))
         
         proj_list = mcapi.get_all_projects()
         proj_dict = {p.name:p for p in proj_list}
@@ -79,8 +79,8 @@ class TestMCExpt(unittest.TestCase):
         self.assertTrue('test_B' in expts_dict)
         
         testargs = ['mc', 'expt', '-d', 'test_B', '-n']
-        with captured_output(testargs, wd=self.proj_path) as (sout, serr):
-            expt_subcommand()
+        with captured_output(wd=self.proj_path) as (sout, serr):
+            expt_subcommand(testargs)
         #print_stringIO(sout)
         out = sout.getvalue().splitlines()
         
@@ -93,8 +93,8 @@ class TestMCExpt(unittest.TestCase):
         self.assertTrue('test_B' in expts_dict)
         
         testargs = ['mc', 'expt', '-d', 'test_B']
-        with captured_output(testargs, wd=self.proj_path) as (sout, serr):
-            expt_subcommand()
+        with captured_output(wd=self.proj_path) as (sout, serr):
+            expt_subcommand(testargs)
         #print_stringIO(sout)
         out = sout.getvalue().splitlines()
         

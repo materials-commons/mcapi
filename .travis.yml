@@ -9,6 +9,11 @@ notifications:
     on_success: change
     on_failure: always
 
+# blocklist - branches not used for testing: any branch starting with 'spike'
+branches:
+  except:
+  - /^spike-.*$/
+
 language: python
 
 python:
@@ -125,8 +130,8 @@ before_script:
   - grep 'otype' junk.txt
 
 script:
-  - pytest test -s r
-#  - -s r to show reasons for skipping tests
+  - pytest test -rsx
+#  - -rsx to show reasons for skipping and failed tests - updated
 #  - coverage run --source mcapi,casm_mcapi,demo_project -m py.test test
 #  - coverage report -m
 

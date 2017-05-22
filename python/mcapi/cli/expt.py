@@ -3,7 +3,7 @@ import argparse
 from mcapi.cli.functions import make_local_project, make_local_expt, \
     set_current_experiment, _print_experiments
 
-def expt_subcommand():
+def expt_subcommand(argv=sys.argv):
     """
     List, create, delete, and modify experiments
     
@@ -26,7 +26,7 @@ def expt_subcommand():
     #parser.add_argument('-m', '--rename', type=str, default='origin', help='Rename experiment')
     
     # ignore 'mc expt'
-    args = parser.parse_args(sys.argv[2:])
+    args = parser.parse_args(argv[2:])
     
     proj = make_local_project()
     expt_list = proj.get_all_experiments()
@@ -44,6 +44,7 @@ def expt_subcommand():
                 expt = proj.create_experiment(name, args.desc)
                 print 'Created experiment:', expt.name
                 set_current_experiment(proj, expt)
+                print "Set current experiment: '" + expt.name + "'"
             else:
                 print 'experiment: \'' + name + '\' already exists'
     
@@ -68,8 +69,10 @@ def expt_subcommand():
         
         if args.id:
             set_current_experiment(proj, expt_ids[args.expts[0]])
+            print "Set current experiment: '" + expt_ids[args.expts[0]].name + "'"
         else:
             set_current_experiment(proj, expts[args.expts[0]])
+            print "Set current experiment: '" + expts[args.expts[0]].name + "'"
     
     elif args.list:
         

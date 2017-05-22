@@ -1,12 +1,18 @@
 import api
 import string
+import hashlib
+import copy
+import sys
 from os import path as os_path
 from os import listdir
 from os import getcwd
-from base import MCObject
+from base import MCObject, PrettyPrint
 from base import _decorate_object_with, _is_object, _is_list, _has_key, _data_has_type
 from base import _is_datetime, _make_datetime
 from measurement import make_measurement_object
+from pandas import DataFrame
+from tabulate import tabulate
+from StringIO import StringIO
 
 # -- top level project functions --
 def create_project(name, description):
@@ -116,6 +122,15 @@ class Project(MCObject):
         # Remote instance, where Project is saved. Similar to source
         self.remote = None
 
+    def pretty_print(self, shift=0, indent=2, out=sys.stdout):
+        pp = PrettyPrint(shift=shift, indent=indent, out=out)
+        pp.write("name: " + pp.str(self.name))
+        pp.n_indent += 1
+        pp.write("description: " + pp.str(self.description))
+        pp.write("id: " + self.id)
+        pp.write("owner: " + pp.str(self.owner))
+        pp.write("mtime: " + pp.str(self.mtime.strftime("%b %Y %d %H:%M:%S")))
+    
     def process_special_objects(self):
         pass
 
@@ -216,15 +231,49 @@ class Project(MCObject):
         directory._project = self
         return directory
 
-    def add_file_using_directory(self, directory, file_name, local_input_path):
+    def add_file_using_directory(self, directory, file_name, local_path, verbose=False, limit=50):
+        file_size_MB = os_path.getsize(local_path) >> 20
+        if file_size_MB > limit:
+            msg = "File too large (>{0}MB), skipping. File size: {1}M".format(limit, file_size_MB)
+            raise Exception(msg)
+        if verbose:
+            print "uploading:", os_path.relpath(local_path, getcwd()), " as:", file_name
         project_id = self.id
         directory_id = directory.id
-        results = api.file_upload(project_id, directory_id, file_name, local_input_path)
+        results = api.file_upload(project_id, directory_id, file_name, local_path)
         uploaded_file = make_object(results)
         uploaded_file._project = self
         uploaded_file._directory = directory
         uploaded_file._directory_id = directory.id
         return uploaded_file
+    
+    def add_file_by_local_path(self, local_path, verbose=False, limit=50):
+        """
+        Upload a file, specified by local_path, creating intermediate 
+        directories as necessary
+        
+        Example:
+           self.local_path = "/path/to/Proj"
+           local_path = "/path/to/Proj/test_dir/file_A.txt" -> upload file_A.txt
+        """
+        dir_path = self._local_path_to_path(os_path.dirname(local_path))
+        dir = self.create_or_get_all_directories_on_path(dir_path)[-1]
+        return self.add_file_using_directory(dir, os_path.basename(local_path),
+            local_path, verbose, limit)
+
+    def add_directory_tree_by_local_path(self, local_path, verbose=False, limit=50):
+        """
+        Upload a directory, specified by local_path, and all its contents 
+        creating intermediate directories as necessary
+        
+        Example:
+           self.local_path = "/path/to/Proj"
+           local_path = "/path/to/Proj/test_dir/dir_A" -> upload dir_A and all contents
+        """
+        path = self._local_path_to_path(os_path.dirname(local_path))
+        dir = self.create_or_get_all_directories_on_path(path)[-1]
+        return dir.add_directory_tree(os_path.basename(local_path), 
+            os_path.dirname(local_path), verbose, limit)
 
     def fetch_sample_by_id(self, sample_id):
         sample_json_dict = api.get_project_sample_by_id(self.id, sample_id)
@@ -246,7 +295,8 @@ class Project(MCObject):
             obj: mcapi.File, mcapi.Directory, or None
         """
         if self.local_path is None:
-            raise Exception("Error in Project.get_by_local_path: Project.local_path is None")
+            msg = "Error in Project.get_by_local_path: Project.local_path is None"
+            raise Exception(msg)
         if os_path.abspath(local_path) == self.local_path:
             return self.get_top_directory()
         names = string.split(os_path.relpath(local_path, self.local_path), '/')
@@ -257,6 +307,66 @@ class Project(MCObject):
                 return None
             curr = nextchild[0]
         return curr
+    
+    def file_exists_by_local_path(self, local_path, checksum=False):
+        """
+        Check if files exists locally and remotely. Optionally compares md5 hash.
+        
+        Returns:
+            file_exists [, checksum_equal]
+            
+            file_exists: bool
+                True if file exists locally and remotely
+            
+            checksum_equal:
+                Returns (local checksum == remote checksum), if 'checksum' == True,
+        """
+        if os_path.exists(local_path) and os_path.isfile(local_path):
+            obj = self.get_by_local_path(local_path)
+            if isinstance(obj, File):
+                if checksum:
+                    with open(local_path, 'r') as f:
+                        l_checksum = hashlib.md5(f.read()).hexdigest()
+                    return True, (obj.checksum == l_checksum)
+                else:
+                    return True
+        return False
+    
+    def _local_path_to_path(self, local_path):
+        local_path = os_path.abspath(local_path)
+        if local_path == self.local_path:
+            return "/"
+        else:
+            return os_path.relpath(local_path, self.local_path)
+    
+    # Project - Processes
+
+    def get_all_processes(self):
+        process_list = api.get_project_processes(self.id, self.remote)
+        processes = map((lambda x: make_object(x)), process_list)
+        processes = map((lambda x: _decorate_object_with(x, 'project', self)), processes)
+        return processes
+
+    def get_process_by_id(self, process_id):
+        results = api.get_process_by_id(self.id, process_id)
+        process = make_object(results)
+        process.project = self
+        return process
+
+    # Project - Samples
+
+    def get_all_samples(self):
+        samples_list = api.get_project_samples(self.id, self.remote)
+        samples = map((lambda x: make_object(x)), samples_list)
+        samples = map((lambda x: _decorate_object_with(x, 'project', self)), samples)
+        return samples
+    
+    def get_sample_by_id(self, sample_id):
+        results = api.get_sample_by_id(self.id, process_id)
+        sample = make_object(results)
+        sample.project = self
+        return sample
+
 
 class Experiment(MCObject):
     def __init__(self, project_id=None, name=None, description=None,
@@ -354,31 +464,44 @@ class Experiment(MCObject):
     def get_process_by_id(self, process_id):
         project = self.project
         experiment = self
-        results = api.get_process_from_id(project.id, experiment.id, process_id)
+        results = api.get_expt_process_by_id(project.id, experiment.id, process_id)
         process = make_object(results)
         process.project = project
         process.experiment = experiment
         return process
 
     def get_all_processes(self):
-        # TODO: Experiment.get_all_processes()
-        pass
-
-    # Experiment - additional rethod
-    def decorate_with_samples(self):
-        samples_list = api.fetch_experiment_samples(self.project.id, self.id)
-        samples = map((lambda x: make_object(x)), samples_list)
-        samples = map((lambda x: _decorate_object_with(x, 'project', self.project)), samples)
-        samples = map((lambda x: _decorate_object_with(x, 'experiment', self)), samples)
-        self.samples = samples
-        return self
-
-    def decorate_with_processes(self):
         process_list = api.fetch_experiment_processes(self.project.id, self.id)
         processes = map((lambda x: make_object(x)), process_list)
         processes = map((lambda x: _decorate_object_with(x, 'project', self.project)), processes)
         processes = map((lambda x: _decorate_object_with(x, 'experiment', self)), processes)
-        self.processes = processes
+        return processes
+
+    # Experiment - Process-related methods - basic: create, get_by_id, get_all (in context)
+
+    def get_sample_by_id(self, sample_id):
+        project = self.project
+        experiment = self
+        results = api.get_expt_sample_by_id(project.id, experiment.id, process_id)
+        sample = make_object(results)
+        sample.project = project
+        sample.experiment = experiment
+        return sample
+
+    def get_all_samples(self):
+        samples_list = api.fetch_experiment_samples(self.project.id, self.id)
+        samples = map((lambda x: make_object(x)), samples_list)
+        samples = map((lambda x: _decorate_object_with(x, 'project', self.project)), samples)
+        samples = map((lambda x: _decorate_object_with(x, 'experiment', self)), samples)
+        return samples
+    
+    # Experiment - additional method
+    def decorate_with_samples(self):
+        self.samples = self.get_all_samples()
+        return self
+
+    def decorate_with_processes(self):
+        self.processes = self.get_all_processes()
         return self
 
 
@@ -426,53 +549,23 @@ class Process(MCObject):
         if description:
             self.description = description
 
-    def pretty_print(self, shift=0, indent=2):
-
-        n_indent = 0
-
-        def _print(s, n_indent):
-            print " " * shift + " " * indent * n_indent + s
-
-        _print("name: " + str(self.name), n_indent)
-        _print("description: " + str(self.description), n_indent)
-        _print("id: " + str(self.id), n_indent)
-        _print("process_type: " + str(self.process_type), n_indent)
-        _print("template_id: " + str(self.template_id), n_indent)
-        if self.project is not None:
-            _print("project.name: " + str(self.project.name), n_indent)
-            _print("project.id: " + str(self.project.id), n_indent)
-        if self.experiment is not None:
-            _print("experiment.name: " + str(self.experiment.name), n_indent)
-            _print("experiment.id: " + str(self.experiment.id), n_indent)
-        _print("owner: " + str(self.owner), n_indent)
-
-        def _print_objects(title, obj_list, n_indent):
-            if len(obj_list):
-                _print(title + ": ", n_indent)
-                n_indent += 1
-                for obj in obj_list:
-                    _print(str(obj.name) + " " + str(obj.id), n_indent)
-                n_indent -= 1
-
-        def _print_measurements(measurements, n_indent):
-            if len(measurements):
-                _print("measurements: ", n_indent)
-                n_indent += 1
-                for obj in measurements:
-                    _print(str(obj.attribute) + " " + str(obj.id), n_indent)
-                n_indent -= 1
-
-        _print_objects("input_files", self.input_files, n_indent)
-        _print_objects("output_files", self.output_files, n_indent)
-        _print_objects("input_samples", self.input_samples, n_indent)
-        _print_objects("output_samples", self.output_samples, n_indent)
-        _print("does_transform: " + str(self.does_transform), n_indent)
-        _print_objects("transformed_samples", self.transformed_samples, n_indent)
-        _print_measurements(self.measurements, n_indent)
-
-        # setup
-        # properties_dictionary
-
+    def pretty_print(self, shift=0, indent=2, out=sys.stdout):
+        pp = PrettyPrint(shift=shift, indent=indent, out=out)
+        pp.write("name: " + pp.str(self.name))
+        pp.n_indent += 1
+        pp.write("description: " + pp.str(self.description))
+        pp.write("id: " + pp.str(self.id))
+        pp.write("owner: " + pp.str(self.owner))
+        pp.write("template_id: " + pp.str(self.template_id))
+        pp.write("process_type: " + pp.str(self.process_type))
+        pp.write_objects("input_files: ", self.input_files)
+        pp.write_objects("output_files: ", self.output_files)
+        pp.write_objects("input_samples: ", self.input_samples)
+        pp.write_objects("output_samples: ", self.output_samples)
+        pp.write("does_transform: " + pp.str(self.does_transform))
+        pp.write_objects("transformed_samples: ", self.transformed_samples)
+        pp.write_measurements(self.measurements)
+    
     def process_special_objects(self):
         if self.setup:
             for i in range(len(self.setup)):
@@ -688,6 +781,20 @@ class Process(MCObject):
         }
         return self.set_measurement(attrname, measurement_data, name)
 
+    # NOTE: no covering test or example for this function - probably works - Terry, Jan 20, 2016
+    def add_sample_measurement(self, attrname, sample, name=None):
+        measurement_data = {
+            "attribute": attrname,
+            "otype": "sample",
+            "value": {
+                "sample_id": sample.id,
+                "sample_name": sample.name,
+                "property_set_id": sample.property_set_id
+            },
+            "is_best_measure": True
+        }
+        return self.set_measurement(attrname, measurement_data, name)
+
     def add_list_measurement(self, attrname, value, value_type, name=None):
         measurement_data = {
             "attribute": attrname,
@@ -878,6 +985,22 @@ class Sample(MCObject):
         if name:
             self.name = name
 
+    def pretty_print(self, shift=0, indent=2, out=sys.stdout):
+        pp = PrettyPrint(shift=shift, indent=indent, out=out)
+        pp.write("name: " + pp.str(self.name))
+        pp.n_indent += 1
+        pp.write("description: " + pp.str(self.description))
+        pp.write("id: " + pp.str(self.id))
+        pp.write("owner: " + pp.str(self.owner))
+        self.decorate_with_processes()
+        pp.write("processes: ")
+        pp.n_indent += 1
+        for p in self.processes:
+            pp.write(pp.str(p.name) + " " + pp.str(p.id))
+            pp.n_indent += 1
+            pp.write_measurements(p.measurements)
+            pp.n_indent -= 1
+        
     def process_special_objects(self):
         if self.properties:
             self.properties = [make_measured_property(p.input_data) for p in self.properties]
@@ -1011,12 +1134,7 @@ class Directory(MCObject):
         return dir_list
 
     def add_file(self, file_name, input_path, verbose=False, limit=50):
-        file_size_MB = os_path.getsize(input_path) >> 20
-        if file_size_MB > limit:
-            raise Exception("File too large (>" + str(limit) + "MB), skipping. File size: " + str(file_size_MB) + "M")
-        if verbose:
-            print "uploading:", os_path.relpath(input_path, getcwd()), " as:", file_name
-        result = self._project.add_file_using_directory(self, file_name, input_path)
+        result = self._project.add_file_using_directory(self, file_name, input_path, verbose, limit)
         return result
 
     def add_directory_tree(self, dir_name, input_dir_path, verbose=False, limit=50):
@@ -1166,6 +1284,41 @@ class Template(MCObject):
         # - Template is truncated, for now, as we only need the id to create
         # - processes from a Template
         # ----
+    
+    def pretty_print(self, shift=0, indent=2, out=sys.stdout):
+        pp = PrettyPrint(shift=shift, indent=indent, out=out)
+        _data = self.input_data
+        pp.write("name: " + pp.str(self.name))
+        pp.n_indent += 1
+        value_list = ['description', 'id', 'category', 'process_type', 'destructive', 'does_transform']
+        for k in value_list:
+            pp.write(k + ": " + pp.str(_data[k]))
+        
+        # for 'create sample' processes
+        measurements = _data['measurements']
+        if len(measurements):
+            pp.write("")
+            pp.write("Create samples with attributes:\n")
+            df = DataFrame.from_records(measurements, columns=['name', 'attribute', 'otype', 'units'])
+            strout = StringIO()
+            strout.write(tabulate(df, showindex=False, headers=['name', 'attribute', 'otype', 'units']))
+            for line in strout.getvalue().splitlines():
+                pp.write(line)
+        
+        # for process settings / attributes
+        setup = _data['setup']
+        
+        # attributes are grouped, for each group print attributes
+        for s in setup:
+            properties = s['properties']
+            if len(properties):
+                pp.write("")
+                pp.write("Process attributes: " + s['name'] + "\n")
+                df = DataFrame.from_records(properties, columns=['name', 'attribute', 'otype', 'units'])
+                strout = StringIO()
+                strout.write(tabulate(df, showindex=False, headers=['name', 'attribute', 'otype', 'units']))
+                for line in strout.getvalue().splitlines():
+                    pp.write(line)
 
 
 class Property(MCObject):
@@ -1189,7 +1342,34 @@ class Property(MCObject):
         attr = ['units', 'choices']
         for a in attr:
             setattr(self, a, data.get(a, []))
-
+    
+    def abbrev_print(self, shift=0, indent=2, out=sys.stdout):
+        self.pretty_print(shift=shift, indent=indent, out=out)
+        
+    def pretty_print(self, shift=0, indent=2, out=sys.stdout):
+        pp = PrettyPrint(shift=shift, indent=indent, out=out)
+        pp.write("attribute: " + pp.str(self.attribute))
+        pp.n_indent += 1
+        pp.write("id: " + pp.str(self.id))
+        strout = StringIO()
+        strout.write(self.value)
+        lines = strout.getvalue().splitlines()
+        if self.value is None:
+            pp.write("value: " + pp.str(self.value))
+        else:
+            if hasattr(self, 'unit'):
+                pp.write("unit: " + pp.str(self.unit))
+            elif hasattr(self, 'units'):
+                pp.write("units: " + pp.str(self.units))
+            if len(lines) == 1:
+                pp.write("value: " + pp.str(self.value))
+            else:
+                pp.write("value: ")
+                pp.n_indent += 1
+                for line in lines:
+                    pp.write(line)
+                pp.n_indent -= 1
+            
 
 class MeasuredProperty(Property):
     def __init__(self, data=None):
@@ -1262,7 +1442,7 @@ def make_object(data):
     if _is_object(data):
         holder = make_base_object_for_type(data)
         for key in data.keys():
-            value = data[key]
+            value = copy.deepcopy(data[key])
             if _is_object(value):
                 value = make_object(value)
             elif _is_list(value):
@@ -1362,4 +1542,3 @@ class DeleteTally(object):
                     'experiment_task_processes', 'experiment_tasks', 'notes', 'reviews', 'experiments']
             for a in attr:
                 setattr(self, a, data.get(a, None))
-

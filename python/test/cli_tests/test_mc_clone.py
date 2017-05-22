@@ -56,8 +56,8 @@ class TestMCClone(unittest.TestCase):
         mkdir_if(self.cli_test_project_path)
         mkdir_if(self.proj_path)
         testargs = ['mc', 'init']
-        with captured_output(testargs, wd=self.proj_path) as (sout, serr):
-            init_subcommand()
+        with captured_output(wd=self.proj_path) as (sout, serr):
+            init_subcommand(testargs)
         #print_stringIO(sout)
         out = sout.getvalue().splitlines()
         self.assertEqual(out[0], "Created new project at: " + url)
@@ -68,8 +68,8 @@ class TestMCClone(unittest.TestCase):
         self.clean_files()
         mkdir_if(self.cli_test_project_path)
         testargs = ['mc', 'clone', proj_dict['CLITest'].id]
-        with captured_output(testargs, wd=self.cli_test_project_path) as (sout, serr):
-            clone_subcommand()
+        with captured_output(wd=self.cli_test_project_path) as (sout, serr):
+            clone_subcommand(testargs)
         #print_stringIO(sout)
         out = sout.getvalue().splitlines()
         self.assertTrue(re.match("Cloned project", out[0]))

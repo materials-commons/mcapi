@@ -26,6 +26,20 @@ def make_file(path, text):
     with open(path, 'w') as f:
         f.write(text)
 
+i_mo = 0
+i_yr = 1
+i_day = 2
+i_time = 3
+i_l_size = 4
+i_l_type = 5
+i_r_mtime = 6
+i_r_size = 7
+i_r_type = 8
+i_eq = 9
+i_name = 10
+i_id = 11
+
+
 class TestMCUp(unittest.TestCase):
 
     @classmethod
@@ -53,8 +67,8 @@ class TestMCUp(unittest.TestCase):
         mkdir_if(cls.cli_test_project_path)
         mkdir_if(cls.proj_path)
         testargs = ['mc', 'init']
-        with captured_output(testargs, wd=cls.proj_path) as (sout, serr):
-            init_subcommand()
+        with captured_output(wd=cls.proj_path) as (sout, serr):
+            init_subcommand(testargs)
         #print_stringIO(sout)
         out = sout.getvalue().splitlines()
         
@@ -109,123 +123,123 @@ class TestMCUp(unittest.TestCase):
     def test_one_file(self):
         # ls 1 file (in top directory)
         testargs = ['mc', 'ls', self.files[2][0]]
-        with captured_output(testargs, wd=self.proj_path) as (sout, serr):
-            ls_subcommand()
+        with captured_output(wd=self.proj_path) as (sout, serr):
+            ls_subcommand(testargs)
         #print_stringIO(sout)
         out = sout.getvalue().splitlines()
-        self.assertEqual(out[1].split()[4], 'file')
-        self.assertEqual(out[1].split()[6], '-')
-        self.assertEqual(out[1].split()[7], '-')
-        self.assertEqual(out[1].split()[9], 'level_1/file_A.txt')
-        self.assertEqual(out[1].split()[10], '-')
+        self.assertEqual(out[1].split()[i_l_type], 'file')
+        self.assertEqual(out[1].split()[i_r_size], '-')
+        self.assertEqual(out[1].split()[i_r_type], '-')
+        self.assertEqual(out[1].split()[i_name], 'level_1/file_A.txt')
+        self.assertEqual(out[1].split()[i_id], '-')
         
         testargs = ['mc', 'up', self.files[2][0]]
-        with captured_output(testargs, wd=self.proj_path) as (sout, serr):
-            up_subcommand()
+        with captured_output(wd=self.proj_path) as (sout, serr):
+            up_subcommand(testargs)
         #print_stringIO(sout)
         
         testargs = ['mc', 'ls', self.files[2][0]]
-        with captured_output(testargs, wd=self.proj_path) as (sout, serr):
-            ls_subcommand()
+        with captured_output(wd=self.proj_path) as (sout, serr):
+            ls_subcommand(testargs)
         #print_stringIO(sout)
         out = sout.getvalue().splitlines()
-        self.assertEqual(out[1].split()[4], 'file')
-        self.assertNotEqual(out[1].split()[6], '-')
-        self.assertEqual(out[1].split()[7], 'file')
-        self.assertEqual(out[1].split()[9], 'level_1/file_A.txt')
-        self.assertNotEqual(out[1].split()[10], '-')
+        self.assertEqual(out[1].split()[i_l_type], 'file')
+        self.assertNotEqual(out[1].split()[i_r_size], '-')
+        self.assertEqual(out[1].split()[i_r_type], 'file')
+        self.assertEqual(out[1].split()[i_name], 'level_1/file_A.txt')
+        self.assertNotEqual(out[1].split()[i_id], '-')
         
     def test_one_dir(self):
         # ls directory
         testargs = ['mc', 'ls', self.dirs[0]]
-        with captured_output(testargs, wd=self.proj_path) as (sout, serr):
-            ls_subcommand()
+        with captured_output(wd=self.proj_path) as (sout, serr):
+            ls_subcommand(testargs)
         #print_stringIO(sout)
         out = sout.getvalue().splitlines()
-        self.assertEqual(out[2].split()[4], 'file')
-        self.assertEqual(out[2].split()[7], '-')
-        self.assertEqual(out[3].split()[4], 'file')
-        self.assertEqual(out[3].split()[7], '-')
-        self.assertEqual(out[4].split()[4], 'dir')
-        self.assertEqual(out[4].split()[7], '-')
+        self.assertEqual(out[2].split()[i_l_type], 'file')
+        self.assertEqual(out[2].split()[i_r_type], '-')
+        self.assertEqual(out[3].split()[i_l_type], 'file')
+        self.assertEqual(out[3].split()[i_r_type], '-')
+        self.assertEqual(out[4].split()[i_l_type], 'dir')
+        self.assertEqual(out[4].split()[i_r_type], '-')
         
         testargs = ['mc', 'up', self.files[2][0], self.files[3][0]]
-        with captured_output(testargs, wd=self.proj_path) as (sout, serr):
-            up_subcommand()
+        with captured_output(wd=self.proj_path) as (sout, serr):
+            up_subcommand(testargs)
         #print_stringIO(sout)
         
         testargs = ['mc', 'ls', self.dirs[0]]
-        with captured_output(testargs, wd=self.proj_path) as (sout, serr):
-            ls_subcommand()
+        with captured_output(wd=self.proj_path) as (sout, serr):
+            ls_subcommand(testargs)
         #print_stringIO(sout)
         out = sout.getvalue().splitlines()
-        self.assertEqual(out[2].split()[4], 'file')
-        self.assertNotEqual(out[2].split()[7], '-')
-        self.assertEqual(out[3].split()[4], 'file')
-        self.assertNotEqual(out[3].split()[7], '-')
-        self.assertEqual(out[4].split()[4], 'dir')
-        self.assertEqual(out[4].split()[7], '-')
+        self.assertEqual(out[2].split()[i_l_type], 'file')
+        self.assertNotEqual(out[2].split()[i_r_type], '-')
+        self.assertEqual(out[3].split()[i_l_type], 'file')
+        self.assertNotEqual(out[3].split()[i_r_type], '-')
+        self.assertEqual(out[4].split()[i_l_type], 'dir')
+        self.assertEqual(out[4].split()[i_r_type], '-')
     
     def test_two_dir(self):
         # ls two directories
         testargs = ['mc', 'ls', self.dirs[0], self.dirs[1]]
-        with captured_output(testargs, wd=self.proj_path) as (sout, serr):
-            ls_subcommand()
+        with captured_output(wd=self.proj_path) as (sout, serr):
+            ls_subcommand(testargs)
         #print_stringIO(sout)
         out = sout.getvalue().splitlines()
-        self.assertEqual(out[2].split()[4], 'file')
-        self.assertEqual(out[2].split()[7], '-')
-        self.assertEqual(out[3].split()[4], 'file')
-        self.assertEqual(out[3].split()[7], '-')
-        self.assertEqual(out[4].split()[4], 'dir')
-        self.assertEqual(out[4].split()[7], '-')
-        self.assertEqual(out[8].split()[4], 'file')
-        self.assertEqual(out[8].split()[7], '-')
-        self.assertEqual(out[9].split()[4], 'file')
-        self.assertEqual(out[9].split()[7], '-')
+        self.assertEqual(out[2].split()[i_l_type], 'file')
+        self.assertEqual(out[2].split()[i_r_type], '-')
+        self.assertEqual(out[3].split()[i_l_type], 'file')
+        self.assertEqual(out[3].split()[i_r_type], '-')
+        self.assertEqual(out[4].split()[i_l_type], 'dir')
+        self.assertEqual(out[4].split()[i_r_type], '-')
+        self.assertEqual(out[8].split()[i_l_type], 'file')
+        self.assertEqual(out[8].split()[i_r_type], '-')
+        self.assertEqual(out[9].split()[i_l_type], 'file')
+        self.assertEqual(out[9].split()[i_r_type], '-')
         
 
         testargs = ['mc', 'up', self.dirs[1]]
-        with captured_output(testargs, wd=self.proj_path) as (sout, serr):
-            up_subcommand()
+        with captured_output(wd=self.proj_path) as (sout, serr):
+            up_subcommand(testargs)
         #print_stringIO(sout)
         
         testargs = ['mc', 'ls', self.dirs[0], self.dirs[1], '--checksum']
-        with captured_output(testargs, wd=self.proj_path) as (sout, serr):
-            ls_subcommand()
+        with captured_output(wd=self.proj_path) as (sout, serr):
+            ls_subcommand(testargs)
         #print_stringIO(sout)
         out = sout.getvalue().splitlines()
-        self.assertEqual(out[2].split()[4], 'file')
-        self.assertEqual(out[2].split()[7], '-')
-        self.assertEqual(out[3].split()[4], 'file')
-        self.assertEqual(out[3].split()[7], '-')
-        self.assertEqual(out[4].split()[4], 'dir')
-        self.assertNotEqual(out[4].split()[6], '-')
-        self.assertEqual(out[4].split()[7], 'dir')
+        self.assertEqual(out[2].split()[i_l_type], 'file')
+        self.assertEqual(out[2].split()[i_r_type], '-')
+        self.assertEqual(out[3].split()[i_l_type], 'file')
+        self.assertEqual(out[3].split()[i_r_type], '-')
+        self.assertEqual(out[4].split()[i_l_type], 'dir')
+        self.assertNotEqual(out[4].split()[i_r_size], '-')
+        self.assertEqual(out[4].split()[i_r_type], 'dir')
         
-        self.assertEqual(out[8].split()[4], 'file')
-        self.assertNotEqual(out[8].split()[6], '-')
-        self.assertEqual(out[8].split()[7], 'file')
-        self.assertEqual(out[8].split()[8], 'True')
-        self.assertEqual(out[9].split()[4], 'file')
-        self.assertNotEqual(out[9].split()[6], '-')
-        self.assertEqual(out[9].split()[7], 'file')
+        self.assertEqual(out[8].split()[i_l_type], 'file')
+        self.assertNotEqual(out[8].split()[i_r_size], '-')
+        self.assertEqual(out[8].split()[i_r_type], 'file')
+        self.assertEqual(out[8].split()[i_eq], 'True')
+        self.assertEqual(out[9].split()[i_l_type], 'file')
+        self.assertNotEqual(out[9].split()[i_r_size], '-')
+        self.assertEqual(out[9].split()[i_r_type], 'file')
         
         # test equivalence check
         with open(self.files[4][0], 'w') as f:
             f.write("changed")
         
         testargs = ['mc', 'ls', self.dirs[0], self.dirs[1], '--checksum']
-        with captured_output(testargs, wd=self.proj_path) as (sout, serr):
-            ls_subcommand()
+        with captured_output(wd=self.proj_path) as (sout, serr):
+            ls_subcommand(testargs)
         #print_stringIO(sout)
         out = sout.getvalue().splitlines()
-        self.assertEqual(out[8].split()[8], 'False')
+        self.assertEqual(out[8].split()[i_eq], 'False')
         
         # test json
         testargs = ['mc', 'ls', self.dirs[0], self.dirs[1], '--checksum']
-        with captured_output(testargs, wd=self.proj_path) as (sout, serr):
-            ls_subcommand()
+        with captured_output(wd=self.proj_path) as (sout, serr):
+            ls_subcommand(testargs)
         #print_stringIO(sout)
         self.assertTrue(True)
     
