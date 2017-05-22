@@ -131,7 +131,7 @@ before_script:
 
 script:
   - pytest test -rsx
-#  - -rsx to show reasons for skipping and failed tests
+#  - -rsx to show reasons for skipping and failed tests - updated
 #  - coverage run --source mcapi,casm_mcapi,demo_project -m py.test test
 #  - coverage report -m
 
