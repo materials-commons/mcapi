@@ -130,8 +130,8 @@ before_script:
   - grep 'otype' junk.txt
 
 script:
-  - pytest test -sr
-#  - -s r to show reasons for skipping tests
+  - pytest test -rsx
+#  - -rsx to show reasons for skipping and failed tests
 #  - coverage run --source mcapi,casm_mcapi,demo_project -m py.test test
 #  - coverage report -m
 
