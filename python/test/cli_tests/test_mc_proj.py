@@ -1,7 +1,7 @@
 import unittest
 from mcapi import set_remote_config_url
 from cli_test_functions import captured_output, print_stringIO
-from mcapi.cli.proj import proj_subcommand
+from mcapi.cli.proj import ProjSubcommand
 
 url = 'http://mctest.localhost/api'
 
@@ -10,12 +10,13 @@ class TestMCProj(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         set_remote_config_url(url)
+        cls.proj_subcommand = ProjSubcommand()
     
     def test_mc_proj(self):
         testargs = ['mc', 'proj']
         with captured_output() as (sout, serr):
-            proj_subcommand(testargs)
-        #print_stringIO(sout)
+            self.proj_subcommand(testargs)
+        print_stringIO(sout)
         out = sout.getvalue().splitlines()
         err = serr.getvalue().splitlines()
         

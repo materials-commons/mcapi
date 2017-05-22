@@ -156,10 +156,16 @@ def delete_project_dry_run(project_id, remote=None):
     return get(remote.make_url_v2(api_url))
 
 
-def fetch_project_processes(project_id, remote=None):
+def get_project_processes(project_id, remote=None):
     if not remote:
         remote = use_remote()
     api_url = "/projects/" + project_id + "/processes"
+    return get(remote.make_url_v2(api_url))
+
+def get_project_samples(project_id, remote=None):
+    if not remote:
+        remote = use_remote()
+    api_url = "/projects/" + project_id + "/samples"
     return get(remote.make_url_v2(api_url))
 
 
@@ -249,7 +255,14 @@ def push_name_for_process(project_id, process_id, name, remote=None):
     return put(remote.make_url_v2(api_url), data)
 
 
-def fetch_process_by_id(project_id, experiment_id, process_id, remote=None):
+def get_process_by_id(project_id, process_id, remote=None):
+    if not remote:
+        remote = use_remote()
+    api_url = "projects/" + project_id \
+              + "/processes/" + process_id
+    return get(remote.make_url_v2(api_url))
+
+def get_expt_process_by_id(project_id, experiment_id, process_id, remote=None):
     if not remote:
         remote = use_remote()
     api_url = "projects/" + project_id \
@@ -259,6 +272,21 @@ def fetch_process_by_id(project_id, experiment_id, process_id, remote=None):
 
 
 # Sample
+
+def get_sample_by_id(project_id, process_id, remote=None):
+    if not remote:
+        remote = use_remote()
+    api_url = "projects/" + project_id \
+              + "/processes/" + process_id
+    return get(remote.make_url_v2(api_url))
+
+def get_expt_sample_by_id(project_id, experiment_id, process_id, remote=None):
+    if not remote:
+        remote = use_remote()
+    api_url = "projects/" + project_id \
+              + "/experiments/" + experiment_id \
+              + "/processes/" + process_id
+    return get(remote.make_url_v2(api_url))
 
 def create_samples_in_project(project_id, process_id, sample_names, remote=None):
     if not remote:
@@ -290,15 +318,6 @@ def fetch_sample_details(project_id, sample_id, remote=None):
 
 
 # Create sample process
-
-def get_process_from_id(project_id, experiment_id, process_id, remote=None):
-    if not remote:
-        remote = use_remote()
-    api_url = "projects/" + project_id + \
-              "/experiments/" + experiment_id + \
-              "/processes/" + process_id
-    return get(remote.make_url_v2(api_url))
-
 
 def add_samples_to_process(project_id, experiment_id, process, samples, remote=None):
     if not remote:

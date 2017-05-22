@@ -2,13 +2,17 @@ import api
 import string
 import hashlib
 import copy
+import sys
 from os import path as os_path
 from os import listdir
 from os import getcwd
-from base import MCObject
+from base import MCObject, PrettyPrint
 from base import _decorate_object_with, _is_object, _is_list, _has_key, _data_has_type
 from base import _is_datetime, _make_datetime
 from measurement import make_measurement_object
+from pandas import DataFrame
+from tabulate import tabulate
+from StringIO import StringIO
 
 # -- top level project functions --
 def create_project(name, description):
@@ -118,6 +122,15 @@ class Project(MCObject):
         # Remote instance, where Project is saved. Similar to source
         self.remote = None
 
+    def pretty_print(self, shift=0, indent=2, out=sys.stdout):
+        pp = PrettyPrint(shift=shift, indent=indent, out=out)
+        pp.write("name: " + pp.str(self.name))
+        pp.n_indent += 1
+        pp.write("description: " + pp.str(self.description))
+        pp.write("id: " + self.id)
+        pp.write("owner: " + pp.str(self.owner))
+        pp.write("mtime: " + pp.str(self.mtime.strftime("%b %Y %d %H:%M:%S")))
+    
     def process_special_objects(self):
         pass
 
@@ -329,19 +342,31 @@ class Project(MCObject):
     # Project - Processes
 
     def get_all_processes(self):
-        process_list = api.fetch_project_processes(self.id, self.remote)
+        process_list = api.get_project_processes(self.id, self.remote)
         processes = map((lambda x: make_object(x)), process_list)
         processes = map((lambda x: _decorate_object_with(x, 'project', self)), processes)
         return processes
-    
+
+    def get_process_by_id(self, process_id):
+        results = api.get_process_by_id(self.id, process_id)
+        process = make_object(results)
+        process.project = self
+        return process
+
     # Project - Samples
 
     def get_all_samples(self):
-        sample_list = api.fetch_project_samples(self.id, self.remote)
+        samples_list = api.get_project_samples(self.id, self.remote)
         samples = map((lambda x: make_object(x)), samples_list)
         samples = map((lambda x: _decorate_object_with(x, 'project', self)), samples)
         return samples
-        
+    
+    def get_sample_by_id(self, sample_id):
+        results = api.get_sample_by_id(self.id, process_id)
+        sample = make_object(results)
+        sample.project = self
+        return sample
+
 
 class Experiment(MCObject):
     def __init__(self, project_id=None, name=None, description=None,
@@ -439,7 +464,7 @@ class Experiment(MCObject):
     def get_process_by_id(self, process_id):
         project = self.project
         experiment = self
-        results = api.get_process_from_id(project.id, experiment.id, process_id)
+        results = api.get_expt_process_by_id(project.id, experiment.id, process_id)
         process = make_object(results)
         process.project = project
         process.experiment = experiment
@@ -457,7 +482,7 @@ class Experiment(MCObject):
     def get_sample_by_id(self, sample_id):
         project = self.project
         experiment = self
-        results = api.get_sample_from_id(project.id, experiment.id, process_id)
+        results = api.get_expt_sample_by_id(project.id, experiment.id, process_id)
         sample = make_object(results)
         sample.project = project
         sample.experiment = experiment
@@ -523,61 +548,23 @@ class Process(MCObject):
         if description:
             self.description = description
 
-    def pretty_print(self, shift=0, indent=2):
-
-        n_indent = 0
-        
-        def _str(val):
-            result = str(val)
-            if ' ' in result:
-                result = "'" + result + "'"
-            return result
-
-        def _print(s, n_indent):
-            print " " * shift + " " * indent * n_indent + s
-
-        _print("name: " + _str(self.name), n_indent)
-        n_indent += 1
-        _print("description: " + _str(self.description), n_indent)
-        _print("id: " + _str(self.id), n_indent)
-        _print("process_type: " + _str(self.process_type), n_indent)
-        _print("template_id: " + _str(self.template_id), n_indent)
-        if self.project is not None:
-            _print("project.name: " + _str(self.project.name), n_indent)
-            _print("project.id: " + _str(self.project.id), n_indent)
-        if self.experiment is not None:
-            _print("experiment.name: " + _str(self.experiment.name), n_indent)
-            _print("experiment.id: " + _str(self.experiment.id), n_indent)
-        _print("owner: " + _str(self.owner), n_indent)
-
-        def _print_objects(title, obj_list, n_indent):
-            if len(obj_list):
-                _print(title + ": ", n_indent)
-                n_indent += 1
-                for obj in obj_list:
-                    _print(_str(obj.name) + " " + _str(obj.id), n_indent)
-                n_indent -= 1
-
-        def _print_measurements(measurements, n_indent):
-            if len(measurements):
-                _print("measurements: ", n_indent)
-                n_indent += 1
-                for obj in measurements:
-                    _print(_str(obj.attribute) + " " + _str(obj.id), n_indent)
-                n_indent -= 1
-
-        _print_objects("input_files", self.input_files, n_indent)
-        _print_objects("output_files", self.output_files, n_indent)
-        _print_objects("input_samples", self.input_samples, n_indent)
-        _print_objects("output_samples", self.output_samples, n_indent)
-        _print("does_transform: " + _str(self.does_transform), n_indent)
-        _print_objects("transformed_samples", self.transformed_samples, n_indent)
-        _print_measurements(self.measurements, n_indent)
-        n_indent -= 1
-        
-        # setup
-        # properties_dictionary
-
+    def pretty_print(self, shift=0, indent=2, out=sys.stdout):
+        pp = PrettyPrint(shift=shift, indent=indent, out=out)
+        pp.write("name: " + pp.str(self.name))
+        pp.n_indent += 1
+        pp.write("description: " + pp.str(self.description))
+        pp.write("id: " + pp.str(self.id))
+        pp.write("owner: " + pp.str(self.owner))
+        pp.write("template_id: " + pp.str(self.template_id))
+        pp.write("process_type: " + pp.str(self.process_type))
+        pp.write_objects("input_files: ", self.input_files)
+        pp.write_objects("output_files: ", self.output_files)
+        pp.write_objects("input_samples: ", self.input_samples)
+        pp.write_objects("output_samples: ", self.output_samples)
+        pp.write("does_transform: " + pp.str(self.does_transform))
+        pp.write_objects("transformed_samples: ", self.transformed_samples)
+        pp.write_measurements(self.measurements)
+    
     def process_special_objects(self):
         if self.setup:
             for i in range(len(self.setup)):
@@ -997,6 +984,22 @@ class Sample(MCObject):
         if name:
             self.name = name
 
+    def pretty_print(self, shift=0, indent=2, out=sys.stdout):
+        pp = PrettyPrint(shift=shift, indent=indent, out=out)
+        pp.write("name: " + pp.str(self.name))
+        pp.n_indent += 1
+        pp.write("description: " + pp.str(self.description))
+        pp.write("id: " + pp.str(self.id))
+        pp.write("owner: " + pp.str(self.owner))
+        self.decorate_with_processes()
+        pp.write("processes: ")
+        pp.n_indent += 1
+        for p in self.processes:
+            pp.write(pp.str(p.name) + " " + pp.str(p.id))
+            pp.n_indent += 1
+            pp.write_measurements(p.measurements)
+            pp.n_indent -= 1
+        
     def process_special_objects(self):
         if self.properties:
             self.properties = [make_measured_property(p.input_data) for p in self.properties]
@@ -1280,6 +1283,41 @@ class Template(MCObject):
         # - Template is truncated, for now, as we only need the id to create
         # - processes from a Template
         # ----
+    
+    def pretty_print(self, shift=0, indent=2, out=sys.stdout):
+        pp = PrettyPrint(shift=shift, indent=indent, out=out)
+        _data = self.input_data
+        pp.write("name: " + pp.str(self.name))
+        pp.n_indent += 1
+        value_list = ['description', 'id', 'category', 'process_type', 'destructive', 'does_transform']
+        for k in value_list:
+            pp.write(k + ": " + pp.str(_data[k]))
+        
+        # for 'create sample' processes
+        measurements = _data['measurements']
+        if len(measurements):
+            pp.write("")
+            pp.write("Create samples with attributes:\n")
+            df = DataFrame.from_records(measurements, columns=['name', 'attribute', 'otype', 'units'])
+            strout = StringIO()
+            strout.write(tabulate(df, showindex=False, headers=['name', 'attribute', 'otype', 'units']))
+            for line in strout.getvalue().splitlines():
+                pp.write(line)
+        
+        # for process settings / attributes
+        setup = _data['setup']
+        
+        # attributes are grouped, for each group print attributes
+        for s in setup:
+            properties = s['properties']
+            if len(properties):
+                pp.write("")
+                pp.write("Process attributes: " + s['name'] + "\n")
+                df = DataFrame.from_records(properties, columns=['name', 'attribute', 'otype', 'units'])
+                strout = StringIO()
+                strout.write(tabulate(df, showindex=False, headers=['name', 'attribute', 'otype', 'units']))
+                for line in strout.getvalue().splitlines():
+                    pp.write(line)
 
 
 class Property(MCObject):
@@ -1303,7 +1341,34 @@ class Property(MCObject):
         attr = ['units', 'choices']
         for a in attr:
             setattr(self, a, data.get(a, []))
-
+    
+    def abbrev_print(self, shift=0, indent=2, out=sys.stdout):
+        self.pretty_print(shift=shift, indent=indent, out=out)
+        
+    def pretty_print(self, shift=0, indent=2, out=sys.stdout):
+        pp = PrettyPrint(shift=shift, indent=indent, out=out)
+        pp.write("attribute: " + pp.str(self.attribute))
+        pp.n_indent += 1
+        pp.write("id: " + pp.str(self.id))
+        strout = StringIO()
+        strout.write(self.value)
+        lines = strout.getvalue().splitlines()
+        if self.value is None:
+            pp.write("value: " + pp.str(self.value))
+        else:
+            if hasattr(self, 'unit'):
+                pp.write("unit: " + pp.str(self.unit))
+            elif hasattr(self, 'units'):
+                pp.write("units: " + pp.str(self.units))
+            if len(lines) == 1:
+                pp.write("value: " + pp.str(self.value))
+            else:
+                pp.write("value: ")
+                pp.n_indent += 1
+                for line in lines:
+                    pp.write(line)
+                pp.n_indent -= 1
+            
 
 class MeasuredProperty(Property):
     def __init__(self, data=None):
@@ -1476,4 +1541,3 @@ class DeleteTally(object):
                     'experiment_task_processes', 'experiment_tasks', 'notes', 'reviews', 'experiments']
             for a in attr:
                 setattr(self, a, data.get(a, None))
-

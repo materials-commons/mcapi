@@ -59,6 +59,14 @@ def _mc_remotes(path=None):
     # just 'origin' for now
     return {'origin':mcapi.Remote()}
 
+def _format_mtime(mtime):
+    if isinstance(mtime, (float, int)):
+        return time.strftime("%b %Y %d %H:%M:%S", time.gmtime(mtime))
+    elif isinstance(mtime, datetime.datetime):
+        return mtime.strftime("%b %Y %d %H:%M:%S")
+    else:
+        return str(type(mtime))
+
 def _print_projects(projects, current=None):
     """
     Print list of projects, include '*' for current project
@@ -224,5 +232,4 @@ def set_current_experiment(proj, expt):
     data['experiment_id'] = expt.id
     with open(config_path, 'w') as f:
         json.dump(data, f)
-    print "set current experiment: '" + expt.name + "'"
 

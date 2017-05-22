@@ -60,7 +60,7 @@ class TestMCExpt(unittest.TestCase):
         #print_stringIO(sout)
         out = sout.getvalue().splitlines()
         self.assertTrue(re.match("Created experiment: test_A", out[0]))
-        self.assertTrue(re.match("set current experiment: 'test_A'", out[1]))
+        self.assertTrue(re.match("Set current experiment: 'test_A'", out[1]))
     
         testargs = ['mc', 'expt', '-c', 'test_B']
         with captured_output(wd=self.proj_path) as (sout, serr):
@@ -68,7 +68,7 @@ class TestMCExpt(unittest.TestCase):
         #print_stringIO(sout)
         out = sout.getvalue().splitlines()
         self.assertTrue(re.match("Created experiment: test_B", out[0]))
-        self.assertTrue(re.match("set current experiment: 'test_B'", out[1]))
+        self.assertTrue(re.match("Set current experiment: 'test_B'", out[1]))
         
         proj_list = mcapi.get_all_projects()
         proj_dict = {p.name:p for p in proj_list}

@@ -2,6 +2,7 @@ import unittest
 import os
 import re
 import mcapi
+import json
 from mcapi import Template
 from cli_test_functions import working_dir, captured_output, print_stringIO
 from mcapi.cli.init import init_subcommand
@@ -36,7 +37,8 @@ class TestMCProc(unittest.TestCase):
             raise Exception("No TEST_DATA_DIR environment variable")
         cls.cli_test_project_path = os.path.join(os.environ['TEST_DATA_DIR'], 'cli_test_project')
         cls.proj_path = os.path.join(cls.cli_test_project_path, 'CLITest')
-        
+        cls.clean()
+        cls.init()
     
     @classmethod
     def init(cls):
@@ -86,13 +88,6 @@ class TestMCProc(unittest.TestCase):
         expt = make_local_expt(proj)
         expt.delete(dry_run=False, delete_processes_and_samples=True)
     
-    def setUp(self):
-        self.clean()
-        self.init()
-    
-    def tearDown(self):
-        self.clean()
-    
     @classmethod
     def get_proj(cls):
         return make_local_project(cls.proj_path)
@@ -100,11 +95,52 @@ class TestMCProc(unittest.TestCase):
     def test_proc_list(self):
         proc_subcommand = ProcSubcommand()
         
-        # ls 1 file (in top directory)
+        # list processes
         testargs = ['mc', 'proc']
         with captured_output(wd=self.proj_path) as (sout, serr):
             proc_subcommand(testargs)
-        print_stringIO(sout)
+        #print_stringIO(sout)
+        self.assertTrue(True)
+    
+    def test_samp_list_names(self):
+        proc_subcommand = ProcSubcommand()
+        
+        # list samples
+        testargs = ['mc', 'proc'] + [p.name for p in self.proc]
+        with captured_output(wd=self.proj_path) as (sout, serr):
+            proc_subcommand(testargs)
+        #print_stringIO(sout)
+        self.assertTrue(True)
+    
+    def test_samp_list_ids(self):
+        proc_subcommand = ProcSubcommand()
+        
+        # list samples
+        testargs = ['mc', 'samp', '--id'] + [p.id for p in self.proc]
+        with captured_output(wd=self.proj_path) as (sout, serr):
+            proc_subcommand(testargs)
+        #print_stringIO(sout)
+        self.assertTrue(True)
+    
+    def test_proc_json(self):
+        proc_subcommand = ProcSubcommand()
+        
+        # print process JSON data
+        testargs = ['mc', 'proc', '--json']
+        with captured_output(wd=self.proj_path) as (sout, serr):
+            proc_subcommand(testargs)
+        #print_stringIO(sout)
+        data = json.loads(sout.getvalue())
+        self.assertTrue(True)
+    
+    def test_proc_details(self):
+        proc_subcommand = ProcSubcommand()
+        
+        # print process details
+        testargs = ['mc', 'proc', '--details']
+        with captured_output(wd=self.proj_path) as (sout, serr):
+            proc_subcommand(testargs)
+        #print_stringIO(sout)
         self.assertTrue(True)
     
     @classmethod

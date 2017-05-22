@@ -4,7 +4,5 @@ import sys
 import mcapi.cli
 
 if __name__ == "__main__":
-    try:
-        cli = mcapi.cli.CommonsCLIParser(sys.argv)
-    except Exception as e:
-        print "Error: ", e
+    cli = mcapi.cli.CommonsCLIParser(sys.argv)
+

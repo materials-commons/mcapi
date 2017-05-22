@@ -44,6 +44,7 @@ def expt_subcommand(argv=sys.argv):
                 expt = proj.create_experiment(name, args.desc)
                 print 'Created experiment:', expt.name
                 set_current_experiment(proj, expt)
+                print "Set current experiment: '" + expt.name + "'"
             else:
                 print 'experiment: \'' + name + '\' already exists'
     
@@ -68,8 +69,10 @@ def expt_subcommand(argv=sys.argv):
         
         if args.id:
             set_current_experiment(proj, expt_ids[args.expts[0]])
+            print "Set current experiment: '" + expt_ids[args.expts[0]].name + "'"
         else:
             set_current_experiment(proj, expts[args.expts[0]])
+            print "Set current experiment: '" + expts[args.expts[0]].name + "'"
     
     elif args.list:
         
