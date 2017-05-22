@@ -3,7 +3,7 @@ import argparse
 from mcapi.cli.functions import _mc_remotes
 import pandas
 
-def remote_subcommand():
+def remote_subcommand(argv=sys.argv):
     """
     Show / modify list of known Materials Commons servers.
     
@@ -21,7 +21,7 @@ def remote_subcommand():
         prog='mc remote')
     
     # ignore 'mc remote'
-    args = parser.parse_args(sys.argv[2:])
+    args = parser.parse_args(argv[2:])
     
     remotes = _mc_remotes()
     data = [{'name': key, 'url': remotes[key].config.mcurl} for key in remotes]

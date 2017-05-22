@@ -1,4 +1,5 @@
 import datetime
+import sys
 
 
 class MCObject(object):
@@ -82,3 +83,37 @@ def _is_datetime(data):
 def _make_datetime(data):
     timestamp = int(data['epoch_time'])
     return datetime.datetime.utcfromtimestamp(timestamp)
+
+# -- pretty printing --
+
+class PrettyPrint(object):
+    def __init__(self, shift=0, indent=2, out=sys.stdout):
+        self.shift = shift
+        self.indent = indent
+        self.out = out
+        self.n_indent = 0
+    
+    def str(self, val):
+        result = str(val)
+        if ' ' in result:
+            result = "'" + result + "'"
+        return result
+
+    def write(self, s):
+        self.out.write(" " * self.shift + " " * self.indent * self.n_indent + s + "\n")
+
+    def write_objects(self, title, obj_list):
+        if len(obj_list):
+            self.write(title)
+            self.n_indent += 1
+            for obj in obj_list:
+                self.write(self.str(obj.name) + " " + self.str(obj.id))
+            self.n_indent -= 1
+
+    def write_measurements(self, measurements):
+        if len(measurements):
+            self.write("measurements: ")
+            self.n_indent += 1
+            for obj in measurements:
+                obj.abbrev_print(shift=self.n_indent*self.indent, indent=self.indent, out=self.out)
+            self.n_indent -= 1

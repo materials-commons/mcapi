@@ -54,16 +54,16 @@ class TestMCUp(unittest.TestCase):
         mkdir_if(cls.cli_test_project_path)
         mkdir_if(cls.proj_path)
         testargs = ['mc', 'init']
-        with captured_output(testargs, wd=cls.proj_path) as (sout, serr):
-            init_subcommand()
+        with captured_output(wd=cls.proj_path) as (sout, serr):
+            init_subcommand(testargs)
         #print_stringIO(sout)
         out = sout.getvalue().splitlines()
         
         cls.make_test_files()
         
         testargs = ['mc', 'up', '-r', '.']
-        with captured_output(testargs, wd=cls.proj_path) as (sout, serr):
-            up_subcommand()
+        with captured_output(wd=cls.proj_path) as (sout, serr):
+            up_subcommand(testargs)
         
         cls.remove_test_files()
     
@@ -115,8 +115,8 @@ class TestMCUp(unittest.TestCase):
         self.assertFalse(os.path.exists(self.files[0][0]))
         # download 1 file (in top directory)
         testargs = ['mc', 'down', self.files[0][0]]
-        with captured_output(testargs, wd=self.proj_path) as (sout, serr):
-            down_subcommand()
+        with captured_output(wd=self.proj_path) as (sout, serr):
+            down_subcommand(testargs)
         #print_stringIO(sout)
         self.assertTrue(os.path.exists(self.files[0][0]))
     
@@ -124,8 +124,8 @@ class TestMCUp(unittest.TestCase):
         self.assertFalse(os.path.exists(self.files[4][0]))
         # download 1 file (in level_2 directory)
         testargs = ['mc', 'down', self.files[4][0]]
-        with captured_output(testargs, wd=self.proj_path) as (sout, serr):
-            down_subcommand()
+        with captured_output(wd=self.proj_path) as (sout, serr):
+            down_subcommand(testargs)
         #print_stringIO(sout)
         self.assertTrue(os.path.exists(self.files[4][0]))
 
@@ -137,8 +137,8 @@ class TestMCUp(unittest.TestCase):
             self.assertFalse(os.path.exists(f[0]))
         # download everything
         testargs = ['mc', 'down', '-r', '.']
-        with captured_output(testargs, wd=self.proj_path) as (sout, serr):
-            down_subcommand()
+        with captured_output(wd=self.proj_path) as (sout, serr):
+            down_subcommand(testargs)
         #print_stringIO(sout)
         for d in self.dirs:
             self.assertTrue(os.path.exists(d))
@@ -153,8 +153,8 @@ class TestMCUp(unittest.TestCase):
             self.assertFalse(os.path.exists(f[0]))
         # download files in level_1 and level_2
         testargs = ['mc', 'down', '-r', self.dirs[0]]
-        with captured_output(testargs, wd=self.proj_path) as (sout, serr):
-            down_subcommand()
+        with captured_output(wd=self.proj_path) as (sout, serr):
+            down_subcommand(testargs)
         #print_stringIO(sout)
         for d in self.dirs:
             self.assertTrue(os.path.exists(d))

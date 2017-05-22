@@ -45,15 +45,15 @@ class TestMCInit(unittest.TestCase):
         self.assertFalse('CLITest' in proj_dict)
         
         testargs = ['mc', 'init']
-        with captured_output(testargs, wd=self.proj_path) as (sout, serr):
-            init_subcommand()
+        with captured_output(wd=self.proj_path) as (sout, serr):
+            init_subcommand(testargs)
         #print_stringIO(sout)
         out = sout.getvalue().splitlines()
         self.assertEqual(out[0], "Created new project at: " + url)
         
         testargs = ['mc', 'init']
-        with captured_output(testargs, wd=self.proj_path) as (sout, serr):
-            init_subcommand()
+        with captured_output(wd=self.proj_path) as (sout, serr):
+            init_subcommand(testargs)
         #print_stringIO(sout)
         out = sout.getvalue().splitlines()
         self.assertTrue(re.match("Already in project.  name: CLITest", out[0]))

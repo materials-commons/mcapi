@@ -52,8 +52,8 @@ class TestMCUp(unittest.TestCase):
         mkdir_if(cls.cli_test_project_path)
         mkdir_if(cls.proj_path)
         testargs = ['mc', 'init']
-        with captured_output(testargs, wd=cls.proj_path) as (sout, serr):
-            init_subcommand()
+        with captured_output(wd=cls.proj_path) as (sout, serr):
+            init_subcommand(testargs)
         #print_stringIO(sout)
         out = sout.getvalue().splitlines()
         
@@ -108,8 +108,8 @@ class TestMCUp(unittest.TestCase):
     def test_one_in_top(self):
         # upload 1 file (in top directory)
         testargs = ['mc', 'up', self.files[0][0]]
-        with captured_output(testargs, wd=self.proj_path) as (sout, serr):
-            up_subcommand()
+        with captured_output(wd=self.proj_path) as (sout, serr):
+            up_subcommand(testargs)
         #print_stringIO(sout)
         out = sout.getvalue().splitlines()
         proj = self.get_proj()
@@ -122,8 +122,8 @@ class TestMCUp(unittest.TestCase):
     def test_one_with_intermediate(self):
         # upload 1 file (in level_2 directory)
         testargs = ['mc', 'up', self.files[4][0]]
-        with captured_output(testargs, wd=self.proj_path) as (sout, serr):
-            up_subcommand()
+        with captured_output(wd=self.proj_path) as (sout, serr):
+            up_subcommand(testargs)
         #print_stringIO(sout)
         out = sout.getvalue().splitlines()
         proj = self.get_proj()
@@ -139,8 +139,8 @@ class TestMCUp(unittest.TestCase):
     def test_recursive_all(self):
         # upload everything
         testargs = ['mc', 'up', '-r', '.']
-        with captured_output(testargs, wd=self.proj_path) as (sout, serr):
-            up_subcommand()
+        with captured_output(wd=self.proj_path) as (sout, serr):
+            up_subcommand(testargs)
         #print_stringIO(sout)
         out = sout.getvalue().splitlines()
         proj = self.get_proj()
@@ -157,8 +157,8 @@ class TestMCUp(unittest.TestCase):
     def test_recursive(self):
         # upload files in level_1 and level_2
         testargs = ['mc', 'up', '-r', self.dirs[0]]
-        with captured_output(testargs, wd=self.proj_path) as (sout, serr):
-            up_subcommand()
+        with captured_output(wd=self.proj_path) as (sout, serr):
+            up_subcommand(testargs)
         #print_stringIO(sout)
         out = sout.getvalue().splitlines()
         proj = self.get_proj()

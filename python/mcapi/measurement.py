@@ -1,5 +1,6 @@
-from base import MCObject, _data_has_type
-
+from base import MCObject, PrettyPrint, _data_has_type
+import sys
+from StringIO import StringIO
 
 class Measurement(MCObject):
     def __init__(self, data=None):
@@ -13,6 +14,32 @@ class Measurement(MCObject):
         for a in attr:
             setattr(self, a, data.get(a, None))
 
+    def abbrev_print(self, shift=0, indent=2, out=sys.stdout):
+        self.pretty_print(shift=shift, indent=indent, out=out)
+        
+    def pretty_print(self, shift=0, indent=2, out=sys.stdout):
+        pp = PrettyPrint(shift=shift, indent=indent, out=out)
+        pp.write("attribute: " + pp.str(self.attribute))
+        pp.n_indent += 1
+        pp.write("id: " + pp.str(self.id))
+        strout = StringIO()
+        strout.write(self.value)
+        lines = strout.getvalue().splitlines()
+        if self.value is None:
+            pp.write("value: " + pp.str(self.value))
+        else:
+            if hasattr(self, 'unit'):
+                pp.write("unit: " + pp.str(self.unit))
+            elif hasattr(self, 'units'):
+                pp.write("units: " + pp.str(self.units))
+            if len(lines) == 1:
+                pp.write("value: " + pp.str(self.value))
+            else:
+                pp.write("value: ")
+                pp.n_indent += 1
+                for line in lines:
+                    pp.write(line)
+                pp.n_indent -= 1
 
 class MeasurementComposition(Measurement):
     def __init__(self, data=None):

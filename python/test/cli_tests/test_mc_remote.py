@@ -13,8 +13,8 @@ class TestMCRemote(unittest.TestCase):
     
     def test_mc_remote(self):
         testargs = ['mc', 'remote']
-        with captured_output(testargs) as (sout, serr):
-            remote_subcommand()
+        with captured_output() as (sout, serr):
+            remote_subcommand(testargs)
         #print_stringIO(sout)
         out = sout.getvalue().splitlines()
         err = serr.getvalue().splitlines()

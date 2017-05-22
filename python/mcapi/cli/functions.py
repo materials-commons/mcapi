@@ -5,10 +5,24 @@ import mcapi
 import pandas
 import string
 import time
+import datetime
 from tabulate import tabulate
 import requests
 import hashlib
 
+def _trunc_name(obj, size=40):
+    _name = obj.name
+    if len(_name) > size:
+        _name = _name[:size-3] + '...'
+    return _name
+
+def _trunc_desc(obj, size=100):
+    _desc = obj.description
+    if len(_desc) > size:
+        _desc = _desc[:size-3] + '...'
+    return _desc
+        
+        
 
 # mc.py - project object - with approperate mapping to api.py
 def _experiments(project_id, remote=mcapi.Remote()):
@@ -45,6 +59,14 @@ def _mc_remotes(path=None):
     # just 'origin' for now
     return {'origin':mcapi.Remote()}
 
+def _format_mtime(mtime):
+    if isinstance(mtime, (float, int)):
+        return time.strftime("%b %Y %d %H:%M:%S", time.gmtime(mtime))
+    elif isinstance(mtime, datetime.datetime):
+        return mtime.strftime("%b %Y %d %H:%M:%S")
+    else:
+        return str(type(mtime))
+
 def _print_projects(projects, current=None):
     """
     Print list of projects, include '*' for current project
@@ -59,22 +81,26 @@ def _print_projects(projects, current=None):
         if current is not None and p.id == current.id:
           _is_current = '*' 
         
-        _name = p.name
-        if len(_name) > 40:
-            _name = _name[:37] + '...'
+        if isinstance(p.mtime, (float, int)):
+            _mtime = time.strftime("%b %Y %d %H:%M:%S", time.gmtime(p.mtime))
+        elif isinstance(p.mtime, datetime.datetime):
+            _mtime = p.mtime.strftime("%b %Y %d %H:%M:%S")
+        else:
+            _mtime = str(type(p.mtime))
         
         data.append({
             'current':_is_current,
-            'name': _name,
+            'name': _trunc_name(p),
             'owner':p.owner,
-            'id':p.id
+            'id':p.id,
+            'mtime':_mtime
         })
     
     df = pandas.DataFrame.from_records(data, 
-        columns=['current', 'name', 'owner', 'id'])
+        columns=['current', 'name', 'owner', 'id', 'mtime'])
     
     #print df.to_string()
-    print(tabulate(df, showindex=False, headers=['', 'name', 'owner', 'id']))
+    print(tabulate(df, showindex=False, headers=['', 'name', 'owner', 'id', 'mtime']))
 
 def _print_experiments(experiments, current=None):
     """
@@ -91,27 +117,56 @@ def _print_experiments(experiments, current=None):
         if current is not None and e.id == current.id:
           _is_current = '*' 
         
-        _name = e.name
-        if len(_name) > 40:
-            _name = _name[:37] + '...'
-        
-        _description = e.description
-        if len(_description) > 100:
-            _description = _description[:97] + '...'
-        
         data.append({
             'current':_is_current,
-            'name': _name,
-            'description':_description,
+            'name': _trunc_name(e),
+            'description':_trunc_desc(e),
             'owner':e.owner,
-            'id':e.id
+            'id':e.id,
+            'mtime': e.mtime.strftime("%b %Y %d %H:%M:%S")
         })
     
     df = pandas.DataFrame.from_records(data, 
-        columns=['current', 'name', 'description', 'owner', 'id'])
+        columns=['current', 'name', 'description', 'owner', 'id', 'mtime'])
     
     #print df.to_string()
-    print(tabulate(df, showindex=False, headers=['', 'name', 'description', 'owner', 'id']))
+    print(tabulate(df, showindex=False, headers=['', 'name', 'description', 'owner', 'id', 'mtime']))
+
+def _print_processes(processes, details=False, json=False):
+    if not len(processes):
+        print "No processes"
+        return
+    if details:
+        _print_processes_details(processes)
+    elif json:
+        _print_processes_json(processes)
+    else:
+        _print_processes_list(processes)
+
+def _print_processes_details(processes):
+    for p in processes:
+        p.pretty_print(shift=0, indent=2)
+        print ""
+
+def _print_processes_json(processes):
+    for p in processes:
+        print json.dumps(p.input_data, indent=2)
+
+def _print_processes_list(processes):
+    data = []
+    columns = ['name', 'template_name', 'id', 'mtime']
+    for p in processes:
+        data.append({
+            'name': _trunc_name(p),
+            'template_name': p.template_name,
+            'id':p.id,
+            'mtime': p.mtime.strftime("%b %Y %d %H:%M:%S")
+        })
+        
+        df = pandas.DataFrame.from_records(data, columns=columns)
+
+    print(tabulate(df, showindex=False, headers=columns))   
+        
 
 def _proj_path(path=None):
     if path is None:
@@ -177,5 +232,4 @@ def set_current_experiment(proj, expt):
     data['experiment_id'] = expt.id
     with open(config_path, 'w') as f:
         json.dump(data, f)
-    print "set current experiment: '" + expt.name + "'"
 

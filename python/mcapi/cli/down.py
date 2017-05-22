@@ -52,7 +52,7 @@ def _download(proj, dir, recursive=False):
     
     return results
     
-def down_subcommand():
+def down_subcommand(argv=sys.argv):
     """
     download files from Materials Commons
     
@@ -67,7 +67,7 @@ def down_subcommand():
     parser.add_argument('-f', '--force', action="store_true", default=False, help='Force overwrite of existing files')
     
     # ignore 'mc down'
-    args = parser.parse_args(sys.argv[2:])
+    args = parser.parse_args(argv[2:])
     
     local_abspaths = [os.path.abspath(p) for p in args.paths]
     
