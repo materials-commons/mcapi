@@ -10,7 +10,10 @@ class Measurement(MCObject):
         self.unit = ''
         self.value = ''
         self.is_best_measure = False
-        attr = ['attribute', 'unit', 'value', 'is_best_measure']
+        self.measurement_id = ''
+        self.process_id = ''
+        self.sample_id = ''
+        attr = ['attribute', 'unit', 'value', 'is_best_measure', 'measurement_id', 'process_id', 'sample_id']
         for a in attr:
             setattr(self, a, data.get(a, None))
 
@@ -22,6 +25,13 @@ class Measurement(MCObject):
         pp.write("attribute: " + pp.str(self.attribute))
         pp.n_indent += 1
         pp.write("id: " + pp.str(self.id))
+        pp.write("measurement_id: " + pp.str(self.measurement_id))
+        pp.write("process_id: " + pp.str(self.process_id))
+        pp.write("sample_id: " + pp.str(self.sample_id))
+        if (self.is_best_measure):
+            pp.write("is_best_measure: " + pp.str('true'))
+        else:
+            pp.write("is_best_measure: " + pp.str('false'))
         strout = StringIO()
         strout.write(self.value)
         lines = strout.getvalue().splitlines()

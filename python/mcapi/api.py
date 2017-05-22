@@ -262,7 +262,7 @@ def get_process_by_id(project_id, process_id, remote=None):
               + "/processes/" + process_id
     return get(remote.make_url_v2(api_url))
 
-def get_expt_process_by_id(project_id, experiment_id, process_id, remote=None):
+def get_experiment_process_by_id(project_id, experiment_id, process_id, remote=None):
     if not remote:
         remote = use_remote()
     api_url = "projects/" + project_id \
@@ -280,7 +280,7 @@ def get_sample_by_id(project_id, process_id, remote=None):
               + "/processes/" + process_id
     return get(remote.make_url_v2(api_url))
 
-def get_expt_sample_by_id(project_id, experiment_id, process_id, remote=None):
+def get_experiment_sample_by_id(project_id, experiment_id, process_id, remote=None):
     if not remote:
         remote = use_remote()
     api_url = "projects/" + project_id \

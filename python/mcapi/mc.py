@@ -464,7 +464,7 @@ class Experiment(MCObject):
     def get_process_by_id(self, process_id):
         project = self.project
         experiment = self
-        results = api.get_expt_process_by_id(project.id, experiment.id, process_id)
+        results = api.get_experiment_process_by_id(project.id, experiment.id, process_id)
         process = make_object(results)
         process.project = project
         process.experiment = experiment
@@ -482,7 +482,7 @@ class Experiment(MCObject):
     def get_sample_by_id(self, sample_id):
         project = self.project
         experiment = self
-        results = api.get_expt_sample_by_id(project.id, experiment.id, process_id)
+        results = api.get_experiment_sample_by_id(project.id, experiment.id, process_id)
         sample = make_object(results)
         sample.project = project
         sample.experiment = experiment
@@ -996,8 +996,9 @@ class Sample(MCObject):
         pp.write("processes: ")
         pp.n_indent += 1
         for p in self.processes:
-            pp.write(pp.str(p.name) + " " + pp.str(p.id))
+            pp.write(pp.str(p.name))
             pp.n_indent += 1
+            pp.write("id: " + pp.str(p.id))
             pp.write_measurements(p.measurements)
             pp.n_indent -= 1
         
