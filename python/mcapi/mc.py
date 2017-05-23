@@ -480,7 +480,7 @@ class Experiment(MCObject):
         processes = map((lambda x: _decorate_object_with(x, 'project', self.project)), processes)
         processes = map((lambda x: _decorate_object_with(x, 'experiment', self)), processes)
         for process in processes:
-            process._updata_project_experiment()
+            process._update_project_experiment()
         return processes
 
     # Experiment - Process-related methods - basic: create, get_by_id, get_all (in context)
