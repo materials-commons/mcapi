@@ -11,7 +11,7 @@ def fake_name(prefix):
     return prefix + number
 
 
-class Explorer(unittest.TestCase):
+class TestMultipleMeasuresForSample(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         set_remote_config_url(url)
@@ -70,6 +70,9 @@ class Explorer(unittest.TestCase):
         sample_with_details = self.project.fetch_sample_by_id(sample_out.id)
         print "-->"
         sample_with_details.pretty_print()
+        measurement = sample_with_details.processes[0].measurements[0]
+        measurement.pretty_print()
+        print measurement.input_data
 
     def make_properties_dictionary(self, properties):
         ret = {}
