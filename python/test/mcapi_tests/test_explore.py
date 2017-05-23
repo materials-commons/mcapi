@@ -1,4 +1,5 @@
 import unittest
+import pytest
 from random import randint
 from mcapi import set_remote_config_url
 from mcapi import create_project, Template
@@ -10,7 +11,7 @@ def fake_name(prefix):
     number = "%05d" % randint(0, 99999)
     return prefix + number
 
-
+@pytest.mark.skip("Test under development.")
 class TestMultipleMeasuresForSample(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -61,18 +62,18 @@ class TestMultipleMeasuresForSample(unittest.TestCase):
         process = self.process
         process = process.add_number_measurement(attribute, value, name=name)
 
-        print "Again..."
+        # print "Again..."
         process = process.add_number_measurement(attribute, value, name=name)
 
-        print "And Again..."
+        # print "And Again..."
         process = process.add_number_measurement(attribute, value, name=name)
-        sample_out = process.output_samples[0]
-        sample_with_details = self.project.fetch_sample_by_id(sample_out.id)
-        print "-->"
-        sample_with_details.pretty_print()
-        measurement = sample_with_details.processes[0].measurements[0]
-        measurement.pretty_print()
-        print measurement.input_data
+        # sample_out = process.output_samples[0]
+        # sample_with_details = self.project.fetch_sample_by_id(sample_out.id)
+        # print "-->"
+        # sample_with_details.pretty_print()
+        # measurement = sample_with_details.processes[0].measurements[0]
+        # measurement.pretty_print()
+        # print measurement.input_data
 
     def make_properties_dictionary(self, properties):
         ret = {}
