@@ -9,11 +9,13 @@ class Measurement(MCObject):
         self.attribute = ''
         self.unit = ''
         self.value = ''
+        self.file = None
         self.is_best_measure = False
         self.measurement_id = ''
-        self.process_id = ''
         self.sample_id = ''
-        attr = ['attribute', 'unit', 'value', 'is_best_measure', 'measurement_id', 'process_id', 'sample_id']
+        self.property_id = ''
+        attr = ['attribute', 'unit', 'value', 'is_best_measure',
+                'measurement_id', 'sample_id', 'property_id', 'file']
         for a in attr:
             setattr(self, a, data.get(a, None))
 
@@ -24,14 +26,12 @@ class Measurement(MCObject):
         pp = PrettyPrint(shift=shift, indent=indent, out=out)
         pp.write("attribute: " + pp.str(self.attribute))
         pp.n_indent += 1
-        pp.write("id: " + pp.str(self.id))
-        pp.write("measurement_id: " + pp.str(self.measurement_id))
-        pp.write("process_id: " + pp.str(self.process_id))
-        pp.write("sample_id: " + pp.str(self.sample_id))
-        if (self.is_best_measure):
-            pp.write("is_best_measure: " + pp.str('true'))
-        else:
-            pp.write("is_best_measure: " + pp.str('false'))
+        # Note: Measurement in Process, outside of actual measurement, has no id
+        if (self.id):
+            pp.write("id: " + pp.str(self.id))
+            pp.write("measurement_id: " + pp.str(self.measurement_id))
+            pp.write("property_id: " + pp.str(self.property_id))
+            pp.write("sample_id: " + pp.str(self.sample_id))
         strout = StringIO()
         strout.write(self.value)
         lines = strout.getvalue().splitlines()

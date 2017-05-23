@@ -110,10 +110,24 @@ class PrettyPrint(object):
                 self.write(self.str(obj.name) + " " + self.str(obj.id))
             self.n_indent -= 1
 
+    def write_pretty_print_objects(self, title, object_list):
+        if len(object_list):
+            self.write(title)
+            self.n_indent += 1
+            for object in object_list:
+                object.pretty_print(
+                    shift=(self.shift + self.n_indent * self.indent),
+                    indent=self.indent,
+                    out=self.out)
+            self.n_indent -= 1
+
     def write_measurements(self, measurements):
         if len(measurements):
             self.write("measurements: ")
             self.n_indent += 1
             for obj in measurements:
-                obj.abbrev_print(shift=self.n_indent*self.indent, indent=self.indent, out=self.out)
+                obj.abbrev_print(
+                    shift=(self.shift + self.n_indent * self.indent),
+                    indent=self.indent,
+                    out=self.out)
             self.n_indent -= 1

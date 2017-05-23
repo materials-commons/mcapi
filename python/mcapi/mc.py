@@ -14,6 +14,7 @@ from pandas import DataFrame
 from tabulate import tabulate
 from StringIO import StringIO
 
+
 # -- top level project functions --
 def create_project(name, description):
     results = api.create_project(name, description)
@@ -114,9 +115,9 @@ class Project(MCObject):
 
         if id:
             data['id'] = id
-        
+
         # Reserved for use by CLI:
-        
+
         # "local_path" to where Project files have been downloaded on local machine
         self.local_path = None
         # Remote instance, where Project is saved. Similar to source
@@ -130,7 +131,7 @@ class Project(MCObject):
         pp.write("id: " + self.id)
         pp.write("owner: " + pp.str(self.owner))
         pp.write("mtime: " + pp.str(self.mtime.strftime("%b %Y %d %H:%M:%S")))
-    
+
     def process_special_objects(self):
         pass
 
@@ -246,7 +247,7 @@ class Project(MCObject):
         uploaded_file._directory = directory
         uploaded_file._directory_id = directory.id
         return uploaded_file
-    
+
     def add_file_by_local_path(self, local_path, verbose=False, limit=50):
         """
         Upload a file, specified by local_path, creating intermediate 
@@ -259,7 +260,7 @@ class Project(MCObject):
         dir_path = self._local_path_to_path(os_path.dirname(local_path))
         dir = self.create_or_get_all_directories_on_path(dir_path)[-1]
         return self.add_file_using_directory(dir, os_path.basename(local_path),
-            local_path, verbose, limit)
+                                             local_path, verbose, limit)
 
     def add_directory_tree_by_local_path(self, local_path, verbose=False, limit=50):
         """
@@ -272,8 +273,8 @@ class Project(MCObject):
         """
         path = self._local_path_to_path(os_path.dirname(local_path))
         dir = self.create_or_get_all_directories_on_path(path)[-1]
-        return dir.add_directory_tree(os_path.basename(local_path), 
-            os_path.dirname(local_path), verbose, limit)
+        return dir.add_directory_tree(os_path.basename(local_path),
+                                      os_path.dirname(local_path), verbose, limit)
 
     def fetch_sample_by_id(self, sample_id):
         sample_json_dict = api.get_project_sample_by_id(self.id, sample_id)
@@ -307,7 +308,7 @@ class Project(MCObject):
                 return None
             curr = nextchild[0]
         return curr
-    
+
     def file_exists_by_local_path(self, local_path, checksum=False):
         """
         Check if files exists locally and remotely. Optionally compares md5 hash.
@@ -331,14 +332,14 @@ class Project(MCObject):
                 else:
                     return True
         return False
-    
+
     def _local_path_to_path(self, local_path):
         local_path = os_path.abspath(local_path)
         if local_path == self.local_path:
             return "/"
         else:
             return os_path.relpath(local_path, self.local_path)
-    
+
     # Project - Processes
 
     def get_all_processes(self):
@@ -351,6 +352,7 @@ class Project(MCObject):
         results = api.get_process_by_id(self.id, process_id)
         process = make_object(results)
         process.project = self
+        process._update_project_experiment()
         return process
 
     # Project - Samples
@@ -360,9 +362,9 @@ class Project(MCObject):
         samples = map((lambda x: make_object(x)), samples_list)
         samples = map((lambda x: _decorate_object_with(x, 'project', self)), samples)
         return samples
-    
+
     def get_sample_by_id(self, sample_id):
-        results = api.get_sample_by_id(self.id, process_id)
+        results = api.get_sample_by_id(self.id, sample_id)
         sample = make_object(results)
         sample.project = self
         return sample
@@ -459,6 +461,7 @@ class Experiment(MCObject):
         process = make_object(results)
         process.project = project
         process.experiment = experiment
+        process._update_project_experiment()
         return process
 
     def get_process_by_id(self, process_id):
@@ -468,6 +471,7 @@ class Experiment(MCObject):
         process = make_object(results)
         process.project = project
         process.experiment = experiment
+        process._update_project_experiment()
         return process
 
     def get_all_processes(self):
@@ -475,6 +479,8 @@ class Experiment(MCObject):
         processes = map((lambda x: make_object(x)), process_list)
         processes = map((lambda x: _decorate_object_with(x, 'project', self.project)), processes)
         processes = map((lambda x: _decorate_object_with(x, 'experiment', self)), processes)
+        for process in processes:
+            process._updata_project_experiment()
         return processes
 
     # Experiment - Process-related methods - basic: create, get_by_id, get_all (in context)
@@ -482,7 +488,7 @@ class Experiment(MCObject):
     def get_sample_by_id(self, sample_id):
         project = self.project
         experiment = self
-        results = api.get_experiment_sample_by_id(project.id, experiment.id, process_id)
+        results = api.get_experiment_sample_by_id(project.id, experiment.id, sample_id)
         sample = make_object(results)
         sample.project = project
         sample.experiment = experiment
@@ -494,7 +500,7 @@ class Experiment(MCObject):
         samples = map((lambda x: _decorate_object_with(x, 'project', self.project)), samples)
         samples = map((lambda x: _decorate_object_with(x, 'experiment', self)), samples)
         return samples
-    
+
     # Experiment - additional method
     def decorate_with_samples(self):
         self.samples = self.get_all_samples()
@@ -520,11 +526,20 @@ class Process(MCObject):
         self.what = ''
         self.why = ''
         self.category = None
-
-        self.project = None
         self.experiment = None
 
+        self.project = None
         self.properties_dictionary = {}
+
+        # filled in when Process is in Sample.processes
+        self.direction = ''
+        self.process_id = ''
+        self.sample_id = ''
+        self.property_set_id = ''
+        self.experiments = []
+
+        # filled in when measurements are attached
+        self.measurements = []
 
         if not data:
             data = {}
@@ -532,11 +547,17 @@ class Process(MCObject):
         # attr = ['id', 'name', 'description', 'birthtime', 'mtime', 'otype', 'owner']
         super(Process, self).__init__(data)
 
-        attr = ['files', 'measurements', 'output_samples', 'input_samples', 'setup',
-                'process_type', 'does_transform', 'template_id', 'note',
-                'template_name', 'input_files', 'output_files' ]
+        attr = ['setup', 'category', 'process_type', 'does_transform', 'template_id', 'note',
+                'template_name', 'direction', 'process_id', 'sample_id',
+                'property_set_id']
         for a in attr:
             setattr(self, a, data.get(a, None))
+
+        attr = ['files', 'measurements', 'output_samples', 'input_samples',
+                'transformed_samples', 'input_files', 'output_files',
+                'experiments']
+        for a in attr:
+            setattr(self, a, data.get(a, []))
 
         if process_type:
             self.process_type = process_type
@@ -553,19 +574,32 @@ class Process(MCObject):
         pp = PrettyPrint(shift=shift, indent=indent, out=out)
         pp.write("name: " + pp.str(self.name))
         pp.n_indent += 1
+        # setup?
+        # note?
         pp.write("description: " + pp.str(self.description))
         pp.write("id: " + pp.str(self.id))
         pp.write("owner: " + pp.str(self.owner))
         pp.write("template_id: " + pp.str(self.template_id))
+        pp.write("template_name: " + pp.str(self.template_name))
+        pp.write("does_transform: " + pp.str(self.does_transform))
         pp.write("process_type: " + pp.str(self.process_type))
         pp.write_objects("input_files: ", self.input_files)
         pp.write_objects("output_files: ", self.output_files)
-        pp.write_objects("input_samples: ", self.input_samples)
-        pp.write_objects("output_samples: ", self.output_samples)
-        pp.write("does_transform: " + pp.str(self.does_transform))
-        pp.write_objects("transformed_samples: ", self.transformed_samples)
-        pp.write_measurements(self.measurements)
-    
+        pp.write_objects("files: ", self.files)
+        pp.write_pretty_print_objects("input_samples: ", self.input_samples)
+        pp.write_pretty_print_objects("output_samples: ", self.output_samples)
+        if len(self.transformed_samples):
+            pp.write_objects("transformed_samples: ", self.transformed_samples)
+        if self.direction:
+            pp.write("direction: " + pp.str(self.direction))
+            pp.write("process_id: " + pp.str(self.process_id))
+            pp.write("sample_id: " + pp.str(self.sample_id))
+            pp.write("property_set_id: " + pp.str(self.property_set_id))
+        if len(self.experiments):
+            pp.write_objects("experiments: ", self.experiments)
+        if len(self.measurements):
+            pp.write_measurements(self.measurements)
+
     def process_special_objects(self):
         if self.setup:
             for i in range(len(self.setup)):
@@ -574,12 +608,39 @@ class Process(MCObject):
             self.measurements = [make_measurement_object(m) for m in self.measurements]
         if self.input_samples:
             self.input_samples = [make_object(s.input_data) for s in self.input_samples]
+            for sample in self.input_samples:
+                sample.project = self.project
+                sample.experiment = self.experiment
         if self.output_samples:
             self.output_samples = [make_object(s.input_data) for s in self.output_samples]
+            for sample in self.output_samples:
+                sample.project = self.project
+                sample.experiment = self.experiment
         if self.input_files:
             self.input_files = [make_object(s.input_data) for s in self.input_files]
         if self.output_files:
             self.output_files = [make_object(s.input_data) for s in self.output_files]
+
+    def _update_project_experiment(self):
+        for sample in self.input_samples:
+            sample.project = self.project
+            sample.experiment = self.experiment
+
+        for sample in self.output_samples:
+            sample.project = self.project
+            sample.experiment = self.experiment
+
+        for sample in self.transformed_samples:
+            sample.project = self.project
+            sample.experiment = self.experiment
+
+        for file in self.input_files:
+            file.project = self.project
+            file.experiment = self.experiment
+
+        for file in self.output_files:
+            file.project = self.project
+            file.experiment = self.experiment
 
     def _transform_setup(self, setup_element):
         setup_element.properties = [self._transform_property(prop) for prop in setup_element.properties]
@@ -596,6 +657,7 @@ class Process(MCObject):
         process = make_object(results)
         process.project = self.project
         process.experiment = self.experiment
+        process._update_project_experiment()
         return process
 
     def put(self):
@@ -900,6 +962,7 @@ class Process(MCObject):
                 process.input_samples.append(sample)
         process.project = project
         process.experiment = experiment
+        process._update_project_experiment()
         return process
 
     def _add_files_to_process(self, file_list):
@@ -910,6 +973,7 @@ class Process(MCObject):
         process = make_object(results)
         process.project = project
         process.experiment = experiment
+        process._update_project_experiment()
         return process
 
     def _update_process_setup_properties(self, prop_list):
@@ -921,6 +985,7 @@ class Process(MCObject):
         process = make_object(results)
         process.project = project
         process.experiment = experiment
+        process._update_project_experiment()
         return process
 
     def _create_samples(self, sample_names):
@@ -960,10 +1025,18 @@ class Sample(MCObject):
         self.property_set_id = ''
         self.project = None
         self.experiment = None
+        # filled in when measurements exist (?)
         self.properties = []
+        self.experiments = []
+        self.property_set_id = None
+        self.direction = ''
+        self.sample_id = None
         # to be filled in later
         self.processes = {}
         self.files = []
+        self.is_grouped = False;
+        self.has_group = False;
+        self.group_size = 0;
 
         if not data:
             data = {}
@@ -971,16 +1044,14 @@ class Sample(MCObject):
         # attr = ['id', 'name', 'description', 'birthtime', 'mtime', 'otype', 'owner']
         super(Sample, self).__init__(data)
 
-        attr = ['property_set_id', 'properties']
+        attr = ['property_set_id', 'direction', 'sample_id',
+                'process_id', 'is_grouped', 'has_group', 'group_size']
         for a in attr:
             setattr(self, a, data.get(a, None))
 
-        attr = ['properties']
+        attr = ['properties', 'files', 'experiments']
         for a in attr:
-            array = getattr(self, a)
-            if not array:
-                array = []
-            setattr(self, a, array)
+            setattr(self, a, data.get(a, []))
 
         if name:
             self.name = name
@@ -992,7 +1063,18 @@ class Sample(MCObject):
         pp.write("description: " + pp.str(self.description))
         pp.write("id: " + pp.str(self.id))
         pp.write("owner: " + pp.str(self.owner))
-        self.decorate_with_processes()
+        if (len(self.files) > 0):
+            pp.write_objects("files: ", self.files)
+        if (len(self.experiments) > 0):
+            pp.write_objects("experiments: ", self.experiments)
+        if (self.direction):
+            pp.write("direction: " + pp.str(self.direction))
+            pp.write("property_set_id: " + pp.str(self.property_set_id))
+            pp.write("sample_id: " + pp.str(self.sample_id))
+            pp.write_objects("experiments: ", self.experiments)
+            pp.write_pretty_print_objects("properties: ", self.properties)
+        if (len(self.processes) == 0):
+            self.decorate_with_processes()
         pp.write("processes: ")
         pp.n_indent += 1
         for p in self.processes:
@@ -1001,7 +1083,7 @@ class Sample(MCObject):
             pp.write("id: " + pp.str(p.id))
             pp.write_measurements(p.measurements)
             pp.n_indent -= 1
-        
+
     def process_special_objects(self):
         if self.properties:
             self.properties = [make_measured_property(p.input_data) for p in self.properties]
@@ -1021,6 +1103,12 @@ class Sample(MCObject):
         pass
 
     # Sample - additional methods
+    def update_with_details(self):
+        updated_sample = self.project.fetch_sample_by_id(self.id)
+        updated_sample.project = self.project
+        updated_sample.experiment = self.experiment
+        return updated_sample
+
     def decorate_with_processes(self):
         filled_in_sample = make_object(api.fetch_sample_details(self.project.id, self.id))
         self.processes = filled_in_sample.processes
@@ -1264,12 +1352,13 @@ class File(MCObject):
 
     def parent(self):
         return self._project.get_directory_by_id(self._directory_id)
-    
+
     def local_path(self):
         parent = self.parent()
         proj = parent._project
         proj_dirname = os_path.dirname(proj.local_path)
         return os_path.join(proj_dirname, os_path.join(parent.path, self.name))
+
 
 class Template(MCObject):
     # global static
@@ -1285,7 +1374,7 @@ class Template(MCObject):
         # - Template is truncated, for now, as we only need the id to create
         # - processes from a Template
         # ----
-    
+
     def pretty_print(self, shift=0, indent=2, out=sys.stdout):
         pp = PrettyPrint(shift=shift, indent=indent, out=out)
         _data = self.input_data
@@ -1294,7 +1383,7 @@ class Template(MCObject):
         value_list = ['description', 'id', 'category', 'process_type', 'destructive', 'does_transform']
         for k in value_list:
             pp.write(k + ": " + pp.str(_data[k]))
-        
+
         # for 'create sample' processes
         measurements = _data['measurements']
         if len(measurements):
@@ -1305,10 +1394,10 @@ class Template(MCObject):
             strout.write(tabulate(df, showindex=False, headers=['name', 'attribute', 'otype', 'units']))
             for line in strout.getvalue().splitlines():
                 pp.write(line)
-        
+
         # for process settings / attributes
         setup = _data['setup']
-        
+
         # attributes are grouped, for each group print attributes
         for s in setup:
             properties = s['properties']
@@ -1328,6 +1417,9 @@ class Property(MCObject):
         super(Property, self).__init__(data)
 
         self.setup_id = ''
+        self.property_set_id = ''
+        self.parent_id = ''
+        self.property_id = ''
         self.required = False
         self.unit = ''
         self.attribute = ''
@@ -1343,15 +1435,18 @@ class Property(MCObject):
         attr = ['units', 'choices']
         for a in attr:
             setattr(self, a, data.get(a, []))
-    
+
     def abbrev_print(self, shift=0, indent=2, out=sys.stdout):
         self.pretty_print(shift=shift, indent=indent, out=out)
-        
+
     def pretty_print(self, shift=0, indent=2, out=sys.stdout):
         pp = PrettyPrint(shift=shift, indent=indent, out=out)
         pp.write("attribute: " + pp.str(self.attribute))
         pp.n_indent += 1
         pp.write("id: " + pp.str(self.id))
+        if self.best_measure is not None:
+            pp.write("best_measure_id: " + pp.str(self.best_measure_id))
+            pp.write_pretty_print_objects("best_measure: ", self.best_measure)
         strout = StringIO()
         strout.write(self.value)
         lines = strout.getvalue().splitlines()
@@ -1370,7 +1465,7 @@ class Property(MCObject):
                 for line in lines:
                     pp.write(line)
                 pp.n_indent -= 1
-            
+
 
 class MeasuredProperty(Property):
     def __init__(self, data=None):
@@ -1379,6 +1474,11 @@ class MeasuredProperty(Property):
         super(MeasuredProperty, self).__init__(data)
 
         self.best_measure = []  # of Measurement
+        self.best_measure_id = ''
+
+        attr = ['best_measure_id']
+        for a in attr:
+            setattr(self, a, data.get(a, ''))
 
         attr = ['best_measure']
         for a in attr:
