@@ -27,18 +27,14 @@ This site provides a User Interface to the Materials Commons server. Note:
 These instructions assume that you are using this cental Materials
 Commons web site. If this is not the case, your instance of Materials
 Commons will have a different URL and corrections in the instructions
-will have to be made, accordingly.<br>
-
-
-</p>
+will have to be made, accordingly.</p>
 
 <p>In this document, we describe the Python API to the Materials
 Commons. It is a Python module embodying the API&nbsp; (Application
 Programmer Interface) that to the Materials Commons server. It supports
 creating, modifying, and deleting Materials Commons Projects and their
 parts: Experiments, Processes, Samples, Directories, and Files. These
-"objects of discourse" are depicted in this object-relation sketch.<br>
-</p>
+"objects of discourse" are depicted in this object-relation sketch.</p>
 
 <img src="images/MaterialsCommonsCoreObject.png" alt="A box and
         line diagram of the core pojects and their relationships" height="437" width="679">
@@ -48,8 +44,7 @@ create a project in Materials Commons and the Python API lets a user
 create and manipulate each of these object type, except for Dataset.
 Since Dataset's are used as the means of publishing data on the public
 data site for Materials Commons, we felt it best that the web site
-should be used for that final publication.<br>
-</p>
+should be used for that final publication.</p>
 
 <p>In the diagram above the lines between the objects a relationship,
 but do not specify the nature of that relationship. In this document,
@@ -58,10 +53,10 @@ those relations can be thought of as "contains" in the following way:<br>
 
 <ul>
 
-  <li>a Project contains</li>
+    <li>a <b>Project</b> contains</li>
   <ul>
-    <li>(and consists of) a list of Experiments</li>
-    <li>a (single) root Directory</li>
+    <li>a list of Experiments</li>
+    <li>a root Directory</li>
     <li>a list of Files</li>
     <li>a list of Samples</li>
     <li>a list of Processes</li>
@@ -77,13 +72,12 @@ those relations can be thought of as "contains" in the following way:<br>
     <li>a list of Directories and Files</li>
   </ul>
 </ul>
+<p>
 These objects are described in the details sections of this
-documentation: details of the the Objects of Discourse and details of
-the API calls.<br>
+documentation.</p>
 
-
-<h2> <a id="current-version" class="anchor" href="#current-version" aria-hidden="true"><span class="octicon octicon-link"></span></a>Access
-to the API<br>
+<h2> <a id="current-version" class="anchor" href="#current-version" aria-hidden="true">
+    <span class="octicon octicon-link"></span></a>Access to the API<br>
 </h2>
 
 <p>All API access is through function or method calls in the API (see
@@ -110,19 +104,21 @@ way. Log into the MaterialsCommons web site, and on the home page, you
 will see your user name in the upper right hand corner - this is
 the link to the user-pull-down menu.</p>
 
-<p><img style="width: 752px; height: 130px;" alt="Showing Position of User Menu" src="images/MC_UserMenu.png"><br>
+<p><img style="width: 752px; height: 130px;" alt="Showing Position of User Menu" src="images/MC_UserMenu.png">
 </p>
-
-Select the menu (click on the link), select "Account Settings" in the menu, and select 
+<p>
+Select the menu (click on the link), select "Account Settings" in the menu, and select
 "show API key" on the resulting page. This will display your API Key. Be careful with
-this value: possesing it is equivlent to having your username and password.<br>
-<br>
-If you do not have a Materials Commons account, go to the web site and register. <br>
+this value: possesing it is equivlent to having your username and password.
+</p>
+<p>
+If you do not have a Materials Commons account, go to the web site and register.
+</p>
  
 
 <h3>Calls to the API<br>
 </h3>
-
+<p>
 Calls to the API are made through calls in Python code, either to
 functions in the Module or to methods of Objects returned by those
 calls. Each call returns either an object or a list of objects, and
@@ -134,30 +130,32 @@ in the database, the is especially important to note: after a call to
 update the object, in general the returned object is not equal the the
 object used in the call. They will have many of the same data values,
 but only the id values can be used to verify the identity of the object
-being represented. See the example below.<br>
-
-<br>
-
-<br>
-
+being represented. See the example below.
+</p>
+<p>
 Many APIs return an object. This occurs when you request a specific
 object, such as a project, or you update or create one. Where the
 object in question has a list of dependent types, the API will return
 an overview of those type, rather than the details.
-<p>For example a <code>Project</code> contains a list of <code>Samples</code>.
+</p>
+<p>
+For example a <code>Project</code> contains a list of <code>Samples</code>.
 When requesting a Project you can ask that the full details for the <code>Samples</code>
 be included rather than the overview defintions. This is more expensive
 and should be used only when you will immediately need access to this
-information.</p>
-
-<p>The <code>details</code> parameter allows you to define the level
+information.
+</p>
+<p>
+  The <code>details</code> parameter allows you to define the level
 of details to return. By default the API returns details at <code>overview</code>
 level. The <code>details</code> parameter accepts <code>overview</code>
 or <code>full</code> as arguments. When <code>full</code> is
 specified you will receive a complete object definition for all
-dependent objects.</p>
+dependent objects.
+</p>
 
-<h4> <a id="examples" class="anchor" href="#examples" aria-hidden="true"><span class="octicon octicon-link"></span></a>Examples</h4>
+<h4> <a id="examples" class="anchor" href="#examples" aria-hidden="true">
+  <span class="octicon octicon-link"></span></a>Examples</h4>
 
 <p>The following call returns project details with dependent types
 (samples, and processes in this example) in overview.</p>
