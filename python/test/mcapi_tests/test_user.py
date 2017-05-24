@@ -4,7 +4,7 @@ from mcapi import set_remote_config_url, get_all_users
 
 url = 'http://mctest.localhost/api'
 
-
+# TODO: Set up server of get_all_users in .travis.yml
 @pytest.mark.skip("server for get_all_users() unavaialbe on Travis - edit .travis.yml")
 class TestUser(unittest.TestCase):
     @classmethod

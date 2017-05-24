@@ -2,8 +2,6 @@ import unittest
 from random import randint
 from mcapi import set_remote_config_url
 from mcapi import create_project, Template
-from casm_mcapi import _add_integer_measurement, \
-    _add_string_measurement, _add_boolean_measurement, _add_number_measurement
 
 url = 'http://mctest.localhost/api'
 
@@ -60,8 +58,9 @@ class TestSetSimpleMeasurements(unittest.TestCase):
         value = 5
         name = "Gap Spacing"
         otype = "integer"
-        process = _add_integer_measurement(
-            self.process, attribute, value, name=name)
+
+        process = self.process
+        process = process.add_integer_measurement(attribute, value, name=name)
         sample_out = process.output_samples[0]
         properties_out = sample_out.properties
         table = self.make_properties_dictionary(properties_out)
@@ -79,8 +78,9 @@ class TestSetSimpleMeasurements(unittest.TestCase):
         value = "booloo ball"
         name = "Gingle Snit"
         otype = "string"
-        process = _add_string_measurement(
-            self.process, attribute, value, name=name)
+
+        process = self.process
+        process = process.add_string_measurement(attribute, value, name=name)
         sample_out = process.output_samples[0]
         properties_out = sample_out.properties
         table = self.make_properties_dictionary(properties_out)
@@ -98,9 +98,10 @@ class TestSetSimpleMeasurements(unittest.TestCase):
         value = True
         name = "Shift"
         otype = "boolean"
-        selected_process = _add_boolean_measurement(
-            self.process, attribute, value, name=name)
-        sample_out = selected_process.output_samples[0]
+
+        process = self.process
+        process = process.add_boolean_measurement(attribute, value, name=name)
+        sample_out = process.output_samples[0]
         properties_out = sample_out.properties
         table = self.make_properties_dictionary(properties_out)
         selected_property = table[name]
@@ -117,8 +118,9 @@ class TestSetSimpleMeasurements(unittest.TestCase):
         value = 7
         name = "Scaling Factor"
         otype = "number"
-        process = _add_number_measurement(
-            self.process, attribute, value, name=name)
+
+        process = self.process
+        process = process.add_number_measurement(attribute, value, name=name)
         sample_out = process.output_samples[0]
         properties_out = sample_out.properties
         table = self.make_properties_dictionary(properties_out)

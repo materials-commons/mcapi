@@ -156,6 +156,19 @@ def delete_project_dry_run(project_id, remote=None):
     return get(remote.make_url_v2(api_url))
 
 
+def get_project_processes(project_id, remote=None):
+    if not remote:
+        remote = use_remote()
+    api_url = "/projects/" + project_id + "/processes"
+    return get(remote.make_url_v2(api_url))
+
+def get_project_samples(project_id, remote=None):
+    if not remote:
+        remote = use_remote()
+    api_url = "/projects/" + project_id + "/samples"
+    return get(remote.make_url_v2(api_url))
+
+
 # Experiment
 
 def create_experiment(project_id, name, description, remote=None):
@@ -242,7 +255,14 @@ def push_name_for_process(project_id, process_id, name, remote=None):
     return put(remote.make_url_v2(api_url), data)
 
 
-def fetch_process_by_id(project_id, experiment_id, process_id, remote=None):
+def get_process_by_id(project_id, process_id, remote=None):
+    if not remote:
+        remote = use_remote()
+    api_url = "projects/" + project_id \
+              + "/processes/" + process_id
+    return get(remote.make_url_v2(api_url))
+
+def get_experiment_process_by_id(project_id, experiment_id, process_id, remote=None):
     if not remote:
         remote = use_remote()
     api_url = "projects/" + project_id \
@@ -252,6 +272,21 @@ def fetch_process_by_id(project_id, experiment_id, process_id, remote=None):
 
 
 # Sample
+
+def get_sample_by_id(project_id, process_id, remote=None):
+    if not remote:
+        remote = use_remote()
+    api_url = "projects/" + project_id \
+              + "/processes/" + process_id
+    return get(remote.make_url_v2(api_url))
+
+def get_experiment_sample_by_id(project_id, experiment_id, process_id, remote=None):
+    if not remote:
+        remote = use_remote()
+    api_url = "projects/" + project_id \
+              + "/experiments/" + experiment_id \
+              + "/processes/" + process_id
+    return get(remote.make_url_v2(api_url))
 
 def create_samples_in_project(project_id, process_id, sample_names, remote=None):
     if not remote:
@@ -283,15 +318,6 @@ def fetch_sample_details(project_id, sample_id, remote=None):
 
 
 # Create sample process
-
-def get_process_from_id(project_id, experiment_id, process_id, remote=None):
-    if not remote:
-        remote = use_remote()
-    api_url = "projects/" + project_id + \
-              "/experiments/" + experiment_id + \
-              "/processes/" + process_id
-    return get(remote.make_url_v2(api_url))
-
 
 def add_samples_to_process(project_id, experiment_id, process, samples, remote=None):
     if not remote:
@@ -519,3 +545,63 @@ def file_move(project_id, old_directory_id, new_directory_id, file_id, remote=No
     api_url = "projects/" + project_id + \
               "/files/" + file_id
     return put(remote.make_url_v2(api_url), data)
+
+
+# for testing only
+def create_dataset(project_id, experiment_id, title, description, remote=None):
+    if not remote:
+        remote = use_remote()
+    data = {
+        'title': title,
+        'description': description
+    }
+    api_url = "projects/" + project_id + \
+              "/experiments/" + experiment_id + \
+              "/datasets"
+    return post(remote.make_url_v2(api_url), data)
+
+
+def check_statue_of_doi_server(project_id, experiment_id, dataset_id, remote=None):
+    if not remote:
+        remote = use_remote()
+    api_url = "projects/" + project_id + \
+              "/experiments/" + experiment_id + \
+              "/datasets/" + dataset_id + \
+              "/doiserverstatus"
+    return get(remote.make_url_v2(api_url))
+
+
+def create_doi(project_id, experiment_id, dataset_id, title, description, author, year, remote=None):
+    if not remote:
+        remote = use_remote()
+    data = {
+        'title': title,
+        'description': description,
+        'author': author,
+        'publication_year': year
+    }
+    api_url = "projects/" + project_id + \
+              "/experiments/" + experiment_id + \
+              "/datasets/" + dataset_id + \
+              "/doi"
+    return post(remote.make_url_v2(api_url), data)
+
+
+def get_doi_metadata(project_id, experiment_id, dataset_id, remote=None):
+    if not remote:
+        remote = use_remote()
+    api_url = "projects/" + project_id + \
+              "/experiments/" + experiment_id + \
+              "/datasets/" + dataset_id + \
+              "/doi"
+    return get(remote.make_url_v2(api_url))
+
+
+def get_doi_link(project_id, experiment_id, dataset_id, remote=None):
+    if not remote:
+        remote = use_remote()
+    api_url = "projects/" + project_id + \
+              "/experiments/" + experiment_id + \
+              "/datasets/" + dataset_id + \
+              "/doi/link"
+    return get(remote.make_url_v2(api_url))

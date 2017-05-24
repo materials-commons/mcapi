@@ -1,12 +1,8 @@
 import unittest
+import numpy as np
 from random import randint
-from os import environ
-from os import path as os_path
-from os.path import getsize
-from pathlib import Path as PathClass
 from mcapi import set_remote_config_url
 from mcapi import create_project, Template
-from casm_mcapi import _add_file_measurement
 
 url = 'http://mctest.localhost/api'
 
@@ -16,7 +12,7 @@ def fake_name(prefix):
     return prefix + number
 
 
-class TestAddFileMeasurements(unittest.TestCase):
+class TestAddMatrixMeasurements(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         set_remote_config_url(url)
@@ -32,8 +28,6 @@ class TestAddFileMeasurements(unittest.TestCase):
             Template.primitive_crystal_structure)
         cls.sample_name = "pcs-sample-1"
         cls.sample = cls.process.create_samples(sample_names=[cls.sample_name])[0]
-        cls.test_dir_path = "/testDir1/testdir2/testdir3"
-        cls.filename = "test.jpg"
 
     def test_is_setup_correctly(self):
         self.assertIsNotNone(self.project)
@@ -58,26 +52,22 @@ class TestAddFileMeasurements(unittest.TestCase):
         self.assertEqual(sample.name, self.sample_name)
         self.assertEqual(sample.name, samples[0].name)
 
-    def test_measurement_file_direct(self):
-        self.setup_each_test()
-        the_file = self.file
-
-        name = "Measurement File"
-        attribute = "file"
-
-        data = {"name": name,
-                "attribute": attribute,
-                "otype": "file",
+    def test_add_or_update_attribute_lattice_direct(self):
+        value = np.array([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]])
+        data = {"name": "Lattice",
+                "attribute": "lattice",
+                "otype": "matrix",
                 "unit": "",
                 "units": [],
                 "value": {
-                    "file_id": the_file.id,
-                    "file_name": the_file.name
+                    "dimensions": [3, 3],
+                    "otype": "float",
+                    "value": value.tolist()
                 },
                 "is_best_measure": True}
         property_data = {
-            "name": name,
-            "attribute": attribute
+            "name": "Lattice",
+            "attribute": "lattice"
         }
         measurement = self.process.create_measurement(data=data)
         process_out = self.process.set_measurements_for_process_samples(
@@ -85,24 +75,22 @@ class TestAddFileMeasurements(unittest.TestCase):
         sample_out = process_out.output_samples[0]
         properties_out = sample_out.properties
         table = self.make_properties_dictionary(properties_out)
-        property_data = table[name]
+        property_data = table["Lattice"]
         self.assertEqual(len(property_data.best_measure), 1)
         measurement_out = property_data.best_measure[0]
-        self.assertEqual(measurement_out.name, name)
-        self.assertEqual(measurement_out.attribute, attribute)
-        self.assertEqual(measurement_out.otype, "file")
+        self.assertEqual(measurement_out.name, measurement.name)
+        self.assertEqual(measurement_out.name, "Lattice")
+        self.assertEqual(measurement_out.attribute, "lattice")
+        self.assertEqual(measurement_out.otype, "matrix")
         self.assertEqual(measurement_out.unit, "")
-        self.assertEqual(measurement_out.value['file_id'], the_file.id)
-        self.assertEqual(measurement_out.value['file_name'], the_file.name)
+        self.assertEqual(measurement_out.value['value'], value.tolist())
 
-    def test_measurement_attribute_lattice_system_direct(self):
-        self.setup_each_test()
-        the_file = self.file
-        name = "Measurement File"
-        attribute = "file"
-
-        process = _add_file_measurement(
-            self.process, attribute, the_file, name=name)
+    def test_add_or_update_attribute_lattice(self):
+        value = np.array([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]])
+        name = "Lattice"
+        measurement_type = "lattice"
+        process = self.process
+        process = process.add_numpy_matrix_measurement(measurement_type, value, name=name)
         sample_out = process.output_samples[0]
         properties_out = sample_out.properties
         table = self.make_properties_dictionary(properties_out)
@@ -110,11 +98,15 @@ class TestAddFileMeasurements(unittest.TestCase):
         self.assertEqual(len(selected_property.best_measure), 1)
         measurement_out = selected_property.best_measure[0]
         self.assertEqual(measurement_out.name, name)
-        self.assertEqual(measurement_out.attribute, attribute)
-        self.assertEqual(measurement_out.otype, "file")
+        self.assertEqual(measurement_out.attribute, "lattice")
+        self.assertEqual(measurement_out.otype, "matrix")
         self.assertEqual(measurement_out.unit, "")
-        self.assertEqual(measurement_out.value['file_id'], the_file.id)
-        self.assertEqual(measurement_out.value['file_name'], the_file.name)
+        self.assertEqual(measurement_out.value['dimensions'], list(value.shape))
+        self.assertEqual(measurement_out.value['otype'], 'float')
+
+        resulting_value = np.array(measurement_out.value['value'])
+        self.assertTrue(np.array_equal(resulting_value, value))
+        self.assertEqual(resulting_value.shape, value.shape)
 
     def make_properties_dictionary(self, properties):
         ret = {}
@@ -122,26 +114,3 @@ class TestAddFileMeasurements(unittest.TestCase):
             name = the_property.name
             ret[name] = the_property
         return ret
-
-    def setup_each_test(self):
-        if not hasattr(self, 'filepath'):
-            self.filepath = self.make_test_dir_path('fractal.jpg')
-            self.test_dir = self.project.add_directory(self.test_dir_path)
-            self.file = self.project.add_file_using_directory(
-                self.test_dir, self.filename, self.filepath)
-
-            file_path = PathClass(self.filepath)
-            self.file_name = file_path.parts[-1]
-            input_path = str(file_path.absolute())
-            self.byte_count = getsize(input_path)
-
-            self.file = self.project.add_file_using_directory(self.test_dir, self.file_name, input_path)
-
-    def make_test_dir_path(self, file_name):
-        self.assertTrue('TEST_DATA_DIR' in environ)
-        test_path = os_path.abspath(environ['TEST_DATA_DIR'])
-        self.assertIsNotNone(test_path)
-        self.assertTrue(os_path.isdir(test_path))
-        test_file = os_path.join(test_path, 'test_upload_data', file_name)
-        self.assertTrue(os_path.isfile(test_file))
-        return test_file

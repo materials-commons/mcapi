@@ -4,3 +4,7 @@ rethinkdb
 pytest
 pathlib
 numpy
+pandas
+tabulate
+sortedcontainers
+mock

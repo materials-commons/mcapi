@@ -2,7 +2,6 @@ import unittest
 from random import randint
 from mcapi import set_remote_config_url
 from mcapi import create_project, Template
-from casm_mcapi import _add_selection_measurement
 
 url = 'http://mctest.localhost/api'
 
@@ -108,8 +107,8 @@ class TestAddChoiceMeasurements(unittest.TestCase):
         name = "Lattice System"
         attribute = "lattice_system"
 
-        process = _add_selection_measurement(
-            self.process, attribute, value, name=name)
+        process = self.process
+        process = process.add_selection_measurement(attribute, value, name=name)
         sample_out = process.output_samples[0]
         properties_out = sample_out.properties
         table = self.make_properties_dictionary(properties_out)
