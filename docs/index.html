@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="en-us"><head>
+
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
-  <meta charset="UTF-8">
-  <title>MCAPI by materials-commons</title>
+  <meta charset="UTF-8"><title>MCAPI by materials-commons</title>
+  
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
   <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700" rel="stylesheet" type="text/css">
   <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
-  <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
-</head><body>
+  <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen"></head><body>
 <section class="page-header"> </section>
 <h1 class="project-name">MCAPI</h1>
 
@@ -55,26 +55,26 @@ those relations can be thought of as "contains" in the following way:<br>
 
     <li>a <b>Project</b> contains</li>
   <ul>
-    <li>a list of Experiments</li>
-    <li>a root Directory</li>
-    <li>a list of Files</li>
-    <li>a list of Samples</li>
-    <li>a list of Processes</li>
+    <li>a list of <span style="font-weight: bold;">Experiment</span></li>
+    <li>a root <span style="font-weight: bold;">Directory</span></li>
+    <li>a list of <span style="font-weight: bold;">File</span></li>
+    <li>a list of <span style="font-weight: bold;">Sample</span></li>
+    <li>a list of <span style="font-weight: bold;">Process</span></li>
   </ul>
-  <li>an Experiment contains</li>
+  <li>an <span style="font-weight: bold;">Experiment</span> contains</li>
   <ul>
-    <li>a list of Files</li>
-    <li>a list of Samples</li>
-    <li>a list of Processes</li>
+    <li>a list of <span style="font-weight: bold;">File</span></li>
+    <li>a list of <span style="font-weight: bold;">Sample</span></li>
+    <li>a list of <span style="font-weight: bold;">Processe</span></li>
   </ul>
-  <li>a Directory contains</li>
+  <li>a <span style="font-weight: bold;">Directory</span> contains</li>
   <ul>
-    <li>a list of Directories and Files</li>
+    <li>a list of <span style="font-weight: bold;">Directory</span> and <span style="font-weight: bold;">File</span></li>
   </ul>
 </ul>
 <p>
-These objects are described in the details sections of this
-documentation.</p>
+These objects are described in the <a href="api.html">details sections of this
+documentation</a>.</p>
 
 <h2> <a id="current-version" class="anchor" href="#current-version" aria-hidden="true">
     <span class="octicon octicon-link"></span></a>Access to the API<br>
@@ -118,73 +118,30 @@ If you do not have a Materials Commons account, go to the web site and register.
 
 <h3>Calls to the API<br>
 </h3>
-<p>
-Calls to the API are made through calls in Python code, either to
-functions in the Module or to methods of Objects returned by those
-calls. Each call returns either an object or a list of objects, and
-most calls have the side effect of changing the one or more objects in
-the database. When Object are changed in the database, an updated
-object is returned which in general is <b>not the same as the object </b>used
-in making the call. For objects representing the same underlying value
-in the database, the is especially important to note: after a call to
-update the object, in general the returned object is not equal the the
-object used in the call. They will have many of the same data values,
-but only the id values can be used to verify the identity of the object
-being represented. See the example below.
+<p>Most of the calls to the API are based on the contains relationship
+described above. The are "methods" of an object; that is, they are
+functions that are called using the object that they pertain to. Except
+in the case of a few "top level function", you first have to obtain the
+object. For example to make an API call to create a process from a
+template, you first have to obtain an Experiment: Process objects are
+"contained" in an Experiment. Then, to create the Experiment, you would
+first have to obtain a Project object. Since the project object is a
+top level object, there is a function (not part of any object), to
+create a project. So the sequence of calls might look like this:</p><br>
+<p>projectName = "Project One"</p>
+<p>projectDescription = "This is my first Project"<br>
 </p>
-<p>
-Many APIs return an object. This occurs when you request a specific
-object, such as a project, or you update or create one. Where the
-object in question has a list of dependent types, the API will return
-an overview of those type, rather than the details.
+<p>experimentName = "Experiment One"<br>
 </p>
-<p>
-For example a <code>Project</code> contains a list of <code>Samples</code>.
-When requesting a Project you can ask that the full details for the <code>Samples</code>
-be included rather than the overview defintions. This is more expensive
-and should be used only when you will immediately need access to this
-information.
-</p>
-<p>
-  The <code>details</code> parameter allows you to define the level
-of details to return. By default the API returns details at <code>overview</code>
-level. The <code>details</code> parameter accepts <code>overview</code>
-or <code>full</code> as arguments. When <code>full</code> is
-specified you will receive a complete object definition for all
-dependent objects.
+<p>experimentDescription = "This is my first Experiment"<br>
 </p>
 
-<h4> <a id="examples" class="anchor" href="#examples" aria-hidden="true">
-  <span class="octicon octicon-link"></span></a>Examples</h4>
-
-<p>The following call returns project details with dependent types
-(samples, and processes in this example) in overview.</p>
-
-<p>You can make this request in two ways. The first explicitly sets <code>details=overview</code>
-<code>$ curl -i
-https://materialscommons.org/api/v2/projects?details=overview</code></p>
-
-<p>Since <code>overview</code> is the default when make a request the
-details parameter doesn't need to be set: It will default to <code>overview</code>,
-e.g. <code>$ curl -i https://materialscommons.org/api/v2/projects</code></p>
-
-<div class="highlight highlight-source-json">
-<pre>{<br><br>    <span class="pl-s"><span class="pl-pds">"</span>_type<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>project<span class="pl-pds">"</span></span> ,<br>    <span class="pl-s"><span class="pl-pds">"</span>ctime<span class="pl-pds">"</span></span>:  <span class="pl-c1">531360000</span>,<br>    <span class="pl-s"><span class="pl-pds">"</span>directory_id<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>d3cff7f1-c958-4cb6-8fb5-8a588b6d76b5<span class="pl-pds">"</span></span> ,<br>    <span class="pl-s"><span class="pl-pds">"</span>description<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>Test grain size boundaries<span class="pl-pds">"</span></span> ,<br>    <span class="pl-s"><span class="pl-pds">"</span>id<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>9a07cdfd-b420-4411-883e-21526a468aee<span class="pl-pds">"</span></span> ,<br>    <span class="pl-s"><span class="pl-pds">"</span>mtime<span class="pl-pds">"</span></span>:  <span class="pl-c1">531360000</span>,<br>    <span class="pl-s"><span class="pl-pds">"</span>name<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>proj5<span class="pl-pds">"</span></span> ,<br>    <span class="pl-s"><span class="pl-pds">"</span>owner<span class="pl-pds">"</span></span>: <span class="pl-ii">proj</span><span class="pl-c1">5</span><span class="pl-ii">@mc.org</span>, <span class="pl-ii">»</span><br>    <span class="pl-s"><span class="pl-pds">"</span>processes<span class="pl-pds">"</span></span>: [<br>        {<br>            <span class="pl-s"><span class="pl-pds">"</span>_type<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>process<span class="pl-pds">"</span></span> ,<br>            <span class="pl-s"><span class="pl-pds">"</span>ctime<span class="pl-pds">"</span></span>: <span class="pl-c1">5313600020</span> ,<br>            <span class="pl-s"><span class="pl-pds">"</span>description<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span><span class="pl-pds">"</span></span>,<br>            <span class="pl-s"><span class="pl-pds">"</span>id<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>74bc8ec5-efee-42f6-9f7f-98721ca16d85<span class="pl-pds">"</span></span> ,<br>            <span class="pl-s"><span class="pl-pds">"</span>mtime<span class="pl-pds">"</span></span>: <span class="pl-c1">5313600020</span> ,<br>            <span class="pl-s"><span class="pl-pds">"</span>name<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>As Measured - 09/03/2015 @ 3:48PM<span class="pl-pds">"</span></span><br>        }<br>    ] ,<br>    <span class="pl-s"><span class="pl-pds">"</span>samples<span class="pl-pds">"</span></span>: [],<br>}</pre>
-</div>
-
-<p><code>$ curl -i
-https://materialscommons.org/api/v2/projects?details=full</code></p>
-
-<div class="highlight highlight-source-json">
-<pre>{<br><br>    <span class="pl-s"><span class="pl-pds">"</span>_type<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>project<span class="pl-pds">"</span></span> ,<br>    <span class="pl-s"><span class="pl-pds">"</span>ctime<span class="pl-pds">"</span></span>: <span class="pl-c1">531360000</span>,<br>    <span class="pl-s"><span class="pl-pds">"</span>directory_id<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>d3cff7f1-c958-4cb6-8fb5-8a588b6d76b5<span class="pl-pds">"</span></span> ,<br>    <span class="pl-s"><span class="pl-pds">"</span>description<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span><span class="pl-pds">"</span></span> ,<br>    <span class="pl-s"><span class="pl-pds">"</span>id<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>9a07cdfd-b420-4411-883e-21526a468aee<span class="pl-pds">"</span></span> ,<br>    <span class="pl-s"><span class="pl-pds">"</span>mediatypes<span class="pl-pds">"</span></span>: <span class="pl-c1">null</span> ,<br>    <span class="pl-s"><span class="pl-pds">"</span>mtime<span class="pl-pds">"</span></span>: <span class="pl-c1">531360000</span> ,<br>    <span class="pl-s"><span class="pl-pds">"</span>name<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>proj5<span class="pl-pds">"</span></span> ,<br>    <span class="pl-s"><span class="pl-pds">"</span>owner<span class="pl-pds">"</span></span>: <span class="pl-ii">proj</span><span class="pl-c1">5</span><span class="pl-ii">@mc.org</span>, <span class="pl-ii">»</span><br>    <span class="pl-s"><span class="pl-pds">"</span>processes<span class="pl-pds">"</span></span>: [<br>        {<br>            <span class="pl-s"><span class="pl-pds">"</span>_type<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>process<span class="pl-pds">"</span></span> ,<br>            <span class="pl-s"><span class="pl-pds">"</span>birthtime<span class="pl-pds">"</span></span>: <span class="pl-c1">5313600020</span> ,<br>            <span class="pl-s"><span class="pl-pds">"</span>does_transform<span class="pl-pds">"</span></span>: <span class="pl-c1">false</span> ,<br>            <span class="pl-s"><span class="pl-pds">"</span>id<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>74bc8ec5-efee-42f6-9f7f-98721ca16d85<span class="pl-pds">"</span></span> ,<br>            <span class="pl-s"><span class="pl-pds">"</span>mtime<span class="pl-pds">"</span></span>: <span class="pl-c1">5313600020</span> ,<br>            <span class="pl-s"><span class="pl-pds">"</span>name<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>As Measured - 09/03/2015 @ 3:48PM<span class="pl-pds">"</span></span> ,<br>            <span class="pl-s"><span class="pl-pds">"</span>description<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span><span class="pl-pds">"</span></span>,<br>            <span class="pl-s"><span class="pl-pds">"</span>owner<span class="pl-pds">"</span></span>: <span class="pl-ii">proj</span><span class="pl-c1">5</span><span class="pl-ii">@mc.org</span>, <span class="pl-ii">»</span><br>            <span class="pl-s"><span class="pl-pds">"</span>process_type<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>OTHER<span class="pl-pds">"</span></span> ,<br>            <span class="pl-s"><span class="pl-pds">"</span>what<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span><span class="pl-pds">"</span></span> ,<br>            <span class="pl-s"><span class="pl-pds">"</span>why<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span><span class="pl-pds">"</span></span>,<br>            <span class="pl-s"><span class="pl-pds">"</span>samples<span class="pl-pds">"</span></span>: [],<br>            <span class="pl-s"><span class="pl-pds">"</span>files<span class="pl-pds">"</span></span>: []<br>        }<br>    ] ,<br>    <span class="pl-s"><span class="pl-pds">"</span>samples<span class="pl-pds">"</span></span>: [],<br><br>}</pre>
-</div>
-
-<h1> <a id="api-call-sequence" class="anchor" href="#api-call-sequence" aria-hidden="true"><span class="octicon octicon-link"></span></a>API
-Call Sequence</h1>
-
-<pre lang="sequence"><code>Title: API Call Sequence<br>Client-&gt;MC Service: Authenticate<br>MC Service--&gt;Client: Authentication Token<br>Client-&gt;&gt;MC Service: Request (containing Token)<br>MC Service--&gt;Client: Response<br></code></pre>
-
-<h1> <a id="projects" class="anchor" href="#projects" aria-hidden="true"><span class="octicon octicon-link"></span></a>Projects</h1>
+<p>myProject = create_project("Project One","This is my first Project)<br>
+</p>
+myExperiment = myProject.create_experiment(name, description)<br>
+<br>
+<br>
+<h4>Additional Examples</h4><h1>Project</h1>
 
 <hr>
 <p>All access to projects requires an APIKEY to authenticate the
@@ -698,6 +655,4 @@ File</h4>
 chunk by chunk</p>
 
 <footer class="site-footer"> <span class="site-footer-owner"><a href="https://github.com/materials-commons/mcapi">MCAPI</a> is
-maintained by <a href="https://github.com/materials-commons">materials-commons</a>.</span>
-<span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span> </footer>
-</body></html>
+maintained by <a href="https://github.com/materials-commons">materials-commons</a>.</span>&nbsp;<span class="site-footer-credits"></span></footer></body></html>
