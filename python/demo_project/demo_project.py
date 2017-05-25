@@ -25,6 +25,14 @@ class DemoProject:
                 project = p
         return not not project
 
+    def get_existing_project(self):
+        projects = get_all_projects()
+        project = None
+        for p in projects:
+            if p.name == self.project_name:
+                project = p
+        return project
+
     def build_project(self):
         project_name = self.project_name
         project_description = "A project for trying things out."
