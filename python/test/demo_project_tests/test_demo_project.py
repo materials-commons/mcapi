@@ -24,6 +24,10 @@ class TestDemoProject(unittest.TestCase):
 
         builder = demo.DemoProject(host, self._make_test_dir_path(), mcapikey)
 
+        if (builder.does_project_exist()):
+            project = builder.get_existing_project()
+            project.rename("Set aside","Forcing existing demo project to be set aside")
+
         table = builder._make_template_table()
         self.assertIsNotNone(builder._template_id_with(table, 'Create'))
         self.assertIsNotNone(builder._template_id_with(table, 'Sectioning'))

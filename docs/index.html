@@ -24,10 +24,7 @@
       <a href="https://github.com/materials-commons/mcapi" class="btn">View
 
 
-
-
-
-        on GitHub</a> <a
+        master on GitHub</a> <a
         href="https://github.com/materials-commons/mcapi/zipball/master"
         class="btn">Download .zip</a> <a
         href="https://github.com/materials-commons/mcapi/tarball/master"
@@ -36,9 +33,17 @@
 href="file:///Users/weymouth/workspace/src/github.com/materials-commons/mcapi/docs/index.html#materials-commons-rest-api"
         aria-hidden="true"><span class="octicon octicon-link"></span></a>Materials
 
+
+
+
+
       Commons Python API</h1>
     <a href="https://github.com/materials-commons/mcapi" class="btn">View
 on
+
+
+
+
 
       GitHub</a> <a
       href="https://github.com/materials-commons/mcapi/zipball/master"
@@ -48,11 +53,19 @@ on
     <h1> <a id="api-overview" class="anchor" href="#api-overview"
         aria-hidden="true"><span class="octicon octicon-link"></span></a>API
 
+
+
+
+
       Overview</h1>
     <p>We assume that the reader has used (or is otherwise familiar
       with) the Materials Commons web site (<a
         href="https://materialscommons.org/">https://materialscommons.org/</a>).
 This
+
+
+
+
 
       site provides a User Interface to the Materials Commons server.
       Note: These instructions assume that you are using this cental
@@ -83,7 +96,7 @@ This
       in the following way:<br>
     </p>
     <ul>
-      <li>a <b>Project</b> contains</li>
+      <li>a <span style="font-weight: bold;">Project</span> contains</li>
       <ul>
         <li>a list of <span style="font-weight: bold;">Experiment</span></li>
         <li>a root <span style="font-weight: bold;">Directory</span></li>
@@ -109,6 +122,10 @@ This
     <h2> <a id="current-version" class="anchor" href="#current-version"
         aria-hidden="true"> <span class="octicon octicon-link"></span></a>Access
 
+
+
+
+
       to the API<br>
     </h2>
     <p>All API access is through function or method calls in the API
@@ -123,6 +140,10 @@ This
     </p>
     <p>For example, suppose the apikey for a given user is
       "12345678901234567890". Then that users might have a file&nbsp; <i><b>~/.materialscommons/config.json
+
+
+
+
 
         </b></i>which contained the following json:<br>
       <code>{<br>
@@ -154,30 +175,33 @@ This
       Project object. Since the project object is a top level object,
       there is a function (not part of any object), to create a project.
       So the sequence of calls might look like this:</p>
+    <blockquote>
+      <code> projectName = "Project One"</code><br>
+      <code> projectDescription = "This is my first Project"</code><br>
+      <code> experimentName = "Experiment One"</code><br>
+      <code> experimentDescription = "This is my first Experiment"</code><br>
+      <code> myProject = create_project("Project One","This is my first
+        Project)</code><br>
+      <code> myExperiment = myProject.create_experiment(name,
+        description)</code><code></code><br>
+    </blockquote>
+    <h3>More Examples (coming soon - next release is end of June 2017)</h3>
     <br>
-    <p>projectName = "Project One"</p>
-    <p>projectDescription = "This is my first Project"<br>
-    </p>
-    <p>experimentName = "Experiment One"<br>
-    </p>
-    <p>experimentDescription = "This is my first Experiment"<br>
-    </p>
-    <p>myProject = create_project("Project One","This is my first
-      Project)<br>
-    </p>
-    myExperiment = myProject.create_experiment(name, description)<br>
-    <br>
-    <br>
-    <h3><b>Examples</b> (coming soon - next release is end of June 2017)</h3>
-    <h2>Details of API functions, object and methods</h2>
-    (Details coming soon - next release is end of June 2017)
     <footer class="site-footer"> <span class="site-footer-owner"><a
           href="https://github.com/materials-commons/mcapi">MCAPI</a> is
         maintained by <a href="https://github.com/materials-commons">materials-commons</a>.</span>We
 
+
+
+
+
       assume that the reader has used (or is otherwise familiar with)
       the Materials Commons web site (<a
         href="https://materialscommons.org/">https://materialscommons.org/</a>).
+
+
+
+
 
 
 
