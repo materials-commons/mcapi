@@ -83,9 +83,13 @@ def get_all_templates():
 
 class User(MCObject):
     """
-    Representing a registered user
+    Representing a registered user; normally set up by a call to get_all_users()
     """
     def __init__(self, data=None):
+        """
+
+        :param data:
+        """
         # normally, from the data base
         self.id = ""
         self.fullname = ""
