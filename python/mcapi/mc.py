@@ -17,6 +17,12 @@ from StringIO import StringIO
 
 # -- top level project functions --
 def create_project(name, description):
+    """
+    Creates a Project object
+    :param name: String - the name of the Project
+    :param description: String - the description of the Project
+    :return: a mcapi.Project object
+    """
     results = api.create_project(name, description)
     project_id = results['id']
     project = get_project_by_id(project_id)
@@ -24,11 +30,20 @@ def create_project(name, description):
 
 
 def get_project_by_id(project_id):
+    """
+
+    :param project_id:
+    :return:
+    """
     results = api.get_project_by_id(project_id)
     return Project(data=results)
 
 
 def get_all_projects():
+    """
+
+    :return: A list of Project objects - all the Projects to which this user has access
+    """
     results = api.projects()
     projects = []
     for r in results:
@@ -38,6 +53,10 @@ def get_all_projects():
 
 # -- top level user function ---
 def get_all_users():
+    """
+
+    :return: A list of User objects - all the registered Users
+    """
     results = api.get_all_users()
     users = map(make_object, results)
     return users
@@ -45,6 +64,10 @@ def get_all_users():
 
 # -- top level template function ---
 def get_all_templates():
+    """
+
+    :return: A list of Template objects - all the systems Templates
+    """
     templates_array = api.get_all_templates()
     templates = map((lambda x: make_object(x)), templates_array)
     return templates
@@ -59,6 +82,9 @@ def get_all_templates():
 #        prrint "input_data = ", self.input_data
 
 class User(MCObject):
+    """
+    Representing a registered user
+    """
     def __init__(self, data=None):
         # normally, from the data base
         self.id = ""
