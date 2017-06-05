@@ -18,10 +18,13 @@ from StringIO import StringIO
 # -- top level project functions --
 def create_project(name, description):
     """
-    Creates a Project object
-    :param name: String - the name of the Project
-    :param description: String - the description of the Project
-    :return: a mcapi.Project object
+    Creates a new Project object in the database and return it.
+
+    Example:
+        name = "A Project"
+        description = "This is a project for me"
+        project = mcapi.create_project(name,description)
+        print project.name, project.description
     """
     results = api.create_project(name, description)
     project_id = results['id']
@@ -31,9 +34,10 @@ def create_project(name, description):
 
 def get_project_by_id(project_id):
     """
+    Fetch a project from the database and return it/
 
-    :param project_id:
-    :return:
+    Example:
+        project = get_project_by_id("e4fd5c88-2fb7-40af-b3fc-2711d786e5f6")
     """
     results = api.get_project_by_id(project_id)
     return Project(data=results)
@@ -41,8 +45,12 @@ def get_project_by_id(project_id):
 
 def get_all_projects():
     """
+    Return a list of all the project to which the current user has access.
 
-    :return: A list of Project objects - all the Projects to which this user has access
+    Example:
+        project_list = get_all_projects()
+        for project in project_list:
+            print project.name
     """
     results = api.projects()
     projects = []
@@ -54,8 +62,12 @@ def get_all_projects():
 # -- top level user function ---
 def get_all_users():
     """
+    Return the list of all users registerd on the server.
 
-    :return: A list of User objects - all the registered Users
+    Example:
+        user_list = get_all_users()
+        for user in user_list:
+            print user.fullname, user.email
     """
     results = api.get_all_users()
     users = map(make_object, results)
@@ -65,8 +77,12 @@ def get_all_users():
 # -- top level template function ---
 def get_all_templates():
     """
+    Return a list of all the templates known to the system.
 
-    :return: A list of Template objects - all the systems Templates
+    Example:
+        template_list = get_all_templates()
+        for template in template_list:
+            print template.name, template.id
     """
     templates_array = api.get_all_templates()
     templates = map((lambda x: make_object(x)), templates_array)
@@ -86,10 +102,6 @@ class User(MCObject):
     Representing a registered user; normally set up by a call to get_all_users()
     """
     def __init__(self, data=None):
-        """
-
-        :param data:
-        """
         # normally, from the data base
         self.id = ""
         self.fullname = ""
@@ -103,11 +115,30 @@ class User(MCObject):
             setattr(self, a, data.get(a, None))
 
     def can_access(self, project):
+        """
+        Does this user have permission to access the indicated project.
+
+        Example:
+        user_list = get_all_users()
+        for user in user_list:
+            if user.can_access(project):
+                print user.fullname, user.email
+
+        """
         results = api.user_can_access_project(self.id, project.id, project.name)
         return results
 
 
 class Project(MCObject):
+    """
+    A Materials Commons Project. Normally created by create_project().
+    Instance fields:
+        id - string; do not change
+        name - string
+        description - string
+        remote_url - string, URL, optional, local book-keeping only, NOT stored in database
+            used to record the host from which the project was fetched
+    """
     def __init__(self, name="", description="", remote_url="", data=None):
         # normally, from the data base
         self.id = ""
@@ -120,7 +151,6 @@ class Project(MCObject):
                                   'size', 'mediatypes']
 
         # additional fields
-        self._top = None
         self.source = remote_url
         self.delete_tally = {}
 
@@ -162,12 +192,16 @@ class Project(MCObject):
         pp.write("owner: " + pp.str(self.owner))
         pp.write("mtime: " + pp.str(self.mtime.strftime("%b %Y %d %H:%M:%S")))
 
-    def process_special_objects(self):
+    def _process_special_objects(self):
         pass
 
-    # Project - basic rethods: rename, put, delete
+    # Project - basic methods: rename, put, delete
 
     def rename(self, name, description=None):
+        """
+        Change the name and (optionally) description of a project.
+        Returns the new project from the database.
+        """
         if not description:
             description = self.description
         results = api.update_project(self.id, name, description)
@@ -176,10 +210,20 @@ class Project(MCObject):
         return project
 
     def put(self):
+        """
+        NOTE: Not currently implemented.
+        """
         # TODO: Project.put()
         pass
 
     def delete(self, dry_run=False):
+        """
+        Delete this project from the database.
+        If dry_run is True, only determines the oejcts to be deleted, bud does not actually delete them.
+
+        Returns a DeleteTally instance, which lists the id's of the objects (to be or actually) deleted.
+
+        """
         if dry_run:
             results = api.delete_project_dry_run(self.id)
         else:
@@ -190,16 +234,33 @@ class Project(MCObject):
     # Project - Experiment-related methods - basic: create, get_by_id, get_all (in context)
 
     def create_experiment(self, name, description):
+        """
+        Create and return an Experiemnt in this project.
+
+        Example:
+            experiment = project.create_experiment("Experiment 1", "Test Procedures")
+        """
         experiment_json_dict = api.create_experiment(self.id, name, description)
         experiment = make_object(experiment_json_dict)
         experiment.project = self
         return experiment
 
     def get_experiment_by_id(self, experiment_id):
+        """
+        NOTE: currently not implemented
+        """
         # TODO: Project.get_experiment_by_id(id)
         pass
 
     def get_all_experiments(self):
+        """
+        Get a list of all the experiments in this project.
+
+        Example:
+            experiment_list = project.get_all_experiments()
+            for experiment in experiment_list:
+                print experiment.id, experiment.name
+        """
         list_results = api.fetch_experiments(self.id)
         experiments = map((lambda x: make_object(x)), list_results)
         experiments = map((lambda x: _decorate_object_with(x, 'project', self)), experiments)
@@ -208,10 +269,21 @@ class Project(MCObject):
     # Project - Directory-related methods - basic: create, get_by_id, get_all (in context)
 
     def created_directory(self, name, path):
+        """
+        NOTE: currently not implemented
+        """
         # TODO: Project.create_directory(name, path)
         pass
 
     def get_directory_by_id(self, directory_id):
+        """
+        Gets the indicated directory.
+        for the Project.
+
+        Example:
+            directory = project.get_directory_by_id('876655a2-c31b-4895-8766-40a168ea1a87')
+            print directory.path
+        """
         results = api.directory_by_id(self.id, directory_id)
         directory = make_object(results)
         directory._project = self
@@ -219,6 +291,14 @@ class Project(MCObject):
         return directory
 
     def get_all_directories(self):
+        """
+        Get a list of all the directories in this project.
+
+        Example:
+            directory_list = project.get_all_directories()
+            for directory in directory_list:
+                print directory_name, directory_path
+        """
         results = api.directory_by_id(self.id, "all")
         directories = []
         for item in results:
@@ -228,26 +308,55 @@ class Project(MCObject):
             directories.append(directory)
         return directories
 
-    def _set_top_directory(self, directory):
-        self._top = directory
-        return directory
-
     def get_top_directory(self):
-        if not self._top:
-            results = api.directory_by_id(self.id, "top")
-            directory = make_object(results)
-            directory._project = self
-            self._set_top_directory(directory)
-        return self._top
+        """
+        Get a list of all the directories in this project.
+        """
+        return api.directory_by_id(self.id, "top")
 
     def get_directory_list(self, path):
+        """
+        Given a directory path, returns a list of all the directoreis on the path.
+        Can fail if the path does not exist.
+
+        In this example, the list would consist of three directories, assuming that they exist:
+            the Root directory (or 'top' directory)
+            directory 'A'
+            directory 'B'
+
+        Example:
+            directory_list = project.get_directory_list("/A/B")
+            print len(directory_list)
+            for directory in directory_list:
+                print directory.name, directory.path
+        """
+
         top_directory = self.get_top_directory()
         return top_directory.get_descendant_list_by_path(path)
 
     def get_directory(self, directory_id):
+        """
+        Get the indicated directory.
+        """
         return self.get_directory_by_id(directory_id)
 
     def create_or_get_all_directories_on_path(self, path):
+        """
+        Given a directory path, returns a list of all the directories on the path.
+        If a directory is missing, in the path, it is created and returned in the list.
+
+        In this example, the list would consist of three directories:
+            the Root directory (or 'top' directory)
+            directory 'A'
+            directory 'B'
+
+        Example:
+            directory_list = project.create_or_get_all_directories_on_path("/A/B")
+            print len(directory_list)
+            for directory in directory_list:
+                print directory.name, directory.path
+        """
+
         directory = self.get_top_directory()
         if path == "/":
             return [directory]
@@ -256,6 +365,15 @@ class Project(MCObject):
         return directory.create_descendant_list_by_path(path)
 
     def add_directory(self, path):
+        """
+        Given a directory path, creates all the directories on the path and returns the last one.
+        If a directory is missing, in the path, it is created.
+
+        Example:
+            directory = project.add_directory("/A/B")
+            print directory.name, directory.path
+        """
+
         # TODO: Project.add_directory(path) - refactor this should check for and fail if path does not exist
         # TODO: Project.add_directory(path) - refactor add optional flag to create parent path if it does note exist
         directory = self.create_or_get_all_directories_on_path(path)[-1]
@@ -263,6 +381,15 @@ class Project(MCObject):
         return directory
 
     def add_file_using_directory(self, directory, file_name, local_path, verbose=False, limit=50):
+        """
+        Given a directory, a file_name, a local directory path to the file -
+        uploads the file, creates a file descriptor in the database, and returns file descriptor.
+
+        Example:
+            directory = directory = project.add_directory("/A/B")
+            file = project.add_file_using_directory(directory,"Test-Results","/tmp/results.txt")
+            print file.name
+        """
         file_size_MB = os_path.getsize(local_path) >> 20
         if file_size_MB > limit:
             msg = "File too large (>{0}MB), skipping. File size: {1}M".format(limit, file_size_MB)
@@ -305,12 +432,6 @@ class Project(MCObject):
         dir = self.create_or_get_all_directories_on_path(path)[-1]
         return dir.add_directory_tree(os_path.basename(local_path),
                                       os_path.dirname(local_path), verbose, limit)
-
-    def fetch_sample_by_id(self, sample_id):
-        sample_json_dict = api.get_project_sample_by_id(self.id, sample_id)
-        sample = make_object(sample_json_dict)
-        sample.project = self
-        return sample
 
     # Project - File or Directory-related methods - basic: get_by_local_path
 
@@ -373,12 +494,26 @@ class Project(MCObject):
     # Project - Processes
 
     def get_all_processes(self):
+        """
+        Get a list of all processes in this project.
+
+        Example:
+            process_list = project.get_all_processes()
+            for process in process_list:
+                print process.name
+        """
         process_list = api.get_project_processes(self.id, self.remote)
         processes = map((lambda x: make_object(x)), process_list)
         processes = map((lambda x: _decorate_object_with(x, 'project', self)), processes)
         return processes
 
     def get_process_by_id(self, process_id):
+        """
+        Get a project sample by process id.
+
+        Example:
+            sample = project.get_process_by_id(process.id)
+        """
         results = api.get_process_by_id(self.id, process_id)
         process = make_object(results)
         process.project = self
@@ -388,12 +523,23 @@ class Project(MCObject):
     # Project - Samples
 
     def get_all_samples(self):
+        """
+        Get a list of all samples in this project.
+
+        Example:
+            sample_list = project.get_all_samples()
+            for process in process_list:
+                print process.name
+        """
         samples_list = api.get_project_samples(self.id, self.remote)
         samples = map((lambda x: make_object(x)), samples_list)
         samples = map((lambda x: _decorate_object_with(x, 'project', self)), samples)
         return samples
 
     def get_sample_by_id(self, sample_id):
+        """
+        Get the sample in question.
+        """
         results = api.get_sample_by_id(self.id, sample_id)
         sample = make_object(results)
         sample.project = self
@@ -456,7 +602,7 @@ class Experiment(MCObject):
                 array = []
             setattr(self, a, array)
 
-    def process_special_objects(self):
+    def _process_special_objects(self):
         if self.samples:
             self.samples = [make_object(s.input_data) for s in self.samples]
         if self.processes:
@@ -630,7 +776,7 @@ class Process(MCObject):
         if len(self.measurements):
             pp.write_measurements(self.measurements)
 
-    def process_special_objects(self):
+    def _process_special_objects(self):
         if self.setup:
             for i in range(len(self.setup)):
                 self.setup[i] = self._transform_setup(self.setup[i])
@@ -1114,7 +1260,7 @@ class Sample(MCObject):
             pp.write_measurements(p.measurements)
             pp.n_indent -= 1
 
-    def process_special_objects(self):
+    def _process_special_objects(self):
         if self.properties:
             self.properties = [make_measured_property(p.input_data) for p in self.properties]
 
@@ -1177,7 +1323,7 @@ class Directory(MCObject):
         if path:
             self.path = path
 
-    def process_special_objects(self):
+    def _process_special_objects(self):
         data = self.input_data
         if not data:
             return
@@ -1342,7 +1488,7 @@ class File(MCObject):
         for a in attr:
             setattr(self, a, data.get(a, dict()))
 
-    def process_special_objects(self):
+    def _process_special_objects(self):
         pass
 
     # File - basic methods: rename, move, put, delete
@@ -1514,7 +1660,7 @@ class MeasuredProperty(Property):
         for a in attr:
             setattr(self, a, data.get(a, []))
 
-    def process_special_objects(self):
+    def _process_special_objects(self):
         if self.best_measure:
             for i in range(len(self.best_measure)):
                 measure_data = self.best_measure[i]
@@ -1579,7 +1725,7 @@ def make_object(data):
             elif _is_list(value):
                 value = map(make_object, value)
             setattr(holder, key, value)
-        holder.process_special_objects()
+        holder._process_special_objects()
         return holder
     else:
         return data
@@ -1648,7 +1794,7 @@ def make_property_object(obj):
             holder = MatrixProperty(data=data)
         if not holder:
             raise Exception("No Property Object, unrecognized otype = " + object_type, data)
-        holder.process_special_objects()
+        holder._process_special_objects()
         return holder
     else:
         raise Exception("No Property Object, otype not defined", data)
@@ -1656,7 +1802,7 @@ def make_property_object(obj):
 
 def make_measured_property(data):
     measurement_property = MeasuredProperty(data)
-    measurement_property.process_special_objects()
+    measurement_property._process_special_objects()
     return measurement_property
 
 
