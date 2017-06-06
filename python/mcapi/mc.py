@@ -21,10 +21,13 @@ def create_project(name, description):
     Creates a new Project object in the database and return it.
 
     Example:
+    ``
         name = "A Project"
         description = "This is a project for me"
         project = mcapi.create_project(name,description)
         print project.name, project.description
+    ``
+
     """
     results = api.create_project(name, description)
     project_id = results['id']
@@ -36,7 +39,7 @@ def get_project_by_id(project_id):
     """
     Fetch a project from the database and return it/
 
-    Example:
+    Example::
         project = get_project_by_id("e4fd5c88-2fb7-40af-b3fc-2711d786e5f6")
     """
     results = api.get_project_by_id(project_id)
@@ -47,7 +50,7 @@ def get_all_projects():
     """
     Return a list of all the project to which the current user has access.
 
-    Example:
+    Example::
         project_list = get_all_projects()
         for project in project_list:
             print project.name
@@ -64,7 +67,7 @@ def get_all_users():
     """
     Return the list of all users registerd on the server.
 
-    Example:
+    Example::
         user_list = get_all_users()
         for user in user_list:
             print user.fullname, user.email
@@ -79,7 +82,7 @@ def get_all_templates():
     """
     Return a list of all the templates known to the system.
 
-    Example:
+    Example::
         template_list = get_all_templates()
         for template in template_list:
             print template.name, template.id
