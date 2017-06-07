@@ -20,6 +20,10 @@ def create_project(name, description):
     """
     Creates a new Project object in the database and return it.
 
+    :param name: - the name of the project
+    :param description: - a description for the project
+    :return: :class: `mcapi.Project`
+
     >>> name = "A Project"
     >>> description = "This is a project for me"
     >>> project = mcapi.create_project(name,description)
@@ -36,6 +40,9 @@ def get_project_by_id(project_id):
     """
     Fetch a project from the database and return it/
 
+    :param project_id: the id value for the project
+    :return: :class: `mcapi.Project`
+
     >>> project = get_project_by_id("e4fd5c88-2fb7-40af-b3fc-2711d786e5f6")
 
     """
@@ -46,6 +53,8 @@ def get_project_by_id(project_id):
 def get_all_projects():
     """
     Return a list of all the project to which the current user has access.
+
+    :return: a list of :class: `mcapi.Project`
 
     >>> project_list = get_all_projects()
     >>> for project in project_list:
@@ -64,6 +73,8 @@ def get_all_users():
     """
     Return the list of all users registerd on the server.
 
+    :return: a list of :class: `mcapi.User`
+
     >>> user_list = get_all_users()
     >>> for user in user_list:
     >>>     print user.fullname, user.email
@@ -78,6 +89,8 @@ def get_all_users():
 def get_all_templates():
     """
     Return a list of all the templates known to the system.
+
+    :return: a list of :class: `mcapi.Template`
 
     >>> template_list = get_all_templates()
     >>> for template in template_list:
@@ -117,6 +130,9 @@ class User(MCObject):
     def can_access(self, project):
         """
         Does this user have permission to access the indicated project.
+
+        :param project: an instance of the :class: `mcapi.Project`
+        :return: boolean
 
         >>> user_list = get_all_users()
         >>> for user in user_list:
@@ -179,6 +195,14 @@ class Project(MCObject):
         self.remote = None
 
     def pretty_print(self, shift=0, indent=2, out=sys.stdout):
+        """
+        Prints a nice layout of the object and all of it's values.
+
+        :param shift: the offset from the start of the line, in increments of indent
+        :param indent: the indent used for layout, in characters
+        :param out: the stream to which the object in printed
+        :return: None
+        """
         pp = PrettyPrint(shift=shift, indent=indent, out=out)
         pp.write("name: " + pp.str(self.name))
         pp.n_indent += 1
@@ -282,7 +306,7 @@ class Project(MCObject):
         """ Gets the indicated directory.
 
         :param directory_id: The id of the directory to fetch.
-        :type name: str.
+        :type directory_id: str.
         :returns: mcapi.Directory
 
         >>> directory = project.get_directory_by_id('876655a2-c31b-4895-8766-40a168ea1a87')
@@ -635,7 +659,13 @@ class Experiment(MCObject):
 
     # Experiment - basic rethods: rename, put, delete
 
-    def rename(self, name):
+    def rename(self, name, description=None):
+        '''
+        .. note:: Currently not implemented
+
+        :param name: - a string
+        :return:
+        '''
         # TODO: Experiment.rename(name)
         pass
 
@@ -775,6 +805,14 @@ class Process(MCObject):
             self.description = description
 
     def pretty_print(self, shift=0, indent=2, out=sys.stdout):
+        """
+        Prints a nice layout of the object and all of it's values.
+
+        :param shift: the offset from the start of the line, in increments of indent
+        :param indent: the indent used for layout, in characters
+        :param out: the stream to which the object in printed
+        :return: None
+        """
         pp = PrettyPrint(shift=shift, indent=indent, out=out)
         pp.write("name: " + pp.str(self.name))
         pp.n_indent += 1
@@ -1272,6 +1310,14 @@ class Sample(MCObject):
             self.name = name
 
     def pretty_print(self, shift=0, indent=2, out=sys.stdout):
+        """
+        Prints a nice layout of the object and all of it's values.
+
+        :param shift: the offset from the start of the line, in increments of indent
+        :param indent: the indent used for layout, in characters
+        :param out: the stream to which the object in printed
+        :return: None
+        """
         pp = PrettyPrint(shift=shift, indent=indent, out=out)
         pp.write("name: " + pp.str(self.name))
         pp.n_indent += 1
@@ -1608,6 +1654,14 @@ class Template(MCObject):
         # ----
 
     def pretty_print(self, shift=0, indent=2, out=sys.stdout):
+        """
+        Prints a nice layout of the object and all of it's values.
+
+        :param shift: the offset from the start of the line, in increments of indent
+        :param indent: the indent used for layout, in characters
+        :param out: the stream to which the object in printed
+        :return: None
+        """
         pp = PrettyPrint(shift=shift, indent=indent, out=out)
         _data = self.input_data
         pp.write("name: " + pp.str(self.name))
@@ -1675,6 +1729,14 @@ class Property(MCObject):
         self.pretty_print(shift=shift, indent=indent, out=out)
 
     def pretty_print(self, shift=0, indent=2, out=sys.stdout):
+        """
+        Prints a nice layout of the object and all of it's values.
+
+        :param shift: the offset from the start of the line, in increments of indent
+        :param indent: the indent used for layout, in characters
+        :param out: the stream to which the object in printed
+        :return: None
+        """
         pp = PrettyPrint(shift=shift, indent=indent, out=out)
         pp.write("attribute: " + pp.str(self.attribute))
         pp.n_indent += 1
