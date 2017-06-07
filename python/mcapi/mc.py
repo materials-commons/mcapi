@@ -91,7 +91,7 @@ def get_all_templates():
 
 # These print statements for debugging cases where special processing case is missed
 # changed name of display function so that it will not interfere with searches
-#        prrint "MCObject: called process_special_objects - possible error?"
+#        prrint "MCObject: called _process_special_objects - possible error?"
 #        if _has_key('otype',data): prrint "otype = ",data['otype']
 #        prrint "input_data = ", self.input_data
 
@@ -184,7 +184,7 @@ class Project(MCObject):
         pp.write("owner: " + pp.str(self.owner))
         pp.write("mtime: " + pp.str(self.mtime.strftime("%b %Y %d %H:%M:%S")))
 
-    def process_special_objects(self):
+    def _process_special_objects(self):
         pass
 
     # Project - basic methods: rename, put, delete
@@ -610,7 +610,7 @@ class Experiment(MCObject):
                 array = []
             setattr(self, a, array)
 
-    def process_special_objects(self):
+    def _process_special_objects(self):
         if self.samples:
             self.samples = [make_object(s.input_data) for s in self.samples]
         if self.processes:
@@ -787,7 +787,7 @@ class Process(MCObject):
         if len(self.measurements):
             pp.write_measurements(self.measurements)
 
-    def process_special_objects(self):
+    def _process_special_objects(self):
         if self.setup:
             for i in range(len(self.setup)):
                 self.setup[i] = self._transform_setup(self.setup[i])
@@ -1275,7 +1275,7 @@ class Sample(MCObject):
             pp.write_measurements(p.measurements)
             pp.n_indent -= 1
 
-    def process_special_objects(self):
+    def _process_special_objects(self):
         if self.properties:
             self.properties = [make_measured_property(p.input_data) for p in self.properties]
 
@@ -1343,7 +1343,7 @@ class Directory(MCObject):
         if path:
             self.path = path
 
-    def process_special_objects(self):
+    def _process_special_objects(self):
         data = self.input_data
         if not data:
             return
@@ -1511,7 +1511,7 @@ class File(MCObject):
         for a in attr:
             setattr(self, a, data.get(a, dict()))
 
-    def process_special_objects(self):
+    def _process_special_objects(self):
         pass
 
     # File - basic methods: rename, move, put, delete
@@ -1690,7 +1690,7 @@ class MeasuredProperty(Property):
         for a in attr:
             setattr(self, a, data.get(a, []))
 
-    def process_special_objects(self):
+    def _process_special_objects(self):
         if self.best_measure:
             for i in range(len(self.best_measure)):
                 measure_data = self.best_measure[i]
@@ -1755,7 +1755,7 @@ def make_object(data):
             elif _is_list(value):
                 value = map(make_object, value)
             setattr(holder, key, value)
-        holder.process_special_objects()
+        holder._process_special_objects()
         return holder
     else:
         return data
@@ -1824,7 +1824,7 @@ def make_property_object(obj):
             holder = MatrixProperty(data=data)
         if not holder:
             raise Exception("No Property Object, unrecognized otype = " + object_type, data)
-        holder.process_special_objects()
+        holder._process_special_objects()
         return holder
     else:
         raise Exception("No Property Object, otype not defined", data)
@@ -1832,7 +1832,7 @@ def make_property_object(obj):
 
 def make_measured_property(data):
     measurement_property = MeasuredProperty(data)
-    measurement_property.process_special_objects()
+    measurement_property._process_special_objects()
     return measurement_property
 
 

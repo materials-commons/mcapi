@@ -21,7 +21,7 @@ class MCObject(object):
         for a in attr:
             setattr(self, a, data.get(a, None))
 
-    def process_special_objects(self):
+    def _process_special_objects(self):
         data = self.input_data
         if not data:
             return
