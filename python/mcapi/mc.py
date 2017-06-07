@@ -19,16 +19,15 @@ from StringIO import StringIO
 def create_project(name, description):
     """
     Creates a new Project object in the database and return it.
-
-    Example:
-    ``
-        name = "A Project"
-        description = "This is a project for me"
-        project = mcapi.create_project(name,description)
-        print project.name, project.description
-    ``
-
     """
+    #    Example:
+    #    ``
+    #        name = "A Project"
+    #        description = "This is a project for me"
+    #        project = mcapi.create_project(name,description)
+    #        print project.name, project.description
+    #    ``
+    #
     results = api.create_project(name, description)
     project_id = results['id']
     project = get_project_by_id(project_id)
@@ -38,10 +37,9 @@ def create_project(name, description):
 def get_project_by_id(project_id):
     """
     Fetch a project from the database and return it/
-
-    Example::
-        project = get_project_by_id("e4fd5c88-2fb7-40af-b3fc-2711d786e5f6")
     """
+    #    Example::
+    #        project = get_project_by_id("e4fd5c88-2fb7-40af-b3fc-2711d786e5f6")
     results = api.get_project_by_id(project_id)
     return Project(data=results)
 
@@ -49,12 +47,11 @@ def get_project_by_id(project_id):
 def get_all_projects():
     """
     Return a list of all the project to which the current user has access.
-
-    Example::
-        project_list = get_all_projects()
-        for project in project_list:
-            print project.name
     """
+    #    Example::
+    #        project_list = get_all_projects()
+    #        for project in project_list:
+    #            print project.name
     results = api.projects()
     projects = []
     for r in results:
@@ -66,12 +63,11 @@ def get_all_projects():
 def get_all_users():
     """
     Return the list of all users registerd on the server.
-
-    Example::
-        user_list = get_all_users()
-        for user in user_list:
-            print user.fullname, user.email
     """
+    #    Example::
+    #        user_list = get_all_users()
+    #        for user in user_list:
+    #            print user.fullname, user.email
     results = api.get_all_users()
     users = map(make_object, results)
     return users
@@ -81,12 +77,11 @@ def get_all_users():
 def get_all_templates():
     """
     Return a list of all the templates known to the system.
-
-    Example::
-        template_list = get_all_templates()
-        for template in template_list:
-            print template.name, template.id
     """
+    #    Example::
+    #        template_list = get_all_templates()
+    #        for template in template_list:
+    #            print template.name, template.id
     templates_array = api.get_all_templates()
     templates = map((lambda x: make_object(x)), templates_array)
     return templates
@@ -120,14 +115,12 @@ class User(MCObject):
     def can_access(self, project):
         """
         Does this user have permission to access the indicated project.
-
-        Example:
-        user_list = get_all_users()
-        for user in user_list:
-            if user.can_access(project):
-                print user.fullname, user.email
-
         """
+        #        Example:
+        #        user_list = get_all_users()
+        #        for user in user_list:
+        #            if user.can_access(project):
+        #                print user.fullname, user.email
         results = api.user_can_access_project(self.id, project.id, project.name)
         return results
 
@@ -136,11 +129,11 @@ class Project(MCObject):
     """
     A Materials Commons Project. Normally created by create_project().
     Instance fields:
-        id - string; do not change
-        name - string
-        description - string
-        remote_url - string, URL, optional, local book-keeping only, NOT stored in database
-            used to record the host from which the project was fetched
+    * id - string; do not change
+    * name - string
+    * description - string
+    * remote_url - string, URL, optional, local book-keeping only, NOT stored in database
+        used to record the host from which the project was fetched
     """
     def __init__(self, name="", description="", remote_url="", data=None):
         # normally, from the data base
@@ -241,9 +234,9 @@ class Project(MCObject):
         """
         Create and return an Experiemnt in this project.
 
-        Example:
-            experiment = project.create_experiment("Experiment 1", "Test Procedures")
         """
+        #        Example:
+        #            experiment = project.create_experiment("Experiment 1", "Test Procedures")
         experiment_json_dict = api.create_experiment(self.id, name, description)
         experiment = make_object(experiment_json_dict)
         experiment.project = self
@@ -260,11 +253,11 @@ class Project(MCObject):
         """
         Get a list of all the experiments in this project.
 
-        Example:
-            experiment_list = project.get_all_experiments()
-            for experiment in experiment_list:
-                print experiment.id, experiment.name
         """
+        #        Example:
+        #            experiment_list = project.get_all_experiments()
+        #            for experiment in experiment_list:
+        #                print experiment.id, experiment.name
         list_results = api.fetch_experiments(self.id)
         experiments = map((lambda x: make_object(x)), list_results)
         experiments = map((lambda x: _decorate_object_with(x, 'project', self)), experiments)
@@ -272,7 +265,7 @@ class Project(MCObject):
 
     # Project - Directory-related methods - basic: create, get_by_id, get_all (in context)
 
-    def created_directory(self, name, path):
+    def create_directory(self, name, path):
         """
         NOTE: currently not implemented
         """
@@ -284,10 +277,10 @@ class Project(MCObject):
         Gets the indicated directory.
         for the Project.
 
-        Example:
-            directory = project.get_directory_by_id('876655a2-c31b-4895-8766-40a168ea1a87')
-            print directory.path
         """
+        #        Example:
+        #            directory = project.get_directory_by_id('876655a2-c31b-4895-8766-40a168ea1a87')
+        #            print directory.path
         results = api.directory_by_id(self.id, directory_id)
         directory = make_object(results)
         directory._project = self
@@ -298,11 +291,11 @@ class Project(MCObject):
         """
         Get a list of all the directories in this project.
 
-        Example:
-            directory_list = project.get_all_directories()
-            for directory in directory_list:
-                print directory_name, directory_path
         """
+        #        Example:
+        #            directory_list = project.get_all_directories()
+        #            for directory in directory_list:
+        #                print directory_name, directory_path
         results = api.directory_by_id(self.id, "all")
         directories = []
         for item in results:
@@ -317,6 +310,9 @@ class Project(MCObject):
         return directory
 
     def get_top_directory(self):
+        """
+        Get the top leve directory.
+        """
         if not self._top:
             results = api.directory_by_id(self.id, "top")
             directory = make_object(results)
@@ -329,17 +325,17 @@ class Project(MCObject):
         Given a directory path, returns a list of all the directoreis on the path.
         Can fail if the path does not exist.
 
-        In this example, the list would consist of three directories, assuming that they exist:
-            the Root directory (or 'top' directory)
-            directory 'A'
-            directory 'B'
-
-        Example:
-            directory_list = project.get_directory_list("/A/B")
-            print len(directory_list)
-            for directory in directory_list:
-                print directory.name, directory.path
         """
+        #        In this example, the list would consist of three directories, assuming that they exist:
+        #            the Root directory (or 'top' directory)
+        #            directory 'A'
+        #            directory 'B'
+        #
+        #        Example:
+        #            directory_list = project.get_directory_list("/A/B")
+        #            print len(directory_list)
+        #            for directory in directory_list:
+        #                print directory.name, directory.path
 
         top_directory = self.get_top_directory()
         return top_directory.get_descendant_list_by_path(path)
@@ -355,16 +351,6 @@ class Project(MCObject):
         Given a directory path, returns a list of all the directories on the path.
         If a directory is missing, in the path, it is created and returned in the list.
 
-        In this example, the list would consist of three directories:
-            the Root directory (or 'top' directory)
-            directory 'A'
-            directory 'B'
-
-        Example:
-            directory_list = project.create_or_get_all_directories_on_path("/A/B")
-            print len(directory_list)
-            for directory in directory_list:
-                print directory.name, directory.path
         """
 
         directory = self.get_top_directory()
@@ -379,10 +365,10 @@ class Project(MCObject):
         Given a directory path, creates all the directories on the path and returns the last one.
         If a directory is missing, in the path, it is created.
 
-        Example:
-            directory = project.add_directory("/A/B")
-            print directory.name, directory.path
         """
+        #        Example:
+        #            directory = project.add_directory("/A/B")
+        #            print directory.name, directory.path
 
         # TODO: Project.add_directory(path) - refactor this should check for and fail if path does not exist
         # TODO: Project.add_directory(path) - refactor add optional flag to create parent path if it does note exist
@@ -395,11 +381,11 @@ class Project(MCObject):
         Given a directory, a file_name, a local directory path to the file -
         uploads the file, creates a file descriptor in the database, and returns file descriptor.
 
-        Example:
-            directory = directory = project.add_directory("/A/B")
-            file = project.add_file_using_directory(directory,"Test-Results","/tmp/results.txt")
-            print file.name
         """
+        #        Example:
+        #            directory = directory = project.add_directory("/A/B")
+        #            file = project.add_file_using_directory(directory,"Test-Results","/tmp/results.txt")
+        #            print file.name
         file_size_MB = os_path.getsize(local_path) >> 20
         if file_size_MB > limit:
             msg = "File too large (>{0}MB), skipping. File size: {1}M".format(limit, file_size_MB)
@@ -420,10 +406,10 @@ class Project(MCObject):
         Upload a file, specified by local_path, creating intermediate 
         directories as necessary
         
-        Example:
-           self.local_path = "/path/to/Proj"
-           local_path = "/path/to/Proj/test_dir/file_A.txt" -> upload file_A.txt
         """
+        #        Example:
+        #           self.local_path = "/path/to/Proj"
+        #           local_path = "/path/to/Proj/test_dir/file_A.txt" -> upload file_A.txt
         dir_path = self._local_path_to_path(os_path.dirname(local_path))
         dir = self.create_or_get_all_directories_on_path(dir_path)[-1]
         return self.add_file_using_directory(dir, os_path.basename(local_path),
@@ -434,20 +420,14 @@ class Project(MCObject):
         Upload a directory, specified by local_path, and all its contents 
         creating intermediate directories as necessary
         
-        Example:
-           self.local_path = "/path/to/Proj"
-           local_path = "/path/to/Proj/test_dir/dir_A" -> upload dir_A and all contents
         """
+        #        Example:
+        #           self.local_path = "/path/to/Proj"
+        #           local_path = "/path/to/Proj/test_dir/dir_A" -> upload dir_A and all contents
         path = self._local_path_to_path(os_path.dirname(local_path))
         dir = self.create_or_get_all_directories_on_path(path)[-1]
         return dir.add_directory_tree(os_path.basename(local_path),
                                       os_path.dirname(local_path), verbose, limit)
-
-    def fetch_sample_by_id(self, sample_id):
-        sample_json_dict = api.get_project_sample_by_id(self.id, sample_id)
-        sample = make_object(sample_json_dict)
-        sample.project = self
-        return sample
 
     # Project - File or Directory-related methods - basic: get_by_local_path
 
@@ -513,11 +493,11 @@ class Project(MCObject):
         """
         Get a list of all processes in this project.
 
-        Example:
-            process_list = project.get_all_processes()
-            for process in process_list:
-                print process.name
         """
+        #        Example:
+        #            process_list = project.get_all_processes()
+        #            for process in process_list:
+        #                print process.name
         process_list = api.get_project_processes(self.id, self.remote)
         processes = map((lambda x: make_object(x)), process_list)
         processes = map((lambda x: _decorate_object_with(x, 'project', self)), processes)
@@ -527,9 +507,9 @@ class Project(MCObject):
         """
         Get a project sample by process id.
 
-        Example:
-            sample = project.get_process_by_id(process.id)
         """
+        #        Example:
+        #            sample = project.get_process_by_id(process.id)
         results = api.get_process_by_id(self.id, process_id)
         process = make_object(results)
         process.project = self
@@ -542,15 +522,24 @@ class Project(MCObject):
         """
         Get a list of all samples in this project.
 
-        Example:
-            sample_list = project.get_all_samples()
-            for process in process_list:
-                print process.name
         """
+        #        Example:
+        #            sample_list = project.get_all_samples()
+        #            for process in process_list:
+        #                print process.name
         samples_list = api.get_project_samples(self.id, self.remote)
         samples = map((lambda x: make_object(x)), samples_list)
         samples = map((lambda x: _decorate_object_with(x, 'project', self)), samples)
         return samples
+
+    def fetch_sample_by_id(self, sample_id):
+        """
+        Get the sample in question.
+        """
+        sample_json_dict = api.get_project_sample_by_id(self.id, sample_id)
+        sample = make_object(sample_json_dict)
+        sample.project = self
+        return sample
 
     def get_sample_by_id(self, sample_id):
         """
@@ -563,6 +552,9 @@ class Project(MCObject):
 
 
 class Experiment(MCObject):
+    """
+    A Materials Commons Experiment. Normally created by project.create_experiment()
+    """
     def __init__(self, project_id=None, name=None, description=None,
                  data=None):
         self.id = None
@@ -704,6 +696,9 @@ class Experiment(MCObject):
 
 
 class Process(MCObject):
+    """
+    A Materials Commons Process. Normally created by experiment.create_process_from_template()
+    """
     def __init__(self, name=None, description=None, project_id=None, process_type=None, process_name=None, data=None):
         self.does_transform = False
         self.input_files = []
@@ -1210,6 +1205,10 @@ class Process(MCObject):
 
 
 class Sample(MCObject):
+    """
+    A Materials Commons Sample. Normally created by process.create_samples() using a
+    'create sample' style process.
+    """
     def __init__(self, name=None, data=None):
         self.id = None
         self.name = ""
@@ -1290,7 +1289,7 @@ class Sample(MCObject):
         pass
 
     def delete(self):
-        # TODO: Sample.rename(name)
+        # TODO: Sample.delete(name)
         # NOTE: most likely, not a good idea - should be done by delete project?
         pass
 
@@ -1308,6 +1307,11 @@ class Sample(MCObject):
 
 
 class Directory(MCObject):
+    """
+    A Materials Commons Directory. Normally created by
+    project.add_directory() or any of the project methods that
+    create directories on a given path.
+    """
     def __init__(self, name="", path="", data=None):
         # normally, from the data base
         self.id = ""
@@ -1462,6 +1466,9 @@ def make_dir_tree_table(base_path, dir_name, relative_base, table_so_far):
 
 
 class File(MCObject):
+    """
+    A Materials Commons File. Normally created by directory.add_file() when uploading a file.
+    """
     def __init__(self, data=None):
         # normally, from the data base
         self.id = ""
@@ -1553,6 +1560,10 @@ class File(MCObject):
 
 
 class Template(MCObject):
+    """
+    A Materials Commons Sample. Only available through the top level function
+    get_all_templates().
+    """
     # global static
     create = "global_Create Samples"
     compute = "global_Computation"
@@ -1604,6 +1615,9 @@ class Template(MCObject):
 
 
 class Property(MCObject):
+    """
+    A Materials Commons Property. Normally created by
+    """
     def __init__(self, data=None):
         # attr = ['id', 'name', 'description', 'birthtime', 'mtime', 'otype', 'owner']
         super(Property, self).__init__(data)
@@ -1823,6 +1837,11 @@ def make_measured_property(data):
 
 
 class DeleteTally(object):
+    """
+    A Helper Class for the delete methods of Property and Experiment.
+    Returned by those methods to report the id values of all objects deleted.
+    Or, in the case of dry_run==True, that would be deleted.
+    """
     def __init__(self, data=None):
         if data.get('project'):
             # for delete project
