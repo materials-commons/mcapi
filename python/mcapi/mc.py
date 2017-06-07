@@ -19,15 +19,13 @@ from StringIO import StringIO
 def create_project(name, description):
     """
     Creates a new Project object in the database and return it.
+
+    >>> name = "A Project"
+    >>> description = "This is a project for me"
+    >>> project = mcapi.create_project(name,description)
+    >>> print project.name, project.description
+
     """
-    #    Example:
-    #    ``
-    #        name = "A Project"
-    #        description = "This is a project for me"
-    #        project = mcapi.create_project(name,description)
-    #        print project.name, project.description
-    #    ``
-    #
     results = api.create_project(name, description)
     project_id = results['id']
     project = get_project_by_id(project_id)
@@ -37,9 +35,10 @@ def create_project(name, description):
 def get_project_by_id(project_id):
     """
     Fetch a project from the database and return it/
+
+    >>> project = get_project_by_id("e4fd5c88-2fb7-40af-b3fc-2711d786e5f6")
+
     """
-    #    Example::
-    #        project = get_project_by_id("e4fd5c88-2fb7-40af-b3fc-2711d786e5f6")
     results = api.get_project_by_id(project_id)
     return Project(data=results)
 
@@ -47,11 +46,12 @@ def get_project_by_id(project_id):
 def get_all_projects():
     """
     Return a list of all the project to which the current user has access.
+
+    >>> project_list = get_all_projects()
+    >>> for project in project_list:
+    >>>     print project.name
+
     """
-    #    Example::
-    #        project_list = get_all_projects()
-    #        for project in project_list:
-    #            print project.name
     results = api.projects()
     projects = []
     for r in results:
@@ -63,11 +63,12 @@ def get_all_projects():
 def get_all_users():
     """
     Return the list of all users registerd on the server.
+
+    >>> user_list = get_all_users()
+    >>> for user in user_list:
+    >>>     print user.fullname, user.email
+
     """
-    #    Example::
-    #        user_list = get_all_users()
-    #        for user in user_list:
-    #            print user.fullname, user.email
     results = api.get_all_users()
     users = map(make_object, results)
     return users
@@ -77,11 +78,12 @@ def get_all_users():
 def get_all_templates():
     """
     Return a list of all the templates known to the system.
+
+    >>> template_list = get_all_templates()
+    >>> for template in template_list:
+    >>>     print template.name, template.id
+
     """
-    #    Example::
-    #        template_list = get_all_templates()
-    #        for template in template_list:
-    #            print template.name, template.id
     templates_array = api.get_all_templates()
     templates = map((lambda x: make_object(x)), templates_array)
     return templates
@@ -115,19 +117,20 @@ class User(MCObject):
     def can_access(self, project):
         """
         Does this user have permission to access the indicated project.
+
+        >>> user_list = get_all_users()
+        >>> for user in user_list:
+        >>>     if user.can_access(project):
+        >>>         print user.fullname, user.email
+
         """
-        #        Example:
-        #        user_list = get_all_users()
-        #        for user in user_list:
-        #            if user.can_access(project):
-        #                print user.fullname, user.email
         results = api.user_can_access_project(self.id, project.id, project.name)
         return results
 
 
 class Project(MCObject):
     """
-    A Materials Commons Project. Normally created by create_project().
+    A Materials Commons Project. Normally created by top level function :func:`mcapi.create_project`.
 
     """
     def __init__(self, name="", description="", remote_url="", data=None):
@@ -203,7 +206,10 @@ class Project(MCObject):
 
     def put(self):
         """
-        NOTE: Not currently implemented.
+
+        .. note:: Not currently implemented. All functions that change the object also update
+            the object in the database; for example, :func:`mcapi.Project.rename`
+
         """
         # TODO: Project.put()
         pass
@@ -211,9 +217,9 @@ class Project(MCObject):
     def delete(self, dry_run=False):
         """
         Delete this project from the database.
-        If dry_run is True, only determines the oejcts to be deleted, bud does not actually delete them.
+        If dry_run is True, only determines the object to be deleted, but does not actually delete them.
 
-        Returns a DeleteTally instance, which lists the id's of the objects (to be or actually) deleted.
+        Returns a :class:`DeleteTally` instance, which lists the id's of the objects (to be or actually) deleted.
 
         """
         if dry_run:
@@ -239,7 +245,10 @@ class Project(MCObject):
 
     def get_experiment_by_id(self, experiment_id):
         """
-        NOTE: currently not implemented
+
+        .. note:: Currently not implemented. Instead use :func:`get_all_experiments` to get
+            the experiments and from that list, compare id values to find the experiment required.
+
         """
         # TODO: Project.get_experiment_by_id(id)
         pass
@@ -262,7 +271,9 @@ class Project(MCObject):
 
     def create_directory(self, name, path):
         """
-        NOTE: currently not implemented
+
+        .. note:: Currently not implemented; use :func:`mcapi.Project.add_directory`
+
         """
         # TODO: Project.create_directory(name, path)
         pass
@@ -289,12 +300,12 @@ class Project(MCObject):
         """
         Get a list of all the directories in this project.
 
+        >>> directory_list = project.get_all_directories()
+        >>> for directory in directory_list:
+        >>>     print directory_name, directory_path
+
         """
 
-        # Example:
-        #            directory_list = project.get_all_directories()
-        #            for directory in directory_list:
-        #                print directory_name, directory_path
         results = api.directory_by_id(self.id, "all")
         directories = []
         for item in results:
@@ -324,17 +335,17 @@ class Project(MCObject):
         Given a directory path, returns a list of all the directoreis on the path.
         Can fail if the path does not exist.
 
+        >>> # In this example, the list would consist of three directories, assuming that they exist:
+        >>> #   the Root directory (or 'top' directory)
+        >>> #   directory 'A'
+        >>> #   directory 'B'
+        >>>
+        >>> directory_list = project.get_directory_list("/A/B")
+        >>> print len(directory_list)
+        >>> for directory in directory_list:
+        >>>     print directory.name, directory.path
+
         """
-        #        In this example, the list would consist of three directories, assuming that they exist:
-        #            the Root directory (or 'top' directory)
-        #            directory 'A'
-        #            directory 'B'
-        #
-        #        Example:
-        #            directory_list = project.get_directory_list("/A/B")
-        #            print len(directory_list)
-        #            for directory in directory_list:
-        #                print directory.name, directory.path
 
         top_directory = self.get_top_directory()
         return top_directory.get_descendant_list_by_path(path)
@@ -364,10 +375,10 @@ class Project(MCObject):
         Given a directory path, creates all the directories on the path and returns the last one.
         If a directory is missing, in the path, it is created.
 
+        >>> directory = project.add_directory("/A/B")
+        >>> print directory.name, directory.path
+
         """
-        #        Example:
-        #            directory = project.add_directory("/A/B")
-        #            print directory.name, directory.path
 
         # TODO: Project.add_directory(path) - refactor this should check for and fail if path does not exist
         # TODO: Project.add_directory(path) - refactor add optional flag to create parent path if it does note exist
@@ -913,7 +924,14 @@ class Process(MCObject):
         return self._update_process_setup_properties(prop_list)
 
     def make_list_of_samples_with_property_set_ids(self, samples):
-        # Note: samples must be output samples of the process
+        '''
+
+        :param samples:
+        :return: list of Sample with their property_set id values set
+
+        .. note:: samples must be output samples of the process (e.g. this)
+
+        '''
         results = []
         if not self.output_samples:
             return results
@@ -1563,6 +1581,11 @@ class Template(MCObject):
     """
     A Materials Commons Sample. Only available through the top level function
     get_all_templates().
+
+    .. note:: Template is truncated as we only need
+        the id to create processes from a Template, and this is
+        the only way in which Template is used, for now.
+
     """
     # global static
     create = "global_Create Samples"
@@ -1574,7 +1597,7 @@ class Template(MCObject):
         super(Template, self).__init__(data)
 
         # ---- NOTE
-        # - Template is truncated, for now, as we only need the id to create
+        # - Template is truncated as we only need the id to create
         # - processes from a Template
         # ----
 
