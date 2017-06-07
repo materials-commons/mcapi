@@ -391,11 +391,11 @@ class Project(MCObject):
         Given a directory, a file_name, a local directory path to the file -
         uploads the file, creates a file descriptor in the database, and returns file descriptor.
 
+        >>> directory = directory = project.add_directory("/A/B")
+        >>> file = project.add_file_using_directory(directory,"Test-Results","/tmp/results.txt")
+        >>> print file.name
+
         """
-        #        Example:
-        #            directory = directory = project.add_directory("/A/B")
-        #            file = project.add_file_using_directory(directory,"Test-Results","/tmp/results.txt")
-        #            print file.name
         file_size_MB = os_path.getsize(local_path) >> 20
         if file_size_MB > limit:
             msg = "File too large (>{0}MB), skipping. File size: {1}M".format(limit, file_size_MB)
@@ -415,11 +415,14 @@ class Project(MCObject):
         """
         Upload a file, specified by local_path, creating intermediate 
         directories as necessary
-        
+
+        >>> self.local_path = "/path/to/Proj"
+        >>> local_path = self.local_path + "/test_dir/file_A.txt"
+        >>> file = project.add_file_by_local_path(local_path)
+        >>> # uploads file_A.txt
+        >>> # returns File object representing file_A.txt at project directory /test_dir
+
         """
-        #        Example:
-        #           self.local_path = "/path/to/Proj"
-        #           local_path = "/path/to/Proj/test_dir/file_A.txt" -> upload file_A.txt
         dir_path = self._local_path_to_path(os_path.dirname(local_path))
         dir = self.create_or_get_all_directories_on_path(dir_path)[-1]
         return self.add_file_using_directory(dir, os_path.basename(local_path),
@@ -429,11 +432,14 @@ class Project(MCObject):
         """
         Upload a directory, specified by local_path, and all its contents 
         creating intermediate directories as necessary
+
+        >>> self.local_path = "/path/to/Proj"
+        >>> local_path = self.local_path + "/test_dir/dir_A" # a local directory
+        >>> file = project.add_directory_tree_by_local_path(local_path)
+        >>> # uploads dir_A and all of it's contents
+        >>> # returns Directory object representing project directory /test_dir/dir_a
         
         """
-        #        Example:
-        #           self.local_path = "/path/to/Proj"
-        #           local_path = "/path/to/Proj/test_dir/dir_A" -> upload dir_A and all contents
         path = self._local_path_to_path(os_path.dirname(local_path))
         dir = self.create_or_get_all_directories_on_path(path)[-1]
         return dir.add_directory_tree(os_path.basename(local_path),
@@ -504,11 +510,11 @@ class Project(MCObject):
         """
         Get a list of all processes in this project.
 
+        >>> process_list = project.get_all_processes()
+        >>> for process in process_list:
+        >>>     print process.name
+
         """
-        #        Example:
-        #            process_list = project.get_all_processes()
-        #            for process in process_list:
-        #                print process.name
         process_list = api.get_project_processes(self.id, self.remote)
         processes = map((lambda x: make_object(x)), process_list)
         processes = map((lambda x: _decorate_object_with(x, 'project', self)), processes)
@@ -518,9 +524,9 @@ class Project(MCObject):
         """
         Get a project sample by process id.
 
+        >>> sample = project.get_process_by_id(process.id)
+
         """
-        #        Example:
-        #            sample = project.get_process_by_id(process.id)
         results = api.get_process_by_id(self.id, process_id)
         process = make_object(results)
         process.project = self
@@ -533,11 +539,11 @@ class Project(MCObject):
         """
         Get a list of all samples in this project.
 
+        >>> sample_list = project.get_all_samples()
+        >>> for process in process_list:
+        >>>     print process.name
+
         """
-        #        Example:
-        #            sample_list = project.get_all_samples()
-        #            for process in process_list:
-        #                print process.name
         samples_list = api.get_project_samples(self.id, self.remote)
         samples = map((lambda x: make_object(x)), samples_list)
         samples = map((lambda x: _decorate_object_with(x, 'project', self)), samples)
