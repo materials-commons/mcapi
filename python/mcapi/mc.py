@@ -128,12 +128,7 @@ class User(MCObject):
 class Project(MCObject):
     """
     A Materials Commons Project. Normally created by create_project().
-    Instance fields:
-    * id - string; do not change
-    * name - string
-    * description - string
-    * remote_url - string, URL, optional, local book-keeping only, NOT stored in database
-        used to record the host from which the project was fetched
+
     """
     def __init__(self, name="", description="", remote_url="", data=None):
         # normally, from the data base
@@ -234,9 +229,9 @@ class Project(MCObject):
         """
         Create and return an Experiemnt in this project.
 
+        >>> experiment = project.create_experiment("Experiment 1", "Test Procedures")
+
         """
-        #        Example:
-        #            experiment = project.create_experiment("Experiment 1", "Test Procedures")
         experiment_json_dict = api.create_experiment(self.id, name, description)
         experiment = make_object(experiment_json_dict)
         experiment.project = self
@@ -253,11 +248,11 @@ class Project(MCObject):
         """
         Get a list of all the experiments in this project.
 
+        >>> experiment_list = project.get_all_experiments()
+        >>> for experiment in experiment_list:
+        >>>     print experiment.id, experiment.name
+
         """
-        #        Example:
-        #            experiment_list = project.get_all_experiments()
-        #            for experiment in experiment_list:
-        #                print experiment.id, experiment.name
         list_results = api.fetch_experiments(self.id)
         experiments = map((lambda x: make_object(x)), list_results)
         experiments = map((lambda x: _decorate_object_with(x, 'project', self)), experiments)
@@ -273,14 +268,17 @@ class Project(MCObject):
         pass
 
     def get_directory_by_id(self, directory_id):
-        """
-        Gets the indicated directory.
-        for the Project.
+        """ Gets the indicated directory.
+
+        :param directory_id: The id of the directory to fetch.
+        :type name: str.
+        :returns: mcapi.Directory
+
+        >>> directory = project.get_directory_by_id('876655a2-c31b-4895-8766-40a168ea1a87')
+        >>> print directory.path
 
         """
-        #        Example:
-        #            directory = project.get_directory_by_id('876655a2-c31b-4895-8766-40a168ea1a87')
-        #            print directory.path
+
         results = api.directory_by_id(self.id, directory_id)
         directory = make_object(results)
         directory._project = self
@@ -292,7 +290,8 @@ class Project(MCObject):
         Get a list of all the directories in this project.
 
         """
-        #        Example:
+
+        # Example:
         #            directory_list = project.get_all_directories()
         #            for directory in directory_list:
         #                print directory_name, directory_path
@@ -436,11 +435,12 @@ class Project(MCObject):
         Uses path on local machine to get a File or Directory
         
         Arguments:
-            proj: mcapi.Project
-            local_path: file or directory local path equivalant
+            proj: mcapi.Project.
+
+            local_path: file or directory local path equivalant.
         
         Returns:
-            obj: mcapi.File, mcapi.Directory, or None
+            obj: mcapi.File, mcapi.Directory, or None.
         """
         if self.local_path is None:
             msg = "Error in Project.get_by_local_path: Project.local_path is None"
