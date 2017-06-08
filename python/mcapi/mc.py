@@ -220,6 +220,11 @@ class Project(MCObject):
         """
         Change the name and (optionally) description of a project.
         Returns the new project from the database.
+
+        :param name: new name for project
+        :param description: (optional) new description for project; if not given, descriptions is unchanged,
+        :return: an instance of :class: `mcapi.Project`
+
         """
         if not description:
             description = self.description
@@ -240,10 +245,11 @@ class Project(MCObject):
 
     def delete(self, dry_run=False):
         """
-        Delete this project from the database.
-        If dry_run is True, only determines the object to be deleted, but does not actually delete them.
+        Delete this project from the database or (when dry_run is True)
+        determine the objects to be deleted.
 
-        Returns a :class:`DeleteTally` instance, which lists the id's of the objects (to be or actually) deleted.
+        :param dry_run: (optional) if True, then only determine what would be deleted
+        :return: a :class:`DeleteTally` instance, which lists the id's of the objects (to be or actually) deleted.
 
         """
         if dry_run:
@@ -258,6 +264,10 @@ class Project(MCObject):
     def create_experiment(self, name, description):
         """
         Create and return an Experiemnt in this project.
+
+        :param name: name for Experiment
+        :param description: description for Experiment
+        :return: a :class:`Experiment` instance
 
         >>> experiment = project.create_experiment("Experiment 1", "Test Procedures")
 
@@ -280,6 +290,8 @@ class Project(MCObject):
     def get_all_experiments(self):
         """
         Get a list of all the experiments in this project.
+
+        :return: a list of :class:`Experiment` instances
 
         >>> experiment_list = project.get_all_experiments()
         >>> for experiment in experiment_list:
@@ -307,7 +319,7 @@ class Project(MCObject):
 
         :param directory_id: The id of the directory to fetch.
         :type directory_id: str.
-        :returns: mcapi.Directory
+        :return: mcapi.Directory
 
         >>> directory = project.get_directory_by_id('876655a2-c31b-4895-8766-40a168ea1a87')
         >>> print directory.path
@@ -660,20 +672,38 @@ class Experiment(MCObject):
     # Experiment - basic rethods: rename, put, delete
 
     def rename(self, name, description=None):
-        '''
+        """
+
+        :param name:
+        :param description:
+        :return:
+
         .. note:: Currently not implemented
 
-        :param name: - a string
-        :return:
-        '''
+        """
         # TODO: Experiment.rename(name)
         pass
 
     def put(self):
+        """
+
+        :return:
+
+        .. note:: Currently not implemented
+
+        """
         # TODO: Experiment.put()
         pass
 
     def delete(self, dry_run=False, delete_processes_and_samples=False):
+        """
+        Delete this Experiment from the database or (when dry_run is True)
+        determine the objects to be deleted.
+
+        :param dry_run: (optional) if True, then only determine what would be deleted
+        :return: a :class:`DeleteTally` instance, which lists the id's of the objects (to be or actually) deleted.
+
+        """
         if dry_run:
             results = api.delete_experiment_dry_run(self.project.id, self.id)
         elif delete_processes_and_samples:
@@ -686,6 +716,12 @@ class Experiment(MCObject):
     # Experiment - Process-related methods - basic: create, get_by_id, get_all (in context)
 
     def create_process_from_template(self, template_id):
+        """
+        Create a process from a template
+
+        :param template_id:
+        :return:
+        """
         project = self.project
         experiment = self
         results = api.create_process_from_template(project.id, experiment.id, template_id)
@@ -696,6 +732,12 @@ class Experiment(MCObject):
         return process
 
     def get_process_by_id(self, process_id):
+        """
+        Get a process for a given process id value.
+
+        :param process_id:
+        :return:
+        """
         project = self.project
         experiment = self
         results = api.get_experiment_process_by_id(project.id, experiment.id, process_id)
@@ -706,6 +748,12 @@ class Experiment(MCObject):
         return process
 
     def get_all_processes(self):
+        """
+        Get all the processes in this Experiment.
+
+        :return:
+
+        """
         process_list = api.fetch_experiment_processes(self.project.id, self.id)
         processes = map((lambda x: make_object(x)), process_list)
         processes = map((lambda x: _decorate_object_with(x, 'project', self.project)), processes)
@@ -717,6 +765,13 @@ class Experiment(MCObject):
     # Experiment - Process-related methods - basic: create, get_by_id, get_all (in context)
 
     def get_sample_by_id(self, sample_id):
+        """
+        Get a Sample value from a sample id value.
+
+        :param sample_id:
+        :return:
+
+        """
         project = self.project
         experiment = self
         results = api.get_experiment_sample_by_id(project.id, experiment.id, sample_id)
@@ -726,6 +781,12 @@ class Experiment(MCObject):
         return sample
 
     def get_all_samples(self):
+        """
+        Get all samples in this Experiment.
+
+        :return:
+
+        """
         samples_list = api.fetch_experiment_samples(self.project.id, self.id)
         samples = map((lambda x: make_object(x)), samples_list)
         samples = map((lambda x: _decorate_object_with(x, 'project', self.project)), samples)
@@ -734,6 +795,10 @@ class Experiment(MCObject):
 
     # Experiment - additional method
     def decorate_with_samples(self):
+        """
+        Add all the Experiment's
+        :return:
+        """
         self.samples = self.get_all_samples()
         return self
 
