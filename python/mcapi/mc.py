@@ -821,6 +821,15 @@ class Experiment(MCObject):
 
         :param template_id:
         :return: the :class:`mcapi.Process` instance
+
+        >>> templates = get_all_templates()
+        >>> template = None
+        >>> for t in templates:
+        >>>     if t.name == 'Create Samples':
+        >>>         template = t
+        >>> if template:
+        >>>     create_sample_process = experiment.create_process_from_template(template.id)
+
         """
         project = self.project
         experiment = self
@@ -929,31 +938,32 @@ class Process(MCObject):
     """
     def __init__(self, name=None, description=None, project_id=None, process_type=None, process_name=None, data=None):
         self.does_transform = False
-        self.input_files = []
-        self.output_files = []
-        self.input_samples = []
-        self.output_samples = []
+        self.input_files = []               #: list of :class:`mcapi.File` instance
+        self.output_files = []              #: list of :class:`mcapi.File` instance
+        self.input_samples = []             #: list of :class:`mcapi.Sample` instance
+        self.output_samples = []            #: list of :class:`mcapi.Sample` instance
 
         self.owner = ''
         self.setup = []
-        self.measurements = []
-        self.transformed_samples = []
-        self.what = ''
-        self.why = ''
-        self.category = None
-        self.experiment = None
+        self.measurements = []              #: list of :class:`mcapi.Measurement` instance
+        self.transformed_samples = []       #: list of :class:`mcapi.Sample` instance
+        self.what = ''                      #: string
+        self.why = ''                       #: string
+        self.category = None                #: string
+        self.experiment = None              #: the :class:`mcapi.Experiment' containing this process
 
-        self.project = None
-        self.properties_dictionary = {}
+        self.project = None                 #: the :class:'mcapi.Project' containing this process
+        self.properties_dictionary = {}     #: a derived dictionary of 'mcapi.Property'; key = property.attribute
 
         # filled in when Process is in Sample.processes
-        self.direction = ''
-        self.process_id = ''
-        self.sample_id = ''
-        self.property_set_id = ''
+        self.direction = ''         #: 'in' or 'out' - filled in when process is in Sample.processes; see :class:`mcapi.Sample'
+        self.process_id = ''        #: string - filled in when process is in Sample.processes; see :class:`mcapi.Sample'
+        self.sample_id = ''         #: string - filled in when process is in Sample.processes; see :class:`mcapi.Sample'
+        self.property_set_id = ''   #: string - filled in when process is in Sample.processes; see :class:`mcapi.Sample'
+        #: list of :class:`mcapi.Experiment` instances - filled in when process is in Sample.processes; see :class:`mcapi.Sample'
         self.experiments = []
 
-        # filled in when measurements are attached
+        #: list of :class:`mcapi.Measurement` instances - filled in when measurements are attached
         self.measurements = []
 
         if not data:
@@ -1076,6 +1086,13 @@ class Process(MCObject):
     # Process - basic methods: rename, put, delete
 
     def rename(self, process_name):
+        """
+        Rename this process.
+
+        :param process_name: new name - string
+        :return: the updated :class:`mcapi.Process`
+
+        """
         results = api.push_name_for_process(self.project.id, self.id, process_name)
         process = make_object(results)
         process.project = self.project
@@ -1097,6 +1114,14 @@ class Process(MCObject):
 
     # Process - Sample-related methods - create, get_by_id, get_all
     def create_samples(self, sample_names):
+        """
+        Create process samples, this function only works for processes with process_type == 'create' or with
+        the 'sectioning' proceess (that is template_name == 'sectioning').
+
+        :param sample_names: a list of string
+        :return: a list of :class:`mcapi.Sample`
+
+        """
         process_ok = self.category == 'create_sample' or self.category == 'sectioning'
         if not process_ok:
             print "Process.category is not either " \
