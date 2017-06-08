@@ -1115,18 +1115,21 @@ class Process(MCObject):
     # Process - Sample-related methods - create, get_by_id, get_all
     def create_samples(self, sample_names):
         """
-        Create process samples, this function only works for processes with process_type == 'create' or with
-        the 'sectioning' proceess (that is template_name == 'sectioning').
+        Create output samples for this process.
+
+        .. note this function only works for processes with process_type == 'create' or with
+            the 'sectioning' proceess (that is template_name == 'sectioning').
 
         :param sample_names: a list of string
         :return: a list of :class:`mcapi.Sample`
 
         """
-        process_ok = self.category == 'create_sample' or self.category == 'sectioning'
+        process_ok = (self.process_type == 'create' or self.template_name == 'sectioning')
         if not process_ok:
-            print "Process.category is not either " \
-                  "'create_sample' or 'sectioning'; instead: " + \
-                  self.category + " -- returning None"
+            print "Either Process.process_type is not 'create' or " + \
+                  "Process.template_name is not 'sectioning'; instead: " + \
+                  "process_type == " + self.process_type + " and " + \
+                  "template_name == " + self.template_name + " -- returning None"
             # throw exception?
             return None
         samples = self._create_samples(sample_names)
@@ -1134,19 +1137,50 @@ class Process(MCObject):
         return samples
 
     def get_sample_by_id(self, process_id):
+        """
+        Get indicated Sample.
+
+        :param process_id: sample if - string
+        :return: a :class:`mcapi.Sample` instance
+
+        .. note:: Currently not implemented
+
+        """
         # TODO: Process.get_sample_by_id(id)
         pass
 
     def get_all_samples(self):
+        """
+        Get all samples for the process.
+
+        :return: a list of :class:`mcapi.Sample` instances
+
+        .. note:: Currently not implemented
+
+        """
         # TODO: Process.get_all_samples()
         pass
 
     def add_input_samples_to_process(self, samples):
+        """
+        Add input samples to this process.
+
+        :param samples: a list of :class:`mcapi.Sample` instances
+        :return: the updated process
+
+        """
         return self._add_input_samples_to_process(samples)
 
     # Process - File-related methods - truncated?
     # TODO: should Process have File-related create, get_by_id, get_all?
     def add_files(self, files_list):
+        """
+        Add files to this process.
+
+        :param files_list: a list of :class:`mcapi.File` instances
+        :return: the updated process
+
+        """
         return self._add_files_to_process(files_list)
 
     # Process - SetupProperties-related methods - special methods
