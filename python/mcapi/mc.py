@@ -1383,6 +1383,14 @@ class Process(MCObject):
             measurement_property, [measurement])
 
     def add_integer_measurement(self, attribute, value, name=None):
+        """
+        A helper function to add integer measurements to the output samples of this process.
+
+        :param attribute: - string
+        :param value: - integer
+        :param name: - (optional) string - if not given the name=attribute
+        :return: the updated process
+        """
         if (not name):
             name = attribute
 
@@ -1396,6 +1404,13 @@ class Process(MCObject):
         return self.set_measurement(attribute, measurement_data, name)
 
     def add_number_measurement(self, attrname, value, name=None):
+        """
+
+        :param attrname:
+        :param value:
+        :param name:
+        :return:
+        """
         measurement_data = {
             "attribute": attrname,
             "otype": "number",
@@ -1405,6 +1420,13 @@ class Process(MCObject):
         return self.set_measurement(attrname, measurement_data, name)
 
     def add_boolean_measurement(self, attrname, value, name=None):
+        """
+
+        :param attrname:
+        :param value:
+        :param name:
+        :return:
+        """
         measurement_data = {
             "attribute": attrname,
             "otype": "boolean",
@@ -1414,6 +1436,13 @@ class Process(MCObject):
         return self.set_measurement(attrname, measurement_data, name)
 
     def add_string_measurement(self, attrname, value, name=None):
+        """
+
+        :param attrname:
+        :param value:
+        :param name:
+        :return:
+        """
         measurement_data = {
             "attribute": attrname,
             "otype": "string",
@@ -1423,6 +1452,13 @@ class Process(MCObject):
         return self.set_measurement(attrname, measurement_data, name)
 
     def add_file_measurement(self, attrname, file, name=None):
+        """
+
+        :param attrname:
+        :param file:
+        :param name:
+        :return:
+        """
         measurement_data = {
             "attribute": attrname,
             "otype": "file",
@@ -1435,7 +1471,15 @@ class Process(MCObject):
         return self.set_measurement(attrname, measurement_data, name)
 
     # NOTE: no covering test or example for this function - probably works - Terry, Jan 20, 2016
+    # TODO: add covering test for add_sample_measurement
     def add_sample_measurement(self, attrname, sample, name=None):
+        """
+
+        :param attrname:
+        :param sample:
+        :param name:
+        :return:
+        """
         measurement_data = {
             "attribute": attrname,
             "otype": "sample",
@@ -1449,6 +1493,14 @@ class Process(MCObject):
         return self.set_measurement(attrname, measurement_data, name)
 
     def add_list_measurement(self, attrname, value, value_type, name=None):
+        """
+
+        :param attrname:
+        :param value:
+        :param value_type:
+        :param name:
+        :return:
+        """
         measurement_data = {
             "attribute": attrname,
             "otype": "vector",
@@ -1462,6 +1514,13 @@ class Process(MCObject):
         return self.set_measurement(attrname, measurement_data, name)
 
     def add_numpy_matrix_measurement(self, attrname, value, name=None):
+        """
+
+        :param attrname:
+        :param value:
+        :param name:
+        :return:
+        """
         measurement_data = {
             "attribute": attrname,
             "otype": "matrix",
@@ -1475,6 +1534,13 @@ class Process(MCObject):
         return self.set_measurement(attrname, measurement_data, name)
 
     def add_selection_measurement(self, attrname, value, name=None):
+        """
+
+        :param attrname:
+        :param value:
+        :param name:
+        :return:
+        """
         measurement_data = {
             "attribute": attrname,
             "otype": "selection",
@@ -1484,6 +1550,13 @@ class Process(MCObject):
         return self.set_measurement(attrname, measurement_data, name)
 
     def add_vector_measurement(self, attrname, value, name=None):
+        """
+
+        :param attrname:
+        :param value:
+        :param name:
+        :return:
+        """
         measurement_data = {
             "attribute": attrname,
             "otype": "vector",
