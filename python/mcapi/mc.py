@@ -853,11 +853,12 @@ class Process(MCObject):
 
     # Process - Sample-related methods - create, get_by_id, get_all
     def create_samples(self, sample_names):
-        process_ok = self.category == 'create_sample' or self.category == 'sectioning'
+        process_ok = (self.process_type == 'create' or self.template_name == 'sectioning')
         if not process_ok:
-            print "Process.category is not either " \
-                  "'create_sample' or 'sectioning'; instead: " + \
-                  self.category + " -- returning None"
+            print "Either Process.process_type is not 'create' or " + \
+                  "Process.template_name is not 'sectioning'; instead: " + \
+                  "process_type == " + self.process_type + " and " + \
+                  "template_name == " + self.template_name + " -- returning None"
             # throw exception?
             return None
         samples = self._create_samples(sample_names)
