@@ -853,7 +853,7 @@ class Process(MCObject):
 
     # Process - Sample-related methods - create, get_by_id, get_all
     def create_samples(self, sample_names):
-        process_ok = (self.process_type == 'create' or self.template_name == 'sectioning')
+        process_ok = (self.process_type == 'create' or self.template_name == 'Sectioning')
         if not process_ok:
             print "Either Process.process_type is not 'create' or " + \
                   "Process.template_name is not 'sectioning'; instead: " + \
