@@ -112,7 +112,10 @@ def get_all_templates():
 
 class User(MCObject):
     """
-    Representing a registered user; normally set up by a call to get_all_users()
+    Representing a registered user.
+
+    .. note:: normally created from the database by a call to top level function :func:`mcapi.get_all_users`
+
     """
     def __init__(self, data=None):
         # normally, from the data base
@@ -146,7 +149,9 @@ class User(MCObject):
 
 class Project(MCObject):
     """
-    A Materials Commons Project. Normally created by top level function :func:`mcapi.create_project`.
+    A Materials Commons Project.
+
+    .. note:: normally created from the database by call to the top level function :func:`mcapi.create_project`.
 
     """
     def __init__(self, name="", description="", remote_url="", data=None):
@@ -495,7 +500,7 @@ class Project(MCObject):
         directories as necessary; the file name on the directory of the project (remote) is the
         file name from the local path. See :func:`mcapi.Project.add_file_using_directory`.
 
-        ..note This functions assumes the setting on setting of local_path on the project, see example
+        .. note This functions assumes the setting on setting of local_path on the project, see example
 
         :param local_path: the local path to the file
         :param verbose: (optional) a Flag; if true print out a trace of the actions
@@ -520,7 +525,7 @@ class Project(MCObject):
         creating intermediate directories as necessary; the directory name,
         in project (remote), is the same as the local directory name.
 
-        ..note This functions assumes the setting on setting of local_path on the project, see example
+        .. note This functions assumes the setting on setting of local_path on the project, see example
 
         :param local_path: the local path to the directory
         :param verbose: (optional) a Flag; if true print out a trace of the actions
@@ -700,7 +705,10 @@ class Project(MCObject):
 
 class Experiment(MCObject):
     """
-    A Materials Commons Experiment. Normally created from database by project.create_experiment()
+    A Materials Commons Experiment.
+
+    .. note:: normally created from database by by a call to :func:`mcapi.Project.create_experiment`
+
     """
     def __init__(self, project_id=None, name=None, description=None,
                  data=None):
@@ -934,7 +942,10 @@ class Experiment(MCObject):
 
 class Process(MCObject):
     """
-    A Materials Commons Process. Normally created by experiment.create_process_from_template()
+    A Materials Commons Process.
+
+    .. note:: Normally created from the database by a call to :func:`mcapi.Experiment.create_process_from_template`
+
     """
     def __init__(self, name=None, description=None, project_id=None, process_type=None, process_name=None, data=None):
         self.does_transform = False
@@ -950,17 +961,26 @@ class Process(MCObject):
         self.what = ''                      #: string
         self.why = ''                       #: string
         self.category = None                #: string
-        self.experiment = None              #: the :class:`mcapi.Experiment' containing this process
+        self.experiment = None              #: the :class:`mcapi.Experiment` containing this process
 
-        self.project = None                 #: the :class:'mcapi.Project' containing this process
-        self.properties_dictionary = {}     #: a derived dictionary of 'mcapi.Property'; key = property.attribute
+        self.project = None                 #: the :class:`mcapi.Project` containing this process
+
+        #: a derived dictionary of the setup properties of this process;
+        #: a dictionaly of :class:`mcapi.Property` with *key* = property.attribute;
+        #: see :func:`mcapi.Process.get_setup_properties_as_dictionary`
+        self.properties_dictionary = {}
 
         # filled in when Process is in Sample.processes
-        self.direction = ''         #: 'in' or 'out' - filled in when process is in Sample.processes; see :class:`mcapi.Sample'
-        self.process_id = ''        #: string - filled in when process is in Sample.processes; see :class:`mcapi.Sample'
-        self.sample_id = ''         #: string - filled in when process is in Sample.processes; see :class:`mcapi.Sample'
-        self.property_set_id = ''   #: string - filled in when process is in Sample.processes; see :class:`mcapi.Sample'
-        #: list of :class:`mcapi.Experiment` instances - filled in when process is in Sample.processes; see :class:`mcapi.Sample'
+
+        #: 'in' or 'out' - filled in when process is in Sample.processes; see :class:`mcapi.Sample`
+        self.direction = ''
+
+        self.process_id = ''        #: string - filled in when process is in Sample.processes; see :class:`mcapi.Sample`
+        self.sample_id = ''         #: string - filled in when process is in Sample.processes; see :class:`mcapi.Sample`
+        self.property_set_id = ''   #: string - filled in when process is in Sample.processes; see :class:`mcapi.Sample`
+
+        #: list of :class:`mcapi.Experiment` instances - filled in when process is in Sample.processes;
+        #: see :class:`mcapi.Sample`
         self.experiments = []
 
         #: list of :class:`mcapi.Measurement` instances - filled in when measurements are attached
@@ -1117,7 +1137,7 @@ class Process(MCObject):
         """
         Create output samples for this process.
 
-        .. note this function only works for processes with process_type == 'create' or with
+        .. note:: this function only works for processes with process_type == 'create' or with
             the 'sectioning' proceess (that is template_name == 'sectioning').
 
         :param sample_names: a list of string
@@ -1185,6 +1205,13 @@ class Process(MCObject):
 
     # Process - SetupProperties-related methods - special methods
     def get_setup_properties_as_dictionary(self):
+        """
+        Create a 'helper' dictionary of the properties of this Process.
+        See :class:`mcapi.Property`
+
+        :return: look-up dictionary keyed by the Property.attribute
+
+        """
         if self.properties_dictionary:
             return self.properties_dictionary
         ret = {}
@@ -1197,16 +1224,38 @@ class Process(MCObject):
         return ret
 
     def set_value_of_setup_property(self, name, value):
+        """
+        Populate, locally, the set-up property indicated by *name*, with a value for that property.
+
+        :param name: string
+        :param value: any
+        :return: None
+        """
         prop = self.get_setup_properties_as_dictionary()[name]
         if prop:
             prop.value = value
 
     def set_unit_of_setup_property(self, name, unit):
+        """
+        Populate, locally, the set-up property indicated by *name*, with a unit type for that property.
+
+        :param name: - string
+        :param unit: - unit type - string
+        :return: None
+        """
         prop = self.get_setup_properties_as_dictionary()[name]
         if prop and (unit in prop.units):
             prop.unit = unit
 
     def update_setup_properties(self, name_list):
+        """
+        For local properties indicated by *name_list*, push (to the database) those
+        properties as set-up properteis for this process.
+
+        :param name_list: list of string
+        :return: the updated process
+
+        """
         prop_dict = self.get_setup_properties_as_dictionary()
         prop_list = []
         for name in name_list:
@@ -1217,9 +1266,11 @@ class Process(MCObject):
 
     def make_list_of_samples_with_property_set_ids(self, samples):
         '''
+        Augment samples with setup properties from this process; the samples must have been created by the process;
+        see :func:`mcapi.Process.create_sample`
 
-        :param samples:
-        :return: list of Sample with their property_set id values set
+        :param samples: list of :class:`mcapi.Sample` instances
+        :return: list of :class:`mcapi.Sample` instances with their property_set id values set
 
         .. note:: samples must be output samples of the process (e.g. this)
 
@@ -1256,9 +1307,43 @@ class Process(MCObject):
     # Process - Measurement-related methods - special treatment
 
     def create_measurement(self, data):
+        """
+
+        :param data: dictionary - measurement data, see example
+            below at :func:`mcapi.Process.set_measurements_for_process_samples`
+        :return: the appropriate :class:`mcapi.Measurement` subclass
+
+        """
         return make_measurement_object(data)
 
     def set_measurements_for_process_samples(self, measurement_property, measurements):
+        """
+        Set a measurement for the indicated *measurement_property*.
+
+        :param measurement_property: dictionary - the property, see example below
+        :param measurements: :class:`mcapi.Measurement`
+        :return: the updated Process value
+
+        >>> measurement_data = {
+        >>>     "name": "Composition",
+        >>>     "attribute": "composition",
+        >>>     "otype": "composition",
+        >>>     "unit": "at%",
+        >>>     "value": [
+        >>>         {"element": "Al", "value": 94},
+        >>>         {"element": "Ca", "value": 1},
+        >>>         {"element": "Zr", "value": 5}],
+        >>>     "is_best_measure": True
+        >>> }
+        >>> measurement = my_process.create_measurement(data=measurement_data)
+        >>>
+        >>> measurement_property = {
+        >>>     "name": "Composition",
+        >>>     "attribute": "composition"
+        >>> }
+        >>> my_process = my_process.set_measurements_for_process_samples(measurement_property, [measurement])
+
+        """
         return self._set_measurement_for_process_samples(
             self.make_list_of_samples_with_property_set_ids(self.output_samples),
             measurement_property,
@@ -1266,6 +1351,15 @@ class Process(MCObject):
         )
 
     def set_measurement(self, attribute, measurement_data, name=None):
+        """
+        A low-level function for adding a measurement to the output samples of this process.
+
+        :param attribute: string - the measurement attribute
+        :param measurement_data: - an dictionary with the name-value pairs for the measurement
+        :param name: (optional) string - if not given the name=attribute
+        :return: the updated process
+
+        """
         if (not name):
             name = attribute
 
@@ -1404,11 +1498,21 @@ class Process(MCObject):
 
     # Process - additional methods
     def decorate_with_output_samples(self):
+        """
+        Make sure that known output samples are set in the this.
+
+        :return: a new copy of the Process (this) with the addition of output samples from the database
+        """
         detailed_process = self.experiment.get_process_by_id(self.id)
         self.output_samples = detailed_process.output_samples
         return self
 
     def decorate_with_input_samples(self):
+        """
+        Make sure that known input samples are set in this.
+
+        :return: a new copy of the Process (this) with the addition of input samples from the database
+        """
         detailed_process = self.experiment.get_process_by_id(self.id)
         self.input_samples = detailed_process.input_samples
         return self
@@ -1516,21 +1620,24 @@ class Process(MCObject):
 
 class Sample(MCObject):
     """
-    A Materials Commons Sample. Normally created by process.create_samples() using a
-    'create sample' style process.
+    A Materials Commons Sample.
+
+    .. note:: Normally created from the database by a call to :func:`mcapi.Process.create_samples`
+        using a 'create sample' style process.
+
     """
     def __init__(self, name=None, data=None):
-        self.id = None
-        self.name = ""
+        self.id = None                          # id for this Sample - string
+        self.name = ""                          # name for this Sample - string
 
-        self.property_set_id = ''
-        self.project = None
-        self.experiment = None
+        self.property_set_id = ''               # the id of the related property set
+        self.project = None                     # the project that 'contains' this Sample
+        self.experiment = None                  # the experiment that 'contains' this Sample
         # filled in when measurements exist (?)
-        self.properties = []
-        self.experiments = []
-        self.property_set_id = None
-        self.direction = ''
+        self.properties = []                    # when measurements exist - the properties of this sample
+        self.experiments = []                   # the experiments that create or transform this sample
+        self.property_set_id = None             # the id of the property_set for this sample
+        self.direction = ''                     # the direction relationship ('input' or 'output') that sample
         self.sample_id = None
         # to be filled in later
         self.processes = {}
@@ -1634,9 +1741,11 @@ class Sample(MCObject):
 
 class Directory(MCObject):
     """
-    A Materials Commons Directory. Normally created by
-    project.add_directory() or any of the project methods that
-    create directories on a given path.
+    A Materials Commons Directory.
+
+    .. note:: normally created from the databse by all to :func:`mcapi.Project.add_directory` or
+        any of the project methods that create directories on a given path
+
     """
     def __init__(self, name="", path="", data=None):
         # normally, from the data base
@@ -1801,7 +1910,10 @@ def make_dir_tree_table(base_path, dir_name, relative_base, table_so_far):
 
 class File(MCObject):
     """
-    A Materials Commons File. Normally created by directory.add_file() when uploading a file.
+    A Materials Commons File.
+
+    .. note:: normally created from the database by a call to :func:`mcapi.Project.add_file_using_directory`
+        or any of the other project functions that uploading a file.
     """
     def __init__(self, data=None):
         # normally, from the data base
@@ -1903,8 +2015,9 @@ class File(MCObject):
 
 class Template(MCObject):
     """
-    A Materials Commons Sample. Only available through the top level function
-    get_all_templates().
+    A Materials Commons Sample.
+
+    .. note:: Only available through the top level function get_all_templates().
 
     .. note:: Template is truncated as we only need
         the id to create processes from a Template, and this is
