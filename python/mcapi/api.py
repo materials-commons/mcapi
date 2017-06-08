@@ -77,10 +77,29 @@ disable_warnings()
 # Set Config url
 
 def set_remote_config_url(url):
+    """
+    Set the base url for the REST query layer, normally taken from the user configuration file
+    at ~/.materialscommons/config.json
+
+    :param url: the URL as a string
+    :return: None
+
+    >>> mcapi.set_remote_config_url("http://mctest.localhost/api")
+
+    """
     set_remote(Remote(config=Config(override_config={'mcurl': url})))
 
 
 def get_remote_config_url():
+    """
+    The current setting of the url for the REST query layer.
+
+    :return: the URL as a string
+
+    >>> url = mcapi.get_remote_config_url()
+    >>> print url
+
+    """
     return use_remote().config.mcurl
 
 

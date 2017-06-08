@@ -22,7 +22,7 @@ def create_project(name, description):
 
     :param name: - the name of the project
     :param description: - a description for the project
-    :return: :class: `mcapi.Project`
+    :return: :class:`mcapi.Project`
 
     >>> name = "A Project"
     >>> description = "This is a project for me"
@@ -41,7 +41,7 @@ def get_project_by_id(project_id):
     Fetch a project from the database and return it/
 
     :param project_id: the id value for the project
-    :return: :class: `mcapi.Project`
+    :return: :class:`mcapi.Project`
 
     >>> project = get_project_by_id("e4fd5c88-2fb7-40af-b3fc-2711d786e5f6")
 
@@ -54,7 +54,7 @@ def get_all_projects():
     """
     Return a list of all the project to which the current user has access.
 
-    :return: a list of :class: `mcapi.Project`
+    :return: a list of :class:`mcapi.Project`
 
     >>> project_list = get_all_projects()
     >>> for project in project_list:
@@ -73,7 +73,7 @@ def get_all_users():
     """
     Return the list of all users registerd on the server.
 
-    :return: a list of :class: `mcapi.User`
+    :return: a list of :class:`mcapi.User`
 
     >>> user_list = get_all_users()
     >>> for user in user_list:
@@ -90,7 +90,7 @@ def get_all_templates():
     """
     Return a list of all the templates known to the system.
 
-    :return: a list of :class: `mcapi.Template`
+    :return: a list of :class:`mcapi.Template`
 
     >>> template_list = get_all_templates()
     >>> for template in template_list:
@@ -151,9 +151,9 @@ class Project(MCObject):
     """
     def __init__(self, name="", description="", remote_url="", data=None):
         # normally, from the data base
-        self.id = ""
-        self.name = ""
-        self.description = ""
+        self.id = ""                        #: project id - string (from database)
+        self.name = ""                      #: project name - string (from database)
+        self.description = ""               #: project description - string (from database)
         self.size = 0
         self.mediatypes = {}
 
@@ -162,8 +162,8 @@ class Project(MCObject):
 
         # additional fields
         self._top = None
-        self.source = remote_url
-        self.delete_tally = {}
+        self.source = remote_url            #: remote URL for this project - string (local only - not in database)
+        self.delete_tally = {}              #: the :class:`mcapi.DeleteTally` once the project has been deleted
 
         if not data:
             data = {}
@@ -235,6 +235,7 @@ class Project(MCObject):
 
     def put(self):
         """
+        Copy local values to database.
 
         .. note:: Not currently implemented. All functions that change the object also update
             the object in the database; for example, :func:`mcapi.Project.rename`
@@ -249,7 +250,7 @@ class Project(MCObject):
         determine the objects to be deleted.
 
         :param dry_run: (optional) if True, then only determine what would be deleted
-        :return: a :class:`DeleteTally` instance, which lists the id's of the objects (to be or actually) deleted.
+        :return: a :class:`mcapi.DeleteTally` instance, which lists the id's of the objects (to be or actually) deleted.
 
         """
         if dry_run:
@@ -265,9 +266,9 @@ class Project(MCObject):
         """
         Create and return an Experiemnt in this project.
 
-        :param name: name for Experiment
-        :param description: description for Experiment
-        :return: a :class:`Experiment` instance
+        :param name: name for the Experiment
+        :param description: description for the Experiment
+        :return: a :class:`mcapi.Experiment` instance
 
         >>> experiment = project.create_experiment("Experiment 1", "Test Procedures")
 
@@ -291,7 +292,7 @@ class Project(MCObject):
         """
         Get a list of all the experiments in this project.
 
-        :return: a list of :class:`Experiment` instances
+        :return: a list of :class:`mcapi.Experiment` instances
 
         >>> experiment_list = project.get_all_experiments()
         >>> for experiment in experiment_list:
@@ -319,7 +320,7 @@ class Project(MCObject):
 
         :param directory_id: The id of the directory to fetch.
         :type directory_id: str.
-        :return: mcapi.Directory
+        :return: a :class:`mcapi.Directory` instance
 
         >>> directory = project.get_directory_by_id('876655a2-c31b-4895-8766-40a168ea1a87')
         >>> print directory.path
@@ -335,6 +336,8 @@ class Project(MCObject):
     def get_all_directories(self):
         """
         Get a list of all the directories in this project.
+
+        :return: a list :class:`mcapi.Directory` instances
 
         >>> directory_list = project.get_all_directories()
         >>> for directory in directory_list:
@@ -358,6 +361,11 @@ class Project(MCObject):
     def get_top_directory(self):
         """
         Get the top leve directory.
+
+        :return: a :class:`mcapi.Directory` instance
+
+        >>> directory = project.get_top_directory()
+
         """
         if not self._top:
             results = api.directory_by_id(self.id, "top")
@@ -370,6 +378,9 @@ class Project(MCObject):
         """
         Given a directory path, returns a list of all the directoreis on the path.
         Can fail if the path does not exist.
+
+        :param path: the path, within the project, of the directory - string
+        :return: a list of :class:`mcapi.Directory` instances
 
         >>> # In this example, the list would consist of three directories, assuming that they exist:
         >>> #   the Root directory (or 'top' directory)
@@ -389,6 +400,13 @@ class Project(MCObject):
     def get_directory(self, directory_id):
         """
         Get the indicated directory.
+
+        :param directory_id: - the id of the intended directory - string
+        :return: a :class:`mcapi.Directory` instance
+
+        >>> directory = project.get_directory("352eb9b1-8553-4be5-8c08-cbb496ef60ea")
+        >>> print directory.path
+
         """
         return self.get_directory_by_id(directory_id)
 
@@ -396,6 +414,20 @@ class Project(MCObject):
         """
         Given a directory path, returns a list of all the directories on the path.
         If a directory is missing, in the path, it is created and returned in the list.
+
+        :param path: the path, within the project, of the directory - string
+        :return: a list of :class:`mcapi.Directory` instances
+
+        >>> # In this example, the list would consist of three directories, where
+        >>> # any missing directory would be have been created:
+        >>> #   the Root directory (or 'top' directory)
+        >>> #   directory 'A'
+        >>> #   directory 'B'
+        >>>
+        >>> directory_list = project.get_directory_list("/A/B")
+        >>> print len(directory_list)
+        >>> for directory in directory_list:
+        >>>     print directory.name, directory.path
 
         """
 
@@ -408,8 +440,11 @@ class Project(MCObject):
 
     def add_directory(self, path):
         """
-        Given a directory path, creates all the directories on the path and returns the last one.
+        Given a directory path, returns the last directory on the path.
         If a directory is missing, in the path, it is created.
+
+        :param path: the path, within the project, of the directory - string
+        :return: a :class:`mcapi.Directory` instance
 
         >>> directory = project.add_directory("/A/B")
         >>> print directory.name, directory.path
@@ -426,6 +461,13 @@ class Project(MCObject):
         """
         Given a directory, a file_name, a local directory path to the file -
         uploads the file, creates a file descriptor in the database, and returns file descriptor.
+
+        :param directory: a class:`mcapi.Directory` instance, a directory in the project
+        :param file_name: the name that file is to take within the project directory
+        :param local_path: the local path to the file
+        :param verbose: (optional) a Flag; if true print out a trace of the actions
+        :param limit: (optional) the maximum number of MB to be uploaded
+        :return: the :class:`mcapi.File` instance representing the uploaded file
 
         >>> directory = directory = project.add_directory("/A/B")
         >>> file = project.add_file_using_directory(directory,"Test-Results","/tmp/results.txt")
@@ -450,13 +492,21 @@ class Project(MCObject):
     def add_file_by_local_path(self, local_path, verbose=False, limit=50):
         """
         Upload a file, specified by local_path, creating intermediate 
-        directories as necessary
+        directories as necessary; the file name on the directory of the project (remote) is the
+        file name from the local path. See :func:`mcapi.Project.add_file_using_directory`.
 
-        >>> self.local_path = "/path/to/Proj"
-        >>> local_path = self.local_path + "/test_dir/file_A.txt"
-        >>> file = project.add_file_by_local_path(local_path)
-        >>> # uploads file_A.txt
+        ..note This functions assumes the setting on setting of local_path on the project, see example
+
+        :param local_path: the local path to the file
+        :param verbose: (optional) a Flag; if true print out a trace of the actions
+        :param limit: (optional) the maximum number of MB to be uploaded
+        :return: the :class:`mcapi.File` instance representing the uploaded file
+
+        >>> # uploads file_A.txt from the local path /path/to/Proj/test_dir/file_A.txt
         >>> # returns File object representing file_A.txt at project directory /test_dir
+        >>> project.local_path = "/path/to/Proj"
+        >>> local_path = project.local_path + "/test_dir/file_A.txt"
+        >>> file = project.add_file_by_local_path(local_path)
 
         """
         dir_path = self._local_path_to_path(os_path.dirname(local_path))
@@ -467,14 +517,22 @@ class Project(MCObject):
     def add_directory_tree_by_local_path(self, local_path, verbose=False, limit=50):
         """
         Upload a directory, specified by local_path, and all its contents 
-        creating intermediate directories as necessary
+        creating intermediate directories as necessary; the directory name,
+        in project (remote), is the same as the local directory name.
 
-        >>> self.local_path = "/path/to/Proj"
-        >>> local_path = self.local_path + "/test_dir/dir_A" # a local directory
-        >>> file = project.add_directory_tree_by_local_path(local_path)
+        ..note This functions assumes the setting on setting of local_path on the project, see example
+
+        :param local_path: the local path to the directory
+        :param verbose: (optional) a Flag; if true print out a trace of the actions
+        :param limit: (optional) the maximum number of MB to be uploaded for any file in the path
+        :return: the :class:`mcapi.Directory` instance representing the uploaded directory
+
         >>> # uploads dir_A and all of it's contents
         >>> # returns Directory object representing project directory /test_dir/dir_a
-        
+        >>> project.local_path = "/path/to/Proj"
+        >>> local_path = project.local_path + "/test_dir/dir_A" # a local directory
+        >>> file = project.add_directory_tree_by_local_path(local_path)
+
         """
         path = self._local_path_to_path(os_path.dirname(local_path))
         dir = self.create_or_get_all_directories_on_path(path)[-1]
@@ -485,15 +543,18 @@ class Project(MCObject):
 
     def get_by_local_path(self, local_path):
         """
-        Uses path on local machine to get a File or Directory
-        
-        Arguments:
-            proj: mcapi.Project.
+        Uses path on local machine to get a the matching File or Directory in the project.
+        Return None if the local file or directory does not match one in the project.
 
-            local_path: file or directory local path equivalant.
-        
-        Returns:
-            obj: mcapi.File, mcapi.Directory, or None.
+        :param local_path: file or directory local path equivalant.
+        :return: one of :class:`mcapi.File`, :class:'mcapi.Directory`, or None.
+
+        >>> project.local_path = "/path/to/Proj"
+        >>> local_path = project.local_path + "/test_dir/dir_A" # a local directory
+        >>> directory = get_by_local_path(local_path)
+        >>> if (directory):
+        >>>     print directory.path
+
         """
         if self.local_path is None:
             msg = "Error in Project.get_by_local_path: Project.local_path is None"
@@ -512,15 +573,23 @@ class Project(MCObject):
     def file_exists_by_local_path(self, local_path, checksum=False):
         """
         Check if files exists locally and remotely. Optionally compares md5 hash.
-        
-        Returns:
-            file_exists [, checksum_equal]
-            
-            file_exists: bool
-                True if file exists locally and remotely
-            
-            checksum_equal:
-                Returns (local checksum == remote checksum), if 'checksum' == True,
+
+        :param local_path: file or directory local path equivalent.
+        :param checksum: (optional) a flag (True) to complare local and remote checksums
+        :return: file_exists [, checksums_are_equal] - both Boolean
+
+        Return Values::
+
+            **file_exists** is True file exists locally and remotely
+            **checksums_are_equal** (when requested by checksum=True)
+                is True when both files exist and have the same checksum value
+
+        >>> project.local_path = "/path/to/Proj"
+        >>> local_path = project.local_path + "/test_dir/dir_A" # a local directory
+        >>> files_ok, checksums_ok = file_exists_by_local_path(local_path, checksum = True)
+        >>> if files_ok and checksums_ok:
+        >>>     print local_path + " found on on remote site."
+
         """
         if os_path.exists(local_path) and os_path.isfile(local_path):
             obj = self.get_by_local_path(local_path)
@@ -546,6 +615,8 @@ class Project(MCObject):
         """
         Get a list of all processes in this project.
 
+        :return: a list of :class:`mcapi.Process` - the processes for the Project
+
         >>> process_list = project.get_all_processes()
         >>> for process in process_list:
         >>>     print process.name
@@ -560,7 +631,10 @@ class Project(MCObject):
         """
         Get a project sample by process id.
 
-        >>> sample = project.get_process_by_id(process.id)
+        :param process_id: the process id value - string
+        :return: a class:`mcapi.Process`  - the intended process
+
+        >>> process = project.get_process_by_id(process.id)
 
         """
         results = api.get_process_by_id(self.id, process_id)
@@ -575,9 +649,11 @@ class Project(MCObject):
         """
         Get a list of all samples in this project.
 
+        :return: a list of :class:`mcapi.Sample` - the samples for the Project
+
         >>> sample_list = project.get_all_samples()
-        >>> for process in process_list:
-        >>>     print process.name
+        >>> for sample in sample_list:
+        >>>     print sample.name
 
         """
         samples_list = api.get_project_samples(self.id, self.remote)
@@ -586,8 +662,17 @@ class Project(MCObject):
         return samples
 
     def fetch_sample_by_id(self, sample_id):
+        # TODO: determine and document the differance between mcapi.fetch_sample_by_id and mcapi.get_sample_by_id
         """
         Get the sample in question.
+
+        :param sample_id: the sample id value - string
+        :return: a class:`mcapi.Sample` - the intended sample
+
+        >>> sample = project.get_sample_by_id(sample.id)
+
+        ..todo:: determine and document the differance between mcapi.fetch_sample_by_id and mcapi.get_sample_by_id
+
         """
         sample_json_dict = api.get_project_sample_by_id(self.id, sample_id)
         sample = make_object(sample_json_dict)
@@ -595,8 +680,17 @@ class Project(MCObject):
         return sample
 
     def get_sample_by_id(self, sample_id):
+        # TODO: determine and document the differance between mcapi.fetch_sample_by_id and mcapi.get_sample_by_id
         """
         Get the sample in question.
+
+        :param sample_id: the sample id value - string
+        :return: a class:`mcapi.Sample` - the intended sample
+
+        >>> sample = project.fetch_sample_by_id(sample.id)
+
+        ..todo:: determine and document the differance between mcapi.fetch_sample_by_id and mcapi.get_sample_by_id
+
         """
         results = api.get_sample_by_id(self.id, sample_id)
         sample = make_object(results)
@@ -606,34 +700,38 @@ class Project(MCObject):
 
 class Experiment(MCObject):
     """
-    A Materials Commons Experiment. Normally created by project.create_experiment()
+    A Materials Commons Experiment. Normally created from database by project.create_experiment()
     """
     def __init__(self, project_id=None, name=None, description=None,
                  data=None):
-        self.id = None
-        self.name = ""
-        self.description = ""
+        self.id = None                        #: experiment id - string (from database)
+        self.name = ""                        #: experiment name - string (from database)
+        self.description = ""                 #: experiment description - string (from database)
 
         self.project_id = None
-        self.project = None
+        self.project = None                   #: the :class:`mcapi.Project` instance of the project that contains this experiment
 
-        self.status = None
-        self.funding = ''
-        self.note = ''
+        self.status = None                    #: the status of the experiment - string
+        self.funding = ''                     #: funding description - string
+        self.note = ''                        #: any notes - string
 
         self.tasks = None
-        self.publications = None
-        self.notes = None
-        self.papers = None
-        self.collaborators = None
-        self.citations = None
-        self.goals = None
-        self.aims = None
+        self.publications = None              #: list of string
+        self.notes = None                     #: list of string
+        self.papers = None                    #: list of string
+        self.collaborators = None             #: list of string
+        self.citations = None                 #: list of string
+        self.goals = None                     #: list of string
+        self.aims = None                      #: list of string
 
-        self.category = None
+        self.category = None                  #: string
 
-        self.samples = []
-        self.processes = {}  # a set
+        self.samples = []                     #: list of :class:`mcapi.Sample` instances
+        self.processes = {}                   #: set of :class:`mcapi.Process` instances
+
+        #: the :class:`mcapi.DeleteTally` once the experiment has been deleted;
+        #: **delete_tally** is only set if the experiment was deleted directly;
+        #: for example, not if the experiment was deleted by deleting it's project
         self.delete_tally = {}
 
         if not data:
@@ -673,10 +771,11 @@ class Experiment(MCObject):
 
     def rename(self, name, description=None):
         """
+        rename this experiment
 
         :param name:
         :param description:
-        :return:
+        :return: this
 
         .. note:: Currently not implemented
 
@@ -686,8 +785,9 @@ class Experiment(MCObject):
 
     def put(self):
         """
+        Copy local values to database.
 
-        :return:
+        :return: this
 
         .. note:: Currently not implemented
 
@@ -720,7 +820,7 @@ class Experiment(MCObject):
         Create a process from a template
 
         :param template_id:
-        :return:
+        :return: the :class:`mcapi.Process` instance
         """
         project = self.project
         experiment = self
@@ -736,7 +836,7 @@ class Experiment(MCObject):
         Get a process for a given process id value.
 
         :param process_id:
-        :return:
+        :return: the :class:`mcapi.Process` instance
         """
         project = self.project
         experiment = self
@@ -751,7 +851,7 @@ class Experiment(MCObject):
         """
         Get all the processes in this Experiment.
 
-        :return:
+        :return: the list of :class:`mcapi.Process` instances
 
         """
         process_list = api.fetch_experiment_processes(self.project.id, self.id)
@@ -769,7 +869,7 @@ class Experiment(MCObject):
         Get a Sample value from a sample id value.
 
         :param sample_id:
-        :return:
+        :return: the :class:`mcapi.Sample` instance
 
         """
         project = self.project
@@ -784,7 +884,7 @@ class Experiment(MCObject):
         """
         Get all samples in this Experiment.
 
-        :return:
+        :return: the list of :class:`mcapi.Sample` instances
 
         """
         samples_list = api.fetch_experiment_samples(self.project.id, self.id)
@@ -796,13 +896,29 @@ class Experiment(MCObject):
     # Experiment - additional method
     def decorate_with_samples(self):
         """
-        Add all the Experiment's
-        :return:
+        Add all the Experiment's samples (from the database) into the local copy
+
+        :return: this experiment with the instances of :class:mcapi.Sample added as the samples attribute
+
+        >>> experiment = experiment.decorate_with_samples()
+        >>> for sample in experiment.samples:
+        >>>     print sample.name
+
         """
         self.samples = self.get_all_samples()
         return self
 
     def decorate_with_processes(self):
+        """
+        Add all the Experiment's processes (from the database) into the local copy
+
+        :return: this experiment with the instances of :class:mcapi.Process added as the processes attribute
+
+        >>> experiment = experiment.decorate_with_processes()
+        >>> for process in experiment.processes:
+        >>>     print process.name
+
+        """
         self.processes = self.get_all_processes()
         return self
 
@@ -968,6 +1084,14 @@ class Process(MCObject):
         return process
 
     def put(self):
+        """
+        Copy local values to database.
+
+        :return: this
+
+        .. note:: Currently not implemented
+
+        """
         # TODO Process.put()
         pass
 
@@ -1420,6 +1544,14 @@ class Sample(MCObject):
         pass
 
     def put(self):
+        """
+        Copy local values to database.
+
+        :return: this
+
+        .. note:: Currently not implemented
+
+        """
         # TODO: Sample.put()
         pass
 
@@ -1503,6 +1635,14 @@ class Directory(MCObject):
         return updated_directory
 
     def put(self):
+        """
+        Copy local values to database.
+
+        :return: this
+
+        .. note:: Currently not implemented
+
+        """
         # TODO Directory.put()
         pass
 
@@ -1670,6 +1810,14 @@ class File(MCObject):
         return updated_file
 
     def put(self):
+        """
+        Copy local values to database.
+
+        :return: this
+
+        .. note:: Currently not implemented
+
+        """
         # TODO File.put()
         pass
 
