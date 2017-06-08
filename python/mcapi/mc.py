@@ -1382,11 +1382,11 @@ class Process(MCObject):
         return self.set_measurements_for_process_samples(
             measurement_property, [measurement])
 
-    def add_integer_measurement(self, attribute, value, name=None):
+    def add_integer_measurement(self, attrname, value, name=None):
         """
         A helper function to add integer measurements to the output samples of this process.
 
-        :param attribute: - string
+        :param attrname: - string
         :param value: - integer
         :param name: - (optional) string - if not given the name=attribute
         :return: the updated process
@@ -1406,10 +1406,10 @@ class Process(MCObject):
     def add_number_measurement(self, attrname, value, name=None):
         """
 
-        :param attrname:
-        :param value:
-        :param name:
-        :return:
+        :param attrname: - string
+        :param value: - number
+        :param name: - (optional) string - if not given the name=attribute
+        :return: the updated process
         """
         measurement_data = {
             "attribute": attrname,
@@ -1422,10 +1422,10 @@ class Process(MCObject):
     def add_boolean_measurement(self, attrname, value, name=None):
         """
 
-        :param attrname:
-        :param value:
-        :param name:
-        :return:
+        :param attrname: - string
+        :param value: - boolean (True or False)
+        :param name: - (optional) string - if not given the name=attribute
+        :return: the updated process
         """
         measurement_data = {
             "attribute": attrname,
@@ -1438,10 +1438,10 @@ class Process(MCObject):
     def add_string_measurement(self, attrname, value, name=None):
         """
 
-        :param attrname:
-        :param value:
-        :param name:
-        :return:
+        :param attrname: - string
+        :param value: - string
+        :param name: - (optional) string - if not given the name=attribute
+        :return: the updated process
         """
         measurement_data = {
             "attribute": attrname,
@@ -1454,10 +1454,10 @@ class Process(MCObject):
     def add_file_measurement(self, attrname, file, name=None):
         """
 
-        :param attrname:
-        :param file:
-        :param name:
-        :return:
+        :param attrname: - string
+        :param file: a :class:`mcapi.File` instance
+        :param name: - (optional) string - if not given the name=attribute
+        :return: the updated process
         """
         measurement_data = {
             "attribute": attrname,
@@ -1475,10 +1475,10 @@ class Process(MCObject):
     def add_sample_measurement(self, attrname, sample, name=None):
         """
 
-        :param attrname:
-        :param sample:
-        :param name:
-        :return:
+        :param attrname: - string
+        :param sample: a :class:`mcapi.Sample` instance
+        :param name: - (optional) string - if not given the name=attribute
+        :return: the updated process
         """
         measurement_data = {
             "attribute": attrname,
@@ -1495,11 +1495,11 @@ class Process(MCObject):
     def add_list_measurement(self, attrname, value, value_type, name=None):
         """
 
-        :param attrname:
-        :param value:
-        :param value_type:
-        :param name:
-        :return:
+        :param attrname: - string
+        :param value: - a list in which all the objects are the same type
+        :param value_type: - string, the type of the objects in the list
+        :param name: - (optional) string - if not given the name=attribute
+        :return: the updated process
         """
         measurement_data = {
             "attribute": attrname,
@@ -1516,10 +1516,10 @@ class Process(MCObject):
     def add_numpy_matrix_measurement(self, attrname, value, name=None):
         """
 
-        :param attrname:
-        :param value:
-        :param name:
-        :return:
+        :param attrname: - string
+        :param value: - a numpy Matrix
+        :param name: - (optional) string - if not given the name=attribute
+        :return: the updated process
         """
         measurement_data = {
             "attribute": attrname,
@@ -1536,10 +1536,10 @@ class Process(MCObject):
     def add_selection_measurement(self, attrname, value, name=None):
         """
 
-        :param attrname:
-        :param value:
-        :param name:
-        :return:
+        :param attrname: - string
+        :param value: one of the choices in a selection
+        :param name: - (optional) string - if not given the name=attribute
+        :return: the updated process
         """
         measurement_data = {
             "attribute": attrname,
@@ -1552,10 +1552,10 @@ class Process(MCObject):
     def add_vector_measurement(self, attrname, value, name=None):
         """
 
-        :param attrname:
-        :param value:
-        :param name:
-        :return:
+        :param attrname: - string
+        :param value: - a list of float values
+        :param name: - (optional) string - if not given the name=attribute
+        :return: the updated process
         """
         measurement_data = {
             "attribute": attrname,
