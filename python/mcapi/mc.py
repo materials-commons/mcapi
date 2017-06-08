@@ -1144,7 +1144,7 @@ class Process(MCObject):
         :return: a list of :class:`mcapi.Sample`
 
         """
-        process_ok = (self.process_type == 'create' or self.template_name == 'sectioning')
+        process_ok = (self.process_type == 'create' or self.template_name == 'Sectioning')
         if not process_ok:
             print "Either Process.process_type is not 'create' or " + \
                   "Process.template_name is not 'sectioning'; instead: " + \
