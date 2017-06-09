@@ -10,7 +10,6 @@ from measurement import Measurement, MeasurementComposition, MeasurementString, 
     MeasurementVector, MeasurementSelection, MeasurementFile, MeasurementInteger, MeasurementBoolean, \
     MeasurementSample
 
-from mc import make_dir_tree_table
 
 from api import set_remote_config_url, get_remote_config_url
 
@@ -18,6 +17,7 @@ from api import set_remote_config_url, get_remote_config_url
 from config import Config
 from remote import Remote
 from api import set_remote, use_remote
+from mc import _make_dir_tree_table
 import api as __api
 
 # __all__ = dir()

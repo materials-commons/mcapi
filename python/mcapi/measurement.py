@@ -3,17 +3,27 @@ import sys
 from StringIO import StringIO
 
 class Measurement(MCObject):
+    """
+    A Materials Commons measurement.
+
+    Normally set by :func:`mcapi.Process.set_measurements_for_process_samples`.
+    """
     def __init__(self, data=None):
+        self.id = ''                        #: this measurement's id
+        self.name = ''                      #:
+        self.description = ''               #:
+        self.attribute = ''                 #:
+        self.unit = ''                      #:
+        self.value = ''                     #:
+        self.file = None                    #:
+        self.is_best_measure = False        #:
+        self.measurement_id = ''            #:
+        self.sample_id = ''                 #:
+        self.property_id = ''               #:
+
         # attr = ['id', 'name', 'description', 'birthtime', 'mtime', 'otype', 'owner']
         super(Measurement, self).__init__(data)
-        self.attribute = ''
-        self.unit = ''
-        self.value = ''
-        self.file = None
-        self.is_best_measure = False
-        self.measurement_id = ''
-        self.sample_id = ''
-        self.property_id = ''
+
         attr = ['attribute', 'unit', 'value', 'is_best_measure',
                 'measurement_id', 'sample_id', 'property_id', 'file']
         for a in attr:
@@ -23,6 +33,14 @@ class Measurement(MCObject):
         self.pretty_print(shift=shift, indent=indent, out=out)
         
     def pretty_print(self, shift=0, indent=2, out=sys.stdout):
+        """
+        Prints a nice layout of the object and all of it's values.
+
+        :param shift: the offset from the start of the line, in increments of indent
+        :param indent: the indent used for layout, in characters
+        :param out: the stream to which the object in printed
+        :return: None
+        """
         pp = PrettyPrint(shift=shift, indent=indent, out=out)
         pp.write("attribute: " + pp.str(self.attribute))
         pp.n_indent += 1
@@ -52,60 +70,90 @@ class Measurement(MCObject):
                 pp.n_indent -= 1
 
 class MeasurementComposition(Measurement):
+    """
+    See :class:`mcapi.Measurement`
+    """
     def __init__(self, data=None):
         # attr = ['name', 'attribute', 'birthtime', 'mtime', 'otype', 'owner', 'unit', 'value']
         super(MeasurementComposition, self).__init__(data)
 
 
 class MeasurementString(Measurement):
+    """
+    See :class:`mcapi.Measurement`
+    """
     def __init__(self, data=None):
         # attr = ['name', 'attribute', 'birthtime', 'mtime', 'otype', 'owner', 'unit', 'value']
         super(MeasurementString, self).__init__(data)
 
 
 class MeasurementMatrix(Measurement):
+    """
+    See :class:`mcapi.Measurement`
+    """
     def __init__(self, data=None):
         # attr = ['name', 'attribute', 'birthtime', 'mtime', 'otype', 'owner', 'unit', 'value']
         super(MeasurementMatrix, self).__init__(data)
 
 
 class MeasurementVector(Measurement):
+    """
+    See :class:`mcapi.Measurement`
+    """
     def __init__(self, data=None):
         # attr = ['name', 'attribute', 'birthtime', 'mtime', 'otype', 'owner', 'unit', 'value']
         super(MeasurementVector, self).__init__(data)
 
 
 class MeasurementSelection(Measurement):
+    """
+    See :class:`mcapi.Measurement`
+    """
     def __init__(self, data=None):
         # attr = ['name', 'attribute', 'birthtime', 'mtime', 'otype', 'owner', 'unit', 'value']
         super(MeasurementSelection, self).__init__(data)
 
 
 class MeasurementFile(Measurement):
+    """
+    See :class:`mcapi.Measurement`
+    """
     def __init__(self, data=None):
         # attr = ['name', 'attribute', 'birthtime', 'mtime', 'otype', 'owner', 'unit', 'value']
         super(MeasurementFile, self).__init__(data)
 
 
 class MeasurementInteger(Measurement):
+    """
+    See :class:`mcapi.Measurement`
+    """
     def __init__(self, data=None):
         # attr = ['name', 'attribute', 'birthtime', 'mtime', 'otype', 'owner', 'unit', 'value']
         super(MeasurementInteger, self).__init__(data)
 
 
 class MeasurementNumber(Measurement):
+    """
+    See :class:`mcapi.Measurement`
+    """
     def __init__(self, data=None):
         # attr = ['name', 'attribute', 'birthtime', 'mtime', 'otype', 'owner', 'unit', 'value']
         super(MeasurementNumber, self).__init__(data)
 
 
 class MeasurementBoolean(Measurement):
+    """
+    See :class:`mcapi.Measurement`
+    """
     def __init__(self, data=None):
         # attr = ['name', 'attribute', 'birthtime', 'mtime', 'otype', 'owner', 'unit', 'value']
         super(MeasurementBoolean, self).__init__(data)
 
 
 class MeasurementSample(Measurement):
+    """
+    See :class:`mcapi.Measurement`
+    """
     def __init__(self, data=None):
         # attr = ['name', 'attribute', 'birthtime', 'mtime', 'otype', 'owner', 'unit', 'value']
         super(MeasurementSample, self).__init__(data)

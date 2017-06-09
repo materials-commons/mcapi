@@ -6,7 +6,7 @@ from os import listdir
 from os import makedirs
 from os.path import getsize
 from mcapi import set_remote_config_url, get_remote_config_url, create_project
-from mcapi import make_dir_tree_table
+from mcapi import _make_dir_tree_table
 
 url = 'http://mctest.localhost/api'
 
@@ -98,7 +98,7 @@ class TestFileDirectoryUpload(unittest.TestCase):
 
         relative_path = "test_dir"
 
-        dir_tree_table = make_dir_tree_table(local_dir_path, "sub_directory_b", relative_path, {})
+        dir_tree_table = _make_dir_tree_table(local_dir_path, "sub_directory_b", relative_path, {})
         self.assertEqual(dir_tree_table.keys()[0], relative_path)
 
         file_dict = dir_tree_table[relative_path]
@@ -133,7 +133,7 @@ class TestFileDirectoryUpload(unittest.TestCase):
 
         dir_name = self.full_dir
 
-        dir_tree_table = make_dir_tree_table(local_base_path, dir_name, dir_name, {})
+        dir_tree_table = _make_dir_tree_table(local_base_path, dir_name, dir_name, {})
         for relative_dir_path in dir_tree_table.keys():
             file_dict = dir_tree_table[relative_dir_path]
             dirs = base_directory.create_descendant_list_by_path(relative_dir_path)

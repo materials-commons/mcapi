@@ -1700,24 +1700,24 @@ class Sample(MCObject):
 
     """
     def __init__(self, name=None, data=None):
-        self.id = None                          # id for this Sample - string
-        self.name = ""                          # name for this Sample - string
+        self.id = None                          #: id for this Sample - string
+        self.name = ""                          #: name for this Sample - string
 
-        self.property_set_id = ''               # the id of the related property set
-        self.project = None                     # the project that 'contains' this Sample
-        self.experiment = None                  # the experiment that 'contains' this Sample
+        self.property_set_id = ''               #: the id of the related property set
+        self.project = None                     #: the project that 'contains' this Sample
+        self.experiment = None                  #: the experiment that 'contains' this Sample
         # filled in when measurements exist (?)
-        self.properties = []                    # when measurements exist - the properties of this sample
-        self.experiments = []                   # the experiments that create or transform this sample
-        self.property_set_id = None             # the id of the property_set for this sample
-        self.direction = ''                     # the direction relationship ('input' or 'output') that sample
+        self.properties = []                    #: when measurements exist - the properties of this sample
+        self.experiments = []                   #: the experiments that create or transform this sample
+        self.property_set_id = None             #: the id of the property_set for this sample
+        self.direction = ''                     #: the direction relationship ('input' or 'output') that sample
         self.sample_id = None
         # to be filled in later
         self.processes = {}
         self.files = []
-        self.is_grouped = False;
-        self.has_group = False;
-        self.group_size = 0;
+        self.is_grouped = False
+        self.has_group = False
+        self.group_size = 0
 
         if not data:
             data = {}
@@ -1816,16 +1816,16 @@ class Directory(MCObject):
     """
     A Materials Commons Directory.
 
-    .. note:: normally created from the databse by all to :func:`mcapi.Project.add_directory` or
+    .. note:: normally created from the databse by call to :func:`mcapi.Project.add_directory` or
         any of the project methods that create directories on a given path
 
     """
     def __init__(self, name="", path="", data=None):
         # normally, from the data base
-        self.id = ""
-        self.name = ""
+        self.id = ""                            #: directory id
+        self.name = ""                          #: directory name
         self.checksum = ""
-        self.path = ""
+        self.path = ""                          #: directory path within project
         self.size = 0
 
         # additional fields
@@ -1860,15 +1860,27 @@ class Directory(MCObject):
 
     # directory - basic methods: rename, move, put, delete
     def rename(self, new_name):
+        """
+        Rename this directory. Top level directory, can not be renamed, rename project instead.
+        :param new_name: string
+        :return: updated directory
+        """
         dir_data = api.directory_rename(self._project.id, self.id, new_name)
         updated_directory = make_object(dir_data)
         updated_directory._project = self._project
         return updated_directory
 
-    def move(self, new_directory):
+    def move(self, new_parent_directory):
+        """
+        Move this directory into another directory. Changes the path of this
+        directory and the contents of the new parent directory.
+
+        :param new_parent_directory: an instance of :class:`mcapi.Directory`
+        :return:
+        """
         project_id = self._project.id
-        new_directory_id = new_directory.id
-        results = api.directory_move(project_id, self.id, new_directory.id)
+        new_directory_id = new_parent_directory.id
+        results = api.directory_move(project_id, self.id, new_parent_directory.id)
         updated_directory = make_object(results)
         updated_directory._project = self._project
         if not updated_directory._parent_id:
@@ -1888,10 +1900,24 @@ class Directory(MCObject):
         pass
 
     def delete(self):
+        """
+        Delete this directory.
+
+        :return: None
+
+        .. note:: Currently not implemented
+
+        """
         # TODO Directory.delete() ?? only when empty
         pass
 
     def get_children(self):
+        """
+        Get the contents of this directory.
+
+        :return: a list of :class:`mcapi.Directory` and/or :class:`mcapi.File` instances
+
+        """
         results = api.directory_by_id(self._project.id, self.id)
         ret = []
         for dir_or_file in results['children']:
@@ -1907,6 +1933,13 @@ class Directory(MCObject):
         return ret
 
     def create_descendant_list_by_path(self, path):
+        """
+        Create any directories missing on the given path, relative to this directory, and return all the
+        directories on the path.
+
+        :param path: string
+        :return: a list of :class:`mcapi.Directory` instances
+        """
         results = api.create_fetch_all_directories_on_path(self._project.id, self.id, path)
         dir_list = []
         parent = self
@@ -1920,6 +1953,13 @@ class Directory(MCObject):
         return dir_list
 
     def get_descendant_list_by_path(self, path):
+        """
+        Return all the directories on the given path, relative to this directory; if any are missing
+        and error is generated.
+
+        :param path: string
+        :return: a list of :class:`mcapi.Directory` instances
+        """
         all_directories = self._project.get_all_directories()
         dir_list = []
         parent = self
@@ -1934,11 +1974,29 @@ class Directory(MCObject):
                 dir_list.append(directory)
         return dir_list
 
-    def add_file(self, file_name, input_path, verbose=False, limit=50):
-        result = self._project.add_file_using_directory(self, file_name, input_path, verbose, limit)
+    def add_file(self, file_name, local_input_path, verbose=False, limit=50):
+        """
+        Upload local file, and attach it to an new file in this directory.
+
+        :param file_name: name of the new file - string
+        :param local_input_path: path to the local file - string
+        :param verbose: (optional) flag to print trace of all actions - True or False
+        :param limit: (optional) the limit in MB of the size of the file to upload
+        :return: an instance of :class:`mcapi.File` - the new file
+        """
+        result = self._project.add_file_using_directory(self, file_name, local_input_path, verbose, limit)
         return result
 
     def add_directory_tree(self, dir_name, input_dir_path, verbose=False, limit=50):
+        """
+        Given the path to a local directory, create that directory path in the database.
+
+        :param dir_name:
+        :param input_dir_path:
+        :param verbose:
+        :param limit:
+        :return:
+        """
         if not os_path.isdir(input_dir_path):
             return None
         if verbose:
@@ -1946,7 +2004,7 @@ class Directory(MCObject):
             if self.shallow:
                 name = self.name
             print "base directory: ", name
-        dir_tree_table = make_dir_tree_table(input_dir_path, dir_name, dir_name, {})
+        dir_tree_table = _make_dir_tree_table(input_dir_path, dir_name, dir_name, {})
         result = []
         error = {}
         for relative_dir_path in dir_tree_table.keys():
@@ -1965,7 +2023,7 @@ class Directory(MCObject):
 
 
 # -- helper function for Directory.add_directory_tree - above
-def make_dir_tree_table(base_path, dir_name, relative_base, table_so_far):
+def _make_dir_tree_table(base_path, dir_name, relative_base, table_so_far):
     local_path = os_path.join(base_path, dir_name)
     file_dictionary = {}
     for data_file in listdir(local_path):
@@ -1977,7 +2035,7 @@ def make_dir_tree_table(base_path, dir_name, relative_base, table_so_far):
         path = os_path.join(local_path, directory)
         base = os_path.join(relative_base, directory)
         if os_path.isdir(path):
-            table_so_far = make_dir_tree_table(local_path, directory, base, table_so_far)
+            table_so_far = _make_dir_tree_table(local_path, directory, base, table_so_far)
     return table_so_far
 
 
@@ -1990,19 +2048,19 @@ class File(MCObject):
     """
     def __init__(self, data=None):
         # normally, from the data base
-        self.id = ""
-        self.name = ""
-        self.description = ""
-        self.owner = ""
+        self.id = ""                        #: file id - string
+        self.name = ""                      #: file name - string
+        self.description = ""               #: file description - string
+        self.owner = ""                     #: file owner - string
 
-        self.path = ""
-        self.size = 0
+        self.path = ""                      #: file path - string
+        self.size = 0                       #: file size - long
         self.uploaded = 0
-        self.checksum = ""
-        self.current = True
-        self.mediatype = {}
-        self.tags = []
-        self.notes = []
+        self.checksum = ""                  #: file checksum - string
+        self.current = True                 #: file version flag - boolean
+        self.mediatype = {}                 #: - directory
+        self.tags = []                      #: - array of string
+        self.notes = []                     #: - array of string
 
         # from database, not inserted now, additional code needed
         self.samples = []
@@ -2036,6 +2094,12 @@ class File(MCObject):
     # File - basic methods: rename, move, put, delete
 
     def rename(self, new_file_name):
+        """
+        Rename this file.
+
+        :param new_file_name: string
+        :return: the updated file
+        """
         project_id = self._project.id
         file_id = self.id
         results = api.file_rename(project_id, file_id, new_file_name)
@@ -2044,6 +2108,12 @@ class File(MCObject):
         return updated_file
 
     def move(self, new_directory):
+        """
+        Move this file to another directory.
+
+        :param new_directory: the :class:`mcapi.Directory` instance of the new location
+        :return: the updated file
+        """
         project_id = self._project.id
         old_directory_id = self._directory_id
         new_directory_id = new_directory.id
@@ -2065,21 +2135,46 @@ class File(MCObject):
         # TODO File.put()
         pass
 
-    def detele(self):
+    def delete(self):
+        """
+        Delete this file from the database.
+
+        :return: None
+
+        .. note:: Currently not implemented
+
+        """
         # TODO File.delete()
         pass
 
     # File - additional methods
     def download_file_content(self, local_download_file_path):
+        """
+        Down a copy of the file from the database into a local file on a local path.
+        Will overwrite any existing file.
+
+        :param local_download_file_path: the local path ending in the intended file name.
+        :return: the output file path
+        """
         project_id = self._project.id
         file_id = self.id
         output_file_path = api.file_download(project_id, file_id, local_download_file_path)
         return output_file_path
 
     def parent(self):
+        """
+
+        :return: the parent :class:`mcapi.Directory` instance
+        """
         return self._project.get_directory_by_id(self._directory_id)
 
     def local_path(self):
+        """
+        In the context of the project for this file, assuming that project.local_path is set for that project,
+        get the local_path indicated by this files database path and name.
+
+        :return: the full local path of this file including the filename.
+        """
         parent = self.parent()
         proj = parent._project
         proj_dirname = os_path.dirname(proj.local_path)
@@ -2098,7 +2193,7 @@ class Template(MCObject):
 
     """
     # global static
-    create = "global_Create Samples"
+    create = "global_Create Samples"                #: a typical template id, used for testing.
     compute = "global_Computation"
     primitive_crystal_structure = "global_Primitive Crystal Structure"
 
@@ -2157,23 +2252,28 @@ class Template(MCObject):
 
 class Property(MCObject):
     """
-    A Materials Commons Property. Normally created by
+    A Materials Commons Property.
+    Normally created by calls to :func:`mcapi.Process.set_measurements_for_process_samples`
+    or :func:`mcapi.Process.update_setup_properties`.
     """
     def __init__(self, data=None):
+        self.id = ''                        #: this property's id
+        self.name = ''                      #:
+        self.description = ''               #:
+        self.setup_id = ''                  #: the id of the setup, if set indicates that this is a setup property
+        self.property_set_id = ''           #: the property_set id, if set this property for measurement
+        self.parent_id = ''                 #: previous version of this property, if any
+        self.property_id = ''               #: this property's id
+        self.required = False               #: a required property?
+        self.unit = ''                      #: unit, if any
+        self.attribute = ''                 #: attribute
+        self.value = ''                     #: value
+
+        self.units = []                     #: array of string
+        self.choices = []                   #: array of string
+
         # attr = ['id', 'name', 'description', 'birthtime', 'mtime', 'otype', 'owner']
         super(Property, self).__init__(data)
-
-        self.setup_id = ''
-        self.property_set_id = ''
-        self.parent_id = ''
-        self.property_id = ''
-        self.required = False
-        self.unit = ''
-        self.attribute = ''
-        self.value = ''
-
-        self.units = []  # of string
-        self.choices = []  # of string
 
         attr = ['setup_id', 'required', 'unit', 'attribute', 'value']
         for a in attr:
@@ -2223,6 +2323,12 @@ class Property(MCObject):
 
 
 class MeasuredProperty(Property):
+    """
+    A property that is associated with a measurement.
+
+    See :class:`mcapi.Property`
+
+    """
     def __init__(self, data=None):
         # attr = ['id', 'name', 'description', 'birthtime', 'mtime', 'otype', 'owner',
         # 'setup_id', 'required', 'unit', 'attribute', 'value', 'units', 'choices']
@@ -2248,46 +2354,73 @@ class MeasuredProperty(Property):
 
 
 class NumberProperty(Property):
+    """
+    See :class:`mcapi.Property`
+    """
     def __init__(self, data=None):
         super(NumberProperty, self).__init__(data)
 
 
 class StringProperty(Property):
+    """
+    See :class:`mcapi.Property`
+    """
     def __init__(self, data=None):
         super(StringProperty, self).__init__(data)
 
 
 class BooleanProperty(Property):
+    """
+    See :class:`mcapi.Property`
+    """
     def __init__(self, data=None):
         super(BooleanProperty, self).__init__(data)
 
 
 class DateProperty(Property):
+    """
+    See :class:`mcapi.Property`
+    """
     def __init__(self, data=None):
         super(DateProperty, self).__init__(data)
 
 
 class SelectionProperty(Property):
+    """
+    See :class:`mcapi.Property`
+    """
     def __init__(self, data=None):
         super(SelectionProperty, self).__init__(data)
 
 
 class FunctionProperty(Property):
+    """
+    See :class:`mcapi.Property`
+    """
     def __init__(self, data=None):
         super(FunctionProperty, self).__init__(data)
 
 
 class CompositionProperty(Property):
+    """
+    See :class:`mcapi.Property`
+    """
     def __init__(self, data=None):
         super(CompositionProperty, self).__init__(data)
 
 
 class VectorProperty(Property):
+    """
+    See :class:`mcapi.Property`
+    """
     def __init__(self, data=None):
         super(VectorProperty, self).__init__(data)
 
 
 class MatrixProperty(Property):
+    """
+    See :class:`mcapi.Property`
+    """
     def __init__(self, data=None):
         super(MatrixProperty, self).__init__(data)
 
