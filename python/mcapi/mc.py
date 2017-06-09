@@ -1386,22 +1386,22 @@ class Process(MCObject):
         """
         A helper function to add integer measurements to the output samples of this process.
 
-        :param attrname: - string
+        :param attrname: the name of the attribute - string
         :param value: - integer
         :param name: - (optional) string - if not given the name=attribute
         :return: the updated process
         """
         if (not name):
-            name = attribute
+            name = attrname
 
         measurement_data = {
             "name": name,
-            "attribute": attribute,
+            "attribute": attrname,
             "otype": "integer",
             "value": value,
             "is_best_measure": True
         }
-        return self.set_measurement(attribute, measurement_data, name)
+        return self.set_measurement(attrname, measurement_data, name)
 
     def add_number_measurement(self, attrname, value, name=None):
         """
