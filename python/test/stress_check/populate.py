@@ -1,6 +1,7 @@
-
+import os
 
 def populate():
+    os.chdir("a_thousand_files")
     for i in range(1000):
         padding = ""
         if (i < 1000): padding += "0"
