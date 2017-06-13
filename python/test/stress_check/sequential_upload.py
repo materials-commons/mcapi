@@ -21,11 +21,14 @@ def sequential_upload_run():
 
     start = time.clock()
     for key in keys:
-        file_name = key
-        input_path = table[key]
-        project.add_file_using_directory(directory, file_name, input_path)
+        upload_one(project,directory,key,table[key])
     seconds = (time.clock() - start)
     print seconds
+
+
+def upload_one(project,directory,file_name,input_path):
+    project.add_file_using_directory(directory, file_name, input_path)
+
 
 def main():
     sequential_upload_run()
