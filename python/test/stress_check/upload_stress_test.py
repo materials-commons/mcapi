@@ -7,8 +7,8 @@ from os import path as os_path
 from os import walk
 from mcapi import set_remote_config_url, get_remote_config_url, create_project
 
-SEQUENTIAL = 'sequential'
-PARALLEL = 'parallel'
+SEQUENTIAL = 'Sequential'
+PARALLEL = 'Parallel'
 
 
 def fake_name(prefix):
@@ -16,8 +16,8 @@ def fake_name(prefix):
     return prefix + number
 
 
-def get_project():
-    project_name = fake_name("Parallel-Stress-Test")
+def get_project(mode):
+    project_name = fake_name(mode + "-Stress-Test-")
     project = create_project(project_name, "Project for parallel upload stress test")
     return project
 
@@ -27,42 +27,51 @@ def get_top_dir(project):
     return directory
 
 
-def make_file_tree():
-    test_dir_path = os_path.abspath("./a_thousand_files")
+def make_dir_list(tree_dir_path):
+    dirs = []
+    for (dirpath, dirnames, filenames) in walk(tree_dir_path):
+        dirs.append(dirpath)
+    return dirs
 
+
+def make_file_tree(tree_dir_path):
     table = {}
     keys = []
 
-    for (dirpath, dirnames, filenames) in walk(test_dir_path):
+    for (dirpath, dirnames, filenames) in walk(tree_dir_path):
         for name in filenames:
             if name.endswith(".txt"):
-                path = os_path.join(test_dir_path, name)
+                path = os_path.join(dirpath, name)
                 table[name] = path
                 keys.append(name)
 
     return table, keys
 
 
-def upload_one(project, directory, file_name, input_path):
-    project.add_file_using_directory(directory, file_name, input_path)
-    # print file_name
+def make_all_dirs(project, dirs):
+    for path in dirs:
+        project.add_directory_tree_by_local_path(path)
 
 
-def upload_all_sequential(project, directory, keys, table):
+def upload_one(project, input_path):
+    project.add_file_by_local_path(input_path)
+
+
+def upload_all_sequential(project, keys, table):
     for key in keys:
-        upload_one(project, directory, key, table[key])
+        upload_one(project, table[key])
 
 
 def upload_one_parallel(q):
     while (True):
         packet = q.get()
-        upload_one(packet['project'], packet['directory'], packet['file_name'], packet['path'])
+        upload_one(packet['project'], packet['path'])
         q.task_done()
 
 
-def upload_all_parallel(project, directory, keys, table):
+def upload_all_parallel(project, keys, table):
     q = Queue(maxsize=0)
-    num_threads = 5
+    num_threads = 20
 
     for i in range(num_threads):
         worker = Thread(target=upload_one_parallel, args=(q,))
@@ -72,8 +81,6 @@ def upload_all_parallel(project, directory, keys, table):
     for key in keys:
         packet = {}
         packet['project'] = project
-        packet['directory'] = directory
-        packet['file_name'] = key
         packet['path'] = table[key]
         q.put(packet)
 
@@ -81,31 +88,45 @@ def upload_all_parallel(project, directory, keys, table):
 
 
 def exec_all(flag):
-    project = get_project()
+    project = get_project(flag)
 
-    directory = get_top_dir(project)
+    test_dir_path = os_path.abspath("./a_thousand_files")
+    dirs = make_dir_list(test_dir_path)
+    table, keys = make_file_tree(test_dir_path)
 
-    table, keys = make_file_tree()
+    project.local_path = test_dir_path
 
     if flag == SEQUENTIAL:
         start = time.clock()
-        upload_all_sequential(project, directory, keys, table)
+        make_all_dirs(project, dirs)
+        seconds = (time.clock() - start)
+        print seconds
+
+        start = time.clock()
+        upload_all_sequential(project, keys, table)
         seconds = (time.clock() - start)
         print seconds
 
     else:
         start = time.clock()
-        upload_all_parallel(project, directory, keys, table)
+        make_all_dirs(project, dirs)
         seconds = (time.clock() - start)
         print seconds
+
+        start = time.clock()
+        upload_all_parallel(project, keys, table)
+        seconds = (time.clock() - start)
+        print seconds
+
+    print project.name
 
 
 def main():
     flag = SEQUENTIAL
     if len(sys.argv) > 1:
         flag = PARALLEL
-    print flag
     exec_all(flag)
+    print flag
 
 
 if __name__ == '__main__':
