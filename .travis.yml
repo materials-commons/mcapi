@@ -14,6 +14,7 @@ branches:
   except:
   - /^spike-.*$/
   - docs
+  - multi-file-upload
 
 language: python
 
