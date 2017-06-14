@@ -10,18 +10,22 @@ from mcapi import set_remote_config_url, get_remote_config_url, create_project
 SEQUENTIAL = 'sequential'
 PARALLEL = 'parallel'
 
+
 def fake_name(prefix):
     number = "%05d" % randint(0, 99999)
-    return prefix+number
+    return prefix + number
+
 
 def get_project():
     project_name = fake_name("Parallel-Stress-Test")
     project = create_project(project_name, "Project for parallel upload stress test")
     return project
 
+
 def get_top_dir(project):
     directory = project.get_top_directory()
     return directory
+
 
 def make_file_tree():
     test_dir_path = os_path.abspath("./a_thousand_files")
@@ -41,6 +45,8 @@ def make_file_tree():
 
 def upload_one(project, directory, file_name, input_path):
     project.add_file_using_directory(directory, file_name, input_path)
+    print file_name
+
 
 def upload_all_sequential(project, directory, keys, table):
     for key in keys:
@@ -48,15 +54,15 @@ def upload_all_sequential(project, directory, keys, table):
 
 
 def upload_one_parallel(q):
-    packet = q.get()
-    upload_one(packet['project'], packet['directory'], packet['file_name'], packet['path'])
-    print packet['file_name']
-    q.task_done()
+    while (True):
+        packet = q.get()
+        upload_one(packet['project'], packet['directory'], packet['file_name'], packet['path'])
+        q.task_done()
 
 
 def upload_all_parallel(project, directory, keys, table):
     q = Queue(maxsize=0)
-    num_threads = 10
+    num_threads = 5
 
     for i in range(num_threads):
         worker = Thread(target=upload_one_parallel, args=(q,))
@@ -75,7 +81,6 @@ def upload_all_parallel(project, directory, keys, table):
 
 
 def exec_all(flag):
-
     project = get_project()
 
     directory = get_top_dir(project)
@@ -97,7 +102,7 @@ def exec_all(flag):
 
 def main():
     flag = SEQUENTIAL
-    if len(sys.argv) < 1:
+    if len(sys.argv) > 1:
         flag = PARALLEL
     print flag
     exec_all(flag)
