@@ -45,7 +45,7 @@ def make_file_tree():
 
 def upload_one(project, directory, file_name, input_path):
     project.add_file_using_directory(directory, file_name, input_path)
-    print file_name
+    # print file_name
 
 
 def upload_all_sequential(project, directory, keys, table):
