@@ -46,8 +46,9 @@ def upload_one(project, input_path):
     try:
         project.add_file_by_local_path(input_path)
     except Exception as exc:
+        print "-------------"
         print exc
-        pass
+        raise
 
 
 def upload_all_sequential(project, keys, table):
@@ -60,6 +61,9 @@ def upload_one_parallel(q):
         packet = q.get()
         try:
             upload_one(packet['project'], packet['path'])
+        except:
+            print "Requeueing: " + packet['path']
+            q.put(packet)
         finally:
             q.task_done()
 
