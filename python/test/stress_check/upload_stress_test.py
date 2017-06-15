@@ -5,10 +5,14 @@ from Queue import Queue
 from threading import Thread
 from os import path as os_path
 from os import walk
-from mcapi import set_remote_config_url, get_remote_config_url, create_project
+from mcapi import get_remote_config_url, create_project
+
+# from populate import populate
 
 SEQUENTIAL = 'Sequential'
 PARALLEL = 'Parallel'
+PARTITIONED = "Partitioned"
+BASE_DIRECTORY = "/tmp/a_thousand_files"
 
 
 def fake_name(prefix):
@@ -22,19 +26,7 @@ def get_project(mode):
     return project
 
 
-def get_top_dir(project):
-    directory = project.get_top_directory()
-    return directory
-
-
-def make_dir_list(tree_dir_path):
-    dirs = []
-    for (dirpath, dirnames, filenames) in walk(tree_dir_path):
-        dirs.append(dirpath)
-    return dirs
-
-
-def make_file_tree(tree_dir_path):
+def make_file_tree_table(tree_dir_path):
     table = {}
     keys = []
 
@@ -46,11 +38,6 @@ def make_file_tree(tree_dir_path):
                 keys.append(name)
 
     return table, keys
-
-
-def make_all_dirs(project, dirs):
-    for path in dirs:
-        project.add_directory_tree_by_local_path(path)
 
 
 def upload_one(project, input_path):
@@ -71,7 +58,7 @@ def upload_one_parallel(q):
 
 def upload_all_parallel(project, keys, table):
     q = Queue(maxsize=0)
-    num_threads = 20
+    num_threads = 10
 
     for i in range(num_threads):
         worker = Thread(target=upload_one_parallel, args=(q,))
@@ -87,32 +74,27 @@ def upload_all_parallel(project, keys, table):
     q.join()
 
 
-def exec_all(flag):
+def exec_all(flag, subdir):
+    directory = BASE_DIRECTORY
+    if (subdir):
+        directory = BASE_DIRECTORY + "/" + subdir
+    print("Starting test: " + flag)
+    print("Using data at: " + directory)
+    print("Connecting to host: " + get_remote_config_url())
     project = get_project(flag)
 
-    test_dir_path = os_path.abspath("./a_thousand_files")
-    dirs = make_dir_list(test_dir_path)
-    table, keys = make_file_tree(test_dir_path)
+    test_dir_path = os_path.abspath(directory)
+    table, keys = make_file_tree_table(test_dir_path)
 
     project.local_path = test_dir_path
 
     if flag == SEQUENTIAL:
-        start = time.clock()
-        make_all_dirs(project, dirs)
-        seconds = (time.clock() - start)
-        print seconds
-
         start = time.clock()
         upload_all_sequential(project, keys, table)
         seconds = (time.clock() - start)
         print seconds
 
     else:
-        start = time.clock()
-        make_all_dirs(project, dirs)
-        seconds = (time.clock() - start)
-        print seconds
-
         start = time.clock()
         upload_all_parallel(project, keys, table)
         seconds = (time.clock() - start)
@@ -122,10 +104,16 @@ def exec_all(flag):
 
 
 def main():
+    # populate()
     flag = SEQUENTIAL
+    subdir = None
     if len(sys.argv) > 1:
-        flag = PARALLEL
-    exec_all(flag)
+        if sys.argv[1] == 'p':
+            flag = PARALLEL
+        if sys.argv[1] == 'x':
+            flag = PARTITIONED
+            subdir = sys.argv[2]
+    exec_all(flag, subdir)
     print flag
 
 
