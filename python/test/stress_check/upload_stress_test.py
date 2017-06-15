@@ -1,6 +1,7 @@
 import time
 import sys
 from random import randint
+from urllib2 import HTTPError
 from Queue import Queue
 from threading import Thread
 from os import path as os_path
@@ -41,7 +42,12 @@ def make_file_tree_table(tree_dir_path):
 
 
 def upload_one(project, input_path):
-    project.add_file_by_local_path(input_path)
+    try:
+        project.add_file_by_local_path(input_path)
+    except HTTPError as err:
+        print "HTTPError code " + err.code
+        print "HTTPError: " + err.reason
+        project.add_file_by_local_path(input_path)
 
 
 def upload_all_sequential(project, keys, table):
