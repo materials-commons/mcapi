@@ -24,6 +24,7 @@ def fake_name(prefix):
 def get_project(mode):
     project_name = fake_name(mode + "-Stress-Test-")
     project = create_project(project_name, "Project for parallel upload stress test")
+    print "Project: " + project.name
     return project
 
 
@@ -44,10 +45,9 @@ def make_file_tree_table(tree_dir_path):
 def upload_one(project, input_path):
     try:
         project.add_file_by_local_path(input_path)
-    except HTTPError as err:
-        print "HTTPError code " + err.code
-        print "HTTPError: " + err.reason
-        project.add_file_by_local_path(input_path)
+    except Exception as exc:
+        print exc
+        pass
 
 
 def upload_all_sequential(project, keys, table):
@@ -58,8 +58,10 @@ def upload_all_sequential(project, keys, table):
 def upload_one_parallel(q):
     while (True):
         packet = q.get()
-        upload_one(packet['project'], packet['path'])
-        q.task_done()
+        try:
+            upload_one(packet['project'], packet['path'])
+        finally:
+            q.task_done()
 
 
 def upload_all_parallel(project, keys, table):
