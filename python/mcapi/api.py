@@ -490,6 +490,17 @@ def directory_move(project_id, directory_id, new_directory_id, remote=None):
               "/directories/" + directory_id
     return put(remote.make_url_v2(api_url), data)
 
+def directory_create_subdirectories_from_path_list(project_id, directory_id, path_list, remote=None):
+    if not remote:
+        remote = use_remote()
+    print path_list
+    data = {
+        'paths' : path_list
+    }
+    api_url = "projects/" + project_id + \
+              "/directories/" + directory_id
+    return post(remote.make_url_v2(api_url), data)
+
 
 # file
 

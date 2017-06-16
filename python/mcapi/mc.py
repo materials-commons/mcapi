@@ -381,7 +381,7 @@ class Project(MCObject):
 
     def get_directory_list(self, path):
         """
-        Given a directory path, returns a list of all the directoreis on the path.
+        Given a directory path, returns a list of all the directories on the path.
         Can fail if the path does not exist.
 
         :param path: the path, within the project, of the directory - string
@@ -461,6 +461,44 @@ class Project(MCObject):
         directory = self.create_or_get_all_directories_on_path(path)[-1]
         directory._project = self
         return directory
+
+    def add_directory_list(self,path_list,top=None):
+        """
+        Given a list of directory paths, create all the directories in the path; this is be most efficent
+        if the paths in the list are all leaf directories in the desired tree. The intent of this
+        method is to support rapid upload of multiple files by pre-creating the needed directories.
+
+        :param path_list: a list of project directory paths, limit 100;
+            see :func:`mcapi.Project.add_directory` for more information
+        :param top: (optional) an instance of :class:`mcaip.Directory` - if given will be use
+            as the top level directory for the request; otherwise the project's root directory
+            is used
+        :return: a dictionary, indexed by path of the ids of the created directories,
+            see :func:`mcapi.Project.get_directory` to get a directory by it's id.
+
+        >>> directory_path_list = ['/a/b/c', '/a/b/e', '/a/f/g']
+        >>> directory_id_table = project.add_directory_list(directory_path_list)
+        >>> for path in directory_path_list:
+        >>>     id = directory_id_table[path]
+        >>>     directory = project.get_directory(id)
+        >>>     print path, directory.path
+
+        """
+        if len(path_list) > 100:
+            raise ValueError('list of directory paths is limited to 100 in length')
+        print path_list
+        baseDirectory = top
+        if not baseDirectory:
+            baseDirectory = self.get_top_directory()
+        new_path_list = []
+        for path in path_list:
+            if not path.startswith('/'):
+                path = "/" + path
+            new_path_list.append(path)
+        results = api.directory_create_subdirectories_from_path_list(self.id,baseDirectory.id,new_path_list)
+        print "results"
+        print results
+        return {}
 
     def add_file_using_directory(self, directory, file_name, local_path, verbose=False, limit=50):
         """
