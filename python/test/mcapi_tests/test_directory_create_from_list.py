@@ -31,13 +31,8 @@ class TestDirectoryPathCreate(unittest.TestCase):
     def test_basic_dir_list(self):
         project = self.project
         directory_path_list = ['/a/b/c', '/a/b/e', '/a/f/g']
-        print ''
-        print directory_path_list
         directory_table = project.add_directory_list(directory_path_list)
         self.assertIsNotNone(directory_table)
-        print directory_table
-        
-        # for path in directory_path_list:
-        #     id = directory_id_table[path]
-        #     directory = project.get_directory(id)
-        #     self.assertEqual(path, directory.path)
+        for path in directory_path_list:
+            self.assertIsNotNone(directory_table[path])
+            self.assertEqual(directory_table[path].name,project.name + path)

@@ -486,7 +486,6 @@ class Project(MCObject):
         """
         if len(path_list) > 100:
             raise ValueError('list of directory paths is limited to 100 in length')
-        print path_list
         baseDirectory = top
         if not baseDirectory:
             baseDirectory = self.get_top_directory()
@@ -496,9 +495,13 @@ class Project(MCObject):
                 path = "/" + path
             new_path_list.append(path)
         results = api.directory_create_subdirectories_from_path_list(self.id,baseDirectory.id,new_path_list)
-        print "results"
-        print results
-        return {}
+        data = results['val']
+        table = {}
+        project_name = self.name
+        for key in data:
+            relative_path = key[len(project_name):]
+            table[relative_path] = make_object(data[key])
+        return table
 
     def add_file_using_directory(self, directory, file_name, local_path, verbose=False, limit=50):
         """
