@@ -1,7 +1,6 @@
 import time
 import sys
 from random import randint
-from urllib2 import HTTPError
 from Queue import Queue
 from threading import Thread
 from os import path as os_path
