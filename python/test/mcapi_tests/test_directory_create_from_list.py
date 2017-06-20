@@ -1,4 +1,5 @@
 import unittest
+import pytest
 from random import randint
 from mcapi import set_remote_config_url, get_remote_config_url
 from mcapi import create_project
@@ -10,8 +11,8 @@ def fake_name(prefix):
     number = "%05d" % randint(0, 99999)
     return prefix+number
 
-
-class TestDirectoryPathCreate(unittest.TestCase):
+@pytest.mark.skip(reason="no way of currently testing this")
+class TestDirectoryCreateFromList(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
