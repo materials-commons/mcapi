@@ -1,5 +1,6 @@
 from os import path as os_path
 from os import walk
+import time
 from random import randint
 from mcapi import get_remote_config_url, create_project
 
@@ -10,9 +11,9 @@ def fake_name(prefix):
     return prefix + number
 
 
-def get_project(mode):
-    project_name = fake_name(mode + "-Stress-Test-")
-    project = create_project(project_name, "Project for parallel upload stress test")
+def get_project():
+    project_name = fake_name("Repeat-Update")
+    project = create_project(project_name, "Project for redundent upload test")
     print "Project: " + project.name
     return project
 
@@ -40,26 +41,35 @@ def upload_one(project, input_path):
 
 def upload_all_sequential(project, keys, table):
     for key in keys:
+        print 'upload: ' + key
         upload_one(project, table[key])
+        time.sleep(1)
 
 
 def main():
     directory = BASE_DIRECTORY
     print("Using data at: " + directory)
     print("Connecting to host: " + get_remote_config_url())
-    project = get_project("Repeat-Update")
 
     test_dir_path = os_path.abspath(directory)
     table, keys = make_file_tree_table(test_dir_path)
 
-    project.local_path = test_dir_path
-    keys = keys[0:10]
+    keys = keys[0:2]
 
     print len(keys)
 
-    for i in range(0,10):
-        print "run %d" % i
+    for i in range(0,2):
+        print "Different project - run %d" % i
+        project = get_project()
+        project.local_path = test_dir_path
         upload_all_sequential(project, keys, table)
+
+    project = get_project()
+    project.local_path = test_dir_path
+    for i in range(0, 2):
+        print "Same project - run %d" % i
+        upload_all_sequential(project, keys, table)
+
 
 if __name__ == '__main__':
     main()
