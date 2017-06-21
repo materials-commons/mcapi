@@ -1,7 +1,9 @@
 import openpyxl
 import datetime
+import os.path
 from mcapi import create_project, get_all_templates
 
+BASE_DIRECTORY = os.path.abspath("input_data/EPMA Raw Data")
 
 # Excel Spreadsheet, from Tracy: ./input_data/EPMA_Melt5b_MC_Demo.xlsx
 # meaning of values are hardcoded
@@ -25,6 +27,8 @@ from mcapi import create_project, get_all_templates
 
 class WorkflowBuilder:
     def parse_sheet(self, sheet):
+        self.file_upload_count = 0
+
         workflow_list = self.build_workflow_list(sheet)
 
         self.create_project_experiment()
@@ -32,6 +36,7 @@ class WorkflowBuilder:
 
         self.create_processes = {}
         self.section_processes = {}
+        self.project_files = {}
 
         for workflow in workflow_list:
             self.create_process_name = 'Create ' + workflow["material"]
@@ -48,10 +53,11 @@ class WorkflowBuilder:
             epma_process = self.ready_process_for_additions(epma_process)
 
             self.add_setup(epma_process,workflow['location'])
+            self.add_data_files(epma_process,workflow['data_file'])
             #self.add_measurements_and_annotations(epma_process,workflow)
-            #self.add_data_files(epma_process,workflow['data_file'])
 
         print self.project.name
+        print len(self.project_files)
 
     # build methods
 
@@ -60,6 +66,7 @@ class WorkflowBuilder:
         project_name = "Example-From-Script: " + time_stamp
         project_description = "Example workflow, created from script on " + time_stamp
         self.project = create_project(project_name, project_description)
+        self.project.local_path = BASE_DIRECTORY
 
         self.experiment = self.project.create_experiment("EPMA-Melt5b", "EPMA measurements of Melt5b samples")
 
@@ -139,11 +146,15 @@ class WorkflowBuilder:
         return process
 
     def add_setup(self,epma_process,location):
+        # TODO: add in error checking for unit in units
         epma_process.set_value_of_setup_property('voltage', 10)
         epma_process.set_unit_of_setup_property('voltage', 'kV')
         epma_process.set_value_of_setup_property('beam_current', 10)
         epma_process.set_unit_of_setup_property('beam_current', 'nA')
         epma_process.set_value_of_setup_property('beam_size', 0)
+        # TODO: support setting choice setup properties by type or name
+        # this is a problem that needs to be fixed.
+        # also should generate informative error message when expected to fail
         # scan_type = 'grid'
         # if location == 'edge':
         #     scan_type = 'line'
@@ -159,11 +170,24 @@ class WorkflowBuilder:
             'voltage', 'beam_current', 'beam_size', 'scan_type', 'step_size', 'grid_dimensions','location'
         ])
 
+    def add_data_files(self,epma_process, name):
+        filename_doc = name + '.docx'
+        filename_excel = name + '.xlsx'
+        filenames = [filename_doc, filename_excel]
+        files = []
+        for filename in filenames:
+            if not filename in self.project_files:
+                path = BASE_DIRECTORY + "/" + filename
+                if os.path.isfile(path):
+                    file = self.project.add_file_by_local_path(path)
+                    self.project_files[filename] = file
+            if filename in self.project_files:
+                files.append(self.project_files[filename])
+        if len(files) > 0:
+            epma_process.add_files(files)
+
 
     def add_measurements_and_annotations(self,epma_process,workflow):
-        pass
-
-    def add_data_files(self,epma_process, name):
         pass
 
     def make_template_table(self):
