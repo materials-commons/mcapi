@@ -126,12 +126,8 @@ class WorkflowBuilder:
                 process_and_samples['samples'][self.section_process_output_sample_name] = section_samples[0]
 
     def ready_process_for_additions(self,process):
-        self.experiment = self.experiment.decorate_with_processes()
-        found = process
-        for probe in self.experiment.processes:
-            if probe.id == process.id:
-                found = probe
-        return found
+        updated_process = self.experiment.get_process_by_id(process.id)
+        return updated_process
 
     def add_measurement_process(self):
         process_and_samples = self.section_processes[self.section_process_name]
@@ -148,9 +144,13 @@ class WorkflowBuilder:
         epma_process.set_value_of_setup_property('beam_current', 10)
         epma_process.set_unit_of_setup_property('beam_current', 'nA')
         epma_process.set_value_of_setup_property('beam_size', 0)
-        scan_type = 'grid'
+        # scan_type = 'grid'
+        # if location == 'edge':
+        #     scan_type = 'line'
+        # epma_process.set_value_of_setup_property('scan_type', scan_type)
+        scan_type = {"name":"Grid","value":"grid"}
         if location == 'edge':
-            scan_type = 'line'
+            scan_type = {"name":"Line","value":"line"}
         epma_process.set_value_of_setup_property('scan_type', scan_type)
         epma_process.set_value_of_setup_property('step_size', 10)
         epma_process.set_value_of_setup_property('grid_dimensions', '20 x 20')
@@ -158,6 +158,7 @@ class WorkflowBuilder:
         epma_process.update_setup_properties([
             'voltage', 'beam_current', 'beam_size', 'scan_type', 'step_size', 'grid_dimensions','location'
         ])
+
 
     def add_measurements_and_annotations(self,epma_process,workflow):
         pass
