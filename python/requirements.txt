@@ -8,3 +8,4 @@ pandas
 tabulate
 sortedcontainers
 mock
+openpyxl
