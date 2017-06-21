@@ -2340,7 +2340,7 @@ class Property(MCObject):
         pp.write("attribute: " + pp.str(self.attribute))
         pp.n_indent += 1
         pp.write("id: " + pp.str(self.id))
-        if self.best_measure is not None:
+        if hasattr(self,'best_measure') and self.best_measure is not None:
             pp.write("best_measure_id: " + pp.str(self.best_measure_id))
             pp.write_pretty_print_objects("best_measure: ", self.best_measure)
         strout = StringIO()
