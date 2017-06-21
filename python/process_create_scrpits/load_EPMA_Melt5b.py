@@ -188,7 +188,21 @@ class WorkflowBuilder:
 
 
     def add_measurements_and_annotations(self,epma_process,workflow):
-        pass
+        measurements = ['goodpoint_101', 'goodpoint_100p5', 'fg_101', 'fg_100p5']
+        for measurement_name in measurements:
+            measurement_data = {
+                "name": measurement_name,
+                "attribute": measurement_name,
+                "otype": "number",
+                "is_best_measure": True
+            }
+            measurement = epma_process.create_measurement(data=measurement_data)
+            measurement_property = {
+                "name": measurement_name,
+                "attribute": measurement_name
+            }
+            epma_process.set_measurements_for_process_samples(measurement_property, [measurement])
+
 
     def make_template_table(self):
         template_list = get_all_templates()
