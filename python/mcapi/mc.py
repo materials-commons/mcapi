@@ -1274,7 +1274,10 @@ class Process(MCObject):
         """
         prop = self.get_setup_properties_as_dictionary()[name]
         if prop:
+            prop.verify_value_type(value)
             prop.value = value
+        else:
+            raise MCPropertyException("Property '" + name + "' is not defined for this process template")
 
     def set_unit_of_setup_property(self, name, unit):
         """
@@ -1287,6 +1290,12 @@ class Process(MCObject):
         prop = self.get_setup_properties_as_dictionary()[name]
         if prop and (unit in prop.units):
             prop.unit = unit
+        elif prop:
+            message = "' there is no unit selection '" + unit + "'"
+            message += ", acceptable units are: " + ",".join(prop.units)
+            raise MCPropertyException("For property '" + name + "' there is no unit selection '" + unit + "'")
+        else:
+            raise MCPropertyException("Property '" + name + "' is not defined for this process template")
 
     def update_setup_properties(self, name_list):
         """
@@ -2308,7 +2317,7 @@ class Property(MCObject):
         self.required = False               #: a required property?
         self.unit = ''                      #: unit, if any
         self.attribute = ''                 #: attribute
-        self.value = ''                     #: value
+        self._value = ''  #: value - is actually set and fetched by covering methods on 'value'
 
         self.units = []                     #: array of string
         self.choices = []                   #: array of string
@@ -2323,6 +2332,21 @@ class Property(MCObject):
         attr = ['units', 'choices']
         for a in attr:
             setattr(self, a, data.get(a, []))
+
+    @property
+    def value(self):
+        return self._get_value()
+
+    @value.setter
+    def value(self, value):
+        self._set_value(value)
+
+    # to provide selective overriding in subclass
+    def _get_value(self):
+        return self._value
+
+    def _set_value(self, value):
+        self._value = value
 
     def abbrev_print(self, shift=0, indent=2, out=sys.stdout):
         self.pretty_print(shift=shift, indent=indent, out=out)
@@ -2362,6 +2386,17 @@ class Property(MCObject):
                     pp.write(line)
                 pp.n_indent -= 1
 
+    def verify_value_type(self, value):
+        '''
+
+        :param value:
+        :return: None
+        :raises: MCPropertyException when value does not match type
+        '''
+        # TODO: set verify for all types
+        # raise MCPropertyException('Attempt to verify value type for generic Property - use approperate subclass')
+        pass
+
 
 class MeasuredProperty(Property):
     """
@@ -2393,6 +2428,9 @@ class MeasuredProperty(Property):
                 measurement = make_measurement_object(measure_data)
                 self.best_measure[i] = measurement
 
+
+class MCPropertyException(BaseException):
+    pass
 
 class NumberProperty(Property):
     """
@@ -2426,6 +2464,7 @@ class DateProperty(Property):
         super(DateProperty, self).__init__(data)
 
 
+
 class SelectionProperty(Property):
     """
     See :class:`mcapi.Property`
@@ -2433,6 +2472,42 @@ class SelectionProperty(Property):
     def __init__(self, data=None):
         super(SelectionProperty, self).__init__(data)
 
+    def verify_value_type(self, value):
+        if isinstance(value, dict):
+            ok = isinstance(value['name'], str) or isinstance(value['name'], unicode)
+            ok = ok and (isinstance(value['value'], str) or isinstance(value['value'], unicode))
+            if (ok):
+                return
+        if not (isinstance(value, str) or isinstance(value, unicode)):
+            message = "Only str values for a SelectionProperty; "
+            message += "value = '" + str(value) + "', type = " + str(type(value)) + " is not valid"
+            raise MCPropertyException(message)
+        found = False
+        for choice in self.choices:
+            if value == choice['name'] or value == choice['value']:
+                found = True
+        if not found:
+            values = []
+            names = []
+            for choice in self.choices:
+                values.append(choice['value'])
+                names.append(choice['name'])
+            message = "Choice '" + value + "' is not valid for this property; "
+            message += "valid choices are " + ", ".join(names) + ", " + ", ".join(values)
+            raise MCPropertyException(message)
+
+    def _set_value(self, value):
+        if not value:
+            _value = value
+            return
+        found = None
+        for choice in self.choices:
+            if value == choice['name'] or value == choice['value']:
+                found = choice
+                break
+        if not found:
+            self.verify_value_type(value)
+        self._value = found
 
 class FunctionProperty(Property):
     """
