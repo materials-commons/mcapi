@@ -54,7 +54,7 @@ class WorkflowBuilder:
 
             self.add_setup(epma_process,workflow['location'])
             self.add_data_files(epma_process,workflow['data_file'])
-            #self.add_measurements_and_annotations(epma_process,workflow)
+            self.add_measurement_annotations(epma_process, workflow)
 
         print self.project.name
         print len(self.project_files)
@@ -139,6 +139,7 @@ class WorkflowBuilder:
     def add_measurement_process(self):
         process_and_samples = self.section_processes[self.section_process_name]
         measurement_input_sample = process_and_samples['samples'][self.section_process_output_sample_name]
+        self.measurement_sample = measurement_input_sample
         template_id = self.template_id_with(self.template_table, 'EPMA')
         process = self.experiment.create_process_from_template(template_id)
         process.rename(self.epma_process_name)
@@ -176,24 +177,17 @@ class WorkflowBuilder:
             if filename in self.project_files:
                 files.append(self.project_files[filename])
         if len(files) > 0:
+            sample = self.measurement_sample
             epma_process.add_files(files)
+            sample.link_files(files)
 
 
-    def add_measurements_and_annotations(self,epma_process,workflow):
-        measurements = ['goodpoint_101', 'goodpoint_100p5', 'fg_101', 'fg_100p5']
+    def add_measurement_annotations(self, epma_process, workflow):
+        measurements = ['points', 'goodpoint_101', 'goodpoint_100p5']
         for measurement_name in measurements:
-            measurement_data = {
-                "name": measurement_name,
-                "attribute": measurement_name,
-                "otype": "number",
-                "is_best_measure": True
-            }
-            measurement = epma_process.create_measurement(data=measurement_data)
-            measurement_property = {
-                "name": measurement_name,
-                "attribute": measurement_name
-            }
-            epma_process.set_measurements_for_process_samples(measurement_property, [measurement])
+            value = workflow[measurement_name]
+            annotation = measurement_name + " - "+ "%d" % workflow[measurement_name]
+            epma_process = epma_process.add_to_notes(annotation)
 
 
     def make_template_table(self):
