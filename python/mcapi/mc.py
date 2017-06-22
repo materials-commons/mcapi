@@ -1878,6 +1878,19 @@ class Sample(MCObject):
         pass
 
     # Sample - additional methods
+    def link_files(self, file_list):
+        """
+        Link files to sample
+
+        :param file_list: list of :class:`mcapi.mc.File` instances
+        :return: instance of :class:`mcapi.mc.Sample` - the updated sample
+        """
+        id_list = []
+        for file in file_list:
+            id_list.append(file.id)
+        api.link_files_to_sample(self.project.id, self.id, id_list)
+        return self.update_with_details()
+
     def update_with_details(self):
         updated_sample = self.project.fetch_sample_by_id(self.id)
         updated_sample.project = self.project

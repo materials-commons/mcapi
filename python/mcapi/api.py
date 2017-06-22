@@ -338,6 +338,22 @@ def add_samples_to_experiment(project_id, experiment_id, sample_id_list, remote=
     return post(remote.make_url_v2(api_url), data)
 
 
+def link_files_to_sample(project_id, sample_id, file_id_list, remote=None):
+    if not remote:
+        remote = use_remote()
+    command_list = []
+    for id in file_id_list:
+        command_list.append({
+            "command": "add",
+            "id": id
+        })
+    data = {
+        "files": command_list
+    }
+    api_url = "projects/" + project_id + "/samples/" + sample_id + "/files"
+    return put(remote.make_url_v2(api_url), data)
+
+
 def fetch_sample_details(project_id, sample_id, remote=None):
     if not remote:
         remote = use_remote()
