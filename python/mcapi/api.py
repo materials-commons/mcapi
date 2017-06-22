@@ -274,6 +274,15 @@ def push_name_for_process(project_id, process_id, name, remote=None):
     return put(remote.make_url_v2(api_url), data)
 
 
+def set_notes_for_process(project_id, process_id, value, remote=None):
+    if not remote:
+        remote = use_remote()
+    data = {
+        "description": value
+    }
+    api_url = "projects/" + project_id + "/processes/" + process_id
+    return put(remote.make_url_v2(api_url), data)
+
 def get_process_by_id(project_id, process_id, remote=None):
     if not remote:
         remote = use_remote()
