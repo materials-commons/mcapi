@@ -146,22 +146,14 @@ class WorkflowBuilder:
         return process
 
     def add_setup(self,epma_process,location):
-        # TODO: add in error checking for unit in units
         epma_process.set_value_of_setup_property('voltage', 10)
         epma_process.set_unit_of_setup_property('voltage', 'kV')
         epma_process.set_value_of_setup_property('beam_current', 10)
         epma_process.set_unit_of_setup_property('beam_current', 'nA')
         epma_process.set_value_of_setup_property('beam_size', 0)
-        # TODO: support setting choice setup properties by type or name
-        # this is a problem that needs to be fixed.
-        # also should generate informative error message when expected to fail
-        # scan_type = 'grid'
-        # if location == 'edge':
-        #     scan_type = 'line'
-        # epma_process.set_value_of_setup_property('scan_type', scan_type)
-        scan_type = {"name":"Grid","value":"grid"}
+        scan_type = 'grid'
         if location == 'edge':
-            scan_type = {"name":"Line","value":"line"}
+            scan_type = 'line'
         epma_process.set_value_of_setup_property('scan_type', scan_type)
         epma_process.set_value_of_setup_property('step_size', 10)
         epma_process.set_value_of_setup_property('grid_dimensions', '20 x 20')
