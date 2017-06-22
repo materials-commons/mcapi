@@ -1027,6 +1027,9 @@ class Process(MCObject):
         #: list of :class:`mcapi.Measurement` instances - filled in when measurements are attached
         self.measurements = []
 
+        #: extra field for convenience; equivalent to description
+        self.notes = ''
+
         if not data:
             data = {}
 
@@ -1055,6 +1058,10 @@ class Process(MCObject):
             self.name = name
         if description:
             self.description = description
+
+    def _process_special_objects(self):
+        super(Process, self)._process_special_objects()
+        self.notes = self.input_data['description']
 
     def pretty_print(self, shift=0, indent=2, out=sys.stdout):
         """
@@ -1172,6 +1179,27 @@ class Process(MCObject):
         """
         # TODO Process.put()
         pass
+
+    # Process - additional basic methods
+    def set_notes(self, note_text):
+        note_text = "<p>" + note_text + "</p>"
+        results = api.set_notes_for_process(self.project.id, self.id, note_text)
+        process = make_object(results)
+        process.project = self.project
+        process.experiment = self.experiment
+        process._update_project_experiment()
+        process.notes = process.description
+        return process
+
+    def add_to_notes(self, note_text):
+        note_text = self.notes + "\n<p>" + note_text + "</p>"
+        results = api.set_notes_for_process(self.project.id, self.id, note_text)
+        process = make_object(results)
+        process.project = self.project
+        process.experiment = self.experiment
+        process._update_project_experiment()
+        process.notes = process.description
+        return process
 
     # Process - Sample-related methods - create, get_by_id, get_all
     def create_samples(self, sample_names):
