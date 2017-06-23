@@ -2080,7 +2080,8 @@ class Directory(MCObject):
 
     def add_directory_tree(self, dir_name, input_dir_path, verbose=False, limit=50):
         """
-        Given the path to a local directory, create that directory path in the database.
+        Given the path to a local directory, create that directory path in the database,
+        loading all the files in the tree.
 
         :param dir_name:
         :param input_dir_path:
