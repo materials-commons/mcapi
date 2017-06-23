@@ -10,6 +10,7 @@ from measurement import Measurement, MeasurementComposition, MeasurementString, 
     MeasurementVector, MeasurementSelection, MeasurementFile, MeasurementInteger, MeasurementBoolean, \
     MeasurementSample
 
+from bulk_file_uploader import BulkFileUploader
 
 from api import set_remote_config_url, get_remote_config_url
 
