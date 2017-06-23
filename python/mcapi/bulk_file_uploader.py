@@ -5,7 +5,6 @@ from os import walk
 
 
 class BulkFileUploader:
-
     def __init__(self, parallel=True, verbose=False, limit=500):
         """
         A utility for uploading entire directory trees. See :funciton:`bulk_upload`.
@@ -46,15 +45,30 @@ class BulkFileUploader:
             message = "Attempt to upload directory tree with no files: " + local_directory
             raise Exception(message)
 
+        directory_path_list = []
+        for (dirpath, dirnames, filenames) in walk(local_directory):
+            db_path = os_path.relpath(dirpath, project.local_path)
+            directory_path_list.append('/' + str(db_path))
+
+        directory_table = project.add_directory_list(directory_path_list)
+
         if self.parallel:
-            self._upload_all_parallel(project, file_path_list)
+            self._upload_all_parallel(project, directory_table, file_path_list)
         else:
-            self._upload_all_sequential(project, file_path_list)
+            self._upload_all_sequential(project, directory_table, file_path_list)
 
         return_list = self._failed_list
         self._failed_list = []
 
         return return_list
+
+    def _make_dir_list_list(self, tree_dir_path):
+        ret = []
+
+        for (dirpath, dirnames, filenames) in walk(tree_dir_path):
+            ret.append(dirpath)
+
+        return ret
 
     def _make_file_path_list(self, tree_dir_path):
         ret = []
@@ -66,14 +80,16 @@ class BulkFileUploader:
 
         return ret
 
-    def _upload_one(self, project, input_path):
+    def _upload_one(self, project, directory, input_path):
         try:
             file_size_MB = os_path.getsize(input_path) >> 20
             if file_size_MB > self.limit:
-                msg = "File too large (>{0}MB), skipping. File size = {1}MB"\
+                msg = "File too large (>{0}MB), skipping. File size = {1}MB" \
                     .format(self.limit, file_size_MB)
                 raise BulkFileUploaderSizeException(msg)
-            project.add_file_by_local_path(input_path)
+            filename = os_path.basename(input_path)
+            project.add_file_using_directory(directory, filename, input_path,
+                                             verbose=self.verbose, limit=self.limit)
             if self.verbose:
                 print "Uploaded " + input_path
         except Exception as exc:
@@ -84,32 +100,28 @@ class BulkFileUploader:
                 print "^^^^^^^^^^^^^"
             raise
 
-    def _upload_all_sequential(self, project, file_path_list):
+    def _upload_all_sequential(self, project, directory_table, file_path_list):
         for file_path in file_path_list:
             try:
-                self._upload_one(project, file_path)
-            except Exception:
+                db_dir_path = os_path.relpath(os_path.dirname(file_path), project.local_path)
+                key = '/' + str(db_dir_path)
+                directory = directory_table[key]
+                self._upload_one(project, directory, file_path)
+            except Exception as exc:
                 self._failed_list.append(file_path)
 
     def _upload_one_parallel(self, q):
         while True:
             packet = q.get()
             try:
-                self._upload_one(packet['project'], packet['path'])
+                self._upload_one(packet['project'], packet['directory'], packet['path'])
             except Exception as exc:
-                if (not isinstance(exc,BulkFileUploaderSizeException)) and packet['retry'] < 3:
-                    if self.verbose:
-                        "Retrying upload for: " + packet['path']
-                    retry = True
-                    packet['retry'] += 1
-                    q.put(packet)
-                else:
-                    with self._lock:
-                       self._failed_list.append(packet['path'])
+                with self._lock:
+                    self._failed_list.append(packet['path'])
             finally:
                 q.task_done()
 
-    def _upload_all_parallel(self, project, file_path_list):
+    def _upload_all_parallel(self, project, directory_table, file_path_list):
         q = Queue(maxsize=100000)
         num_threads = 10
 
@@ -119,10 +131,14 @@ class BulkFileUploader:
             worker.start()
 
         for file_path in file_path_list:
-            packet = {'project': project, 'path': file_path, 'retry': 0}
+            db_dir_path = os_path.relpath(os_path.dirname(file_path), project.local_path)
+            key = '/' + str(db_dir_path)
+            directory = directory_table[key]
+            packet = {'project': project, 'directory': directory, 'path': file_path}
             q.put(packet)
 
         q.join()
+
 
 class BulkFileUploaderSizeException(Exception):
     pass
