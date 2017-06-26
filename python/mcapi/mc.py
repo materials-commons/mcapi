@@ -381,7 +381,7 @@ class Project(MCObject):
 
     def get_directory_list(self, path):
         """
-        Given a directory path, returns a list of all the directoreis on the path.
+        Given a directory path, returns a list of all the directories on the path.
         Can fail if the path does not exist.
 
         :param path: the path, within the project, of the directory - string
@@ -461,6 +461,47 @@ class Project(MCObject):
         directory = self.create_or_get_all_directories_on_path(path)[-1]
         directory._project = self
         return directory
+
+    def add_directory_list(self,path_list,top=None):
+        """
+        Given a list of directory paths, create all the directories in the path; this is be most efficent
+        if the paths in the list are all leaf directories in the desired tree. The intent of this
+        method is to support rapid upload of multiple files by pre-creating the needed directories.
+
+        :param path_list: a list of project directory paths, limit 100;
+            see :func:`mcapi.Project.add_directory` for more information
+        :param top: (optional) an instance of :class:`mcaip.Directory` - if given will be use
+            as the top level directory for the request; otherwise the project's root directory
+            is used
+        :return: a dictionary, indexed by path of the ids of the created directories,
+            see :func:`mcapi.Project.get_directory` to get a directory by it's id.
+
+        >>> directory_path_list = ['/a/b/c', '/a/b/e', '/a/f/g']
+        >>> directory_id_table = project.add_directory_list(directory_path_list)
+        >>> for path in directory_path_list:
+        >>>     id = directory_id_table[path]
+        >>>     directory = project.get_directory(id)
+        >>>     print path, directory.path
+
+        """
+        if len(path_list) > 100:
+            raise ValueError('list of directory paths is limited to 100 in length')
+        baseDirectory = top
+        if not baseDirectory:
+            baseDirectory = self.get_top_directory()
+        new_path_list = []
+        for path in path_list:
+            if not path.startswith('/'):
+                path = "/" + path
+            new_path_list.append(path)
+        results = api.directory_create_subdirectories_from_path_list(self.id,baseDirectory.id,new_path_list)
+        data = results['val']
+        table = {}
+        project_name = self.name
+        for key in data:
+            relative_path = key[len(project_name):]
+            table[relative_path] = make_object(data[key])
+        return table
 
     def add_file_using_directory(self, directory, file_name, local_path, verbose=False, limit=50):
         """
@@ -986,6 +1027,9 @@ class Process(MCObject):
         #: list of :class:`mcapi.Measurement` instances - filled in when measurements are attached
         self.measurements = []
 
+        #: extra field for convenience; equivalent to description
+        self.notes = ''
+
         if not data:
             data = {}
 
@@ -1014,6 +1058,10 @@ class Process(MCObject):
             self.name = name
         if description:
             self.description = description
+
+    def _process_special_objects(self):
+        super(Process, self)._process_special_objects()
+        self.notes = self.input_data['description']
 
     def pretty_print(self, shift=0, indent=2, out=sys.stdout):
         """
@@ -1132,6 +1180,27 @@ class Process(MCObject):
         # TODO Process.put()
         pass
 
+    # Process - additional basic methods
+    def set_notes(self, note_text):
+        note_text = "<p>" + note_text + "</p>"
+        results = api.set_notes_for_process(self.project.id, self.id, note_text)
+        process = make_object(results)
+        process.project = self.project
+        process.experiment = self.experiment
+        process._update_project_experiment()
+        process.notes = process.description
+        return process
+
+    def add_to_notes(self, note_text):
+        note_text = self.notes + "\n<p>" + note_text + "</p>"
+        results = api.set_notes_for_process(self.project.id, self.id, note_text)
+        process = make_object(results)
+        process.project = self.project
+        process.experiment = self.experiment
+        process._update_project_experiment()
+        process.notes = process.description
+        return process
+
     # Process - Sample-related methods - create, get_by_id, get_all
     def create_samples(self, sample_names):
         """
@@ -1233,7 +1302,10 @@ class Process(MCObject):
         """
         prop = self.get_setup_properties_as_dictionary()[name]
         if prop:
+            prop.verify_value_type(value)
             prop.value = value
+        else:
+            raise MCPropertyException("Property '" + name + "' is not defined for this process template")
 
     def set_unit_of_setup_property(self, name, unit):
         """
@@ -1246,6 +1318,12 @@ class Process(MCObject):
         prop = self.get_setup_properties_as_dictionary()[name]
         if prop and (unit in prop.units):
             prop.unit = unit
+        elif prop:
+            message = "' there is no unit selection '" + unit + "'"
+            message += ", acceptable units are: " + ",".join(prop.units)
+            raise MCPropertyException("For property '" + name + "' there is no unit selection '" + unit + "'")
+        else:
+            raise MCPropertyException("Property '" + name + "' is not defined for this process template")
 
     def update_setup_properties(self, name_list):
         """
@@ -1800,6 +1878,19 @@ class Sample(MCObject):
         pass
 
     # Sample - additional methods
+    def link_files(self, file_list):
+        """
+        Link files to sample
+
+        :param file_list: list of :class:`mcapi.mc.File` instances
+        :return: instance of :class:`mcapi.mc.Sample` - the updated sample
+        """
+        id_list = []
+        for file in file_list:
+            id_list.append(file.id)
+        api.link_files_to_sample(self.project.id, self.id, id_list)
+        return self.update_with_details()
+
     def update_with_details(self):
         updated_sample = self.project.fetch_sample_by_id(self.id)
         updated_sample.project = self.project
@@ -1989,7 +2080,8 @@ class Directory(MCObject):
 
     def add_directory_tree(self, dir_name, input_dir_path, verbose=False, limit=50):
         """
-        Given the path to a local directory, create that directory path in the database.
+        Given the path to a local directory, create that directory path in the database,
+        loading all the files in the tree.
 
         :param dir_name:
         :param input_dir_path:
@@ -2183,7 +2275,7 @@ class File(MCObject):
 
 class Template(MCObject):
     """
-    A Materials Commons Sample.
+    A Materials Commons Template.
 
     .. note:: Only available through the top level function get_all_templates().
 
@@ -2267,7 +2359,7 @@ class Property(MCObject):
         self.required = False               #: a required property?
         self.unit = ''                      #: unit, if any
         self.attribute = ''                 #: attribute
-        self.value = ''                     #: value
+        self._value = ''  #: value - is actually set and fetched by covering methods on 'value'
 
         self.units = []                     #: array of string
         self.choices = []                   #: array of string
@@ -2282,6 +2374,21 @@ class Property(MCObject):
         attr = ['units', 'choices']
         for a in attr:
             setattr(self, a, data.get(a, []))
+
+    @property
+    def value(self):
+        return self._get_value()
+
+    @value.setter
+    def value(self, value):
+        self._set_value(value)
+
+    # to provide selective overriding in subclass
+    def _get_value(self):
+        return self._value
+
+    def _set_value(self, value):
+        self._value = value
 
     def abbrev_print(self, shift=0, indent=2, out=sys.stdout):
         self.pretty_print(shift=shift, indent=indent, out=out)
@@ -2299,7 +2406,7 @@ class Property(MCObject):
         pp.write("attribute: " + pp.str(self.attribute))
         pp.n_indent += 1
         pp.write("id: " + pp.str(self.id))
-        if self.best_measure is not None:
+        if hasattr(self,'best_measure') and self.best_measure is not None:
             pp.write("best_measure_id: " + pp.str(self.best_measure_id))
             pp.write_pretty_print_objects("best_measure: ", self.best_measure)
         strout = StringIO()
@@ -2320,6 +2427,17 @@ class Property(MCObject):
                 for line in lines:
                     pp.write(line)
                 pp.n_indent -= 1
+
+    def verify_value_type(self, value):
+        '''
+
+        :param value:
+        :return: None
+        :raises: MCPropertyException when value does not match type
+        '''
+        # TODO: set verify for all types
+        # raise MCPropertyException('Attempt to verify value type for generic Property - use approperate subclass')
+        pass
 
 
 class MeasuredProperty(Property):
@@ -2353,6 +2471,9 @@ class MeasuredProperty(Property):
                 self.best_measure[i] = measurement
 
 
+class MCPropertyException(BaseException):
+    pass
+
 class NumberProperty(Property):
     """
     See :class:`mcapi.Property`
@@ -2385,6 +2506,7 @@ class DateProperty(Property):
         super(DateProperty, self).__init__(data)
 
 
+
 class SelectionProperty(Property):
     """
     See :class:`mcapi.Property`
@@ -2392,6 +2514,42 @@ class SelectionProperty(Property):
     def __init__(self, data=None):
         super(SelectionProperty, self).__init__(data)
 
+    def verify_value_type(self, value):
+        if isinstance(value, dict):
+            ok = isinstance(value['name'], str) or isinstance(value['name'], unicode)
+            ok = ok and (isinstance(value['value'], str) or isinstance(value['value'], unicode))
+            if (ok):
+                return
+        if not (isinstance(value, str) or isinstance(value, unicode)):
+            message = "Only str values for a SelectionProperty; "
+            message += "value = '" + str(value) + "', type = " + str(type(value)) + " is not valid"
+            raise MCPropertyException(message)
+        found = False
+        for choice in self.choices:
+            if value == choice['name'] or value == choice['value']:
+                found = True
+        if not found:
+            values = []
+            names = []
+            for choice in self.choices:
+                values.append(choice['value'])
+                names.append(choice['name'])
+            message = "Choice '" + value + "' is not valid for this property; "
+            message += "valid choices are " + ", ".join(names) + ", " + ", ".join(values)
+            raise MCPropertyException(message)
+
+    def _set_value(self, value):
+        if not value:
+            _value = value
+            return
+        found = None
+        for choice in self.choices:
+            if value == choice['name'] or value == choice['value']:
+                found = choice
+                break
+        if not found:
+            self.verify_value_type(value)
+        self._value = found
 
 class FunctionProperty(Property):
     """
