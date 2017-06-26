@@ -2275,7 +2275,7 @@ class File(MCObject):
 
 class Template(MCObject):
     """
-    A Materials Commons Sample.
+    A Materials Commons Template.
 
     .. note:: Only available through the top level function get_all_templates().
 

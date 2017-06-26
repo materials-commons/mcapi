@@ -4,14 +4,15 @@ from os import path as os_path
 from os import walk
 
 
-class BulkFileUploader:
+class BulkFileUploader(object):
+    '''
+    A utility for uploading entire directory trees. See :funciton:`bulk_upload`.
+
+    :param parallel: boolean - flag indicating that the upload should be multithreaded
+    :param verbose: boolean - flag indicating that trace output should be printed
+    :param limit: int - maximum size in MB of files that we be upload
+    '''
     def __init__(self, parallel=True, verbose=False, limit=500):
-        """
-        A utility for uploading entire directory trees. See :funciton:`bulk_upload`.
-        :param parallel: boolean - flag indicating that the upload should be multithreaded
-        :param verbose: boolean - flag indicating that trace output should be printed
-        :param limit: int - maximum size in MB of files that we be upload
-        """
         self.parallel = parallel
         self.verbose = verbose
         self.limit = limit
@@ -23,10 +24,10 @@ class BulkFileUploader:
         Upload the entire content of a local_directory using the projects.local_path to the base directory;
         that is project.local_path is the directory that contains the directory to be uploaded.
 
-        .. note This function achieves a speedup of file upload for large directory trees in two ways: the
-        directory structure, in the data base, is created prior to any file upload; the uploads are (by default)
-        done in parallel with multi-threading. Creating the directory structure in advance removes overhead that
-        would normally occur when files are uploaded one at a time.
+        .. note:: This function achieves a speedup of file upload for large directory trees in two ways:
+            the directory structure, in the data base, is created prior to any file upload; the uploads
+            are (by default) done in parallel with multi-threading. Creating the directory structure
+            in advance removes overhead that would normally occur when files are uploaded one at a time.
 
         :param project: an instance of :class:`mcaip.mc.Project`
         :param local_directory: the directory path (either absolute or relative) of the directory to be uploaded
