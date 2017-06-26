@@ -274,6 +274,15 @@ def push_name_for_process(project_id, process_id, name, remote=None):
     return put(remote.make_url_v2(api_url), data)
 
 
+def set_notes_for_process(project_id, process_id, value, remote=None):
+    if not remote:
+        remote = use_remote()
+    data = {
+        "description": value
+    }
+    api_url = "projects/" + project_id + "/processes/" + process_id
+    return put(remote.make_url_v2(api_url), data)
+
 def get_process_by_id(project_id, process_id, remote=None):
     if not remote:
         remote = use_remote()
@@ -327,6 +336,22 @@ def add_samples_to_experiment(project_id, experiment_id, sample_id_list, remote=
     }
     api_url = "projects/" + project_id + "/experiments/" + experiment_id + "/samples"
     return post(remote.make_url_v2(api_url), data)
+
+
+def link_files_to_sample(project_id, sample_id, file_id_list, remote=None):
+    if not remote:
+        remote = use_remote()
+    command_list = []
+    for id in file_id_list:
+        command_list.append({
+            "command": "add",
+            "id": id
+        })
+    data = {
+        "files": command_list
+    }
+    api_url = "projects/" + project_id + "/samples/" + sample_id + "/files"
+    return put(remote.make_url_v2(api_url), data)
 
 
 def fetch_sample_details(project_id, sample_id, remote=None):
@@ -490,6 +515,15 @@ def directory_move(project_id, directory_id, new_directory_id, remote=None):
               "/directories/" + directory_id
     return put(remote.make_url_v2(api_url), data)
 
+def directory_create_subdirectories_from_path_list(project_id, directory_id, path_list, remote=None):
+    if not remote:
+        remote = use_remote()
+    data = {
+        'paths' : path_list
+    }
+    api_url = "projects/" + project_id + \
+              "/directories/" + directory_id
+    return post(remote.make_url_v2(api_url), data)
 
 # file
 
