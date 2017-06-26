@@ -6,7 +6,7 @@ from os import walk
 
 class BulkFileUploader(object):
     '''
-    A utility for uploading entire directory trees. See :funciton:`bulk_upload`.
+    A utility for uploading entire directory trees.
 
     :param parallel: boolean - flag indicating that the upload should be multithreaded
     :param verbose: boolean - flag indicating that trace output should be printed
@@ -21,17 +21,27 @@ class BulkFileUploader(object):
 
     def bulk_upload(self, project, local_directory):
         '''
-        Upload the entire content of a local_directory using the projects.local_path to the base directory;
-        that is project.local_path is the directory that contains the directory to be uploaded.
+        Upload the entire content of a local_directory using the **projects.local_path** to the base directory;
+        that is **project.local_path** is the directory that contains the directory to be uploaded, see example.
 
         .. note:: This function achieves a speedup of file upload for large directory trees in two ways:
             the directory structure, in the data base, is created prior to any file upload; the uploads
             are (by default) done in parallel with multi-threading. Creating the directory structure
             in advance removes overhead that would normally occur when files are uploaded one at a time.
 
-        :param project: an instance of :class:`mcaip.mc.Project`
+        :param project: an instance of :class:`mcapi.Project`
         :param local_directory: the directory path (either absolute or relative) of the directory to be uploaded
-        :return: a list of files in the directory that failed to upload
+        :return: a list of paths of the files in the directory that it failed to upload
+
+        >>> project.local_path = "/path/to/Proj"
+        >>> local_path = project.local_path + "/data_dir" # a local directory
+        >>> loader=BulkFileUploader()
+        >>> missed_files = loader.bulk_upload(project, local_path)
+        >>> if missed_files:
+        >>>     print "The following files were not uploaded --"
+        >>>     for path in missed_files:
+        >>>         print path
+
         '''
         if not os_path.isdir(local_directory):
             message = "Attempt to upload directory from path that is not a directory: " + local_directory
