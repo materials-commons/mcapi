@@ -20,6 +20,10 @@ class TestTemplateAccess(unittest.TestCase):
         self.assertIsNotNone(probe)
         self.assertTrue(probe.otype == 'template')
 
+    def test_can_create(self):
+        templates = get_all_templates()
+        
+
     def make_template_table(self, templates):
         ret = {}
         for t in templates:
