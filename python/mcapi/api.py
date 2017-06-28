@@ -658,3 +658,17 @@ def get_doi_link(project_id, experiment_id, dataset_id, remote=None):
               "/datasets/" + dataset_id + \
               "/doi/link"
     return get(remote.make_url_v2(api_url))
+
+def _create_new_template(template_data, remote=None):
+    if not remote:
+        remote = use_remote()
+    api_url = "templates/"
+    data = template_data
+    return post(remote.make_url_v2(api_url),data)
+
+def _update_template(template_id, template_data, remote=None):
+    if not remote:
+        remote = use_remote()
+    api_url = "templates/" + template_id
+    data = template_data
+    return put(remote.make_url_v2(api_url),data)

@@ -18,7 +18,7 @@ from api import set_remote_config_url, get_remote_config_url
 from config import Config
 from remote import Remote
 from api import set_remote, use_remote
-from mc import _make_dir_tree_table
+from mc import _make_dir_tree_table, _create_new_tamplate, _update_template
 import api as __api
 
 # __all__ = dir()

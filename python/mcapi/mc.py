@@ -2694,3 +2694,20 @@ class DeleteTally(object):
                     'experiment_task_processes', 'experiment_tasks', 'notes', 'reviews', 'experiments']
             for a in attr:
                 setattr(self, a, data.get(a, None))
+
+
+#
+# ---
+#    testing template backend
+# ---
+def _create_new_tamplate(template_data):
+    print "Create new template"
+    results = api._create_new_template(template_data)
+    template = make_object(results)
+    return template
+
+def _update_template(template_id,template_data):
+    print "Updating template"
+    results = api._update_template(template_id,template_data)
+    template = make_object(results)
+    return template
