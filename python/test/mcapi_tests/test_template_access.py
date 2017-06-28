@@ -2,7 +2,8 @@ import unittest
 import pytest
 from random import randint
 from mcapi import set_remote_config_url, get_remote_config_url, get_all_templates
-from mcapi import get_all_users, _create_new_tamplate, _update_template
+from mcapi import use_remote, set_remote, get_all_users
+from mcapi import _create_new_tamplate, _update_template
 
 url = 'http://mctest.localhost/api'
 
@@ -85,6 +86,102 @@ class TestTemplateAccess(unittest.TestCase):
         self.assertEqual(template.otype,'template')
         self.assertTrue(template.does_transform)
 
+    def test_non_admin_other_user_cannot_modify_users_template(self):
+        test_name = fake_name('test-template')
+        test_id = "global_" + test_name
+        template_data = self.make_template_data(test_name)
+        template = _create_new_tamplate(template_data)
+        self.assertIsNotNone(template)
+        self.assertEqual(template.id,test_id)
+        self.assertEqual(template.otype,'template')
+        self.assertFalse(template.does_transform)
+        self.assertEqual(template.owner, 'test@test.mc')
+
+        another_user_id = 'another@test.mc'
+        another_user_key = 'another-bogus-account'
+
+        users = get_all_users()
+        user = None
+        for probe in users:
+            if probe.id == another_user_id:
+                user = probe
+        self.assertIsNotNone(user)
+
+        self._set_up_remote_for(another_user_key)
+
+        update_data = template.input_data
+        update_data["does_transform"] = True
+        self.assertEqual(update_data['owner'],'test@test.mc')
+        update_data.pop('id')
+
+        with pytest.raises(Exception):
+            _update_template(template.id, update_data)
+
+    def test_non_admin_user_cannot_update_standard_template(self):
+        templates = get_all_templates()
+        self.assertIsNotNone(templates)
+        self.assertTrue(len(templates) > 0)
+        self.assertTrue(templates[0].otype == 'template')
+        table = self.make_template_table(templates)
+        template_id = 'global_As Measured'
+        template = table[template_id]
+        self.assertIsNotNone(template)
+        self.assertEqual(template.id,template_id)
+        update_data = template.input_data
+        update_data["does_transform"] = True
+        self.assertNotEqual(update_data['owner'], 'test@test.mc')
+        update_data.pop('id')
+        update_data.pop('owner')
+        with pytest.raises(Exception):
+            _update_template(template.id, update_data)
+
+    def template_admin_can_update_any_template(self):
+        another_user_id = 'tadmin@test.mc'
+        another_user_key = 'bogus-for-template'
+
+        users = get_all_users()
+        user = None
+        for probe in users:
+            if probe.id == another_user_id:
+                user = probe
+        self.assertIsNotNone(user)
+
+        self._set_up_remote_for(another_user_key)
+
+        templates = get_all_templates()
+        self.assertIsNotNone(templates)
+        self.assertTrue(len(templates) > 0)
+        self.assertTrue(templates[0].otype == 'template')
+        table = self.make_template_table(templates)
+        template_id = 'global_As Measured'
+        template = table[template_id]
+        self.assertIsNotNone(template)
+        self.assertEqual(template.id,template_id)
+
+        update_data = template.input_data
+        update_data["does_transform"] = True
+        self.assertNotEqual(update_data['owner'], 'test@test.mc')
+        update_data.pop('id')
+        update_data.pop('owner')
+
+        template = _update_template(template.id,update_data)
+        self.assertIsNotNone(template)
+        self.assertEqual(template.id,template_id)
+        self.assertEqual(template.otype,'template')
+        self.assertTrue(template.does_transform)
+
+        update_data = template.input_data
+        update_data["does_transform"] = False
+        self.assertNotEqual(update_data['owner'], 'test@test.mc')
+        update_data.pop('id')
+        update_data.pop('owner')
+
+        template = _update_template(template.id,update_data)
+        self.assertIsNotNone(template)
+        self.assertEqual(template.id,template_id)
+        self.assertEqual(template.otype,'template')
+        self.assertFalse(template.does_transform)
+
     def make_template_table(self, templates):
         ret = {}
         for t in templates:
@@ -113,3 +210,9 @@ class TestTemplateAccess(unittest.TestCase):
             }
 
         return data
+
+    def _set_up_remote_for(self, key):
+        remote = use_remote()
+        remote.config.mcapikey = key
+        remote.config.params = {'apikey': key}
+        set_remote(remote)
