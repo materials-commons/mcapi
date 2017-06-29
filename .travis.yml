@@ -14,8 +14,7 @@ branches:
   except:
   - /^spike-.*$/
   - docs
-  - multi-file-upload
-  - scripts-for-tracy
+  - scripts
 
 language: python
 
