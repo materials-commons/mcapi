@@ -8,13 +8,6 @@ class WorkflowBuilderWE43FatigueLife:
         initiation_data = self.parse_initiation_data(initiation_data_sheet)
         runout_data = self.parse_runout_data(runout_data_sheet)
         self.data = self.combine_data(initiation_data, runout_data)
-        for sample in self.data:
-            print "------ " + sample + " ------"
-            tests = self.data[sample]
-            for test in tests:
-                print test['testing_date']
-                print test['test_type']
-                print '<>'
         return self
 
     def build_workflow(self):
@@ -24,10 +17,9 @@ class WorkflowBuilderWE43FatigueLife:
         self.create_project_experiment()
 
         for sample in self.data:
-            initiation_data_list = self.data[sample]['initiation']
-            runout_data_list = self.data[sample]['runout']
-            if len(initiation_data_list) == 1 and len(runout_data_list) > 0:
-                self.create_workflow(sample, initiation_data_list[0],runout_data_list)
+            tests = self.data[sample]
+            if len(tests) > 0:
+                self.create_workflow(sample, tests)
 
         print self.project.name
 
@@ -39,14 +31,13 @@ class WorkflowBuilderWE43FatigueLife:
 
         self.experiment = self.project.create_experiment("WE43 Fatigue Life", "Fatigue measurements on WE4s samples")
 
-    def create_workflow(self, sample_name, initiation_data, runout_data_list):
-        sample = self.create_sample(sample_name, initiation_data)
-        if initiation_data['surface_condition'] == 'Electropolished':
-            sample = self.create_electropolishing(sample_name,sample)
-        self.create_initial_measure(sample_name,sample,initiation_data)
-
-        for data in runout_data_list:
-            self.create_runout_measure(sample_name,sample,data)
+    def create_workflow(self, sample_name, tests):
+        print "create workflow for sample = " + sample_name
+        sample = self.create_sample(sample_name, tests[0])
+        if tests[0]['surface_condition'] == 'Electropolished':
+            sample = self.create_electropolishing(sample_name, sample)
+        for test in tests:
+            sample = self.create_fatigue_test(sample_name, sample, test)
 
     def create_sample(self, sample_name, initiation_data):
         process_name = 'Create ' + sample_name
@@ -58,7 +49,7 @@ class WorkflowBuilderWE43FatigueLife:
         samples = process.create_samples(sample_names=[sample_name])
         return samples[0]
 
-    def create_electropolishing(self,sample_name,sample):
+    def create_electropolishing(self, sample_name, sample):
         process_name = 'Electropolish ' + sample_name
         template_id = self.template_id_with(self.template_table, 'Electropolishing')
         process = self.experiment.create_process_from_template(template_id)
@@ -67,20 +58,17 @@ class WorkflowBuilderWE43FatigueLife:
         process = self.project.get_process_by_id(process.id)
         return process.output_samples[0]
 
-    def create_initial_measure(self, sample_name, sample, initiation_data):
-        process_name = "Fatigue Life Test " + sample_name
-        template_id = self.template_id_with(self.template_table, 'Ultrasonic Fatigue')
-        process = self.experiment.create_process_from_template(template_id)
-        process.rename(process_name)
-        process.add_input_samples_to_process([sample])
-
-    def create_runout_measure(self, sample_name, sample, runout_data):
+    def create_fatigue_test(self, sample_name, sample, data):
         process_name = 'Runout Fatigue Test ' + sample_name \
-                       + "; Stress: " + str(runout_data['test_parameters']['stress'])
+                       + "; Stress: " + str(data['test_parameters']['stress'])
+        if data["test_type"] == "crack initiation":
+            process_name = "Fatigue Life Test " + sample_name
         template_id = self.template_id_with(self.template_table, 'Ultrasonic Fatigue')
         process = self.experiment.create_process_from_template(template_id)
         process.rename(process_name)
         process.add_input_samples_to_process([sample])
+        process = self.project.get_process_by_id(process.id)
+        return process.output_samples[0]
 
     def parse_initiation_data(self, data_sheet):
         list = []
@@ -192,8 +180,7 @@ def main():
     wb = openpyxl.load_workbook(filename=path_and_name)
     ws1 = wb['Initiation Data']
     ws2 = wb['Runout Data']
-    WorkflowBuilderWE43FatigueLife().parse_sheet(ws1, ws2) # \
-        # .build_workflow()
+    WorkflowBuilderWE43FatigueLife().parse_sheet(ws1, ws2).build_workflow()
 
 
 if __name__ == '__main__':
