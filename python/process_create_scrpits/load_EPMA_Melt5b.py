@@ -25,7 +25,7 @@ BASE_DIRECTORY = os.path.abspath("input_data/EPMA Raw Data")
 # R - results file(s) name ([name].xlsx and [name].txt)
 
 
-class WorkflowBuilder:
+class WorkflowBuilderMelt5b:
     def parse_sheet(self, sheet):
         self.file_upload_count = 0
 
@@ -207,7 +207,7 @@ class WorkflowBuilder:
 def main():
     wb = openpyxl.load_workbook(filename='input_data/EPMA_Melt5b_MC_Demo.xlsx', read_only=True)
     ws = wb['Sheet1']
-    process_by_row_list = WorkflowBuilder().parse_sheet(ws)
+    WorkflowBuilderMelt5b().parse_sheet(ws)
 
 
 if __name__ == '__main__':
