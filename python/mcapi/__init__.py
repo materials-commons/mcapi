@@ -19,6 +19,7 @@ from config import Config
 from remote import Remote
 from api import set_remote, use_remote
 from mc import _make_dir_tree_table, _create_new_tamplate, _update_template
+from mc import _storeInUserProfile, _getFromUserProfile, _clearFromUserProfile
 import api as __api
 
 # __all__ = dir()

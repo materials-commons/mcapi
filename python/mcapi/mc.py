@@ -2711,3 +2711,28 @@ def _update_template(template_id,template_data):
     results = api._update_template(template_id,template_data)
     template = make_object(results)
     return template
+
+#
+# ---
+#   testing user profile backend
+# ---
+def _storeInUserProfile(name,value):
+    results = api._storeInUserProfile(name,value)
+    value = results['val']
+    if not value:
+        return None
+    return value
+
+def _getFromUserProfile(name):
+    results = api._getFromUserProfile(name)
+    value = results['val']
+    if not value:
+        return None
+    return value
+
+def _clearFromUserProfile(name):
+    results = api._clearFromUserProfile(name)
+    value = results['val']
+    if not value:
+        return None
+    return value
