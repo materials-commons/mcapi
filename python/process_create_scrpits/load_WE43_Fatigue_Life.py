@@ -1,9 +1,15 @@
 import openpyxl
 import datetime
+import os
 from mcapi import create_project, get_all_templates
+
+BASE_DATA_DIRECTORY = os.path.abspath("input_data/FromJake/WE43ImageData")
 
 
 class WorkflowBuilderWE43FatigueLife:
+    def __init__(self):
+        self.test_sectioning = {}
+
     def parse_sheet(self, initiation_data_sheet, runout_data_sheet):
         initiation_data = self.parse_initiation_data(initiation_data_sheet)
         runout_data = self.parse_runout_data(runout_data_sheet)
@@ -15,6 +21,9 @@ class WorkflowBuilderWE43FatigueLife:
         self.template_table = self.make_template_table()
 
         self.create_project_experiment()
+
+        we43 = self.create_we43_sample()
+        self.section_we43 = self.create_we43_sectioning(we43)
 
         for sample in self.data:
             tests = self.data[sample]
@@ -28,28 +37,61 @@ class WorkflowBuilderWE43FatigueLife:
         project_name = "WE43 Fatigue Life: " + time_stamp
         project_description = "WE43 Fatigue Life, created from script on " + time_stamp
         self.project = create_project(project_name, project_description)
-
         self.experiment = self.project.create_experiment("WE43 Fatigue Life", "Fatigue measurements on WE4s samples")
 
-    def create_workflow(self, sample_name, tests):
-        print "create workflow for sample = " + sample_name
-        sample = self.create_sample(sample_name, tests[0])
-        if tests[0]['surface_condition'] == 'Electropolished':
-            sample = self.create_electropolishing(sample_name, sample)
-        for test in tests:
-            sample = self.create_fatigue_test(sample_name, sample, test)
-
-    def create_sample(self, sample_name, initiation_data):
-        process_name = 'Create ' + sample_name
+    def create_we43_sample(self):
+        process_name = 'Obtain WE43 sample'
         template_id = self.template_id_with(self.template_table, 'Create Samples')
         process = self.experiment.create_process_from_template(template_id)
         process.rename(process_name)
-        annotation = "Condition: " + initiation_data['material_condition']
-        process = process.add_to_notes(annotation)
+        samples = process.create_samples(sample_names=['WE43'])
+        return samples[0]
+
+    def create_we43_sectioning(self, we43_sample):
+        template_id = self.template_id_with(self.template_table, 'Sectioning')
+        process = self.experiment.create_process_from_template(template_id)
+        process.rename("Prepare WE43 Samples")
+        process.add_input_samples_to_process([we43_sample])
+        return process
+
+    def create_workflow(self, sample_name, tests):
+        print "create workflow for sample = " + sample_name
+        source_sample_name = tests[0]['material_condition']
+        electropolish = (tests[0]['surface_condition'] == 'Electropolished')
+        sample = self.get_sectioned_sample(source_sample_name, electropolish, sample_name)
+        for test in tests:
+            sample = self.create_fatigue_test(sample_name, sample, test)
+
+    def get_sectioned_sample(self, source_sample_name, electropolish, sample_name):
+        source_sample_name
+        if electropolish:
+            source_sample_name += "-E"
+        if not source_sample_name in self.test_sectioning:
+            sample = self.add_source_sample(source_sample_name)
+            sample = self.add_source_heat_treatment(source_sample_name, sample)
+            if electropolish:
+                sample = self.add_electropolishing(source_sample_name, sample)
+            process = self.add_sectioning(source_sample_name, sample)
+            self.test_sectioning[source_sample_name] = process
+        process = self.test_sectioning[source_sample_name]
+        section_samples = process.create_samples(sample_names=[sample_name])
+        return section_samples[0]
+
+    def add_source_sample(self, sample_name):
+        process = self.section_we43
         samples = process.create_samples(sample_names=[sample_name])
         return samples[0]
 
-    def create_electropolishing(self, sample_name, sample):
+    def add_source_heat_treatment(self, sample_name, sample):
+        process_name = 'Heat Treat ' + sample_name
+        template_id = self.template_id_with(self.template_table, 'Heat Treatment')
+        process = self.experiment.create_process_from_template(template_id)
+        process.rename(process_name)
+        process.add_input_samples_to_process([sample])
+        process = self.project.get_process_by_id(process.id)
+        return process.output_samples[0]
+
+    def add_electropolishing(self, sample_name, sample):
         process_name = 'Electropolish ' + sample_name
         template_id = self.template_id_with(self.template_table, 'Electropolishing')
         process = self.experiment.create_process_from_template(template_id)
@@ -57,6 +99,13 @@ class WorkflowBuilderWE43FatigueLife:
         process.add_input_samples_to_process([sample])
         process = self.project.get_process_by_id(process.id)
         return process.output_samples[0]
+
+    def add_sectioning(self, source_sample_name, sample):
+        template_id = self.template_id_with(self.template_table, 'Sectioning')
+        process = self.experiment.create_process_from_template(template_id)
+        process.rename("Section " + source_sample_name)
+        process.add_input_samples_to_process([sample])
+        return process
 
     def create_fatigue_test(self, sample_name, sample, data):
         process_name = 'Runout Fatigue Test ' + sample_name \
