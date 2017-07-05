@@ -3,7 +3,7 @@ import datetime
 import os
 from mcapi import create_project, get_all_templates
 
-BASE_DATA_DIRECTORY = os.path.abspath("input_data/FromJake/WE43ImageData")
+BASE_DATA_DIRECTORY = os.path.abspath("input_data/FromJake")
 
 
 class WorkflowBuilderWE43FatigueLife:
@@ -21,6 +21,8 @@ class WorkflowBuilderWE43FatigueLife:
         self.template_table = self.make_template_table()
 
         self.create_project_experiment()
+
+        self.load_files()
 
         we43 = self.create_we43_sample()
         self.section_we43 = self.create_we43_sectioning(we43)
@@ -59,11 +61,20 @@ class WorkflowBuilderWE43FatigueLife:
         source_sample_name = tests[0]['material_condition']
         electropolish = (tests[0]['surface_condition'] == 'Electropolished')
         sample = self.get_sectioned_sample(source_sample_name, electropolish, sample_name)
+        workflow_total_cycles = 0
         for test in tests:
+            run_cycles = 0
+            if test['test_type'] == "runout":
+                run_cycles = test["test_parameters"]["cycle_count"]
+            else:
+                run_cycles = test["test_parameters"]["lifetime"]
+            workflow_total_cycles += run_cycles
+            test["test_parameters"]["total_cycles"] = workflow_total_cycles
             sample = self.create_fatigue_test(sample_name, sample, test)
+            if test['test_type'] == "crack initiation":
+                self.add_crack_initiation_data(sample_name, sample, test)
 
     def get_sectioned_sample(self, source_sample_name, electropolish, sample_name):
-        source_sample_name
         if electropolish:
             source_sample_name += "-E"
         if not source_sample_name in self.test_sectioning:
@@ -116,8 +127,44 @@ class WorkflowBuilderWE43FatigueLife:
         process = self.experiment.create_process_from_template(template_id)
         process.rename(process_name)
         process.add_input_samples_to_process([sample])
+        test_parameters = data['test_parameters']
+        self.add_fatigue_data(process, test_parameters)
         process = self.project.get_process_by_id(process.id)
         return process.output_samples[0]
+
+    def add_fatigue_data(self, process, data):
+        annotation = "Control Unit = " + str(data['control_unit'])
+        if 'cycle_count' in data:
+            annotation += "; Run Cycle Count = " + '{:g}'.format(data['cycle_count'])
+        if 'lifetime' in data:
+            annotation += "; Run Lifetime = " + '{:g}'.format(data['lifetime'])
+        annotation += "; Total Cycle Count = " + '{:g}'.format(data['total_cycles'])
+        process = process.add_to_notes(annotation)
+
+        stress = data['stress']
+        environment = data['environment']
+        process.set_value_of_setup_property('max_stress', stress)
+        process.set_value_of_setup_property('test_environment', environment)
+        process.update_setup_properties([
+            'max_stress', 'test_environment'
+        ])
+
+    def add_crack_initiation_data(self,sample_name, sample, data):
+        process_name = 'Crack Initiation ' + sample_name
+        template_id = self.template_id_with(self.template_table, 'As Measured')
+        process = self.experiment.create_process_from_template(template_id)
+        process.rename(process_name)
+        process.add_input_samples_to_process([sample])
+
+        site_parameters = data['site_parameters']
+        annotation = "Site: Initiation Type = " + site_parameters['type']
+        if 'location_on_gage' in site_parameters and site_parameters['location_on_gage']:
+            annotation += "; Location on Gage (mm from top) = " + site_parameters['location_on_gage']
+        if 'location' in site_parameters and site_parameters['location']:
+            annotation += "; Initiation Location = " + site_parameters['location']
+        if 'fracture_surface_character' in site_parameters and site_parameters['fracture_surface_character']:
+            annotation += "; Surface Character = " + site_parameters['fracture_surface_character']
+        process.add_to_notes(annotation)
 
     def parse_initiation_data(self, data_sheet):
         list = []
@@ -208,6 +255,11 @@ class WorkflowBuilderWE43FatigueLife:
             "plotting": values[13],
             "notes": values[15]
         }
+
+    def load_files(self):
+        self.project.local_path = BASE_DATA_DIRECTORY
+        path = os.path.join(BASE_DATA_DIRECTORY, "WE43FatigueLifeGraphs")
+        self.project.add_directory_tree_by_local_path(path)
 
     def make_template_table(self):
         template_list = get_all_templates()
