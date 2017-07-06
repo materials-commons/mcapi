@@ -4,11 +4,8 @@ from os import environ
 from os import path as os_path
 from os import walk
 
-from mcapi import set_remote_config_url, get_remote_config_url
 from mcapi import create_project
 from mcapi import BulkFileUploader
-
-url = 'http://mctest.localhost/api'
 
 
 def fake_name(prefix):
@@ -19,7 +16,6 @@ def fake_name(prefix):
 class TestBulkUpload(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        set_remote_config_url(url)
         cls.upload_dir_path = None
         if 'TEST_DATA_DIR' in environ:
             test_dir_path = os_path.abspath(environ['TEST_DATA_DIR'])
@@ -31,8 +27,6 @@ class TestBulkUpload(unittest.TestCase):
         self.assertIsNotNone(self.upload_dir_path)
         self.assertTrue(os_path.isdir(self.upload_dir_path))
         self.assertTrue(os_path.isdir(os_path.join(self.upload_dir_path, self.upload_dir)))
-
-        self.assertEqual(get_remote_config_url(), url)
 
     def test_upload_sequential(self):
         print '--'
