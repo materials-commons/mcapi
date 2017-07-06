@@ -2716,22 +2716,22 @@ def _update_template(template_id,template_data):
 # ---
 #   testing user profile backend
 # ---
-def _storeInUserProfile(name,value):
-    results = api._storeInUserProfile(name,value)
+def _storeInUserProfile(user_id, name,value):
+    results = api._storeInUserProfile(user_id, name,value)
     value = results['val']
     if not value:
         return None
     return value
 
-def _getFromUserProfile(name):
-    results = api._getFromUserProfile(name)
+def _getFromUserProfile(user_id, name):
+    results = api._getFromUserProfile(user_id, name)
     value = results['val']
     if not value:
         return None
     return value
 
-def _clearFromUserProfile(name):
-    results = api._clearFromUserProfile(name)
+def _clearFromUserProfile(user_id, name):
+    results = api._clearFromUserProfile(user_id, name)
     value = results['val']
     if not value:
         return None
