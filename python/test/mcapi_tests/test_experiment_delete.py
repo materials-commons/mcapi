@@ -2,23 +2,15 @@ import unittest
 from os import environ
 from os import path as os_path
 from random import randint
-from mcapi import set_remote_config_url
 import demo_project as demo
 import assert_helper as aid
 
-url = 'http://mctest.localhost/api'
 
 def _fake_name(prefix):
     number = "%05d" % randint(0, 99999)
     return prefix+number
 
 class TestExperimentDelete(unittest.TestCase):
-
-    @classmethod
-    def setUpClass(cls):
-        set_remote_config_url(url)
-        cls.mcapikey = "totally-bogus"
-        cls.host = "http://mctest.localhost"
 
     def test_delete(self):
         self.helper = aid.AssertHelper(self)
@@ -153,7 +145,7 @@ class TestExperimentDelete(unittest.TestCase):
 
         self.test_project_name = project_name
 
-        builder = demo.DemoProject(self.host, self._make_test_dir_path(), self.mcapikey)
+        builder = demo.DemoProject(self._make_test_dir_path())
 
         table = builder._make_template_table()
         self.assertIsNotNone(builder._template_id_with(table, 'Create'))

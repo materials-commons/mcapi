@@ -7,9 +7,6 @@ import demo_project as demo
 class TestDemoProject(unittest.TestCase):
     def test_build_demo_project(self):
 
-        mcapikey = "totally-bogus"
-        host = "http://mctest.localhost"
-
         # Expected test values
         project_name = 'Demo Project'
         experiment_name = "Demo: Microsegregation in HPDC L380"
@@ -22,7 +19,7 @@ class TestDemoProject(unittest.TestCase):
             'EBSD SEM Data Collection - 5 mm plate', 'EPMA Data Collection - 5 mm plate - center'
         ]
 
-        builder = demo.DemoProject(host, self._make_test_dir_path(), mcapikey)
+        builder = demo.DemoProject(self._make_test_dir_path())
 
         if (builder.does_project_exist()):
             project = builder.get_existing_project()

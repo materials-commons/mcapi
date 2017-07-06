@@ -2,18 +2,25 @@ import unittest
 import pytest
 from os import environ
 from os import path as os_path
+from mcapi import use_remote, set_remote
 import demo_project as demo
 
 
 class TestDemoProject(unittest.TestCase):
     def test_build_demo_project(self):
+        remote = use_remote()
+        save_mcurl = remote.config.mcurl
         with pytest.raises(Exception) as exception_info:
-            mcapikey = "totally-bogus"
             host = "http://noda.host"
+            remote.config.mcurl = host + "/api"
+            set_remote(remote)
 
-            builder = demo.DemoProject(host, self._make_test_dir_path(), mcapikey)
+            builder = demo.DemoProject(self._make_test_dir_path())
 
             builder.build_project()
+
+        remote.config.mcurl = save_mcurl
+        set_remote(remote)
         self.assertTrue(str(exception_info.type).find("ConnectionError") > 0)
         self.assertTrue(str(exception_info.value).find("host='noda.host'") > 0)
 
