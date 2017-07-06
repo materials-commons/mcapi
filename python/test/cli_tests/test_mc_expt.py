@@ -2,11 +2,9 @@ import unittest
 import os
 import re
 import mcapi
-from cli_test_functions import working_dir, captured_output, print_stringIO
+from cli_test_functions import captured_output
 from mcapi.cli.init import init_subcommand
 from mcapi.cli.expt import expt_subcommand
-
-url = 'http://mctest.localhost/api'
 
 def mkdir_if(path):
     if not os.path.exists(path):
@@ -25,7 +23,6 @@ class TestMCExpt(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        mcapi.set_remote_config_url(url)
         if not 'TEST_DATA_DIR' in os.environ:
             raise Exception("No TEST_DATA_DIR environment variable")
         cli_test_project_path = os.path.join(os.environ['TEST_DATA_DIR'], 'cli_test_project')
@@ -52,6 +49,8 @@ class TestMCExpt(unittest.TestCase):
             init_subcommand(testargs)
         #print_stringIO(sout)
         out = sout.getvalue().splitlines()
+        remote = mcapi.use_remote()
+        url = remote.config.mcurl
         self.assertEqual(out[0], "Created new project at: " + url)
         
         testargs = ['mc', 'expt', '-c', 'test_A']

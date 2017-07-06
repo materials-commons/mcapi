@@ -3,18 +3,9 @@ from os import environ
 from os import path as os_path
 from mcapi import create_project, Template
 from mcapi import get_all_projects
-from mcapi import set_remote_config_url, get_remote_config_url
-
-url = 'http://mctest.localhost/api'
 
 
 class TestDemoProjectBasic(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        set_remote_config_url(url)
-
-    def test_is_setup_correctly(self):
-        self.assertEqual(get_remote_config_url(), url)
 
     def test_demo_project(self):
         project_name = "Demo Test Project"

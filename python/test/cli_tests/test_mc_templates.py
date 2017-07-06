@@ -1,17 +1,13 @@
 import unittest
 import string
 import json
-from mcapi import set_remote_config_url
 from cli_test_functions import captured_output, print_stringIO
 from mcapi.cli.templates import TemplatesSubcommand
-
-url = 'http://mctest.localhost/api'
 
 class TestMCTemplates(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        set_remote_config_url(url)
         cls.templates_subcommand = TemplatesSubcommand()
     
     def test_mc_templates_all(self):

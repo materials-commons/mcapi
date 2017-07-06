@@ -3,8 +3,6 @@ import pytest
 from random import randint
 from mcapi import create_project
 
-url = 'http://mctest.localhost/api'
-
 
 def fake_name(prefix):
     number = "%05d" % randint(0, 99999)

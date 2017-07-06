@@ -9,8 +9,6 @@ from mcapi.cli.init import init_subcommand
 from mcapi.cli.samp import SampSubcommand
 from mcapi.cli.functions import make_local_project, set_current_experiment
 
-url = 'http://mctest.localhost/api'
-
 def mkdir_if(path):
     if not os.path.exists(path):
         os.mkdir(path)
@@ -32,7 +30,6 @@ class TestMCProc(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        mcapi.set_remote_config_url(url)
         if not 'TEST_DATA_DIR' in os.environ:
             raise Exception("No TEST_DATA_DIR environment variable")
         cls.cli_test_project_path = os.path.join(os.environ['TEST_DATA_DIR'], 'cli_test_project')
