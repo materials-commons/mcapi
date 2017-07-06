@@ -988,7 +988,7 @@ class Process(MCObject):
     .. note:: Normally created from the database by a call to :func:`mcapi.Experiment.create_process_from_template`
 
     """
-    def __init__(self, name=None, description=None, project_id=None, process_type=None, process_name=None, data=None):
+    def __init__(self, data=None):
         self.does_transform = False
         self.input_files = []               #: list of :class:`mcapi.File` instance
         self.output_files = []              #: list of :class:`mcapi.File` instance
@@ -1047,17 +1047,6 @@ class Process(MCObject):
                 'experiments']
         for a in attr:
             setattr(self, a, data.get(a, []))
-
-        if process_type:
-            self.process_type = process_type
-        if process_name:
-            self.process_name = process_name
-        if project_id:
-            self.project_id = project_id
-        if name:
-            self.name = name
-        if description:
-            self.description = description
 
     def _process_special_objects(self):
         super(Process, self)._process_special_objects()
