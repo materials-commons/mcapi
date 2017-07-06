@@ -1,12 +1,8 @@
 import unittest
 from random import randint
-from mcapi import set_remote_config_url, get_remote_config_url
 from mcapi import Project
 from mcapi import get_all_projects
 from mcapi import create_project
-
-
-url = 'http://mctest.localhost/api'
 
 
 def fake_name(prefix):
@@ -15,13 +11,6 @@ def fake_name(prefix):
 
 
 class TestProject(unittest.TestCase):
-
-    @classmethod
-    def setUpClass(cls):
-        set_remote_config_url(url)
-
-    def test_is_setup_correctly(self):
-        self.assertEqual(get_remote_config_url(), url)
 
     def test_list_projects_object(self):
         projects = get_all_projects()
