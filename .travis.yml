@@ -68,7 +68,7 @@ install:
   - npm install -g node-gyp@3.5.0
   - npm install -g gulp
   - mkdir .materialscommons
-  - git clone -b template-owner-check --depth 3 https://github.com/materials-commons/materialscommons.org.git
+  - git clone -b user-profile --depth 3 https://github.com/materials-commons/materialscommons.org.git
 
   - pushd materialscommons.org
   - git log -1
