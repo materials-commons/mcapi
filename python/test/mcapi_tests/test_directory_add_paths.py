@@ -1,9 +1,6 @@
 import unittest
 from random import randint
-from mcapi import set_remote_config_url, get_remote_config_url
 from mcapi import create_project
-
-url = 'http://mctest.localhost/api'
 
 
 def fake_name(prefix):
@@ -15,7 +12,6 @@ class TestDirectoryAddPaths(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        set_remote_config_url(url)
         cls.base_project_name = fake_name("TestDirectoryProject-")
         print ''
         print cls.base_project_name
@@ -25,7 +21,6 @@ class TestDirectoryAddPaths(unittest.TestCase):
         cls.base_project = project
 
     def test_is_setup_correctly(self):
-        self.assertEqual(get_remote_config_url(), url)
         self.assertIsNotNone(self.base_project)
         self.assertIsNotNone(self.base_project.name)
         self.assertEqual(self.base_project_name, self.base_project.name)
