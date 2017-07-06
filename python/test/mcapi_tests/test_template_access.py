@@ -12,8 +12,6 @@ def fake_name(prefix):
     number = "%05d" % randint(0, 99999)
     return prefix+number
 
-# TODO: fix this in sprint branch!
-@pytest.mark.skip("Supressing tempate tests in user-profile branch - template update in sprint branch")
 class TestTemplateAccess(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
