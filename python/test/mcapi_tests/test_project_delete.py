@@ -3,13 +3,11 @@ import pytest
 from os import environ
 from os import path as os_path
 from random import randint
-from mcapi import set_remote_config_url, get_project_by_id, get_all_projects
-from mcapi import use_remote as use_remote, set_remote, get_all_users
+from mcapi import get_project_by_id, get_all_projects
+from mcapi import use_remote, set_remote, get_all_users
+from mcapi import get_remote_config_url
 import demo_project as demo
 import assert_helper as aid
-
-url = 'http://mctest.localhost/api'
-
 
 def _fake_name(prefix):
     number = "%05d" % randint(0, 99999)
@@ -19,9 +17,8 @@ def _fake_name(prefix):
 class TestProjectDelete(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        set_remote_config_url(url)
         cls.mcapikey = "totally-bogus"
-        cls.host = "http://mctest.localhost"
+        cls.host = get_remote_config_url()
 
     def test_delete(self):
         self.helper = aid.AssertHelper(self)
@@ -84,7 +81,7 @@ class TestProjectDelete(unittest.TestCase):
         self.assertEqual(len(projects), 0)
 
     # TODO: Set up server of get_all_users in .travis.yml
-    @pytest.mark.skip("server for get_all_users not availble on Travis for testing - change .travis.yml")
+    # @pytest.mark.skip("server for get_all_users not availble on Travis for testing - change .travis.yml")
     def test_only_owner_can_delete(self):
         self.helper = aid.AssertHelper(self)
 
@@ -100,7 +97,7 @@ class TestProjectDelete(unittest.TestCase):
                 user = probe
         self.assertIsNotNone(user)
 
-        user.canAccess(project)
+        user.can_access(project)
 
         self._set_up_remote_for(another_user_key)
 
@@ -122,7 +119,7 @@ class TestProjectDelete(unittest.TestCase):
 
         self.test_project_name = project_name
 
-        builder = demo.DemoProject(self.host, self._make_test_dir_path(), self.mcapikey)
+        builder = demo.DemoProject(self._make_test_dir_path())
 
         table = builder._make_template_table()
         self.assertIsNotNone(builder._template_id_with(table, 'Create'))

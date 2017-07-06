@@ -3,18 +3,8 @@ from mcapi import get_all_projects
 from mcapi import Remote, Config, set_remote
 
 class DemoProject:
-    def __init__(self, host, data_directory_path, apikey):
+    def __init__(self, data_directory_path):
         self.build_data_directory = data_directory_path
-        self.url = host + '/api'
-        self.apikey = apikey
-
-        config = Config(override_config={
-            "apikey": self.apikey,
-            "mcurl": self.url
-        })
-        remote = Remote(config=config)
-        set_remote(remote)
-
         self.project_name = "Demo Project"
 
     def does_project_exist(self):

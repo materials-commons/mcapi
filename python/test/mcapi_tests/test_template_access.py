@@ -1,11 +1,9 @@
 import unittest
 import pytest
 from random import randint
-from mcapi import set_remote_config_url, get_remote_config_url, get_all_templates
+from mcapi import get_all_templates
 from mcapi import use_remote, set_remote, get_all_users
 from mcapi import _create_new_tamplate, _update_template
-
-url = 'http://mctest.localhost/api'
 
 
 def fake_name(prefix):
@@ -16,7 +14,6 @@ def fake_name(prefix):
 class TestTemplateAccess(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        set_remote_config_url(url)
         user_id = "test@test.mc"
         users = get_all_users()
         user = None
@@ -31,7 +28,6 @@ class TestTemplateAccess(unittest.TestCase):
         self.assertEqual(self.test_user_id,self.test_user.id)
 
     def test_all_templets(self):
-        self.assertEqual(get_remote_config_url(), url)
         templates = get_all_templates()
         self.assertIsNotNone(templates)
         self.assertTrue(len(templates) > 0)

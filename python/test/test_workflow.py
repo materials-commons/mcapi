@@ -3,10 +3,6 @@ from random import randint
 from os import environ
 from os import path as os_path
 from mcapi import create_project, Template
-from mcapi import set_remote_config_url, get_remote_config_url
-
-url = 'http://mctest.localhost/api'
-
 
 def fake_name(prefix):
     number = "%05d" % randint(0, 99999)
@@ -14,12 +10,6 @@ def fake_name(prefix):
 
 
 class TestWorkflow(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        set_remote_config_url(url)
-
-    def test_is_setup_correctly(self):
-        self.assertEqual(get_remote_config_url(), url)
 
     def test_workflow(self):
         # #-# the workflow #-#
