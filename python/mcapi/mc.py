@@ -763,12 +763,25 @@ class Project(MCObject):
     def add_user_to_access_list(self, new_user):
         """
 
-        Add a user, by user id, to the access list of a project.
+        Add a user, by user id, to the access list of this project.
 
         :param new_user: the user_id of the user to add
         :return: string - the user_id, if added; otherwise error message
         """
         results = api.add_user_access_to_project(self.id, new_user)
+        if 'error' in results:
+            return results['error']
+        return results['val']
+
+    def remove_user_from_access_list(self, user_to_remote):
+        """
+
+        Remove a user, by user id, form the access list of this project.
+
+        :param user_to_remote: the user_id of the user to the user to remove
+        :return: string - the user_id (in any case)
+        """
+        results = api.remove_user_access_to_project(self.id, user_to_remote)
         if 'error' in results:
             return results['error']
         return results['val']
