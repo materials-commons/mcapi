@@ -143,8 +143,11 @@ class User(MCObject):
         >>>         print user.fullname, user.email
 
         """
-        results = api.user_can_access_project(self.id, project.id, project.name)
-        return results
+        user_ids = project.get_access_list()
+        for id in user_ids:
+            if id == self.id:
+                return True
+        return False
 
 
 class Project(MCObject):
