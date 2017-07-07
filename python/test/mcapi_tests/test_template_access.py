@@ -81,8 +81,6 @@ class TestTemplateAccess(unittest.TestCase):
         self.assertEqual(template.otype,'template')
         self.assertTrue(template.does_transform)
 
-    # TODO: Set up server of get_all_users in .travis.yml
-    @pytest.mark.skip("server for get_all_users not availble on Travis for testing - change .travis.yml")
     def test_non_admin_other_user_cannot_modify_users_template(self):
         test_name = fake_name('test-template')
         test_id = "global_" + test_name
