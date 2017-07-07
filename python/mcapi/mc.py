@@ -81,7 +81,7 @@ def get_all_users():
 
     """
     results = api.get_all_users()
-    users = map(make_object, results)
+    users = map(make_object, results['val'])
     return users
 
 

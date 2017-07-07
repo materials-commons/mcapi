@@ -5,7 +5,6 @@ from mcapi import get_all_users
 class TestUser(unittest.TestCase):
 
     def test_get_all(self):
-        print ''
 
         my_id = "test@test.mc"
         me = None
