@@ -64,3 +64,24 @@ class TestUserProjectAccess(unittest.TestCase):
             if user_id == another_user:
                 count += 1
         self.assertEqual(count, 1)
+
+    def test_remove_user_from_access_list(self):
+        another_user = "another@test.mc"
+        added_user = self.project.add_user_to_access_list(another_user)
+        self.assertIsNotNone(added_user)
+        self.assertEqual(another_user,added_user)
+        all_users = self.project.get_access_list()
+        count = 0
+        for user_id in all_users:
+            if user_id == another_user:
+                count += 1
+        self.assertEqual(count, 1)
+        removed_user = self.project.remove_user_from_access_list(another_user)
+        self.assertEqual(another_user,removed_user)
+        all_users = self.project.get_access_list()
+        count = 0
+        for user_id in all_users:
+            if user_id == another_user:
+                count += 1
+        self.assertEqual(count, 0)
+
