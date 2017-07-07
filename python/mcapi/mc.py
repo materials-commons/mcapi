@@ -743,6 +743,35 @@ class Project(MCObject):
         sample.project = self
         return sample
 
+    # Project - users with access to project
+    def get_access_list(self):
+        """
+        Get the list of users with access to this project (actually their id's; which are their e-mail addresses)
+
+        :return: a list of string - the id/email of each user with access
+
+        >>> user_id_list = project.get_access_list()
+
+        """
+        results = api.users_with_access_to_project(self.id)
+        list = []
+        if results['val']:
+            for record in results['val']:
+                list.append(record['user_id'])
+        return list
+
+    def add_user_to_access_list(self, new_user):
+        """
+
+        Add a user, by user id, to the access list of a project.
+
+        :param new_user: the user_id of the user to add
+        :return: string - the user_id, if added; otherwise error message
+        """
+        results = api.add_user_access_to_project(self.id, new_user)
+        if 'error' in results:
+            return results['error']
+        return results['val']
 
 class Experiment(MCObject):
     """
