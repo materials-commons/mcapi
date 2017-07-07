@@ -458,7 +458,7 @@ def get_all_users(remote=None):
     if not remote:
         remote = use_remote()
     api_url = "users"
-    return get(remote.make_url(api_url))
+    return get(remote.make_url_v2(api_url))
 
 
 def user_can_access_project(user_id, project_id, project_title, remote=None):
