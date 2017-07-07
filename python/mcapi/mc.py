@@ -2700,3 +2700,28 @@ def _update_template(template_id,template_data):
     results = api._update_template(template_id,template_data)
     template = make_object(results)
     return template
+
+#
+# ---
+#   testing user profile backend
+# ---
+def _storeInUserProfile(user_id, name,value):
+    results = api._storeInUserProfile(user_id, name,value)
+    value = results['val']
+    if not value:
+        return None
+    return value
+
+def _getFromUserProfile(user_id, name):
+    results = api._getFromUserProfile(user_id, name)
+    value = results['val']
+    if not value:
+        return None
+    return value
+
+def _clearFromUserProfile(user_id, name):
+    results = api._clearFromUserProfile(user_id, name)
+    value = results['val']
+    if not value:
+        return None
+    return value
