@@ -181,6 +181,7 @@ def get_project_processes(project_id, remote=None):
     api_url = "/projects/" + project_id + "/processes"
     return get(remote.make_url_v2(api_url))
 
+
 def get_project_samples(project_id, remote=None):
     if not remote:
         remote = use_remote()
@@ -283,12 +284,14 @@ def set_notes_for_process(project_id, process_id, value, remote=None):
     api_url = "projects/" + project_id + "/processes/" + process_id
     return put(remote.make_url_v2(api_url), data)
 
+
 def get_process_by_id(project_id, process_id, remote=None):
     if not remote:
         remote = use_remote()
     api_url = "projects/" + project_id \
               + "/processes/" + process_id
     return get(remote.make_url_v2(api_url))
+
 
 def get_experiment_process_by_id(project_id, experiment_id, process_id, remote=None):
     if not remote:
@@ -308,6 +311,7 @@ def get_sample_by_id(project_id, process_id, remote=None):
               + "/processes/" + process_id
     return get(remote.make_url_v2(api_url))
 
+
 def get_experiment_sample_by_id(project_id, experiment_id, process_id, remote=None):
     if not remote:
         remote = use_remote()
@@ -315,6 +319,7 @@ def get_experiment_sample_by_id(project_id, experiment_id, process_id, remote=No
               + "/experiments/" + experiment_id \
               + "/processes/" + process_id
     return get(remote.make_url_v2(api_url))
+
 
 def create_samples_in_project(project_id, process_id, sample_names, remote=None):
     if not remote:
@@ -515,15 +520,17 @@ def directory_move(project_id, directory_id, new_directory_id, remote=None):
               "/directories/" + directory_id
     return put(remote.make_url_v2(api_url), data)
 
+
 def directory_create_subdirectories_from_path_list(project_id, directory_id, path_list, remote=None):
     if not remote:
         remote = use_remote()
     data = {
-        'paths' : path_list
+        'paths': path_list
     }
     api_url = "projects/" + project_id + \
               "/directories/" + directory_id
     return post(remote.make_url_v2(api_url), data)
+
 
 # file
 
@@ -659,16 +666,46 @@ def get_doi_link(project_id, experiment_id, dataset_id, remote=None):
               "/doi/link"
     return get(remote.make_url_v2(api_url))
 
+
 def _create_new_template(template_data, remote=None):
     if not remote:
         remote = use_remote()
     api_url = "templates/"
     data = template_data
-    return post(remote.make_url_v2(api_url),data)
+    return post(remote.make_url_v2(api_url), data)
+
 
 def _update_template(template_id, template_data, remote=None):
     if not remote:
         remote = use_remote()
     api_url = "templates/" + template_id
     data = template_data
-    return put(remote.make_url_v2(api_url),data)
+    return put(remote.make_url_v2(api_url), data)
+
+
+#
+# ---
+#   testing user profile backend
+# ---
+def _storeInUserProfile(user_id, name, value, remote=None):
+    if not remote:
+        remote = use_remote()
+    api_url = "users/" + user_id + "/profiles/" + name
+    data = {
+        'value': value
+    }
+    return put(remote.make_url_v2(api_url), data)
+
+
+def _getFromUserProfile(user_id, name, remote=None):
+    if not remote:
+        remote = use_remote()
+    api_url = "users/" + user_id + "/profiles/" + name
+    return get(remote.make_url_v2(api_url))
+
+
+def _clearFromUserProfile(user_id, name, remote=None):
+    if not remote:
+        remote = use_remote()
+    api_url = "users/" + user_id + "/profiles/" + name
+    return delete(remote.make_url_v2(api_url))
