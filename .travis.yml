@@ -109,8 +109,10 @@ before_script:
   - sleep 5
   - rethinkdb restore 'test_data/test_rethinkdb_dump.tar.gz' --connect $MCDB_CONNECTION --force
   - sleep 5
-
   - cd backend
+  # MC_SERVICE_PORT is 5000
+  - mcapiserver.py -p ${MC_SERVICE_PORT} > ${MC_LOG_DIR}/mcapiserver.out.${SERVERTYPE} 2>&1&
+  - sleep 5
   - pushd scripts/templates
   - ./run.sh
   - popd
@@ -118,6 +120,7 @@ before_script:
   - gulp build-lib
   - gulp build-mcapi-server
   - sleep 5
+  # MCAPI_SERVER_PORT is 5004
   - node sbin/mcapi/mcapi.js -p $MCAPI_SERVER_PORT > ${MC_LOG_DIR}/mcapi.out.${SERVERTYPE} 2>&1&
   - sleep 5
   - cd $MC_PYTHON_API_DIR
@@ -127,6 +130,8 @@ before_script:
   - cp test/test_data/test_config_data/travisconfig.json ~/.materialscommons/config.json
 
   - sleep 20
+  - curl -o junk.txt http://mctest.localhost/api/users?apikey=totally-bogus
+  - cat junk.txt
 # Note: guard to prevent tests if host is not available
 #  - curl -o junk.txt http://mctest.localhost/api/v2/templates?apikey=totally-bogus
 #  - grep 'otype' junk.txt
