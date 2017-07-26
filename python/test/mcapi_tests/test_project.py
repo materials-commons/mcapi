@@ -12,6 +12,7 @@ def fake_name(prefix):
 
 class TestProject(unittest.TestCase):
 
+    # TODO: this is a race condition - it could fail! - create precondition that there is at least one project!
     def test_list_projects_object(self):
         projects = get_all_projects()
         project = projects[0]

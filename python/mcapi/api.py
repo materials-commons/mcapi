@@ -188,6 +188,31 @@ def get_project_samples(project_id, remote=None):
     api_url = "/projects/" + project_id + "/samples"
     return get(remote.make_url_v2(api_url))
 
+def users_with_access_to_project(project_id, remote=None):
+    if not remote:
+        remote = use_remote()
+    api_url = "projects/" + project_id + "/access"
+    return get(remote.make_url_v2(api_url))
+
+def add_user_access_to_project(project_id,user_id, remote=None):
+    if not remote:
+        remote = use_remote()
+    data = {
+        "action": "add",
+        "user_id": user_id
+    }
+    api_url = "projects/" + project_id + "/access"
+    return put(remote.make_url_v2(api_url),data)
+
+def remove_user_access_to_project(project_id,user_id, remote=None):
+    if not remote:
+        remote = use_remote()
+    data = {
+        "action": "delete",
+        "user_id": user_id
+    }
+    api_url = "projects/" + project_id + "/access"
+    return put(remote.make_url_v2(api_url),data)
 
 # Experiment
 
@@ -458,20 +483,7 @@ def get_all_users(remote=None):
     if not remote:
         remote = use_remote()
     api_url = "users"
-    return get(remote.make_url(api_url))
-
-
-def user_can_access_project(user_id, project_id, project_title, remote=None):
-    if not remote:
-        remote = use_remote()
-    api_url = "access/new"
-    data = {
-        "user_id": user_id,
-        "project_id": project_id,
-        "project_name": project_title
-    }
-    return post(remote.make_url(api_url), data)
-
+    return get(remote.make_url_v2(api_url))
 
 # directory
 

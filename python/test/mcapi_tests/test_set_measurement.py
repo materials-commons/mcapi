@@ -1,7 +1,6 @@
 import unittest
 from random import randint
 from mcapi import create_project, Template
-from casm_mcapi import _set_measurement
 
 
 def fake_name(prefix):
@@ -66,7 +65,7 @@ class TestSetMeasurement(unittest.TestCase):
         self.assertEqual(measurement.unit, "")
         self.assertEqual(measurement.value, value)
 
-    def test_inline_pretest_set_measurement_basic(self):
+    def test_set_measurement_basics(self):
         attribute = "name"
         measurement_name = "Name"
         measurement_value = "test value for attribute"
@@ -93,30 +92,6 @@ class TestSetMeasurement(unittest.TestCase):
         process_out = process.set_measurements_for_process_samples(
             measurement_property, [measurement])
         sample_out = process_out.output_samples[0]
-        properties_out = sample_out.properties
-        measurement_out = properties_out[0].best_measure[0]
-        self.assertEqual(measurement_out.name, measurement_name)
-        self.assertEqual(measurement_out.attribute, attribute)
-        self.assertEqual(measurement_out.otype, "string")
-        self.assertEqual(measurement_out.unit, "")
-        self.assertEqual(measurement_out.value, measurement_value)
-
-    def test_set_measurement_basic(self):
-        attribute = "name"
-        measurement_name = "Name"
-        measurement_value = "test value for attribute"
-        measurement_data = {
-            "name": measurement_name,
-            "attribute": attribute,
-            "otype": "string",
-            "unit": "",
-            "units": [],
-            "value": measurement_value,
-            "is_best_measure": True
-        }
-        process = _set_measurement(
-            self.process, attribute, measurement_data, measurement_name)
-        sample_out = process.output_samples[0]
         properties_out = sample_out.properties
         measurement_out = properties_out[0].best_measure[0]
         self.assertEqual(measurement_out.name, measurement_name)
