@@ -1202,6 +1202,20 @@ class Process(MCObject):
         process._update_project_experiment()
         return process
 
+    def delete(self):
+        """
+        Delete this process. The process is removed from the database leaving only the local copy.
+
+        :return: the id of the deleted process
+
+        """
+        results = api.delete_process(self.project.id, self.id)
+        print "process - delete - results = " + results['val']
+        if (results):
+            return self.id
+        else:
+            return None
+
     def put(self):
         """
         Copy local values to database.
