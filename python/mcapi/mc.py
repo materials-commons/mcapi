@@ -965,9 +965,9 @@ class Experiment(MCObject):
             process._update_project_experiment()
         return processes
 
-    def delete_workflow(self):
+    def deleteAllProcessesAndSamples(self):
         """
-        Delete all processes in experiment's workflow and all samples created by that workflow.
+        Delete all processes and samples in the experiment.
 
         :return: a list of the processes ids of the deleted processes.
 
