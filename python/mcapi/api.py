@@ -639,6 +639,20 @@ def create_dataset(project_id, experiment_id, title, description, remote=None):
               "/datasets"
     return post(remote.make_url_v2(api_url), data)
 
+def add_process_to_dataset(project_id, experiment_id, dataset_id, process_id, remote=None):
+    if not remote:
+        remote = use_remote()
+    data = {
+        'processes': [{
+            'command': 'add',
+            'id': process_id
+        }]
+    }
+    api_url = "projects/" + project_id + \
+              "/experiments/" + experiment_id + \
+              "/datasets/" + dataset_id + \
+              "/processes"
+    return put(remote.make_url_v2(api_url), data)
 
 def check_statue_of_doi_server(project_id, experiment_id, dataset_id, remote=None):
     if not remote:
