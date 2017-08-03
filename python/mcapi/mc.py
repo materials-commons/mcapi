@@ -969,9 +969,12 @@ class Experiment(MCObject):
         """
         Delete all processes and samples in the experiment.
 
-        :return: a list of the processes ids of the deleted processes.
+        :return: a :class:`DeleteTally` instance, which lists the id's of the processes and samples deleted
+
+        .. note:: Currently not implemented
 
         """
+        # TODO: Experiment.deleteAllProcessesAndSamples()
         pass
 
     # Experiment - Sample-related methods
