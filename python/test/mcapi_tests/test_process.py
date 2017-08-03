@@ -93,7 +93,8 @@ class TestProcess(unittest.TestCase):
         self.assertEqual(process.description, process_notes_value_expected)
         self.assertEqual(process.notes, process_notes_value_expected)
         process = process.add_to_notes(process_notes_value)
-        process_notes_value_expected = process_notes_value_expected + "/n" + process_notes_value_expected
+        process_notes_value_expected = process_notes_value_expected + "\n" + process_notes_value_expected
+        self.assertEqual(process.notes, process_notes_value_expected)
 
     def make_template_table(self):
         template_list = get_all_templates()
