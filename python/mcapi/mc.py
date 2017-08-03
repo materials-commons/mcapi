@@ -2756,17 +2756,18 @@ class DeleteTally(object):
     Or, in the case of dry_run==True, that would be deleted.
     """
     def __init__(self, data=None):
-        if data.get('project'):
-            # for delete project
-            attr = ['files', 'processes', 'datasets', 'project', 'experiments', 'samples']
-            for a in attr:
-                setattr(self, a, data.get(a, None))
-        else:
-            # for delete experiment
-            attr = ['datasets', 'best_measure_history', 'processes', 'samples', 'experiment_notes',
-                    'experiment_task_processes', 'experiment_tasks', 'notes', 'reviews', 'experiments']
-            for a in attr:
-                setattr(self, a, data.get(a, None))
+        if data:
+            if data.get('project'):
+                # for delete project
+                attr = ['files', 'processes', 'datasets', 'project', 'experiments', 'samples']
+                for a in attr:
+                    setattr(self, a, data.get(a, None))
+            else:
+                # for delete experiment
+                attr = ['datasets', 'best_measure_history', 'processes', 'samples', 'experiment_notes',
+                        'experiment_task_processes', 'experiment_tasks', 'notes', 'reviews', 'experiments']
+                for a in attr:
+                    setattr(self, a, data.get(a, None))
 
 
 #
