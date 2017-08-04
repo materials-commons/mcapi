@@ -217,7 +217,8 @@ class Project(MCObject):
         pp.write("description: " + pp.str(self.description))
         pp.write("id: " + self.id)
         pp.write("owner: " + pp.str(self.owner))
-        pp.write("mtime: " + pp.str(self.mtime.strftime("%b %Y %d %H:%M:%S")))
+        # todo: print time rep; see issue #1131
+        # pp.write("mtime: " + pp.str(self.mtime.strftime("%b %Y %d %H:%M:%S")))
 
     def _process_special_objects(self):
         pass
@@ -860,6 +861,22 @@ class Experiment(MCObject):
             self.samples = [make_object(s.input_data) for s in self.samples]
         if self.processes:
             self.processes = [make_object(s.input_data) for s in self.processes]
+
+    def pretty_print(self, shift=0, indent=2, out=sys.stdout):
+        """
+        Prints a nice layout of the object and all of it's values.
+
+        :param shift: the offset from the start of the line, in increments of indent
+        :param indent: the indent used for layout, in characters
+        :param out: the stream to which the object in printed
+        :return: None
+        """
+        pp = PrettyPrint(shift=shift, indent=indent, out=out)
+        pp.write("name: " + pp.str(self.name))
+        pp.n_indent += 1
+        pp.write("description: " + pp.str(self.description))
+        pp.write("id: " + self.id)
+        pp.write("owner: " + pp.str(self.owner))
 
     # Experiment - basic rethods: rename, put, delete
 

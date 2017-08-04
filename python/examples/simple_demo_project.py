@@ -1,14 +1,14 @@
 from mcapi import create_project, get_all_templates
 
-class SimpleDemoBuilder:
 
-    def __init__(self,name):
+class SimpleDemoBuilder:
+    def __init__(self, name):
         self.name = name
         self.template_table = self._make_template_table()
 
     def buildProject(self):
         description = "A simple demo project from a script"
-        project = create_project(self.name,description)
+        project = create_project(self.name, description)
         self.project = project
 
         experiment_name = "My experiment"
@@ -16,11 +16,11 @@ class SimpleDemoBuilder:
         experiment = project.create_experiment(experiment_name, description)
         self.experiment = experiment
 
-        template_id = self._template_id_with(self.template_table,"Create Sample")
+        template_id = self._template_id_with(self.template_table, "Create Sample")
         create_sample_process = experiment.create_process_from_template(template_id)
         create_sample_process.rename("Create my sample")
 
-        template_id = self._template_id_with(self.template_table,"Low Cycle Fatigue")
+        template_id = self._template_id_with(self.template_table, "Low Cycle Fatigue")
         transform_process = experiment.create_process_from_template(template_id)
         transform_process.rename("Subject to bending")
 
@@ -45,7 +45,6 @@ class SimpleDemoBuilder:
             table[template.id] = template
         return table
 
-
     def _template_id_with(self, table, match):
         found_id = None
         for key in table:
@@ -62,4 +61,3 @@ print "With processes..."
 processes = builder.project.get_all_processes()
 for process in processes:
     print "    " + process.name
-
