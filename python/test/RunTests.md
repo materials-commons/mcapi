@@ -125,3 +125,10 @@ If you wish to generate coverage information, set up as in "To Test" above and t
   coverage html --include="*mcapi*" --omit="*test*"
 ```
 The resulting coverage information is in the directory **htmlcov**
+
+To Generate API docs
+---------------------
+
+You will have to figure this out from example; see the script **scripts/build-python-api.sh** 
+in the project **https://github.com/materials-commons/materials-commons.github.io.git** for an
+example of building the API docs using Sphynx.

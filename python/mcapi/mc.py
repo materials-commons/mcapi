@@ -971,7 +971,8 @@ class Experiment(MCObject):
 
         :return: a :class:`DeleteTally` instance, which lists the id's of the processes and samples deleted
 
-        .. note:: Currently not implemented
+        .. note:: Currently not implemented - as an alternative delete the Experiment
+            and rebuild it; see :func:`mcapi.Experiment.delete()`
 
         """
         # TODO: Experiment.deleteAllProcessesAndSamples()
@@ -1219,7 +1220,8 @@ class Process(MCObject):
         Delete this process. The process is removed from the database leaving only the local copy.
         A process can not be deleted if any of the follwoing are true: (1) it is not a leaf node in
         the workflow, (2) is is in a dataset, (3) it is a create sample (type) process with one or
-        more output samples. For an alternative: see `:func:`mcapi.Experiment.delete_workflow()`
+        more output samples.
+        For an alternative: see :func:`mcapi.Experiment.deleteAllProcessesAndSamples()`
 
         :return: id - the id of the process deleted or None (if the process was not deleted)
 
