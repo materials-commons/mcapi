@@ -2,6 +2,8 @@ python-magic
 requests
 rethinkdb
 pytest
+pytest-cov
+coverage
 pathlib
 numpy
 pandas

@@ -81,6 +81,11 @@ the matrix representation used by _add_numpy_matrix_measurement
   pip install --user numpy
 ```
 
+The full set of libraries used in the project and test can also be
+installed using the **requirements.txt** file:
+```bash
+  pip install -r requirements.txt
+```
 
 To Compile
 ----------
@@ -109,3 +114,14 @@ And to run test using an individual test class, for example:
 ```bash
   pytest -rap --setup-show -s test/mcapi_tests/test_sample_associate.py::TestSampleAssociate  
 ```
+
+To Generate Coveratge
+---------------------
+
+If you wish to generate coverage information, set up as in "To Test" above and them run:
+```bash
+  cd to the python top level directory of the python section of the mcapi repo
+  coverage run -m py.test test
+  coverage html --include="*mcapi*" --omit="*test*"
+```
+The resulting coverage information is in the directory **htmlcov**
