@@ -67,6 +67,9 @@ class TestProcessDelete(unittest.TestCase):
         results = leaf_process.delete()
 
         self.assertIsNotNone(results)
+        self.assertTrue('val' in results)
+        self.assertIsNotNone(results['val'])
+        results = results['val']
         self.assertEqual(leaf_process.id,results['id'])
 
         self.assertEqual(len(self.experiment.get_all_processes()),l-1)
@@ -136,10 +139,18 @@ class TestProcessDelete(unittest.TestCase):
 
         results = leaf_process.delete()
         self.assertIsNotNone(results)
+        self.assertTrue('val' in results)
+        self.assertIsNotNone(results['val'])
+        results = results['val']
+
         self.assertEqual(leaf_process.id,results['id'])
 
         results = non_leaf_process.delete()
         self.assertIsNotNone(results)
+        self.assertTrue('val' in results)
+        self.assertIsNotNone(results['val'])
+        results = results['val']
+
         self.assertEqual(non_leaf_process.id,results['id'])
 
         self.assertEqual(len(self.experiment.get_all_processes()),l-2)
@@ -175,10 +186,18 @@ class TestProcessDelete(unittest.TestCase):
 
         results = leaf_process.delete()
         self.assertIsNotNone(results)
+        self.assertTrue('val' in results)
+        self.assertIsNotNone(results['val'])
+        results = results['val']
+
         self.assertEqual(leaf_process.id,results['id'])
 
         results = non_leaf_process.delete()
         self.assertIsNotNone(results)
+        self.assertTrue('val' in results)
+        self.assertIsNotNone(results['val'])
+        results = results['val']
+
         self.assertEqual(non_leaf_process.id,results['id'])
 
         results = create_sample_process.delete()
