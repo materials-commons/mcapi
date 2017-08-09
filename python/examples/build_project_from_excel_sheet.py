@@ -2,6 +2,7 @@ import openpyxl
 import argparse
 import datetime
 import os.path
+from os import walk
 import sys
 from mcapi import create_project, get_all_projects, get_all_templates
 
@@ -10,9 +11,10 @@ BASE_DIRECTORY = os.path.abspath(local_path)
 
 
 class WorkflowBuilder:
-    def build(self, sheet, args):
+    def build(self, sheet, data_path):
         self.source = self._read_entire_sheet(sheet)
         self.projects = []
+        self.data_path = data_path
         self._make_template_table()
         row = 0;
         while row < len(self.source):
@@ -32,6 +34,7 @@ class WorkflowBuilder:
         name = self._make_unique_project_name(name)
         print "Adding Project: " + name
         project = create_project(name, description)
+        project.local_path = self.data_path
         self.current_project = project
         self.projects.append(project)
         return row + 1
@@ -63,6 +66,8 @@ class WorkflowBuilder:
         template = self.source[row][3]
         sample_in = self.source[row][4]
         sample_out = self.source[row][5]
+        file_directory = self.source[row][6]
+
         process = experiment.create_process_from_template(self._get_template_id(template))
         process.rename(name)
 
@@ -90,6 +95,22 @@ class WorkflowBuilder:
                     name = sample.name
                     self.sample_table[name] = sample
 
+        if file_directory:
+            full_path = os.path.abspath(os.path.join(self.data_path,file_directory))
+            process = self.add_files(full_path,process)
+
+        return process
+
+    def add_files(self,directory_path,process):
+        project = self.current_project
+        print "project local_path = " + project.local_path
+        files = []
+        for (dirpath, dirnames, filenames) in walk(directory_path):
+            for file in filenames:
+                file_path = os.path.join(dirpath,file)
+                file = project.add_file_by_local_path(file_path)
+                files.append(file)
+        process = process.add_files(files)
         return process
 
     def pp(self):
@@ -136,7 +157,6 @@ class WorkflowBuilder:
 
     def _projects_exists(self, name):
         projects = get_all_projects()
-        project = None
         for p in projects:
             if p.name == name:
                 return True
@@ -163,10 +183,12 @@ def main(args):
     wb = openpyxl.load_workbook(filename=args.input, read_only=True)
     ws = wb['Sheet1']
     builder = WorkflowBuilder()
-    builder.build(ws, args)
+    builder.build(ws, args.dir)
 
-    print "Built project..."
-    builder.pp()
+    print "Built project(s)..."
+    for project in builder.projects:
+        print project.name
+    # builder.pp()
 
 
 if __name__ == '__main__':
@@ -177,9 +199,10 @@ if __name__ == '__main__':
     argv = sys.argv
     parser = argparse.ArgumentParser(
         description='Build a workflow from given (well formatted) Excel spreadsheet')
-    parser.add_argument('--input', type=str, default='', help='Path to input EXCEL file - defaults to input.xlsx')
+    parser.add_argument('--input', type=str, default='',
+                        help='Path to input EXCEL file - defaults to ' + default_input_path)
     parser.add_argument('--dir', type=str, default='',
-                        help='Path to directory of data files - defaults to ./input_data')
+                        help='Path to directory of data files - defaults to ' + default_data_path)
     args = parser.parse_args(argv[1:])
 
     if not args.input:
@@ -189,7 +212,7 @@ if __name__ == '__main__':
     args.input = os.path.abspath(args.input)
     args.dir = os.path.abspath(args.dir)
 
-    print "Default Path to input EXCEL file: " + args.input
-    print "Default Path to data file directory: " + args.dir
+    print "Path to input EXCEL file: " + args.input
+    print "Path to data file directory: " + args.dir
 
     main(args)
