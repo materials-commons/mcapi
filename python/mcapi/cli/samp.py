@@ -3,7 +3,7 @@ from mcapi.cli.functions import _trunc_name, _format_mtime
 
 class SampSubcommand(ListObjects):
     def __init__(self):
-        super(SampSubcommand, self).__init__("samp", "Sample", "Samples", 
+        super(SampSubcommand, self).__init__(["samp"], "Sample", "Samples", 
             expt_member=True, list_columns=['name', 'owner', 'id', 'mtime'])
     
     def get_all_from_experiment(self, expt):

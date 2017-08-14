@@ -1,11 +1,12 @@
 import sys
+import json
 from mcapi import get_all_projects
 from mcapi.cli.list_objects import ListObjects
 from mcapi.cli.functions import _trunc_name, _proj_path, _format_mtime, _proj_config
 
 class ProjSubcommand(ListObjects):
     def __init__(self):
-        super(ProjSubcommand, self).__init__("proj", "Project", "Projects", 
+        super(ProjSubcommand, self).__init__(["proj"], "Project", "Projects", 
             requires_project=False, proj_member=False, expt_member=False,
             list_columns=['current', 'name', 'owner', 'id', 'mtime'],
             headers=['', 'name', 'owner', 'id', 'mtime'],

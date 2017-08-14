@@ -3,7 +3,7 @@ from mcapi.cli.functions import _trunc_name, _format_mtime
 
 class ProcSubcommand(ListObjects):
     def __init__(self):
-        super(ProcSubcommand, self).__init__("proc", "Process", "Processes", 
+        super(ProcSubcommand, self).__init__(["proc"], "Process", "Processes", 
             expt_member=True, list_columns=['name', 'owner', 'template_name', 'id', 'mtime'])
     
     def get_all_from_experiment(self, expt):

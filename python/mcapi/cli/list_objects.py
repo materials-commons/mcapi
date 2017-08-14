@@ -34,6 +34,10 @@ class ListObjects(object):
         get_all_from_experiment(self, expt)
         get_all_from_project(self, proj)
         list_data(self, obj)
+    
+    Optional derived class members:
+        create(self, args)
+        add_create_options(self, parser)
         
     See ProcSubcommand for an example.
     
@@ -41,12 +45,12 @@ class ListObjects(object):
     
     def __init__(self, cmdname, typename, typename_plural, requires_project=True,
                  proj_member=True, expt_member=True, list_columns=[], headers=None,
-                 deletable=False, has_owner=True):
+                 deletable=False, has_owner=True, creatable=False, custom_options=False):
         """
         
         Arguments:
-            cmdname: str
-                Name to use for 'mc X', for instance: "proc" for "mc proc"
+            cmdname: List[str]
+                Names to use for 'mc X Y ...', for instance: ["casm", "prim"] for "mc casm prim"
             typename: str
                 With capitalization, for instance: "Process"
             typename_plural: str
@@ -65,6 +69,8 @@ class ListObjects(object):
                 If true, enable --delete and --dry-run
             has_owner: bool
                 If true, enable --owner
+            creatable: bool
+                If true, object can be created via derived class 'create' function
         
         """
         self.cmdname = cmdname
@@ -79,6 +85,7 @@ class ListObjects(object):
         self.headers = headers
         self.deletable = deletable
         self.has_owner = has_owner
+        self.creatable = creatable
     
     def __call__(self, argv):
         """
@@ -88,20 +95,30 @@ class ListObjects(object):
         
         """
         
-        expr_help = 'select ' + self.typename_plural.lower() + ' that match the given regex (default uses name)'
-        id_help = 'match by ' + self.typename.lower() + ' id instead of name'
-        owner_help = 'match by ' + self.typename.lower() + ' owner instead of name'
+        expr_help = 'select ' + self.typename_plural + ' that match the given regex (default uses name)'
+        id_help = 'match by id instead of name'
+        owner_help = 'match by owner instead of name'
         details_help = 'print detailed information'
         json_help = 'print JSON data'
-        expt_help = 'restrict to ' + self.typename_plural.lower() + ' in the current experiment, rather than entire project'
+        expt_help = 'restrict to ' + self.typename_plural + ' in the current experiment, rather than entire project'
         output_help = 'output to file'
         force_help = 'force overwrite of existing output file'
-        delete_help = 'delete a ' + self.typename.lower() + ', specified by id'
+        create_help = 'create a ' + self.typename
+        delete_help = 'delete a ' + self.typename + ', specified by id'
         dry_run_help = 'dry run deletion'
         
+        if self.creatable:
+            desc = 'List and create ' + self.typename_plural
+        else:
+            desc = 'List ' + self.typename_plural.lower()
+        
+        cmd = "mc "
+        for n in self.cmdname:
+            cmd += n + " "
+        
         parser = argparse.ArgumentParser(
-            description='List ' + self.typename_plural.lower(),
-            prog='mc ' + self.cmdname)
+            description=desc,
+            prog=cmd)
         parser.add_argument('expr', nargs='*', default=None, help=expr_help)
         parser.add_argument('--id', action="store_true", default=False, help=id_help)
         if self.has_owner:
@@ -112,9 +129,13 @@ class ListObjects(object):
         parser.add_argument('-f', '--force', action="store_true", default=False, help=force_help)
         if self.expt_member:
             parser.add_argument('--expt', action="store_true", default=False, help=expt_help)
+        if self.creatable:
+            parser.add_argument('--create', action="store_true", default=False, help=create_help)
+            self.add_create_options(parser)
         if self.deletable:
             parser.add_argument('--delete', action="store_true", default=False, help=delete_help)
             parser.add_argument('-n', '--dry-run', action="store_true", default=False, help=dry_run_help)
+        
         
         # ignore 'mc proc'
         args = parser.parse_args(argv[2:])
@@ -123,14 +144,19 @@ class ListObjects(object):
         if args.output:
             output = args.output[0]
         
-        with output_method(output, args.force) as out:
-            if self.deletable and args.delete:
-                objects = self.get_all_objects(args)
-                self.delete(objects, args.dry_run, out=out)
-            else:
-                objects = self.get_all_objects(args)
-                self.output(out, args, objects)
-        return
+        if hasattr(args, 'create') and args.create:
+            # interfaces 'mc casm monte --create ...'
+            self.create(args)
+        else:
+            # list
+            with output_method(output, args.force) as out:
+                if self.deletable and args.delete:
+                    objects = self.get_all_objects(args)
+                    self.delete(objects, args.dry_run, out=out)
+                else:
+                    objects = self.get_all_objects(args)
+                    self.output(out, args, objects)
+            return
 
 
     def get_all_objects(self, args):
@@ -170,7 +196,7 @@ class ListObjects(object):
     
     def output(self, out, args, objects):
         if not len(objects):
-            out.write("No " + self.typename_plural.lower() + " found matching specified criteria\n")
+            out.write("No " + self.typename_plural + " found matching specified criteria\n")
             return
         if args.details:
             for obj in objects:
