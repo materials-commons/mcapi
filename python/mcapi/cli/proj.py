@@ -43,23 +43,12 @@ class ProjSubcommand(ListObjects):
         }
     
     def delete(self, objects, dry_run, out=sys.stdout):
-        pp = PrettyPrint(shift=shift, indent=indent, out=out)
-        
-        msg = ""
-        if dry_run:
-            msg = "(Dry-run)"
-        pp.write("Deleting projects " + msg + "\n")
         for obj in objects:
-            pp.write("name:", pp.str(obj.name))
-            pp.n_indent += 1
             obj.delete(dry_run=dry_run)
-            pp.write("delete_tally:")
-            pp.n_indent += 1
-            for key, val in proj.delete_tally.__dict__.iteritems():
-                pp.write(key + ": " + pp.str(val))
-            pp.n_indent -= 1
-            pp.write("")
-            pp.n_indent += 1
+            out.write('Deleted project: ' + obj.name + ' ' + obj.id + '\n')
+            for key, val in obj.delete_tally.__dict__.iteritems():
+                out.write(str(key) + ' ' + str(val) + '\n')
+            out.write('\n')
             
 
     

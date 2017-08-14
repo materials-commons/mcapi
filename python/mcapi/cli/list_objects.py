@@ -99,6 +99,7 @@ class ListObjects(object):
         id_help = 'match by id instead of name'
         owner_help = 'match by owner instead of name'
         details_help = 'print detailed information'
+        sort_by_help = 'columns to sort by'
         json_help = 'print JSON data'
         expt_help = 'restrict to ' + self.typename_plural + ' in the current experiment, rather than entire project'
         output_help = 'output to file'
@@ -124,6 +125,7 @@ class ListObjects(object):
         if self.has_owner:
             parser.add_argument('--owner', action="store_true", default=False, help=owner_help)
         parser.add_argument('-d', '--details', action="store_true", default=False, help=details_help)
+        parser.add_argument('--sort-by', nargs='*', default=['name'], help=sort_by_help)
         parser.add_argument('--json', action="store_true", default=False, help=json_help)
         parser.add_argument('-o', '--output', nargs=1, default=None, help=output_help)
         parser.add_argument('-f', '--force', action="store_true", default=False, help=force_help)
@@ -145,14 +147,31 @@ class ListObjects(object):
             output = args.output[0]
         
         if hasattr(args, 'create') and args.create:
-            # interfaces 'mc casm monte --create ...'
-            self.create(args)
+            with output_method(output, args.force) as out:
+                # interfaces 'mc casm monte --create ...'
+                self.create(args, out=out)
         else:
             # list
             with output_method(output, args.force) as out:
                 if self.deletable and args.delete:
                     objects = self.get_all_objects(args)
-                    self.delete(objects, args.dry_run, out=out)
+                    
+                    if not args.force:
+                        self.output(out, args, objects)
+                        if args.dry_run:
+                            print "** Dry run **"
+                        msg = "Are you sure you want to permanently delete these? ('Yes'/'No'): "
+                        input = raw_input(msg)
+                        if input != 'Yes':
+                            print "Aborting"
+                            return
+                        else:
+                            self.delete(objects, args.dry_run, out=out)
+                    else:
+                        if args.dry_run:
+                            print "** Dry run **"
+                        self.delete(objects, args.dry_run, out=out)
+                
                 else:
                     objects = self.get_all_objects(args)
                     self.output(out, args, objects)
@@ -210,6 +229,7 @@ class ListObjects(object):
             for obj in objects:
                 data.append(self.list_data(obj))
                 df = DataFrame.from_records(data, columns=self.list_columns)
+                df.sort_values(inplace=True, by=args.sort_by)
             out.write(tabulate(df, showindex=False, headers=self.headers))
             out.write("\n")
             
