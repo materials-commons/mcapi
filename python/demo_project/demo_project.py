@@ -1,6 +1,5 @@
 from mcapi import create_project, get_all_templates
 from mcapi import get_all_projects
-from mcapi import Remote, Config, set_remote
 
 class DemoProject:
     def __init__(self, data_directory_path):

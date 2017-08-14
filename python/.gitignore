@@ -1,0 +1,3 @@
+# protect empty test dirs from git clean -fd
+test/test_data/test_upload_data/test_upload_dir/sub_directory_c/empty_dir/
+test/test_data/cli_test_project/

@@ -218,7 +218,8 @@ class Project(MCObject):
         pp.write("description: " + pp.str(self.description))
         pp.write("id: " + self.id)
         pp.write("owner: " + pp.str(self.owner))
-        pp.write("mtime: " + pp.str(self.mtime.strftime("%b %Y %d %H:%M:%S")))
+        # todo: print time rep; see issue #1131
+        # pp.write("mtime: " + pp.str(self.mtime.strftime("%b %Y %d %H:%M:%S")))
 
     def _process_special_objects(self):
         pass
@@ -862,6 +863,22 @@ class Experiment(MCObject):
         if self.processes:
             self.processes = [make_object(s.input_data) for s in self.processes]
 
+    def pretty_print(self, shift=0, indent=2, out=sys.stdout):
+        """
+        Prints a nice layout of the object and all of it's values.
+
+        :param shift: the offset from the start of the line, in increments of indent
+        :param indent: the indent used for layout, in characters
+        :param out: the stream to which the object in printed
+        :return: None
+        """
+        pp = PrettyPrint(shift=shift, indent=indent, out=out)
+        pp.write("name: " + pp.str(self.name))
+        pp.n_indent += 1
+        pp.write("description: " + pp.str(self.description))
+        pp.write("id: " + self.id)
+        pp.write("owner: " + pp.str(self.owner))
+
     # Experiment - basic rethods: rename, put, delete
 
     def rename(self, name, description=None):
@@ -908,7 +925,7 @@ class Experiment(MCObject):
         self.delete_tally = DeleteTally(data=results)
         return self
 
-    # Experiment - Process-related methods - basic: create, get_by_id, get_all (in context)
+    # Experiment - Process-related methods
 
     def create_process_from_template(self, template_id):
         """
@@ -966,7 +983,20 @@ class Experiment(MCObject):
             process._update_project_experiment()
         return processes
 
-    # Experiment - Process-related methods - basic: create, get_by_id, get_all (in context)
+    def deleteAllProcessesAndSamples(self):
+        """
+        Delete all processes and samples in the experiment.
+
+        :return: a :class:`DeleteTally` instance, which lists the id's of the processes and samples deleted
+
+        .. note:: Currently not implemented - as an alternative delete the Experiment
+            and rebuild it; see :func:`mcapi.Experiment.delete()`
+
+        """
+        # TODO: Experiment.deleteAllProcessesAndSamples()
+        pass
+
+    # Experiment - Sample-related methods
 
     def get_sample_by_id(self, sample_id):
         """
@@ -1202,6 +1232,34 @@ class Process(MCObject):
         process.experiment = self.experiment
         process._update_project_experiment()
         return process
+
+    def delete(self):
+        """
+        Delete this process. The process is removed from the database leaving only the local copy.
+        A process can not be deleted if any of the follwoing are true: (1) it is not a leaf node in
+        the workflow, (2) is is in a dataset, (3) it is a create sample (type) process with one or
+        more output samples.
+        For an alternative: see :func:`mcapi.Experiment.deleteAllProcessesAndSamples()`
+
+        :return: id - the id of the process deleted or None (if the process was not deleted)
+
+        """
+        process_with_outputs = self.decorate_with_output_samples()
+        process_create = \
+            (process_with_outputs.process_type == 'create'
+             or process_with_outputs.template_name == 'Sectioning')
+        if process_create and (len(process_with_outputs.output_samples) > 0):
+            return None
+
+        results = None
+        try:
+            results = api.delete_process(self.project.id, self.id)
+            if 'error' in results:
+                results = None
+        except:
+            pass
+
+        return results
 
     def put(self):
         """
@@ -2725,17 +2783,18 @@ class DeleteTally(object):
     Or, in the case of dry_run==True, that would be deleted.
     """
     def __init__(self, data=None):
-        if data.get('project'):
-            # for delete project
-            attr = ['files', 'processes', 'datasets', 'project', 'experiments', 'samples']
-            for a in attr:
-                setattr(self, a, data.get(a, None))
-        else:
-            # for delete experiment
-            attr = ['datasets', 'best_measure_history', 'processes', 'samples', 'experiment_notes',
-                    'experiment_task_processes', 'experiment_tasks', 'notes', 'reviews', 'experiments']
-            for a in attr:
-                setattr(self, a, data.get(a, None))
+        if data:
+            if data.get('project'):
+                # for delete project
+                attr = ['files', 'processes', 'datasets', 'project', 'experiments', 'samples']
+                for a in attr:
+                    setattr(self, a, data.get(a, None))
+            else:
+                # for delete experiment
+                attr = ['datasets', 'best_measure_history', 'processes', 'samples', 'experiment_notes',
+                        'experiment_task_processes', 'experiment_tasks', 'notes', 'reviews', 'experiments']
+                for a in attr:
+                    setattr(self, a, data.get(a, None))
 
 
 #
