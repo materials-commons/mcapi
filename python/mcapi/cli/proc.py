@@ -30,11 +30,17 @@ class ProcSubcommand(ListObjects):
             out.write('Aborting\n')
             return
         for obj in objects:
+            if getattr(obj, 'experiment', None) is None:
+                out.write('Could not delete processes.\n')
+                out.write('Currently, processes must be deleted via an experiment.\n')
+                out.write('Please include the --expt option.\n')
+                out.write('Aborting\n')
+                return
             result = obj.delete()
             if result is None:
                 out.write('Could not delete process: ' + obj.name + ' ' + obj.id + '\n')
                 out.write('At present, a process can not be deleted via the mcapi if ')
-                out.write('any of the follwoing are true: \n')
+                out.write('any of the following are true: \n')
                 out.write('  (1) it is not a leaf node in the workflow,\n')
                 out.write('  (2) is is in a dataset, \n')
                 out.write('  (3) it is a create sample (type) process with one or more output samples.\n')

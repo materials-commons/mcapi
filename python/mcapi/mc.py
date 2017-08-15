@@ -1966,9 +1966,34 @@ class Sample(MCObject):
         pass
 
     def delete(self):
-        # TODO: Sample.delete(name)
-        # NOTE: most likely, not a good idea - should be done by delete project?
-        pass
+        """
+        Delete a sample. The sample is removed from the database leaving only the 
+        local copy. A sample can not be deleted if any of the following are true: 
+        ... ? ...
+
+        :return: id - the id of the sample deleted or None (if the sample was not deleted)
+
+        """
+        property_set_id = None
+        proc_id = None
+        for proc in self.input_data['processes']:
+            if proc['category'] == 'create_sample' and proc['direction'] == 'out':
+                property_set_id = proc['property_set_id']
+                proc_id = proc['id']
+                break
+        if proc_id is None:
+            results = None
+        else:
+            results = None
+            try:
+                results = api.delete_sample_created_by_process(self.project.id, proc_id, self.id, property_set_id)
+                if 'error' in results:
+                    results = None
+            except:
+                pass
+
+        return results
+
 
     # Sample - additional methods
     def link_files(self, file_list):
