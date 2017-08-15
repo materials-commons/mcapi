@@ -43,7 +43,7 @@ class ListObjects(object):
     
     """
     
-    def __init__(self, cmdname, typename, typename_plural, requires_project=True,
+    def __init__(self, cmdname, typename, typename_plural, desc=None, requires_project=True,
                  proj_member=True, expt_member=True, list_columns=[], headers=None,
                  deletable=False, has_owner=True, creatable=False, custom_options=False):
         """
@@ -55,6 +55,8 @@ class ListObjects(object):
                 With capitalization, for instance: "Process"
             typename_plural: str
                 With capitalization, for instance: "Processes"
+            desc: str
+                Used for help command description
             requires_project: bool
                 If True and not in current project, raise Exception
             proj_member: bool
@@ -76,6 +78,7 @@ class ListObjects(object):
         self.cmdname = cmdname
         self.typename = typename
         self.typename_plural = typename_plural
+        self.desc = desc
         self.requires_project = requires_project
         self.proj_member = proj_member
         self.expt_member = expt_member
@@ -108,17 +111,18 @@ class ListObjects(object):
         delete_help = 'delete a ' + self.typename + ', specified by id'
         dry_run_help = 'dry run deletion'
         
-        if self.creatable:
-            desc = 'List and create ' + self.typename_plural
-        else:
-            desc = 'List ' + self.typename_plural.lower()
+        if self.desc is None:
+            if self.creatable:
+                self.desc = 'List and create ' + self.typename_plural
+            else:
+                self.desc = 'List ' + self.typename_plural.lower()
         
         cmd = "mc "
         for n in self.cmdname:
             cmd += n + " "
         
         parser = argparse.ArgumentParser(
-            description=desc,
+            description=self.desc,
             prog=cmd)
         parser.add_argument('expr', nargs='*', default=None, help=expr_help)
         parser.add_argument('--id', action="store_true", default=False, help=id_help)
