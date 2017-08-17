@@ -334,6 +334,21 @@ def get_experiment_process_by_id(project_id, experiment_id, process_id, remote=N
     return get(remote.make_url_v2(api_url))
 
 
+def delete_sample_created_by_process(project_id, process_id, sample_id, property_set_id, remote=None):
+    if not remote:
+        remote = use_remote()
+    command_list = [{
+        "command": "delete",
+        "id": sample_id,
+        "property_set_id": property_set_id
+    }]
+    data = {
+        "samples": command_list
+    }
+    api_url = "projects/" + project_id + "/processes/" + process_id
+    return put(remote.make_url_v2(api_url), data)
+
+
 # Sample
 
 def get_sample_by_id(project_id, process_id, remote=None):

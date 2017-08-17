@@ -4,7 +4,7 @@ from mcapi.cli.functions import _trunc_name, _format_mtime
 
 class TemplatesSubcommand(ListObjects):
     def __init__(self):
-        super(TemplatesSubcommand, self).__init__("templates", "Template", "Templates", 
+        super(TemplatesSubcommand, self).__init__(["templates"], "Template", "Templates", 
             requires_project=False, proj_member=False, expt_member=False,
             list_columns=['name', 'id'], has_owner=False)
     
