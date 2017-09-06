@@ -3,6 +3,7 @@ import string
 import hashlib
 import copy
 import sys
+import json
 from os import path as os_path
 from os import listdir
 from os import getcwd
@@ -1151,8 +1152,8 @@ class Process(MCObject):
         pp.write_objects("input_files: ", self.input_files)
         pp.write_objects("output_files: ", self.output_files)
         pp.write_objects("files: ", self.files)
-        pp.write_pretty_print_objects("input_samples: ", self.input_samples)
-        pp.write_pretty_print_objects("output_samples: ", self.output_samples)
+        pp.write_objects("input_samples: ", self.input_samples)
+        pp.write_objects("output_samples: ", self.output_samples)
         if len(self.transformed_samples):
             pp.write_objects("transformed_samples: ", self.transformed_samples)
         if self.direction:
@@ -1965,9 +1966,34 @@ class Sample(MCObject):
         pass
 
     def delete(self):
-        # TODO: Sample.delete(name)
-        # NOTE: most likely, not a good idea - should be done by delete project?
-        pass
+        """
+        Delete a sample. The sample is removed from the database leaving only the 
+        local copy. A sample can not be deleted if any of the following are true: 
+        ... ? ...
+
+        :return: id - the id of the sample deleted or None (if the sample was not deleted)
+
+        """
+        property_set_id = None
+        proc_id = None
+        for proc in self.input_data['processes']:
+            if proc['category'] == 'create_sample' and proc['direction'] == 'out':
+                property_set_id = proc['property_set_id']
+                proc_id = proc['id']
+                break
+        if proc_id is None:
+            results = None
+        else:
+            results = None
+            try:
+                results = api.delete_sample_created_by_process(self.project.id, proc_id, self.id, property_set_id)
+                if 'error' in results:
+                    results = None
+            except:
+                pass
+
+        return results
+
 
     # Sample - additional methods
     def link_files(self, file_list):
@@ -2676,21 +2702,27 @@ class MatrixProperty(Property):
 
 
 def make_object(data):
-    if _is_datetime(data):
-        return _make_datetime(data)
-    if _is_object(data):
-        holder = make_base_object_for_type(data)
-        for key in data.keys():
-            value = copy.deepcopy(data[key])
-            if _is_object(value):
-                value = make_object(value)
-            elif _is_list(value):
-                value = map(make_object, value)
-            setattr(holder, key, value)
-        holder._process_special_objects()
-        return holder
-    else:
-        return data
+    try:
+        if _is_datetime(data):
+            return _make_datetime(data)
+        if _is_object(data):
+            holder = make_base_object_for_type(data)
+            for key in data.keys():
+                value = copy.deepcopy(data[key])
+                if _is_object(value):
+                    value = make_object(value)
+                elif _is_list(value):
+                    value = map(make_object, value)
+                setattr(holder, key, value)
+            holder._process_special_objects()
+            return holder
+        else:
+            return data
+    except Exception as e:
+        msg = "---\nData:\n" + json.dumps(data, indent=2) + "\n" \
+              + "---\nFailed:" + str(e) + "\n" \
+              + "---\n"
+        raise Exception("Failed to make object: \n" + msg)
 
 
 def make_base_object_for_type(data):
@@ -2755,7 +2787,8 @@ def make_property_object(obj):
         if object_type == 'matrix':
             holder = MatrixProperty(data=data)
         if not holder:
-            raise Exception("No Property Object, unrecognized otype = " + object_type, data)
+            #raise Exception("No Property Object, unrecognized otype = " + object_type, data)
+            holder = Property(data=data)
         holder._process_special_objects()
         return holder
     else:

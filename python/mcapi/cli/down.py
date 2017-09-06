@@ -16,8 +16,8 @@ def _obj_path_to_local_path(proj, obj_path):
     """
     return os.path.join(os.path.dirname(proj.local_path), obj_path)
 
-def _check_download(proj_id, file_id, local_path, remote):
-    if not os.path.exists(local_path) or args.force:
+def _check_download(proj_id, file_id, local_path, remote, force=False):
+    if not os.path.exists(local_path) or force:
         dir = os.path.dirname(local_path)
         if not os.path.exists(dir):
             os.makedirs(dir)
@@ -32,7 +32,7 @@ def _check_download(proj_id, file_id, local_path, remote):
                 break
     return None
 
-def _download(proj, dir, recursive=False):
+def _download(proj, dir, recursive=False, force=False):
     results = []
     children = dir.get_children()
     for child in children:
@@ -42,13 +42,13 @@ def _download(proj, dir, recursive=False):
             p = child.local_path()
             if not os.path.exists(os.path.dirname(p)):
                 os.makedirs(os.path.dirname(p))
-            result_path = _check_download(proj.id, child.id, p, proj.remote)
+            result_path = _check_download(proj.id, child.id, p, proj.remote, force=force)
             if result_path is not None:
                 print "downloaded:", os.path.relpath(result_path, os.getcwd())
             results.append(result_path)
         
         elif isinstance(child, mcapi.Directory) and recursive:
-            _download(proj, child, recursive=recursive)
+            _download(proj, child, recursive=recursive, force=force)
     
     return results
     
@@ -82,12 +82,12 @@ def down_subcommand(argv=sys.argv):
         
         if isinstance(obj, mcapi.File):
             #(project_id, file_id, output_file_path, remote=use_remote())
-            result_path = _check_download(proj.id, obj.id, p, proj.remote) 
+            result_path = _check_download(proj.id, obj.id, p, proj.remote, force=args.force) 
             if result_path is not None:
                 print "downloaded:", os.path.relpath(result_path, os.getcwd())
         
         elif isinstance(obj, mcapi.Directory):
-            _download(proj, obj, recursive=args.recursive)
+            _download(proj, obj, force=args.force, recursive=args.recursive)
     
     return
 

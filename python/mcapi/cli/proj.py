@@ -1,11 +1,12 @@
 import sys
+import json
 from mcapi import get_all_projects
 from mcapi.cli.list_objects import ListObjects
 from mcapi.cli.functions import _trunc_name, _proj_path, _format_mtime, _proj_config
 
 class ProjSubcommand(ListObjects):
     def __init__(self):
-        super(ProjSubcommand, self).__init__("proj", "Project", "Projects", 
+        super(ProjSubcommand, self).__init__(["proj"], "Project", "Projects", 
             requires_project=False, proj_member=False, expt_member=False,
             list_columns=['current', 'name', 'owner', 'id', 'mtime'],
             headers=['', 'name', 'owner', 'id', 'mtime'],
@@ -42,23 +43,12 @@ class ProjSubcommand(ListObjects):
         }
     
     def delete(self, objects, dry_run, out=sys.stdout):
-        pp = PrettyPrint(shift=shift, indent=indent, out=out)
-        
-        msg = ""
-        if dry_run:
-            msg = "(Dry-run)"
-        pp.write("Deleting projects " + msg + "\n")
         for obj in objects:
-            pp.write("name:", pp.str(obj.name))
-            pp.n_indent += 1
             obj.delete(dry_run=dry_run)
-            pp.write("delete_tally:")
-            pp.n_indent += 1
-            for key, val in proj.delete_tally.__dict__.iteritems():
-                pp.write(key + ": " + pp.str(val))
-            pp.n_indent -= 1
-            pp.write("")
-            pp.n_indent += 1
+            out.write('Deleted project: ' + obj.name + ' ' + obj.id + '\n')
+            for key, val in obj.delete_tally.__dict__.iteritems():
+                out.write(str(key) + ' ' + str(val) + '\n')
+            out.write('\n')
             
 
     
