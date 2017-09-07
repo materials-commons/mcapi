@@ -1,0 +1,53 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from os import environ
+from utilities import check_citrination_key
+from citrination_client import CitrinationClient
+from citrination_client import PifQuery
+
+if not check_citrination_key():
+    exit(1)
+
+def create_clusters(num_points=1000, num_features=2):
+    """
+    Create synthetic data with num_points total points and num_features input dimensionality.
+    The points are grouped into four Gaussian-distributed clusters.
+    """
+    num_clusters = 4
+    X = np.zeros((1, num_features))
+    Y = np.zeros((1, 1))
+    for i in range(num_clusters):
+        x = np.random.randn(num_points/num_clusters, num_features)/6.0+i
+        X = np.vstack((X, x))
+        y = np.ones((num_points/num_clusters, 1))*i
+        Y = np.vstack((Y, y))
+    return X, Y
+
+def write_cluster_csv(filename, x, y):
+    """
+    Write the data to a csv file
+    """
+    data = np.hstack((x, y))
+    num_features = x.shape[1]
+    #  Let's define the header for the csv:
+    str1 = ""
+    for i in range(num_features):
+        str1 += "x" + str(i) +","
+    str1 += "y"
+    #  Then write the csv:
+    np.savetxt(filename, data, delimiter=',', header=str1, comments="", fmt="%.5e")
+
+client = CitrinationClient(environ['CITRINATION_API_KEY'], 'https://citrination.com')
+response = client.create_data_set("Weymouth - Test dataset","A scrap dataset for testing - Terry E Weymouth - ")
+print response
+
+# x, y = create_clusters(100, 4)
+# write_cluster_csv("cluster_data.csv", x, y)
+
+# Lets make a plot to see how our data looks:
+# plt.scatter(x[:, 0], x[:, 1], c=y[:,0])
+# plt.xlabel("x1")
+# plt.ylabel("x2")
+# plt.title("Clustered synthetic data set")
+# plt.colorbar()
+# plt.show()
