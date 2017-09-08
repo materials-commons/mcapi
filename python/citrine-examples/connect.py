@@ -1,4 +1,3 @@
-from utilities import check_citrination_key
 from citrination_client import CitrinationClient
 from os import environ
 

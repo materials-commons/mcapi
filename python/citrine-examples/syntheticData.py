@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from os import environ
-from utilities import check_citrination_key
+from os import path
+from utilities import check_citrination_key, get_citrination_key
 from citrination_client import CitrinationClient
 from citrination_client import PifQuery
 
@@ -37,9 +37,33 @@ def write_cluster_csv(filename, x, y):
     #  Then write the csv:
     np.savetxt(filename, data, delimiter=',', header=str1, comments="", fmt="%.5e")
 
-client = CitrinationClient(environ['CITRINATION_API_KEY'], 'https://citrination.com')
-response = client.create_data_set("Weymouth - Test dataset","A scrap dataset for testing - Terry E Weymouth - ")
-print response
+try:
+    # test_dataset = '153696' # "Weymouth - Test dataset"
+    test_dataset = '153654' # "Weymouth-MC-Test"
+    client = CitrinationClient(get_citrination_key(), 'https://citrination.com')
+    # response = client.create_data_set("Weymouth - Test dataset 01","A scrap dataset for testing - Terry E Weymouth - ")
+    # response = client.create_data_set_version(test_dataset)
+    # print response.status_code
+    # print response.content
+    # test_dataset_results = response.content
+
+    # print 'attempting upload of cluster_data.csv'
+    # filepath = path.abspath("./cluster_data.csv")
+    # filepath = '/Users/weymouth/working/MaterialsCommons/workspace/src/github.com/citrine/learn-citrination/example_data'
+    # filepath = '/Users/weymouth/working/MaterialsCommons/workspace/src/github.com/citrine/learn-citrination/example_data/Cu.cF4'
+    filepath = '/Users/weymouth/working/MaterialsCommons/workspace/src/github.com/materials-commons/mcapi/python/citrine-examples/Al4-pif.json'
+    type = "unknown"
+    if path.isfile(filepath):
+        type = "file"
+    if path.isdir(filepath):
+        type = "directory"
+    print filepath
+    print "    is a: " + type
+    response = client.upload(test_dataset, filepath)
+    print response
+
+except Exception as e:
+    print e
 
 # x, y = create_clusters(100, 4)
 # write_cluster_csv("cluster_data.csv", x, y)
