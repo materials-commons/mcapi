@@ -1,9 +1,11 @@
 import json
 from pypif.pif import dumps
 from pypif.obj.system import System
-from pypif.obj.common import Property, Scalar, FileReference
+from pypif.obj.common import Property, Scalar, FileReference, ProcessStep
 from pypif.obj.system.chemical.alloy import Alloy
 from pypif.obj.system.chemical.common import Composition
+
+## Parts...
 
 composition_al = Composition(
     element='Al',
@@ -31,7 +33,11 @@ sample_properties = [
     )
 ]
 
-source_
+source_process_step = ProcessStep()
+
+measurement_process_step = ProcessStep()
+
+## Put it all together...
 
 pif = System()
 pif.uid = "foo"
@@ -43,5 +49,9 @@ pif.sample = Alloy(
     composition= [composition_al,composition_ca,composition_zr],
     properties = sample_properties
 )
+pif.workflow = [
+    source_process_step,
+    measurement_process_step
+]
 d = dumps(pif,indent=4)
 print(d)
