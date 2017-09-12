@@ -33,9 +33,13 @@ sample_properties = [
     )
 ]
 
-source_process_step = ProcessStep()
+source_process_step = ProcessStep(
+    name="Section of Stantard Properation - L124"
+)
 
-measurement_process_step = ProcessStep()
+measurement_process_step = ProcessStep(
+    name="EPMA SEM"
+)
 
 ## Put it all together...
 

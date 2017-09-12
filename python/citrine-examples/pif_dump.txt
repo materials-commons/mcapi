@@ -1,0 +1,52 @@
+{
+    "uid": "foo",
+    "category": "system",
+    "sample": {
+        "uuid": "alloy uuid",
+        "names": [
+            "Casting L124"
+        ],
+        "ids": [
+            "uuid L124 casting"
+        ],
+        "source": "LIFT Casting",
+        "properties": [
+            {
+                "name": "Example File",
+                "files": {
+                    "url": "http://mc.server.org/fileStore/MagicKey",
+                    "mimeType": "mime/type"
+                }
+            }
+        ],
+        "category": "system.chemical.alloy",
+        "composition": [
+            {
+                "element": "Al",
+                "idealAtomicPercent": {
+                    "value": 94
+                }
+            },
+            {
+                "element": "Ca",
+                "idealAtomicPercent": {
+                    "value": 1
+                }
+            },
+            {
+                "element": "Zr",
+                "idealAtomicPercent": {
+                    "value": 5
+                }
+            }
+        ]
+    },
+    "workflow": [
+        {
+            "name": "Section of Stantard Properation - L124"
+        },
+        {
+            "name": "EPMA SEM"
+        }
+    ]
+}
