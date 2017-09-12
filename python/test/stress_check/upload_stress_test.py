@@ -23,7 +23,7 @@ def fake_name(prefix):
 def get_project(mode):
     project_name = fake_name(mode + "-Stress-Test-")
     project = create_project(project_name, "Project for parallel upload stress test")
-    print "Project: " + project.name
+    print("Project: " + project.name)
     return project
 
 
@@ -45,8 +45,8 @@ def upload_one(project, input_path):
     try:
         project.add_file_by_local_path(input_path)
     except Exception as exc:
-        print "-------------"
-        print exc
+        print("-------------")
+        print(exc)
         raise
 
 
@@ -61,7 +61,7 @@ def upload_one_parallel(q):
         try:
             upload_one(packet['project'], packet['path'])
         except:
-            print "Requeueing: " + packet['path']
+            print("Requeueing: " + packet['path'])
             q.put(packet)
         finally:
             q.task_done()
@@ -103,15 +103,15 @@ def exec_all(flag, subdir):
         start = time.clock()
         upload_all_sequential(project, keys, table)
         seconds = (time.clock() - start)
-        print seconds
+        print(seconds)
 
     else:
         start = time.clock()
         upload_all_parallel(project, keys, table)
         seconds = (time.clock() - start)
-        print seconds
+        print(seconds)
 
-    print project.name
+    print(project.name)
 
 
 def main():
@@ -125,7 +125,7 @@ def main():
             flag = PARTITIONED
             subdir = sys.argv[2]
     exec_all(flag, subdir)
-    print flag
+    print(flag)
 
 
 if __name__ == '__main__':

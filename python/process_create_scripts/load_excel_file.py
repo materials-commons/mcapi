@@ -37,7 +37,7 @@ class WorkflowBuilder:
         self.create_project_experiment()
         self.template_table = self.make_template_table()
 
-        print self.template_id_with(self.template_table, 'EPMA')
+        print(self.template_id_with(self.template_table, 'EPMA'))
 
         self.create_processes = {}
         self.section_processes = {}
@@ -62,8 +62,8 @@ class WorkflowBuilder:
             # TODO: support arbitrary measurements and annotations in process
             # self.add_measurements_and_annotations(epma_process,workflow)
 
-        print self.project.name
-        print len(self.project_files)
+        print(self.project.name)
+        print(len(self.project_files))
 
     # build methods
 
@@ -251,9 +251,9 @@ if __name__ == '__main__':
     args.input = os.path.abspath(args.input)
     args.dir = os.path.abspath(args.dir)
 
-    print "Project name: " + args.project
-    print "Experiment name: " + args.experiment
-    print "Path to input EXCEL file: " + args.input
-    print "Path to data file directory: " + args.dir
+    print("Project name: " + args.project)
+    print("Experiment name: " + args.experiment)
+    print("Path to input EXCEL file: " + args.input)
+    print("Path to data file directory: " + args.dir)
 
     main(args)

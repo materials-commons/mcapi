@@ -52,21 +52,21 @@ def up_subcommand(argv=sys.argv):
     
     for p in local_abspaths:
         if os.path.isfile(p):
-            #print "uploading:", p
+            #print("uploading:", p)
             try:
                 result = proj.add_file_by_local_path(p, verbose=True, limit=limit)
             except Exception as e:
-                print "Could not upload:", p
-                print "Error:"
-                print e
+                print("Could not upload:", p)
+                print("Error:")
+                print(e)
         
         elif os.path.isdir(p) and args.recursive:
-            #print "uploading:", p
+            #print("uploading:", p)
             result, error = proj.add_directory_tree_by_local_path(p, verbose=True, limit=limit)
             if len(error):
                 for file in error:
-                    print "Could not upload:", file
-                    print "Error:"
-                    print error[file]
+                    print("Could not upload:", file)
+                    print("Error:")
+                    print(error[file])
         
     return

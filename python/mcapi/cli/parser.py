@@ -80,7 +80,7 @@ class CommonsCLIParser(object):
                     f.close()
             
         else:
-            print 'Unrecognized command'
+            print('Unrecognized command')
             parser.print_help()
             exit(1)
 

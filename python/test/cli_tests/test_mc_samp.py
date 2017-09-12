@@ -128,7 +128,7 @@ class TestMCProc(unittest.TestCase):
     def test_samp_json(self):
         samp_subcommand = SampSubcommand()
         
-        # print sample JSON data
+        # print() sample JSON data
         testargs = ['mc', 'samp', '--json']
         with captured_output(wd=self.proj_path) as (sout, serr):
             samp_subcommand(testargs)
@@ -139,7 +139,7 @@ class TestMCProc(unittest.TestCase):
     def test_samp_details(self):
         samp_subcommand = SampSubcommand()
         
-        # print sample details
+        # print() sample details
         testargs = ['mc', 'samp', '--details']
         with captured_output(wd=self.proj_path) as (sout, serr):
             samp_subcommand(testargs)

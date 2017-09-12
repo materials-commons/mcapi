@@ -97,7 +97,7 @@ def get_remote_config_url():
     :return: the URL as a string
 
     >>> url = mcapi.get_remote_config_url()
-    >>> print url
+    >>> print(url)
 
     """
     return use_remote().config.mcurl

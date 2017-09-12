@@ -32,7 +32,7 @@ class WorkflowBuilder:
         name = self.source[row][1]
         description = self.source[row][2]
         name = self._make_unique_project_name(name)
-        print "Adding Project: " + name
+        print("Adding Project: " + name)
         project = create_project(name, description)
         project.local_path = self.data_path
         self.current_project = project
@@ -43,20 +43,20 @@ class WorkflowBuilder:
         project = self.current_project
         name = self.source[row][1]
         description = self.source[row][2]
-        print "Adding Experiment: " + name
+        print("Adding Experiment: " + name)
         self.current_experiment = project.create_experiment(name, description)
         self.sample_table = {}
         return row + 1
 
     def add_workflow(self, row):
-        print "Workflow: "
+        print("Workflow: ")
         process = self.add_process(row)
-        print "   " + process.name
+        print("   " + process.name)
 
         row += 1
         while (row < len(self.source)) and (not self.source[row][0]):
             process = self.add_process(row)
-            print "   " + process.name
+            print("   " + process.name)
             row += 1
         return row - 1
 
@@ -103,7 +103,7 @@ class WorkflowBuilder:
 
     def add_files(self,directory_path,process):
         project = self.current_project
-        print "project local_path = " + project.local_path
+        print("project local_path = " + project.local_path)
         files = []
         for (dirpath, dirnames, filenames) in walk(directory_path):
             for file in filenames:
@@ -115,15 +115,15 @@ class WorkflowBuilder:
 
     def pp(self):
         for project in self.projects:
-            print "Project..."
+            print("Project...")
             project.pretty_print()
             experiments = project.get_all_experiments()
             for experiment in experiments:
-                print "  Experiment..."
+                print("  Experiment...")
                 experiment.pretty_print(shift=2)
                 processes = experiment.get_all_processes()
                 for process in processes:
-                    print "    Process..."
+                    print("    Process...")
                     process.pretty_print(shift=4)
 
     def _read_entire_sheet(self, sheet):
@@ -175,7 +175,7 @@ class WorkflowBuilder:
         for key in table:
             if match in key:
                 found_id = key
-        print match, found_id
+        print(match, found_id)
         return found_id
 
 
@@ -185,9 +185,9 @@ def main(args):
     builder = WorkflowBuilder()
     builder.build(ws, args.dir)
 
-    print "Built project(s)..."
+    print("Built project(s)...")
     for project in builder.projects:
-        print project.name
+        print(project.name)
     # builder.pp()
 
 
@@ -212,7 +212,7 @@ if __name__ == '__main__':
     args.input = os.path.abspath(args.input)
     args.dir = os.path.abspath(args.dir)
 
-    print "Path to input EXCEL file: " + args.input
-    print "Path to data file directory: " + args.dir
+    print("Path to input EXCEL file: " + args.input)
+    print("Path to data file directory: " + args.dir)
 
     main(args)

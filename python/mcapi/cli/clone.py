@@ -25,7 +25,7 @@ def clone_subcommand(argv=sys.argv):
     
     remotes = _mc_remotes()
     if not args.remote in remotes:
-        print "unrecognized remote:", args.remote
+        print("unrecognized remote:", args.remote)
         exit(1)
     remote=remotes[args.remote]
     
@@ -36,7 +36,7 @@ def clone_subcommand(argv=sys.argv):
     dest = os.path.join(os.getcwd(), project.name)
     
     if _proj_path(dest) is not None:
-        print "mc project already exists at", _proj_path(dest)
+        print("mc project already exists at", _proj_path(dest))
         exit(1)
     
     if not os.path.exists(dest):
@@ -47,5 +47,5 @@ def clone_subcommand(argv=sys.argv):
         data = {'remote_url':remote.config.mcurl, 'project_id': args.id, 'experiment_id': None}
         json.dump(data, f)
     
-    print "Cloned project from", remote.config.mcurl, "to", dest
+    print("Cloned project from", remote.config.mcurl, "to", dest)
     _print_projects([project])

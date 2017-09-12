@@ -101,9 +101,9 @@ class ListObjects(object):
         expr_help = 'select ' + self.typename_plural + ' that match the given regex (default uses name)'
         id_help = 'match by id instead of name'
         owner_help = 'match by owner instead of name'
-        details_help = 'print detailed information'
+        details_help = 'print() detailed information'
         sort_by_help = 'columns to sort by'
-        json_help = 'print JSON data'
+        json_help = 'print()JSON data'
         expt_help = 'restrict to ' + self.typename_plural + ' in the current experiment, rather than entire project'
         output_help = 'output to file'
         force_help = 'force overwrite of existing output file'
@@ -163,17 +163,17 @@ class ListObjects(object):
                     if not args.force:
                         self.output(out, args, objects)
                         if args.dry_run:
-                            print "** Dry run **"
+                            print("** Dry run **")
                         msg = "Are you sure you want to permanently delete these? ('Yes'/'No'): "
                         input = raw_input(msg)
                         if input != 'Yes':
-                            print "Aborting"
+                            print("Aborting")
                             return
                         else:
                             self.delete(objects, args.dry_run, out=out)
                     else:
                         if args.dry_run:
-                            print "** Dry run **"
+                            print("** Dry run **")
                         self.delete(objects, args.dry_run, out=out)
                 
                 else:

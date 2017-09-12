@@ -69,7 +69,7 @@ def _format_mtime(mtime):
 
 def _print_projects(projects, current=None):
     """
-    Print list of projects, include '*' for current project
+    Print() list of projects, include '*' for current project
     
     Arguments:
         projects: List[mcapi.Project]
@@ -99,12 +99,12 @@ def _print_projects(projects, current=None):
     df = pandas.DataFrame.from_records(data, 
         columns=['current', 'name', 'owner', 'id', 'mtime'])
     
-    #print df.to_string()
+    #print(df.to_string())
     print(tabulate(df, showindex=False, headers=['', 'name', 'owner', 'id', 'mtime']))
 
 def _print_experiments(experiments, current=None):
     """
-    Print list of experiments, include '*' for current experiment
+    Print() list of experiments, include '*' for current experiment
     
     Arguments:
         experiments: List[mcapi.Experiment]
@@ -129,12 +129,12 @@ def _print_experiments(experiments, current=None):
     df = pandas.DataFrame.from_records(data, 
         columns=['current', 'name', 'description', 'owner', 'id', 'mtime'])
     
-    #print df.to_string()
+    #print(df.to_string())
     print(tabulate(df, showindex=False, headers=['', 'name', 'description', 'owner', 'id', 'mtime']))
 
 def _print_processes(processes, details=False, json=False):
     if not len(processes):
-        print "No processes"
+        print("No processes")
         return
     if details:
         _print_processes_details(processes)
@@ -146,11 +146,11 @@ def _print_processes(processes, details=False, json=False):
 def _print_processes_details(processes):
     for p in processes:
         p.pretty_print(shift=0, indent=2)
-        print ""
+        print("")
 
 def _print_processes_json(processes):
     for p in processes:
-        print json.dumps(p.input_data, indent=2)
+        print(json.dumps(p.input_data, indent=2))
 
 def _print_processes_list(processes):
     data = []
@@ -205,7 +205,7 @@ def make_local_project(path=None):
             remote = val
             break
     if remote is None:
-        print "could not find remote:", j['remote_url']
+        print("could not find remote:", j['remote_url'])
     
     # get mcapi.Project
     proj =  mcapi.get_project_by_id(j['project_id'])

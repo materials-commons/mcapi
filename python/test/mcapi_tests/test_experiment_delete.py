@@ -140,8 +140,8 @@ class TestExperimentDelete(unittest.TestCase):
     def _build_project(self):
 
         project_name = _fake_name("ExpDeleteTest")
-        print ""
-        print "Project name: " + project_name
+        print("")
+        print("Project name: " + project_name)
 
         self.test_project_name = project_name
 

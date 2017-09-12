@@ -24,7 +24,7 @@ def init_subcommand(argv=sys.argv):
         
         remotes = _mc_remotes()
         if not args.remote in remotes:
-            print "unrecognized remote:", args.remote
+            print("unrecognized remote:", args.remote)
             parser.print_help()
             exit(1)
         remote=remotes[args.remote]
@@ -32,7 +32,7 @@ def init_subcommand(argv=sys.argv):
         if os.path.exists(".mc"):
             try:
                 proj = make_local_project()
-                print "Already in project.  name:", proj.name, "  id:", proj.id
+                print("Already in project.  name:", proj.name, "  id:", proj.id)
                 return
             except:
                 raise Exception(".mc directory exists, but could not find existing project")
@@ -41,7 +41,7 @@ def init_subcommand(argv=sys.argv):
         
         project = mcapi.create_project(name, args.desc)
         
-        print "Created new project at:", remote.config.mcurl
+        print("Created new project at:", remote.config.mcurl)
         _print_projects([project], project)
         
         if not os.path.exists('.mc'):

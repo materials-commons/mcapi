@@ -35,18 +35,18 @@ def expt_subcommand(argv=sys.argv):
     
     if args.create:
         if len(args.expts) != 1:
-            print 'create one experiment at a time'
-            print 'example: mc expt -c ExptName --desc "short description"'
+            print('create one experiment at a time')
+            print('example: mc expt -c ExptName --desc "short description"')
             parser.print_help()
             exit(1)
         for name in args.expts:
             if name not in expts:
                 expt = proj.create_experiment(name, args.desc)
-                print 'Created experiment:', expt.name
+                print('Created experiment:', expt.name)
                 set_current_experiment(proj, expt)
-                print "Set current experiment: '" + expt.name + "'"
+                print("Set current experiment: '" + expt.name + "'")
             else:
-                print 'experiment: \'' + name + '\' already exists'
+                print('experiment: \'' + name + '\' already exists')
     
     elif args.delete:
         for name in args.expts:
@@ -55,24 +55,24 @@ def expt_subcommand(argv=sys.argv):
             else:
                 _expts = expts
             _expts[name].delete(dry_run=args.dry_run, delete_processes_and_samples=args.all)
-            print 'Deleted experiment:', name
+            print('Deleted experiment:', name)
             for key, val in _expts[name].delete_tally.__dict__.iteritems():
-                print key, val
-            print ""
+                print(key, val)
+            print("")
     
     elif args.set:
         if len(args.expts) != 1:
-            print 'set one current experiment at a time'
-            print 'example: mc expt -s ExptName'
+            print('set one current experiment at a time')
+            print('example: mc expt -s ExptName')
             parser.print_help()
             exit(1)
         
         if args.id:
             set_current_experiment(proj, expt_ids[args.expts[0]])
-            print "Set current experiment: '" + expt_ids[args.expts[0]].name + "'"
+            print("Set current experiment: '" + expt_ids[args.expts[0]].name + "'")
         else:
             set_current_experiment(proj, expts[args.expts[0]])
-            print "Set current experiment: '" + expts[args.expts[0]].name + "'"
+            print("Set current experiment: '" + expts[args.expts[0]].name + "'")
     
     elif args.list:
         

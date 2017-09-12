@@ -108,12 +108,12 @@ class TestMultipleMeasuresForSample(unittest.TestCase):
                 found = measurement
         self.assertIsNotNone(found, "Expected best_measurement to be in measurements")
 
-        # print ""
-        # print "Process -->"
+        # print("")
+        # print9"Process -->")
         # process.pretty_print()
-        # print "Sample -->"
+        # print("Sample -->")
         # sample_with_details.pretty_print()
-        # print "Measurements..."
+        # print("Measurements...")
         # for measurement in measurements:
-        #    print "  --->"
+        #    print("  --->")
         #    measurement.pretty_print(shift=2)

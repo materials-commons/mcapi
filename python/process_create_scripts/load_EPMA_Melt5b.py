@@ -56,8 +56,8 @@ class WorkflowBuilderMelt5b:
             self.add_data_files(epma_process,workflow['data_file'])
             self.add_measurement_annotations(epma_process, workflow)
 
-        print self.project.name
-        print len(self.project_files)
+        print(self.project.name)
+        print(len(self.project_files))
 
     # build methods
 

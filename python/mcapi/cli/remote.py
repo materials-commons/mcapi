@@ -26,5 +26,5 @@ def remote_subcommand(argv=sys.argv):
     remotes = _mc_remotes()
     data = [{'name': key, 'url': remotes[key].config.mcurl} for key in remotes]
     df = pandas.DataFrame.from_records(data, columns=['name', 'url'])
-    print df.to_string(index=False)
+    print(df.to_string(index=False))
 

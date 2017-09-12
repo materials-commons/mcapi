@@ -23,7 +23,7 @@ def fake_name(prefix):
 def get_project(mode):
     project_name = fake_name(mode + "-Stress-Test-")
     project = create_project(project_name, "Project for parallel upload stress test")
-    print "Project: " + project.name
+    print("Project: " + project.name)
     return project
 
 
@@ -47,9 +47,9 @@ def exec_all(flag, subdir):
     start = time.clock()
     loader.bulk_upload(project,directory)
     seconds = (time.clock() - start)
-    print seconds
+    print(seconds)
 
-    print project.name
+    print(project.name)
 
 
 def main():
@@ -59,7 +59,7 @@ def main():
         if sys.argv[1] == 'p':
             flag = PARALLEL
     exec_all(flag, subdir)
-    print flag
+    print(flag)
 
 
 if __name__ == '__main__':

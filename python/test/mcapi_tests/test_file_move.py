@@ -20,8 +20,8 @@ class TestFileMove(unittest.TestCase):
         project = create_project(cls.project_name, description)
         cls.project_id = project.id
         cls.project = project
-        print ''
-        print project.name
+        print('')
+        print(project.name)
 
         cls.top_directory = project.get_top_directory()
         cls.test_dir_path_for_move = '/TestForMove'
@@ -117,5 +117,5 @@ class TestFileMove(unittest.TestCase):
         child_list = directory.get_children()
         print(child_list)
         for child in child_list:
-            print child.name
+            print(child.name)
 

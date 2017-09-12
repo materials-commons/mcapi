@@ -121,7 +121,7 @@ class TestMCProc(unittest.TestCase):
     def test_proc_json(self):
         proc_subcommand = ProcSubcommand()
         
-        # print process JSON data
+        # print() process JSON data
         testargs = ['mc', 'proc', '--json']
         with captured_output(wd=self.proj_path) as (sout, serr):
             proc_subcommand(testargs)
@@ -132,7 +132,7 @@ class TestMCProc(unittest.TestCase):
     def test_proc_details(self):
         proc_subcommand = ProcSubcommand()
         
-        # print process details
+        # print() process details
         testargs = ['mc', 'proc', '--details']
         with captured_output(wd=self.proj_path) as (sout, serr):
             proc_subcommand(testargs)

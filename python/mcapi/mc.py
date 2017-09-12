@@ -28,7 +28,7 @@ def create_project(name, description):
     >>> name = "A Project"
     >>> description = "This is a project for me"
     >>> project = mcapi.create_project(name,description)
-    >>> print project.name, project.description
+    >>> print(project.name, project.description)
 
     """
     results = api.create_project(name, description)
@@ -59,7 +59,7 @@ def get_all_projects():
 
     >>> project_list = get_all_projects()
     >>> for project in project_list:
-    >>>     print project.name
+    >>>     print(project.name)
 
     """
     results = api.projects()
@@ -78,7 +78,7 @@ def get_all_users():
 
     >>> user_list = get_all_users()
     >>> for user in user_list:
-    >>>     print user.fullname, user.email
+    >>>     print(user.fullname, user.email)
 
     """
     results = api.get_all_users()
@@ -95,7 +95,7 @@ def get_all_templates():
 
     >>> template_list = get_all_templates()
     >>> for template in template_list:
-    >>>     print template.name, template.id
+    >>>     print(template.name, template.id)
 
     """
     templates_array = api.get_all_templates()
@@ -105,7 +105,7 @@ def get_all_templates():
 
 # -- supporting classes
 
-# These print statements for debugging cases where special processing case is missed
+# These print() statements for debugging cases where special processing case is missed
 # changed name of display function so that it will not interfere with searches
 #        prrint "MCObject: called _process_special_objects - possible error?"
 #        if _has_key('otype',data): prrint "otype = ",data['otype']
@@ -141,7 +141,7 @@ class User(MCObject):
         >>> user_list = get_all_users()
         >>> for user in user_list:
         >>>     if user.can_access(project):
-        >>>         print user.fullname, user.email
+        >>>         print(user.fullname, user.email)
 
         """
         user_ids = project.get_access_list()
@@ -218,7 +218,7 @@ class Project(MCObject):
         pp.write("description: " + pp.str(self.description))
         pp.write("id: " + self.id)
         pp.write("owner: " + pp.str(self.owner))
-        # todo: print time rep; see issue #1131
+        # todo: print()time rep; see issue #1131
         # pp.write("mtime: " + pp.str(self.mtime.strftime("%b %Y %d %H:%M:%S")))
 
     def _process_special_objects(self):
@@ -306,7 +306,7 @@ class Project(MCObject):
 
         >>> experiment_list = project.get_all_experiments()
         >>> for experiment in experiment_list:
-        >>>     print experiment.id, experiment.name
+        >>>     print(experiment.id, experiment.name)
 
         """
         list_results = api.fetch_experiments(self.id)
@@ -333,7 +333,7 @@ class Project(MCObject):
         :return: a :class:`mcapi.Directory` instance
 
         >>> directory = project.get_directory_by_id('876655a2-c31b-4895-8766-40a168ea1a87')
-        >>> print directory.path
+        >>> print(directory.path)
 
         """
 
@@ -351,7 +351,7 @@ class Project(MCObject):
 
         >>> directory_list = project.get_all_directories()
         >>> for directory in directory_list:
-        >>>     print directory_name, directory_path
+        >>>     print(directory_name, directory_path)
 
         """
 
@@ -398,9 +398,9 @@ class Project(MCObject):
         >>> #   directory 'B'
         >>>
         >>> directory_list = project.get_directory_list("/A/B")
-        >>> print len(directory_list)
+        >>> print(len(directory_list))
         >>> for directory in directory_list:
-        >>>     print directory.name, directory.path
+        >>>     print(directory.name, directory.path)
 
         """
 
@@ -415,7 +415,7 @@ class Project(MCObject):
         :return: a :class:`mcapi.Directory` instance
 
         >>> directory = project.get_directory("352eb9b1-8553-4be5-8c08-cbb496ef60ea")
-        >>> print directory.path
+        >>> print(directory.path)
 
         """
         return self.get_directory_by_id(directory_id)
@@ -435,9 +435,9 @@ class Project(MCObject):
         >>> #   directory 'B'
         >>>
         >>> directory_list = project.get_directory_list("/A/B")
-        >>> print len(directory_list)
+        >>> print(len(directory_list))
         >>> for directory in directory_list:
-        >>>     print directory.name, directory.path
+        >>>     print(directory.name, directory.path)
 
         """
 
@@ -457,7 +457,7 @@ class Project(MCObject):
         :return: a :class:`mcapi.Directory` instance
 
         >>> directory = project.add_directory("/A/B")
-        >>> print directory.name, directory.path
+        >>> print(directory.name, directory.path)
 
         """
 
@@ -486,7 +486,7 @@ class Project(MCObject):
         >>> for path in directory_path_list:
         >>>     id = directory_id_table[path]
         >>>     directory = project.get_directory(id)
-        >>>     print path, directory.path
+        >>>     print(path, directory.path()
 
         """
         if len(path_list) > 100:
@@ -516,13 +516,13 @@ class Project(MCObject):
         :param directory: a class:`mcapi.Directory` instance, a directory in the project
         :param file_name: the name that file is to take within the project directory
         :param local_path: the local path to the file
-        :param verbose: (optional) a Flag; if true print out a trace of the actions
+        :param verbose: (optional) a Flag; if true print()out a trace of the actions
         :param limit: (optional) the maximum number of MB to be uploaded
         :return: the :class:`mcapi.File` instance representing the uploaded file
 
         >>> directory = directory = project.add_directory("/A/B")
         >>> file = project.add_file_using_directory(directory,"Test-Results","/tmp/results.txt")
-        >>> print file.name
+        >>> print(file.name)
 
         """
         file_size_MB = os_path.getsize(local_path) >> 20
@@ -530,7 +530,7 @@ class Project(MCObject):
             msg = "File too large (>{0}MB), skipping. File size: {1}M".format(limit, file_size_MB)
             raise Exception(msg)
         if verbose:
-            print "uploading:", os_path.relpath(local_path, getcwd()), " as:", file_name
+            print("uploading:", os_path.relpath(local_path, getcwd()), " as:", file_name)
         project_id = self.id
         directory_id = directory.id
         results = api.file_upload(project_id, directory_id, file_name, local_path)
@@ -549,7 +549,7 @@ class Project(MCObject):
         .. note This functions assumes the setting on setting of local_path on the project, see example
 
         :param local_path: the local path to the file
-        :param verbose: (optional) a Flag; if true print out a trace of the actions
+        :param verbose: (optional) a Flag; if true print()out a trace of the actions
         :param limit: (optional) the maximum number of MB to be uploaded
         :return: the :class:`mcapi.File` instance representing the uploaded file
 
@@ -574,7 +574,7 @@ class Project(MCObject):
         .. note This functions assumes the setting on setting of local_path on the project, see example
 
         :param local_path: the local path to the directory
-        :param verbose: (optional) a Flag; if true print out a trace of the actions
+        :param verbose: (optional) a Flag; if true print()out a trace of the actions
         :param limit: (optional) the maximum number of MB to be uploaded for any file in the path
         :return: the :class:`mcapi.Directory` instance representing the uploaded directory
 
@@ -604,7 +604,7 @@ class Project(MCObject):
         >>> local_path = project.local_path + "/test_dir/dir_A" # a local directory
         >>> directory = get_by_local_path(local_path)
         >>> if (directory):
-        >>>     print directory.path
+        >>>     print(directory.path)
 
         """
         if self.local_path is None:
@@ -639,7 +639,7 @@ class Project(MCObject):
         >>> local_path = project.local_path + "/test_dir/dir_A" # a local directory
         >>> files_ok, checksums_ok = file_exists_by_local_path(local_path, checksum = True)
         >>> if files_ok and checksums_ok:
-        >>>     print local_path + " found on on remote site."
+        >>>     print(local_path + " found on on remote site.")
 
         """
         if os_path.exists(local_path) and os_path.isfile(local_path):
@@ -670,7 +670,7 @@ class Project(MCObject):
 
         >>> process_list = project.get_all_processes()
         >>> for process in process_list:
-        >>>     print process.name
+        >>>     print(process.name)
 
         """
         process_list = api.get_project_processes(self.id, self.remote)
@@ -704,7 +704,7 @@ class Project(MCObject):
 
         >>> sample_list = project.get_all_samples()
         >>> for sample in sample_list:
-        >>>     print sample.name
+        >>>     print(sample.name)
 
         """
         samples_list = api.get_project_samples(self.id, self.remote)
@@ -1036,7 +1036,7 @@ class Experiment(MCObject):
 
         >>> experiment = experiment.decorate_with_samples()
         >>> for sample in experiment.samples:
-        >>>     print sample.name
+        >>>     print(sample.name)
 
         """
         self.samples = self.get_all_samples()
@@ -1050,7 +1050,7 @@ class Experiment(MCObject):
 
         >>> experiment = experiment.decorate_with_processes()
         >>> for process in experiment.processes:
-        >>>     print process.name
+        >>>     print(process.name)
 
         """
         self.processes = self.get_all_processes()
@@ -1308,10 +1308,10 @@ class Process(MCObject):
         """
         process_ok = (self.process_type == 'create' or self.template_name == 'Sectioning')
         if not process_ok:
-            print "Either Process.process_type is not 'create' or " + \
+            print("Either Process.process_type is not 'create' or " + \
                   "Process.template_name is not 'sectioning'; instead: " + \
                   "process_type == " + self.process_type + " and " + \
-                  "template_name == " + self.template_name + " -- returning None"
+                  "template_name == " + self.template_name + " -- returning None")
             # throw exception?
             return None
         samples = self._create_samples(sample_names)
@@ -1786,7 +1786,7 @@ class Process(MCObject):
             project_id, experiment_id, process_id,
             samples_parameter, measurement_property, measurement_parameter)
         if not success_flag:
-            print "mcapi.mc._set_measurement_for_process_samples - unexpectedly failed"
+            print("mcapi.mc._set_measurement_for_process_samples - unexpectedly failed")
             return None
         return self.experiment.get_process_by_id(process_id)
 
@@ -2189,7 +2189,7 @@ class Directory(MCObject):
 
         :param file_name: name of the new file - string
         :param local_input_path: path to the local file - string
-        :param verbose: (optional) flag to print trace of all actions - True or False
+        :param verbose: (optional) flag to print()trace of all actions - True or False
         :param limit: (optional) the limit in MB of the size of the file to upload
         :return: an instance of :class:`mcapi.File` - the new file
         """
@@ -2213,7 +2213,7 @@ class Directory(MCObject):
             name = self.path
             if self.shallow:
                 name = self.name
-            print "base directory: ", name
+            print("base directory: ", name)
         dir_tree_table = _make_dir_tree_table(input_dir_path, dir_name, dir_name, {})
         result = []
         error = {}
@@ -2221,7 +2221,7 @@ class Directory(MCObject):
             file_dict = dir_tree_table[relative_dir_path]
             dirs = self.create_descendant_list_by_path(relative_dir_path)
             if verbose:
-                print "relative directory: ", relative_dir_path
+                print("relative directory: ", relative_dir_path)
             directory = dirs[-1]
             for file_name in file_dict.keys():
                 input_path = file_dict[file_name]
@@ -2447,7 +2447,7 @@ class Template(MCObject):
         # for process settings / attributes
         setup = _data['setup']
 
-        # attributes are grouped, for each group print attributes
+        # attributes are grouped, for each group print()attributes
         for s in setup:
             properties = s['properties']
             if len(properties):
@@ -2827,13 +2827,13 @@ class DeleteTally(object):
 #    testing template backend
 # ---
 def _create_new_tamplate(template_data):
-    print "Create new template"
+    print("Create new template")
     results = api._create_new_template(template_data)
     template = make_object(results)
     return template
 
 def _update_template(template_id,template_data):
-    print "Updating template"
+    print("Updating template")
     results = api._update_template(template_id,template_data)
     template = make_object(results)
     return template

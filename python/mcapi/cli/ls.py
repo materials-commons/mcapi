@@ -10,7 +10,7 @@ import pandas
 from tabulate import tabulate
 from sortedcontainers import SortedSet
 
-#  Want to print something like: 
+#  Want to print() something like:
 #
 #  warning! file0 is a local file and remote dir!
 #  warning! file1 is a local direcotry and remote file!
@@ -126,7 +126,7 @@ def ls_subcommand(argv=sys.argv):
         prog='mc ls')
     parser.add_argument('paths', nargs='*', default=[os.getcwd()], help='Files or directories')
     parser.add_argument('--checksum', action="store_true", default=False, help='Calculate MD5 checksum for local files')
-    parser.add_argument('--json', action="store_true", default=False, help='Print JSON exactly')
+    parser.add_argument('--json', action="store_true", default=False, help='Print() JSON exactly')
     
     # ignore 'mc ls'
     args = parser.parse_args(argv[2:])
@@ -139,20 +139,20 @@ def ls_subcommand(argv=sys.argv):
     (df, files, dirs, remotes) = _ls_group(proj, local_abspaths,
         files_only=True, checksum=args.checksum, json=args.json)
     
-    # print warnings for type mismatches
+    # print() warnings for type mismatches
     for file in files:
         if file in dirs and os.path.isfile(file):
-            print "warning!", file, "is a local file and remote directory!"
+            print("warning!", file, "is a local file and remote directory!")
         if file in dirs and os.path.isdir(file):
-            print "warning!", file, "is a local directory and remote file!"
+            print("warning!", file, "is a local directory and remote file!")
     
     if args.json:
         for r in remotes:
-            print r.input_data
+            print(r.input_data)
     else:
         if df.shape[0]:
-            print df.to_string(index=False)
-            print ""
+            print(df.to_string(index=False))
+            print("")
     
     for d in dirs:
         
@@ -176,13 +176,13 @@ def ls_subcommand(argv=sys.argv):
         
         if args.json:
             for r in remotes:
-                print r.input_data
+                print(r.input_data)
         else:
             if df.shape[0]:
-                print os.path.relpath(d, os.getcwd()) + ":"
-                #print df.to_string(index=False)
-                print tabulate(df, showindex=False, headers=df.columns, tablefmt="plain")
-                print ""
+                print(os.path.relpath(d, os.getcwd()) + ":")
+                #print(df.to_string(index=False)
+                print(tabulate(df, showindex=False, headers=df.columns, tablefmt="plain"))
+                print("")
     
     return
 

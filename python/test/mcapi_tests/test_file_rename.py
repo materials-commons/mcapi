@@ -55,9 +55,9 @@ class TestRename(unittest.TestCase):
 
         directory_list = self.project.get_all_directories()
         self.assertIsNotNone(directory_list)
-        print ''
+        print('')
         for directory in directory_list:
-            print directory.name
+            print(directory.name)
         self.assertEqual(len(directory_list), 2)
         self.assertEqual(directory_list[0].name, self.project.name)
         self.assertEqual(directory_list[1].name, self.project.name + self.directory_for_rename_name)
