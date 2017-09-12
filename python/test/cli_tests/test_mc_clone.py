@@ -2,7 +2,7 @@ import unittest
 import os
 import re
 import mcapi
-from cli_test_functions import captured_output
+from .cli_test_functions import captured_output
 from mcapi.cli.init import init_subcommand
 from mcapi.cli.clone import clone_subcommand
 

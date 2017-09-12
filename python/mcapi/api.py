@@ -1,7 +1,9 @@
-from remote import Remote
-from config import Config
+from collections import OrderedDict
+from .remote import Remote
+from .config import Config
 import requests
 import magic
+import json
 
 # Defaults
 _mcorg = Remote()
@@ -41,6 +43,7 @@ def get(restpath, remote=None):
 def post(restpath, data, remote=None):
     if not remote:
         remote = use_remote()
+    data = OrderedDict(data)
     r = requests.post(restpath, params=remote.config.params, verify=False, json=data)
     if r.status_code == requests.codes.ok:
         return r.json()
@@ -418,9 +421,9 @@ def fetch_sample_details(project_id, sample_id, remote=None):
 def add_samples_to_process(project_id, experiment_id, process, samples, remote=None):
     if not remote:
         remote = use_remote()
-    samples_data = map(
+    samples_data = list(map(
         (lambda s: {'command': 'add', 'id': s.id, 'property_set_id': s.property_set_id}),
-        samples)
+        samples))
     data = {
         "template_id": process.template_id,
         "process_id": process.id,
@@ -602,14 +605,15 @@ def file_download(project_id, file_id, output_file_path, remote=None):
 def add_files_to_process(project_id, experiment_id, process, files, remote=None):
     if not remote:
         remote = use_remote()
-    file_id_list = map(
+    file_id_list = list(map(
         (lambda f: {'command': 'add', 'id': f.id}),
-        files)
+        files))
     data = {
         "template_id": process.template_id,
         "process_id": process.id,
         "files": file_id_list
     }
+    print(json.dumps(data))
     api_url = "projects/" + project_id + \
               "/experiments/" + experiment_id + \
               "/processes/" + process.id

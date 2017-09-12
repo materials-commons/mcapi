@@ -1,4 +1,4 @@
-from Queue import Queue
+from multiprocessing import Queue
 from threading import Thread
 
 def do_stuff(q):

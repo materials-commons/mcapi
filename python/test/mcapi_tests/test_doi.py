@@ -6,7 +6,7 @@ from random import randint
 # see test below
 from mcapi import __api as api
 import demo_project as demo
-import assert_helper as aid
+import test.mcapi_tests.assert_helper as aid
 
 
 def _fake_name(prefix):

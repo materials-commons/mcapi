@@ -1,4 +1,4 @@
-import api
+from . import api
 import string
 import hashlib
 import copy
@@ -7,13 +7,13 @@ import json
 from os import path as os_path
 from os import listdir
 from os import getcwd
-from base import MCObject, PrettyPrint
-from base import _decorate_object_with, _is_object, _is_list, _has_key, _data_has_type
-from base import _is_datetime, _make_datetime
-from measurement import make_measurement_object
+from .base import MCObject, PrettyPrint
+from .base import _decorate_object_with, _is_object, _is_list, _has_key, _data_has_type
+from .base import _is_datetime, _make_datetime
+from .measurement import make_measurement_object
 from pandas import DataFrame
 from tabulate import tabulate
-from StringIO import StringIO
+from io import StringIO
 
 
 # -- top level project functions --
@@ -82,7 +82,7 @@ def get_all_users():
 
     """
     results = api.get_all_users()
-    users = map(make_object, results['val'])
+    users = list(map(make_object, results['val']))
     return users
 
 
@@ -99,7 +99,7 @@ def get_all_templates():
 
     """
     templates_array = api.get_all_templates()
-    templates = map((lambda x: make_object(x)), templates_array)
+    templates = list(map((lambda x: make_object(x)), templates_array))
     return templates
 
 
@@ -311,7 +311,7 @@ class Project(MCObject):
         """
         list_results = api.fetch_experiments(self.id)
         experiments = map((lambda x: make_object(x)), list_results)
-        experiments = map((lambda x: _decorate_object_with(x, 'project', self)), experiments)
+        experiments = list(map((lambda x: _decorate_object_with(x, 'project', self)), experiments))
         return experiments
 
     # Project - Directory-related methods - basic: create, get_by_id, get_all (in context)
@@ -675,7 +675,7 @@ class Project(MCObject):
         """
         process_list = api.get_project_processes(self.id, self.remote)
         processes = map((lambda x: make_object(x)), process_list)
-        processes = map((lambda x: _decorate_object_with(x, 'project', self)), processes)
+        processes = list(map((lambda x: _decorate_object_with(x, 'project', self)), processes))
         return processes
 
     def get_process_by_id(self, process_id):
@@ -709,7 +709,7 @@ class Project(MCObject):
         """
         samples_list = api.get_project_samples(self.id, self.remote)
         samples = map((lambda x: make_object(x)), samples_list)
-        samples = map((lambda x: _decorate_object_with(x, 'project', self)), samples)
+        samples = list(map((lambda x: _decorate_object_with(x, 'project', self)), samples))
         return samples
 
     def fetch_sample_by_id(self, sample_id):
@@ -978,7 +978,7 @@ class Experiment(MCObject):
         process_list = api.fetch_experiment_processes(self.project.id, self.id)
         processes = map((lambda x: make_object(x)), process_list)
         processes = map((lambda x: _decorate_object_with(x, 'project', self.project)), processes)
-        processes = map((lambda x: _decorate_object_with(x, 'experiment', self)), processes)
+        processes = list(map((lambda x: _decorate_object_with(x, 'experiment', self)), processes))
         for process in processes:
             process._update_project_experiment()
         return processes
@@ -1025,7 +1025,10 @@ class Experiment(MCObject):
         samples = map((lambda x: make_object(x)), samples_list)
         samples = map((lambda x: _decorate_object_with(x, 'project', self.project)), samples)
         samples = map((lambda x: _decorate_object_with(x, 'experiment', self)), samples)
-        return samples
+        samples_list = []
+        for s in samples:
+            samples_list.append(s)
+        return samples_list
 
     # Experiment - additional method
     def decorate_with_samples(self):
@@ -1124,10 +1127,6 @@ class Process(MCObject):
         for a in attr:
             setattr(self, a, data.get(a, []))
 
-    def _process_special_objects(self):
-        super(Process, self)._process_special_objects()
-        self.notes = self.input_data['description']
-
     def pretty_print(self, shift=0, indent=2, out=sys.stdout):
         """
         Prints a nice layout of the object and all of it's values.
@@ -1167,9 +1166,10 @@ class Process(MCObject):
             pp.write_measurements(self.measurements)
 
     def _process_special_objects(self):
+        super(Process, self)._process_special_objects()
+        # self.notes = self.input_data['description']
         if self.setup:
-            for i in range(len(self.setup)):
-                self.setup[i] = self._transform_setup(self.setup[i])
+            self.setup = [self._transform_setup(item) for item in self.setup]
         if self.measurements:
             self.measurements = [make_measurement_object(m) for m in self.measurements]
         if self.input_samples:
@@ -1316,7 +1316,7 @@ class Process(MCObject):
             return None
         samples = self._create_samples(sample_names)
         self.decorate_with_output_samples()
-        return samples
+        return self.output_samples
 
     def get_sample_by_id(self, process_id):
         """
@@ -2712,7 +2712,7 @@ def make_object(data):
                 if _is_object(value):
                     value = make_object(value)
                 elif _is_list(value):
-                    value = map(make_object, value)
+                    value = list(map(make_object, value))
                 setattr(holder, key, value)
             holder._process_special_objects()
             return holder

@@ -1,4 +1,4 @@
-from Queue import Queue
+from multiprocessing import Queue
 from threading import Thread, Lock
 from os import path as os_path
 from os import walk

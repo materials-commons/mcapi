@@ -1,8 +1,7 @@
 import os
 import sys
-from mock import patch
 from contextlib import contextmanager
-from StringIO import StringIO
+from io import StringIO
 
 
 @contextmanager

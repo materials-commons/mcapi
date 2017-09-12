@@ -1,7 +1,7 @@
 import time
 import sys
 from random import randint
-from Queue import Queue
+from multiprocessing import Queue
 from threading import Thread
 from os import path as os_path
 from os import walk

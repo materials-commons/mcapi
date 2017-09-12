@@ -1,5 +1,5 @@
 import unittest
-from cli_test_functions import captured_output, print_stringIO
+from .cli_test_functions import captured_output, print_stringIO
 from mcapi.cli.remote import remote_subcommand
 from mcapi import use_remote
 

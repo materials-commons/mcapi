@@ -1,10 +1,6 @@
 import time
 import sys
 from random import randint
-from Queue import Queue
-from threading import Thread
-from os import path as os_path
-from os import walk
 from mcapi import get_remote_config_url, create_project
 from mcapi import BulkFileUploader
 

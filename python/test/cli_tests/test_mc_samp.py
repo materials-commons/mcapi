@@ -4,7 +4,7 @@ import re
 import mcapi
 import json
 from mcapi import Template
-from cli_test_functions import working_dir, captured_output, print_stringIO
+from .cli_test_functions import working_dir, captured_output, print_stringIO
 from mcapi.cli.init import init_subcommand
 from mcapi.cli.samp import SampSubcommand
 from mcapi.cli.functions import make_local_project, set_current_experiment
