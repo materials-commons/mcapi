@@ -4,7 +4,7 @@ import re
 import mcapi
 import json
 from mcapi import Template
-from cli_test_functions import working_dir, captured_output, print_stringIO
+from .cli_test_functions import working_dir, captured_output, print_stringIO
 from mcapi.cli.init import init_subcommand
 from mcapi.cli.samp import SampSubcommand
 from mcapi.cli.functions import make_local_project, set_current_experiment
@@ -128,7 +128,7 @@ class TestMCProc(unittest.TestCase):
     def test_samp_json(self):
         samp_subcommand = SampSubcommand()
         
-        # print sample JSON data
+        # print() sample JSON data
         testargs = ['mc', 'samp', '--json']
         with captured_output(wd=self.proj_path) as (sout, serr):
             samp_subcommand(testargs)
@@ -139,7 +139,7 @@ class TestMCProc(unittest.TestCase):
     def test_samp_details(self):
         samp_subcommand = SampSubcommand()
         
-        # print sample details
+        # print() sample details
         testargs = ['mc', 'samp', '--details']
         with captured_output(wd=self.proj_path) as (sout, serr):
             samp_subcommand(testargs)

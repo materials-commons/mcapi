@@ -23,7 +23,7 @@ def _check_download(proj_id, file_id, local_path, remote, force=False):
             os.makedirs(dir)
         return mcapi.api.file_download(proj_id, file_id, local_path, remote)
     else:
-        print "Overwrite '" + os.path.relpath(local_path, os.getcwd()) + "'?"
+        print("Overwrite '" + os.path.relpath(local_path, os.getcwd()) + "'?")
         while True:
             ans = raw_input('y/n: ')
             if ans == 'y':
@@ -44,7 +44,7 @@ def _download(proj, dir, recursive=False, force=False):
                 os.makedirs(os.path.dirname(p))
             result_path = _check_download(proj.id, child.id, p, proj.remote, force=force)
             if result_path is not None:
-                print "downloaded:", os.path.relpath(result_path, os.getcwd())
+                print("downloaded:", os.path.relpath(result_path, os.getcwd()))
             results.append(result_path)
         
         elif isinstance(child, mcapi.Directory) and recursive:
@@ -84,7 +84,7 @@ def down_subcommand(argv=sys.argv):
             #(project_id, file_id, output_file_path, remote=use_remote())
             result_path = _check_download(proj.id, obj.id, p, proj.remote, force=args.force) 
             if result_path is not None:
-                print "downloaded:", os.path.relpath(result_path, os.getcwd())
+                print("downloaded:", os.path.relpath(result_path, os.getcwd()))
         
         elif isinstance(obj, mcapi.Directory):
             _download(proj, obj, force=args.force, recursive=args.recursive)

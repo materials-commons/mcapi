@@ -7,7 +7,7 @@ from mcapi import get_project_by_id, get_all_projects
 from mcapi import use_remote, set_remote, get_all_users
 from mcapi import get_remote_config_url
 import demo_project as demo
-import assert_helper as aid
+from test.mcapi_tests.assert_helper import AssertHelper
 
 def _fake_name(prefix):
     number = "%05d" % randint(0, 99999)
@@ -21,7 +21,7 @@ class TestProjectDelete(unittest.TestCase):
         cls.host = get_remote_config_url()
 
     def test_delete(self):
-        self.helper = aid.AssertHelper(self)
+        self.helper = AssertHelper(self)
 
         project = self._build_project()
 
@@ -44,7 +44,7 @@ class TestProjectDelete(unittest.TestCase):
             get_project_by_id(project.id)
 
     def test_delete_dry_run(self):
-        self.helper = aid.AssertHelper(self)
+        self.helper = AssertHelper(self)
 
         project = self._build_project()
 
@@ -67,7 +67,7 @@ class TestProjectDelete(unittest.TestCase):
 
     @pytest.mark.skip(reason="failing - need to review")
     def test_delete_all_projects(self):
-        self.helper = aid.AssertHelper(self)
+        self.helper = AssertHelper(self)
 
         self._build_project()
 
@@ -81,7 +81,7 @@ class TestProjectDelete(unittest.TestCase):
         self.assertEqual(len(projects), 0)
 
     def test_only_owner_can_delete(self):
-        self.helper = aid.AssertHelper(self)
+        self.helper = AssertHelper(self)
 
         project = self._build_project()
 
@@ -112,8 +112,8 @@ class TestProjectDelete(unittest.TestCase):
 
     def _build_project(self):
         project_name = _fake_name("ProjectDeleteTest")
-        print ""
-        print "Project name: " + project_name
+        print("")
+        print("Project name: " + project_name)
 
         self.test_project_name = project_name
 

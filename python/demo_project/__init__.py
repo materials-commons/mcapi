@@ -1,1 +1,1 @@
-from demo_project import DemoProject
+from .demo_project import DemoProject

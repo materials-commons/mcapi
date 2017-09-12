@@ -16,21 +16,21 @@ def get_project():
 def main():
     project = get_project()
     project.local_path = BASE_DIRECTORY
-    print "Project: " + project.name
-    print "Local Path: " + project.local_path
+    print("Project: " + project.name)
+    print("Local Path: " + project.local_path)
     directory = "sub-0000/"
     for n in range(0,10):
         filename = "testFile" + "%04d" % n + ".txt"
         path = BASE_DIRECTORY + directory + filename
         project.add_file_by_local_path(path)
-        print "After upload: " + path
+        print("After upload: " + path)
         # time.sleep(10)
     directory = "sub-0010/"
     for n in range(10,20):
         filename = "testFile" + "%04d" % n + ".txt"
         path = BASE_DIRECTORY + directory + filename
         project.add_file_by_local_path(path)
-        print "After upload: " + path
+        print("After upload: " + path)
         # time.sleep(10)
 
 

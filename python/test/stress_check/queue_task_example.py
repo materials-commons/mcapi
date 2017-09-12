@@ -1,9 +1,9 @@
-from Queue import Queue
+from multiprocessing import Queue
 from threading import Thread
 
 def do_stuff(q):
   while True:
-    print q.get()
+    print(q.get())
     q.task_done()
 
 q = Queue(maxsize=0)

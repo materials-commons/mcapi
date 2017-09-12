@@ -62,8 +62,8 @@ class SimpleDemoBuilder:
 builder = SimpleDemoBuilder()
 builder.buildProject()
 
-print "Built simple demo project with name = " + builder.project.name
-print "With processes..."
+print("Built simple demo project with name = " + builder.project.name)
+print("With processes...")
 processes = builder.project.get_all_processes()
 for process in processes:
-    print "    " + process.name
+    print("    " + process.name)

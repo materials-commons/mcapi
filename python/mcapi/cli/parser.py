@@ -13,7 +13,7 @@ from mcapi.cli.down import down_subcommand
 from mcapi.cli.templates import TemplatesSubcommand
 from mcapi.cli.proc import ProcSubcommand
 from mcapi.cli.samp import SampSubcommand
-import StringIO
+from io import StringIO
 import imp
 
 class CommonsCLIParser(object):
@@ -80,7 +80,7 @@ class CommonsCLIParser(object):
                     f.close()
             
         else:
-            print 'Unrecognized command'
+            print('Unrecognized command')
             parser.print_help()
             exit(1)
 

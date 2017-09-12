@@ -17,7 +17,7 @@ class WorkflowBuilderWE43FatigueLife:
         return self
 
     def build_workflow(self):
-        print "build_workflow"
+        print("build_workflow")
         self.template_table = self.make_template_table()
 
         self.create_project_experiment()
@@ -32,7 +32,7 @@ class WorkflowBuilderWE43FatigueLife:
             if len(tests) > 0:
                 self.create_workflow(sample, tests)
 
-        print self.project.name
+        print(self.project.name)
 
     def create_project_experiment(self):
         time_stamp = '%s' % datetime.datetime.now()
@@ -57,7 +57,7 @@ class WorkflowBuilderWE43FatigueLife:
         return process
 
     def create_workflow(self, sample_name, tests):
-        print "create workflow for sample = " + sample_name
+        print("create workflow for sample = " + sample_name)
         source_sample_name = tests[0]['material_condition']
         electropolish = (tests[0]['surface_condition'] == 'Electropolished')
         sample = self.get_sectioned_sample(source_sample_name, electropolish, sample_name)

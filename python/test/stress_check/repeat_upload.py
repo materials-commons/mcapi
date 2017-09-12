@@ -14,7 +14,7 @@ def fake_name(prefix):
 def get_project():
     project_name = fake_name("Repeat-Update")
     project = create_project(project_name, "Project for redundent upload test")
-    print "Project: " + project.name
+    print("Project: " + project.name)
     return project
 
 def make_file_tree_table(tree_dir_path):
@@ -34,14 +34,14 @@ def upload_one(project, input_path):
     try:
         project.add_file_by_local_path(input_path)
     except Exception as exc:
-        print "-------------"
-        print exc
+        print("-------------")
+        print(exc)
         raise
 
 
 def upload_all_sequential(project, keys, table):
     for key in keys:
-        print 'upload: ' + key
+        print('upload: ' + key)
         upload_one(project, table[key])
         time.sleep(1)
 
@@ -56,10 +56,10 @@ def main():
 
     keys = keys[0:2]
 
-    print len(keys)
+    print(len(keys))
 
     for i in range(0,2):
-        print "Different project - run %d" % i
+        print("Different project - run %d" % i)
         project = get_project()
         project.local_path = test_dir_path
         upload_all_sequential(project, keys, table)
@@ -67,7 +67,7 @@ def main():
     project = get_project()
     project.local_path = test_dir_path
     for i in range(0, 2):
-        print "Same project - run %d" % i
+        print("Same project - run %d" % i)
         upload_all_sequential(project, keys, table)
 
 

@@ -3,7 +3,7 @@ from os import environ
 from os import path as os_path
 from random import randint
 import demo_project as demo
-import assert_helper as aid
+import test.mcapi_tests.assert_helper as aid
 
 
 def _fake_name(prefix):
@@ -140,8 +140,8 @@ class TestExperimentDelete(unittest.TestCase):
     def _build_project(self):
 
         project_name = _fake_name("ExpDeleteTest")
-        print ""
-        print "Project name: " + project_name
+        print("")
+        print("Project name: " + project_name)
 
         self.test_project_name = project_name
 

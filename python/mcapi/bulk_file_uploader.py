@@ -1,4 +1,4 @@
-from Queue import Queue
+from multiprocessing import Queue
 from threading import Thread, Lock
 from os import path as os_path
 from os import walk
@@ -38,9 +38,9 @@ class BulkFileUploader(object):
         >>> loader=BulkFileUploader()
         >>> missed_files = loader.bulk_upload(project, local_path)
         >>> if missed_files:
-        >>>     print "The following files were not uploaded --"
+        >>>     print("The following files were not uploaded --")
         >>>     for path in missed_files:
-        >>>         print path
+        >>>         print(path)
 
         '''
         if not os_path.isdir(local_directory):
@@ -102,13 +102,13 @@ class BulkFileUploader(object):
             project.add_file_using_directory(directory, filename, input_path,
                                              verbose=self.verbose, limit=self.limit)
             if self.verbose:
-                print "Uploaded " + input_path
+                print("Uploaded " + input_path)
         except Exception as exc:
             if self.verbose:
-                print "------------- Exception"
-                print exc
-                print "path = " + str(input_path)
-                print "^^^^^^^^^^^^^"
+                print("------------- Exception")
+                print(exc)
+                print("path = " + str(input_path))
+                print("^^^^^^^^^^^^^")
             raise
 
     def _upload_all_sequential(self, project, directory_table, file_path_list):

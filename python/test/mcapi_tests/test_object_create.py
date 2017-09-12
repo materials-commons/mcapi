@@ -1,6 +1,6 @@
 import unittest
 import datetime
-from test_object_create_input_examples import data_examples
+from test.mcapi_tests.test_object_create_input_examples import data_examples
 from mcapi import mc
 
 

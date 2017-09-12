@@ -1,6 +1,6 @@
-from base import MCObject, PrettyPrint, _data_has_type
+from .base import MCObject, PrettyPrint, _data_has_type
 import sys
-from StringIO import StringIO
+from io import StringIO
 
 class Measurement(MCObject):
     """
