@@ -14,7 +14,7 @@ class TestUser(unittest.TestCase):
             if user.id == my_id:
                 me = user
         self.assertIsNotNone(me)
-        self.assertEqual(me.fullname, "Test User1")
+        self.assertEqual(me.fullname, "Test User One")
 
         another_id = "another@test.mc"
         another = None
@@ -22,4 +22,4 @@ class TestUser(unittest.TestCase):
             if user.id == another_id:
                 another = user
         self.assertIsNotNone(another)
-        self.assertEqual(another.fullname, "Test User2")
+        self.assertEqual(another.fullname, "Test User Two")
