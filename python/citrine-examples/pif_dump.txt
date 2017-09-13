@@ -1,52 +1,186 @@
 {
-    "uid": "foo",
-    "category": "system",
-    "sample": {
-        "uuid": "alloy uuid",
-        "names": [
-            "Casting L124"
-        ],
-        "ids": [
-            "uuid L124 casting"
-        ],
-        "source": "LIFT Casting",
-        "properties": [
-            {
-                "name": "Example File",
-                "files": {
-                    "url": "http://mc.server.org/fileStore/MagicKey",
-                    "mimeType": "mime/type"
-                }
-            }
-        ],
-        "category": "system.chemical.alloy",
-        "composition": [
-            {
-                "element": "Al",
-                "idealAtomicPercent": {
-                    "value": 94
-                }
-            },
-            {
-                "element": "Ca",
-                "idealAtomicPercent": {
-                    "value": 1
-                }
-            },
-            {
-                "element": "Zr",
-                "idealAtomicPercent": {
-                    "value": 5
-                }
-            }
-        ]
-    },
-    "workflow": [
+    "references": [
         {
-            "name": "Section of Stantard Properation - L124"
+            "doi": "fake doi"
+        }
+    ],
+    "contacts": [
+        {
+            "name": {
+                "title": "HRH",
+                "given": "Test",
+                "family": "User"
+            },
+            "email": "test@mc.org"
+        }
+    ],
+    "licenses": [
+        {
+            "name": " ODC-BY 1.0",
+            "description": "Open Data Commons Attribution, version 1.0",
+            "url": "https://opendatacommons.org/licenses/by/summary/"
+        }
+    ],
+    "names": [
+        "Experiment Name",
+        "Measurement of LIFT380 casting L124"
+    ],
+    "source": {
+        "producer": "LIFT Materials"
+    },
+    "properties": [
+        {
+            "name": "Image of Casting (L124)",
+            "files": {
+                "url": "http://mc.server.org/fileStore/MagicKey",
+                "mimeType": "image/jpeg"
+            }
         },
         {
-            "name": "EPMA SEM"
+            "name": "LIFT Specimen Die",
+            "files": {
+                "url": "http://mc.server.org/fileStore/MagicKey",
+                "mimeType": "image/jpeg"
+            }
+        },
+        {
+            "name": "Experiment Data Lift380 L124 2016-12-27",
+            "files": {
+                "url": "http://mc.server.org/fileStore/MagicKey",
+                "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            }
+        },
+        {
+            "dataType": "EXPERIMENTAL",
+            "methods": [
+                {
+                    "name": "EPMA SEM",
+                    "instruments": [
+                        {
+                            "name": "name",
+                            "model": "model",
+                            "producer": "producer",
+                            "url": "url"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "category": "system.chemical",
+    "composition": [
+        {
+            "element": "Al",
+            "idealAtomicPercent": {
+                "value": 94
+            }
+        },
+        {
+            "element": "Ca",
+            "idealAtomicPercent": {
+                "value": 1
+            }
+        },
+        {
+            "element": "Zr",
+            "idealAtomicPercent": {
+                "value": 5
+            }
+        }
+    ],
+    "chemicalFormula": "Not Sure What this is - need to find out!",
+    "preperation": [
+        {
+            "name": "Obtaining casting of L124",
+            "details": [
+                {
+                    "name": "casting generic category",
+                    "scalars": [
+                        {
+                            "value": "LIFT 389"
+                        }
+                    ]
+                },
+                {
+                    "name": "casting instance name",
+                    "scalars": [
+                        {
+                            "value": "L124"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Sectioning l124",
+            "details": [
+                {
+                    "name": "sectioning properties",
+                    "scalars": [
+                        {
+                            "value": "Sectioning includes 5mm plate, center section"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "EPMA SEM",
+            "details": [
+                {
+                    "name": "voltage",
+                    "scalars": [
+                        {
+                            "value": 15
+                        }
+                    ],
+                    "units": "kv"
+                },
+                {
+                    "name": "beam current",
+                    "scalars": [
+                        {
+                            "value": 20
+                        }
+                    ],
+                    "units": "mA"
+                },
+                {
+                    "name": "step size",
+                    "scalars": [
+                        {
+                            "value": 10
+                        }
+                    ]
+                },
+                {
+                    "scalers": [
+                        {
+                            "value": 20
+                        },
+                        {
+                            "value": 20
+                        }
+                    ],
+                    "name": "grid dimension"
+                },
+                {
+                    "name": "site description",
+                    "scalars": [
+                        {
+                            "value": "on 5mm plate, center section, mid-thickness"
+                        }
+                    ]
+                }
+            ],
+            "instruments": [
+                {
+                    "name": "name",
+                    "model": "model",
+                    "producer": "producer",
+                    "url": "url"
+                }
+            ]
         }
     ]
 }
