@@ -51,7 +51,7 @@ class Measurement(MCObject):
             pp.write("property_id: " + pp.str(self.property_id))
             pp.write("sample_id: " + pp.str(self.sample_id))
         strout = StringIO()
-        strout.write(self.value)
+        strout.write(str(self.value))
         lines = strout.getvalue().splitlines()
         if self.value is None:
             pp.write("value: " + pp.str(self.value))
