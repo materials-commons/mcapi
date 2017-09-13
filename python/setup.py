@@ -8,3 +8,9 @@ setup(
     packages=['mcapi', 'mcapi.cli'],
     scripts=['scripts/mc']
 )
+
+setup(
+    name='dataset',
+    version='0.1',
+    packages=['dataset']
+)
