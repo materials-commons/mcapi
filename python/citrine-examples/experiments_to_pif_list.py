@@ -4,17 +4,41 @@ from pypif.obj.common import Property, Scalar, FileReference, ProcessStep, Metho
 from pypif.obj.common import Person, Name, Source, Reference, License, Value, Instrument
 from pypif.obj.system.chemical import ChemicalSystem
 # from pypif.obj.system.chemical.alloy import Alloy
+
 from pypif.obj.system.chemical.common import Composition
 
-def single_value(name, n):
+
+## helpers
+
+def value(name, n):
     return Value(name=name, scalars=[Scalar(value=n)])
 
-def single_units_value(name, units, n):
+
+def value_unit(name, n, units):
     return Value(name=name, units=units, scalars=[Scalar(value=n)])
+
+
+def value_property(name, n, methods):
+    return Property(
+        dataType = "EXPERIMENTAL",
+        name=name,
+        methods= methods,
+        scalars=[Scalar(value=n)])
+
+
+def units_property(name, units, n, methods):
+    return Property(
+        dataType = "EXPERIMENTAL",
+        name=name,
+        methods= methods,
+        units=units,
+        scalars=[Scalar(value=n)])
+
+
 
 ## Parts...
 
-materials_commons_global_properties = {
+materials_commons_properties = {
     'dataset_name': "Demo Project",
     'dateset_description': "Demo Project Description"
 }
@@ -34,13 +58,26 @@ composition_zr = Composition(
     ideal_atomic_percent=Scalar(value=5)
 )
 
-measurement_setup_values = [
-    single_units_value('voltage', 'kv', 15),
-    single_units_value('beam current', 'mA', 20),
-    single_value('step size', 10),
-    Value(name='grid dimension', scalers=[Scalar(value=20),Scalar(value=20)]),
-    single_value('site description', 'on 5mm plate, center section, mid-thickness')
-]
+measurement_instrument = Instrument(
+    name = "EPMA SEM"
+)
+
+measurement_method = Method(
+    name="EPMA SEM measurement",
+    instruments = [measurement_instrument]
+    # also software = [Software()] ??
+)
+
+
+## Properties...
+
+methods = [measurement_method]
+
+grid_dimension = Property(
+    name='measurement grid dimension',
+    scalers=[Scalar(value=20), Scalar(value=20)],
+    methods = methods
+)
 
 casting_image_file = Property(
     name  = "Image of Casting (L124)",
@@ -48,7 +85,8 @@ casting_image_file = Property(
         url="http://mc.server.org/fileStore/MagicKey",
         mime_type="image/jpeg",
         sha256="hashcode"
-    )
+    ),
+    methods = methods
 )
 
 casting_description_file = Property(
@@ -57,7 +95,8 @@ casting_description_file = Property(
         url="http://mc.server.org/fileStore/MagicKey",
         mime_type="image/jpeg",
         sha256="hashcode"
-    )
+    ),
+    methods = methods
 )
 
 sem_grain_size_image_file = Property(
@@ -66,7 +105,8 @@ sem_grain_size_image_file = Property(
         url="http://mc.server.org/fileStore/MagicKey",
         mime_type="image/tiff",
         sha256="hashcode"
-    )
+    ),
+    methods = methods
 )
 
 sem_results_summary = Property(
@@ -75,46 +115,38 @@ sem_results_summary = Property(
         url="http://mc.server.org/fileStore/MagicKey",
         mime_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         sha256="hashcode"
-    )
+    ),
+    methods = methods
 )
 
-measurement_instrument = Instrument(
-    name = "name",
-    model = "model",
-    producer = "producer",
-    url = "url"
-)
+properties = [
+    units_property('voltage', 'kv', 15, methods),
+    units_property('beam current', 'mA', 20, methods),
+    value_property('step size', 10, methods),
+    value_property('site description', 'on 5mm plate, center section, mid-thickness', methods),
+    grid_dimension, casting_image_file, casting_description_file, sem_results_summary
+]
 
-measurement_method = Method(
-    name="EPMA SEM",
-    instruments = [measurement_instrument],
-    # also software = [Software()] ??
-)
+for key in materials_commons_properties.keys():
+    properties.append(value_property(key,materials_commons_properties[key],methods))
 
-measured_property = Property(
-    dataType = "EXPERIMENTAL",
-    methods = [measurement_method]
-)
+
+## Process Steps...
 
 casting_process_details = [
-    single_value('casting generic category', "LIFT 389"),
-    single_value('casting instance name',"L124"),
+    value('casting generic category', "LIFT 389"),
+    value('casting instance name',"L124"),
 ]
 
 sectioning_process_details = [
-    single_value('sectioning properties',"Sectioning includes 5mm plate, center section")
+    value('sectioning properties',"Sectioning includes 5mm plate, center section")
 ]
-
-measurement_process_details = measurement_setup_values
 
 casting_process = ProcessStep(name="Obtaining casting of L124", details=casting_process_details)
 sectioning_process = ProcessStep(name="Sectioning l124", details=sectioning_process_details)
-measurement_process = ProcessStep(
-    name = "EPMA SEM",
-    details = measurement_process_details,
-    instruments=[measurement_instrument]
-    # also software = [Software()] ??
-)
+
+
+## Other details...
 
 doi_reference = Reference(doi="fake doi")
 open_data_liscense = License(
@@ -124,18 +156,20 @@ open_data_liscense = License(
 )
 contact = Person(name=Name(title="HRH",given="Test",family="User"),email="test@mc.org")
 
+names = []
+for key in materials_commons_properties.keys():
+    names.append(materials_commons_properties[key])
+
 ## Put it all together... BTW: every object has tags = [string]
 
 pif = ChemicalSystem()
-pif.names = [
-    "Experiment Name", "Measurement of LIFT380 casting L124"
-]
+pif.names = names
 pif.contacts = [contact]
 pif.chemicalFormula = "Not Sure What this is - need to find out!"
 pif.composition = composition= [composition_al,composition_ca,composition_zr]
 pif.source = Source(producer="LIFT Materials")
-pif.properties = [casting_image_file, casting_description_file, sem_results_summary, measured_property]
-pif.preperation = [casting_process, sectioning_process, measurement_process]
+pif.properties = properties
+pif.preperation = [casting_process, sectioning_process]
 pif.references = [doi_reference]
 pif.licenses = [open_data_liscense]
 
