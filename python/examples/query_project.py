@@ -13,6 +13,16 @@ for probe in all_projects:
 
 if not demo_project:
     print("Unable to find 'Demo Project'")
+    if len(all_projects) > 0:
+        print("Found these projects...")
+        for p in all_projects:
+            print(" - - - ")
+            p.pretty_print()
+    else:
+        print("found no projects on server")
+    print(" - - - ")
+    print("Create demo project or use another project")
+    print(" - - - ")
     exit(1)
 
 # Get project - method 2 - by id
