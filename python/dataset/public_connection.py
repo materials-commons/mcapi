@@ -1,4 +1,5 @@
 import requests
+from .dataset import Dataset
 
 class Public():
 
@@ -16,12 +17,17 @@ class Public():
         return self.base_url + rest
 
     def get_dataset(self, id):
-        return requests.get(self.make_url(Public.path_for_dateaset_id + id), verify=False)
+        r = requests.get(self.make_url(Public.path_for_dateaset_id + id), verify=False)
+        if r.status_code == requests.codes.ok:
+            return Dataset(data=r.json())
+        r.raise_for_status()
 
 def disable_warnings():
     """Temporary fix to disable requests' InsecureRequestWarning"""
-    from requests.packages.urllib3.exceptions import InsecureRequestWarning
-    requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+    import urllib3
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+#    from requests.packages.urllib3.exceptions import InsecureRequestWarning
+#    requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 
 disable_warnings()
