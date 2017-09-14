@@ -1316,7 +1316,12 @@ class Process(MCObject):
             return None
         samples = self._create_samples(sample_names)
         self.decorate_with_output_samples()
-        return self.output_samples
+        ret_samples = []
+        for s in samples:
+            for probe in self.output_samples:
+                if s.id == probe.id:
+                    ret_samples.append(probe)
+        return ret_samples
 
     def get_sample_by_id(self, process_id):
         """
@@ -1847,7 +1852,7 @@ class Process(MCObject):
         samples = map((lambda x: project.fetch_sample_by_id(x['id'])), samples_array)
         samples = map((lambda x: _decorate_object_with(x, 'property_set_id', lookup_table[x.id])), samples)
         samples = map((lambda x: _decorate_object_with(x, 'project', project)), samples)
-        samples = map((lambda x: _decorate_object_with(x, 'experiment', process.experiment)), samples)
+        samples = list(map((lambda x: _decorate_object_with(x, 'experiment', process.experiment)), samples))
         samples_id_list = []
         # NOTE: side effect to process.experiment
         for sample in samples:
@@ -1859,7 +1864,7 @@ class Process(MCObject):
             if not sample_in_experiment:
                 process.experiment.samples.append(sample)
         api.add_samples_to_experiment(project.id, process.experiment.id, samples_id_list)
-        return samples
+        return list(samples)
 
 
 class Sample(MCObject):

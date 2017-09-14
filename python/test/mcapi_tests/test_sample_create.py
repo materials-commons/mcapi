@@ -90,9 +90,9 @@ class TestSampleCreate(unittest.TestCase):
         for sample in samples:
             found_sample = None
             for s in self.experiment.samples:
-                if s == sample:
+                if s.id == sample.id:
                     found_sample = s
-            error = "Cannot fine example in experiment: " + sample.name
+            error = "Cannot fine sample in experiment: " + sample.name
             self.assertIsNotNone(found_sample, error)
 
     def test_create_samples_process_update(self):
