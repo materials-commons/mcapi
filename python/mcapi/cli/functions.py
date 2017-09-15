@@ -200,7 +200,7 @@ def make_local_project(path=None):
     # get remote
     remotes = _mc_remotes()
     remote = None
-    for key, val in remotes.iteritems():
+    for key, val in remotes.items():
         if val.config.mcurl == j['remote_url']:
             remote = val
             break

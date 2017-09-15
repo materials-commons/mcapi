@@ -612,10 +612,10 @@ class Project(MCObject):
             raise Exception(msg)
         if os_path.abspath(local_path) == self.local_path:
             return self.get_top_directory()
-        names = string.split(os_path.relpath(local_path, self.local_path), '/')
+        names = os_path.relpath(local_path, self.local_path).split('/')
         curr = self.get_top_directory()
         for n in names:
-            nextchild = filter(lambda x: x.name == n, curr.get_children())
+            nextchild = list(filter(lambda x: x.name == n, curr.get_children()))
             if len(nextchild) == 0:
                 return None
             curr = nextchild[0]

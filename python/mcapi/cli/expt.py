@@ -56,7 +56,7 @@ def expt_subcommand(argv=sys.argv):
                 _expts = expts
             _expts[name].delete(dry_run=args.dry_run, delete_processes_and_samples=args.all)
             print('Deleted experiment:', name)
-            for key, val in _expts[name].delete_tally.__dict__.iteritems():
+            for key, val in _expts[name].delete_tally.__dict__.items():
                 print(key, val)
             print("")
     

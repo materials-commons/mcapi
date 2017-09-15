@@ -70,8 +70,8 @@ def delete(restpath, remote=None):
 
 def disable_warnings():
     """Temporary fix to disable requests' InsecureRequestWarning"""
-    from requests.packages.urllib3.exceptions import InsecureRequestWarning
-    requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+    import urllib3
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 disable_warnings()
