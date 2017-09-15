@@ -421,9 +421,9 @@ def fetch_sample_details(project_id, sample_id, remote=None):
 def add_samples_to_process(project_id, experiment_id, process, samples, remote=None):
     if not remote:
         remote = use_remote()
-    samples_data = list(map(
-        (lambda s: {'command': 'add', 'id': s.id, 'property_set_id': s.property_set_id}),
-        samples))
+    samples_data = [
+        {'command': 'add', 'id': s.id, 'property_set_id': s.property_set_id}
+        for s in samples]
     data = {
         "template_id": process.template_id,
         "process_id": process.id,
@@ -462,9 +462,6 @@ def set_measurement_for_process_samples(project_id, experiment_id, process_id,
 def update_process_setup_properties(project_id, experiment_id, process, properties, remote=None):
     if not remote:
         remote = use_remote()
-    # properties_data = map(
-    #    (lambda p: p.__dict__),
-    #    properties)
     properties_data = []
     for prop in properties:
         properties_data.append(update_process_setup_properties_make_data(prop))
@@ -605,9 +602,7 @@ def file_download(project_id, file_id, output_file_path, remote=None):
 def add_files_to_process(project_id, experiment_id, process, files, remote=None):
     if not remote:
         remote = use_remote()
-    file_id_list = list(map(
-        (lambda f: {'command': 'add', 'id': f.id}),
-        files))
+    file_id_list = [{'command': 'add', 'id': f.id} for f in files]
     data = {
         "template_id": process.template_id,
         "process_id": process.id,
