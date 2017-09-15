@@ -646,7 +646,7 @@ class Project(MCObject):
             obj = self.get_by_local_path(local_path)
             if isinstance(obj, File):
                 if checksum:
-                    with open(local_path, 'r') as f:
+                    with open(local_path, 'rb') as f:
                         l_checksum = hashlib.md5(f.read()).hexdigest()
                     return True, (obj.checksum == l_checksum)
                 else:

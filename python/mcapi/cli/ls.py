@@ -55,9 +55,9 @@ def _ls_group(proj, paths, files_only=True, checksum=False, json=False, id=False
         'r_mtime', 'r_size', 'r_type',
         'eq', 'name', 'id']
     data_init = {k:'-' for k in columns}
-    files = SortedSet()
-    dirs = SortedSet()
-    remotes = SortedSet()
+    files = SortedSet(key=_name_key)
+    dirs = SortedSet(key=_name_key)
+    remotes = SortedSet(key=_name_key)
     
     for path in paths:
         
@@ -72,7 +72,7 @@ def _ls_group(proj, paths, files_only=True, checksum=False, json=False, id=False
             if os.path.isfile(path):
                 data['l_type'] = 'file'
                 if checksum:
-                    with open(path, 'r') as f:
+                    with open(path, 'rb') as f:
                         l_checksum = hashlib.md5(f.read()).hexdigest()
                 files.add(path)
             elif os.path.isdir(path):
@@ -186,3 +186,9 @@ def ls_subcommand(argv=sys.argv):
     
     return
 
+
+def _name_key(obj):
+    try:
+        return obj.name
+    except:
+        return ""

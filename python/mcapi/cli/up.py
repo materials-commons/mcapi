@@ -43,7 +43,7 @@ def up_subcommand(argv=sys.argv):
         dirs = [p for p in local_abspaths if os.path.isdir(p)]
         for d in dirs:
             local_abspaths.remove(d)
-            files = [os.path.join(p, f) for f in os.listdir(d) if os.path.isfile(os.path.join(p,f))]
+            files = [os.path.join(d, f) for f in os.listdir(d) if os.path.isfile(os.path.join(d,f))]
             local_abspaths.update(files)
     
     if args.recursive and proj.local_path in local_abspaths:
