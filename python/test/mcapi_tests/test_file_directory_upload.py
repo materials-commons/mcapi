@@ -95,7 +95,7 @@ class TestFileDirectoryUpload(unittest.TestCase):
         relative_path = "test_dir"
 
         dir_tree_table = _make_dir_tree_table(local_dir_path, "sub_directory_b", relative_path, {})
-        self.assertEqual(dir_tree_table.keys()[0], relative_path)
+        self.assertEqual(list(dir_tree_table.keys())[0], relative_path)
 
         file_dict = dir_tree_table[relative_path]
         print(file_dict)

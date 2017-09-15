@@ -7,7 +7,7 @@ from mcapi import Template
 from .cli_test_functions import working_dir, captured_output, print_stringIO
 from mcapi.cli.init import init_subcommand
 from mcapi.cli.samp import SampSubcommand
-from mcapi.cli.functions import make_local_project, set_current_experiment
+from mcapi.cli.functions import make_local_project, make_local_expt, set_current_experiment
 
 def mkdir_if(path):
     if not os.path.exists(path):
@@ -77,9 +77,9 @@ class TestMCProc(unittest.TestCase):
         
         cls.proc = []
         cls.samp = []
-        for proc_index in xrange(3):
+        for proc_index in range(3):
             proc = expt.create_process_from_template(Template.create)
-            sample_names = ["Sample " + str(i) + " from Proc " + str(proc_index) for i in xrange(3)]
+            sample_names = ["Sample " + str(i) + " from Proc " + str(proc_index) for i in range(3)]
             samples = proc.create_samples(sample_names)
             proc.add_number_measurement("count", 6.7)
             cls.proc.append(proc)

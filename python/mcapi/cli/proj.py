@@ -46,9 +46,6 @@ class ProjSubcommand(ListObjects):
         for obj in objects:
             obj.delete(dry_run=dry_run)
             out.write('Deleted project: ' + obj.name + ' ' + obj.id + '\n')
-            for key, val in obj.delete_tally.__dict__.iteritems():
+            for key, val in obj.delete_tally.__dict__.items():
                 out.write(str(key) + ' ' + str(val) + '\n')
             out.write('\n')
-            
-
-    

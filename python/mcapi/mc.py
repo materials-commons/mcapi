@@ -82,7 +82,7 @@ def get_all_users():
 
     """
     results = api.get_all_users()
-    users = list(map(make_object, results['val']))
+    users = [make_object(u) for u in results['val']]
     return users
 
 
@@ -99,7 +99,7 @@ def get_all_templates():
 
     """
     templates_array = api.get_all_templates()
-    templates = list(map((lambda x: make_object(x)), templates_array))
+    templates = [make_object(t) for t in templates_array]
     return templates
 
 
@@ -310,8 +310,8 @@ class Project(MCObject):
 
         """
         list_results = api.fetch_experiments(self.id)
-        experiments = map((lambda x: make_object(x)), list_results)
-        experiments = list(map((lambda x: _decorate_object_with(x, 'project', self)), experiments))
+        experiments = [make_object(o) for o in list_results]
+        experiments = [_decorate_object_with(x, 'project', self) for x in experiments]
         return experiments
 
     # Project - Directory-related methods - basic: create, get_by_id, get_all (in context)
@@ -612,10 +612,10 @@ class Project(MCObject):
             raise Exception(msg)
         if os_path.abspath(local_path) == self.local_path:
             return self.get_top_directory()
-        names = string.split(os_path.relpath(local_path, self.local_path), '/')
+        names = os_path.relpath(local_path, self.local_path).split('/')
         curr = self.get_top_directory()
         for n in names:
-            nextchild = filter(lambda x: x.name == n, curr.get_children())
+            nextchild = list(filter(lambda x: x.name == n, curr.get_children()))
             if len(nextchild) == 0:
                 return None
             curr = nextchild[0]
@@ -646,7 +646,7 @@ class Project(MCObject):
             obj = self.get_by_local_path(local_path)
             if isinstance(obj, File):
                 if checksum:
-                    with open(local_path, 'r') as f:
+                    with open(local_path, 'rb') as f:
                         l_checksum = hashlib.md5(f.read()).hexdigest()
                     return True, (obj.checksum == l_checksum)
                 else:
@@ -674,8 +674,8 @@ class Project(MCObject):
 
         """
         process_list = api.get_project_processes(self.id, self.remote)
-        processes = map((lambda x: make_object(x)), process_list)
-        processes = list(map((lambda x: _decorate_object_with(x, 'project', self)), processes))
+        processes = [make_object(x) for x in process_list]
+        processes =  [_decorate_object_with(x, 'project', self) for x in processes]
         return processes
 
     def get_process_by_id(self, process_id):
@@ -708,8 +708,8 @@ class Project(MCObject):
 
         """
         samples_list = api.get_project_samples(self.id, self.remote)
-        samples = map((lambda x: make_object(x)), samples_list)
-        samples = list(map((lambda x: _decorate_object_with(x, 'project', self)), samples))
+        samples = [make_object(x) for x in samples_list]
+        samples = [_decorate_object_with(x, 'project', self) for x in samples]
         return samples
 
     def fetch_sample_by_id(self, sample_id):
@@ -976,9 +976,9 @@ class Experiment(MCObject):
 
         """
         process_list = api.fetch_experiment_processes(self.project.id, self.id)
-        processes = map((lambda x: make_object(x)), process_list)
-        processes = map((lambda x: _decorate_object_with(x, 'project', self.project)), processes)
-        processes = list(map((lambda x: _decorate_object_with(x, 'experiment', self)), processes))
+        processes = [make_object(x) for x in process_list]
+        processes = [_decorate_object_with(x, 'project', self.project) for x in processes]
+        processes = [_decorate_object_with(x, 'experiment', self) for x in processes]
         for process in processes:
             process._update_project_experiment()
         return processes
@@ -1022,13 +1022,10 @@ class Experiment(MCObject):
 
         """
         samples_list = api.fetch_experiment_samples(self.project.id, self.id)
-        samples = map((lambda x: make_object(x)), samples_list)
-        samples = map((lambda x: _decorate_object_with(x, 'project', self.project)), samples)
-        samples = map((lambda x: _decorate_object_with(x, 'experiment', self)), samples)
-        samples_list = []
-        for s in samples:
-            samples_list.append(s)
-        return samples_list
+        samples = [make_object(x) for x in samples_list]
+        samples = [_decorate_object_with(x, 'project', self.project) for x in samples]
+        samples = [_decorate_object_with(x, 'experiment', self) for x in samples]
+        return samples
 
     # Experiment - additional method
     def decorate_with_samples(self):
@@ -1316,7 +1313,12 @@ class Process(MCObject):
             return None
         samples = self._create_samples(sample_names)
         self.decorate_with_output_samples()
-        return self.output_samples
+        ret_samples = []
+        for s in samples:
+            for probe in self.output_samples:
+                if s.id == probe.id:
+                    ret_samples.append(probe)
+        return ret_samples
 
     def get_sample_by_id(self, process_id):
         """
@@ -1844,10 +1846,10 @@ class Process(MCObject):
         lookup_table = {}
         for simple_sample in samples_array:
             lookup_table[simple_sample['id']] = simple_sample['property_set_id']
-        samples = map((lambda x: project.fetch_sample_by_id(x['id'])), samples_array)
-        samples = map((lambda x: _decorate_object_with(x, 'property_set_id', lookup_table[x.id])), samples)
-        samples = map((lambda x: _decorate_object_with(x, 'project', project)), samples)
-        samples = map((lambda x: _decorate_object_with(x, 'experiment', process.experiment)), samples)
+        samples = [project.fetch_sample_by_id(x['id']) for x in samples_array]
+        samples = [_decorate_object_with(x, 'property_set_id', lookup_table[x.id]) for x in samples]
+        samples = [_decorate_object_with(x, 'project', project) for x in samples]
+        samples = [_decorate_object_with(x, 'experiment', process.experiment) for x in samples]
         samples_id_list = []
         # NOTE: side effect to process.experiment
         for sample in samples:
@@ -2634,11 +2636,9 @@ class SelectionProperty(Property):
 
     def verify_value_type(self, value):
         if isinstance(value, dict):
-            ok = isinstance(value['name'], str) or isinstance(value['name'], unicode)
-            ok = ok and (isinstance(value['value'], str) or isinstance(value['value'], unicode))
-            if (ok):
+            if isinstance(value['name'], str) and isinstance(value['value'], str):
                 return
-        if not (isinstance(value, str) or isinstance(value, unicode)):
+        if not isinstance(value, str):
             message = "Only str values for a SelectionProperty; "
             message += "value = '" + str(value) + "', type = " + str(type(value)) + " is not valid"
             raise MCPropertyException(message)
@@ -2712,7 +2712,7 @@ def make_object(data):
                 if _is_object(value):
                     value = make_object(value)
                 elif _is_list(value):
-                    value = list(map(make_object, value))
+                    value = [make_object(x) for x in value]
                 setattr(holder, key, value)
             holder._process_special_objects()
             return holder

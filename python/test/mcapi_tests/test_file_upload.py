@@ -51,13 +51,13 @@ class TestFileUpload(unittest.TestCase):
         input_path = str(path.absolute())
         byte_count = getsize(input_path)
         file1 = project.add_file_using_directory(directory, file_name, input_path)
-        self.assertIsNotNone(file)
+        self.assertIsNotNone(file1)
         self.assertEqual(file1.size, byte_count)
         self.assertEqual(file1.name, file_name)
 
-        # redundent calls work - return equivlent descriptor
+        # redundant calls work - return equivalent descriptor
         file2 = project.add_file_using_directory(directory, file_name, input_path)
-        self.assertIsNotNone(file)
+        self.assertIsNotNone(file2)
         self.assertEqual(file1.size, file2.size)
         self.assertEqual(file1.name, file2.name)
 
