@@ -25,5 +25,5 @@ from . import api as __api
 # __all__ = dir()
 __all__ = ['get_all_projects', 'create_project', 'get_project_by_id', 'get_all_users', 'get_all_templates',
            'Project', 'Experiment', 'Process', 'Sample', 'Template', 'Directory', 'File',
-           'User', 'DeleteTally',
+           'User', 'DeleteTally', 'mc_object_utility',
            'set_remote_config_url', 'get_remote_config_url']

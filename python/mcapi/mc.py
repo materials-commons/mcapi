@@ -2726,6 +2726,8 @@ def make_object(data):
 
 
 def make_base_object_for_type(data):
+    if _has_key('_type', data): # catch, convert legacy objects
+        data['otype'] = data['_type']
     if _data_has_type(data):
         object_type = data['otype']
         if object_type == 'process':
@@ -2765,6 +2767,8 @@ def make_property_object(obj):
     data = obj
     if isinstance(obj, MCObject):
         data = obj.input_data
+    if _has_key('_type', data): # catch, convert legacy objects
+        data['otype'] = data['_type']
     if _data_has_type(data):
         object_type = data['otype']
         holder = None

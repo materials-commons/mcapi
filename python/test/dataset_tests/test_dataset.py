@@ -1,5 +1,4 @@
 import unittest
-import pytest
 
 from dataset import Public
 
@@ -27,29 +26,28 @@ class TestDatasetApptributes(unittest.TestCase):
         public = Public()
         dataset = public.get_dataset(id)
         self.assertIsNotNone(dataset)
-        print("--")
-        # 'authors' - list
-        print(dataset.authors)
-        # 'birthtime' - string date
-        # 'description' - string
+        authors = dataset.authors
+        self.assertIsNotNone(authors)
+        self.assertEqual(len(authors),4)
+        berman = authors[0]
+        self.assertEqual(berman.lastname,'Berman')
+        self.assertTrue('microstructure and microsegregation' in dataset.description)
         self.assertEqual(dataset.doi,"")
-        # 'embargo_date' - string date
-        # 'files' - list
+        files = dataset.files
+        self.assertEqual(len(files),440)
+        self.assertEqual(files[0].name,'epma_run20150608.xlsx')
         self.assertTrue(dataset.funding.startswith("Department of Energy"))
         self.assertEqual(dataset.id, id)
         self.assertTrue(dataset.institution.startswith("University of Michigan"))
-        # 'keywords' - list
-        # 'license' - dict
-        # 'mtime' - string date
-        # 'other_datasets' - list
+        self.assertTrue('opendatacommons' in dataset.license.link)
+        self.assertTrue('Attribution' in dataset.license.name)
         self.assertEqual(dataset.owner, 'tradiasa@umich.edu')
-        # 'papers'
-        # 'processes'
+        self.assertEqual(len(dataset.processes),95)
+        self.assertEqual(dataset.processes[0].name,"SEM")
         self.assertTrue(dataset.published)
-        # 'published_date' - string data
-        # 'publisher'
         self.assertEqual(dataset.publisher, "Tracy Berman")
-        # 'samples' - list
-        # 'tags' - list
         self.assertEqual(dataset.title, "Microsegregation & Microstructure in HPDC AM Series Alloys")
-        # 'zip' - dict
+        self.assertEqual(dataset.zip.filename,'Microsegregation_&_Microstructure_in_HPDC_AM_Series_Alloys.zip')
+        self.assertEqual(len(dataset.samples),8)
+        self.assertEqual(dataset.samples[0].name,"AM40-2p5-F")
+
