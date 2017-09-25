@@ -1,0 +1,1592 @@
+name: SEM
+  description: None
+  id: fd61b81b-8137-49fd-a43f-3560c239e71f
+  owner: masonab@umich.edu
+  template_id: global_SEM
+  template_name: SEM
+  does_transform: False
+  process_type: measurement
+  files:
+    AM50_5p0_1778.tif 5603663a-f28e-4068-b149-370babb2343c
+    AM50_5p0_1776.tif f2056684-1471-4368-bee7-20963694c69d
+    AM50_5p0_1769.tif fb60a6fb-df11-4c2a-8a1e-a7bf2e4cba03
+    AM50_5p0_1775.tif 533e7467-6981-42d1-8fb4-cb51ec0015b8
+    AM50_5p0_1777.tif 36269539-add3-48db-b6b1-15af79891be5
+    AM50_5p0_1771.tif d5256e57-955a-45bd-91b8-093b43c13b1d
+    AM50_5p0_1774.tif 1304d4f5-d8a3-4402-9dc0-2e3a78b8d04e
+    AM50_5p0_1773.tif b9b21382-463b-4858-9962-9bed946a41a1
+    AM50_5p0_1779.tif 77f79685-fa3f-4beb-a8c0-3f35219b8450
+    AM50_5p0_1772.tif 4e9aea50-8b8f-40de-9299-0bb7c9718a23
+    AM50_5p0_1770.tif f41c7a25-1336-48b3-a7e5-26c940efb5b3
+----
+name: SEM
+  description: None
+  id: f7d26cf8-f135-4a37-8fab-92454bef443a
+  owner: masonab@umich.edu
+  template_id: global_SEM
+  template_name: SEM
+  does_transform: False
+  process_type: measurement
+  files:
+    AM70_5p0_F_1555.tif ef47d179-d8cc-4083-9f53-5ff8132a1231
+    AM70_5p0_F_1553.tif 8d821be6-0bef-44d6-83c7-325441e75421
+    AM70_5p0_F_E_1564.tif 5ca25ca8-1ca8-4eda-ad79-4a5309810646
+    AM70_5p0_F_E_1562.tif e276658f-c0e6-42a3-8013-513dfa699b77
+    AM70_5p0_F_1557.tif c972ad73-0ac9-4def-8aa7-55e06b2e182c
+    AM70_5p0_F_1558.tif edcff0b3-f729-4eec-a3de-fa92c4156124
+    AM70_5p0_F_E_1563.tif 1656c673-beb2-4a43-8a60-b9892d9bfa05
+    AM70_5p0_F_E_1561.tif e8aa518c-cc3a-4e4f-a586-21a55312c930
+    AM70_5p0_F_1554.tif 239ab735-fc9d-429b-b3c7-93268eab058c
+    AM70_5p0_F_1556.tif 0cf4ce0b-e900-4752-bdce-694c1f801573
+    AM70_5p0_F_1559.tif 292b5539-1077-4eee-96ba-c35957372e5f
+----
+name: 'EBSD SEM Data Collection - AM50_2p5_through-11/21/2015 @ 7:04PM'
+  description: None
+  id: f8c21d48-2b32-41e3-914f-1c3419257c20
+  owner: tradiasa@umich.edu
+  template_id: 'global_EBSD SEM Data Collection'
+  template_name: None
+  does_transform: False
+  process_type: measurement
+  output_files:
+    AM50_2p5_AC_6_36GH_through2500-grainfile.txt b5851032-30a8-4da5-a768-a4fd2f17922a
+    AM50_2p5_AC_6_36GH_through2500-cleangrain.bmp 95810291-d89f-43ce-ba0d-5e3f27f5f3ba
+  files:
+    AM50_2p5_AC_6_36GH_through2500-grainfile.txt b5851032-30a8-4da5-a768-a4fd2f17922a
+    AM50_2p5_AC_6_36GH_through2500-cleangrain.bmp 95810291-d89f-43ce-ba0d-5e3f27f5f3ba
+  input_samples:
+    AM50-2p5-F e0fd47cd-c014-41c8-8e64-863792410508
+----
+name: 'EBSD SEM Data Collection'
+  description: None
+  id: e4543f4b-23b0-41b4-984d-367e98725136
+  owner: tradiasa@umich.edu
+  template_id: 'global_EBSD SEM Data Collection'
+  template_name: 'EBSD SEM Data Collection'
+  does_transform: False
+  process_type: measurement
+  files:
+    AM50_5_AC_through2500_45BH_3-cleangrain.bmp eeae46ff-69aa-4592-8acf-5ec529735e92
+    AM50_5_AC_through2500_45BH_3-grainfile.txt e53bd820-f8a6-4543-ba49-3899cf3ea9a8
+----
+name: SEM
+  description: None
+  id: e98dace4-8644-4a1f-a43f-3baed020b66b
+  owner: masonab@umich.edu
+  template_id: global_SEM
+  template_name: SEM
+  does_transform: False
+  process_type: measurement
+  files:
+    AM50_2p5_1810.tif e2db6fc6-fe07-4410-8e3a-815f4a9beaa0
+    AM50_2p5_1801.tif cc87210c-1d24-4c12-b7fe-d7c5338bcafe
+    AM50_2p5_1807.tif f4641c21-29a2-4a96-be4e-75bfe1cd8588
+    AM50_2p5_1802.tif 5377a715-a991-4e64-926a-71266965c4e8
+    AM50_2p5_1804.tif faef7f66-ac19-454a-9031-e5684396b3ad
+    AM50_2p5_1806.tif 007ca91e-18c2-4960-a66c-7ec9bb5772c4
+    AM50_2p5_1809.tif 844f659b-819b-4cd4-9d51-5c377cef9115
+    AM50_2p5_1803.tif 44f38df6-f628-420e-852e-ac3fcfbe9f80
+    AM50_2p5_1805.tif 41e61ab9-19f9-42fa-9e1e-61a75b50e7ad
+    AM50_2p5_1808.tif 3b05009a-3078-41bc-b4d8-a929e3b17d7d
+----
+name: 'EBSD SEM Data Collection- AM50_2p5_center - 11/21/2015 @ 5:36PM'
+  description: None
+  id: d164cea2-6915-41c1-af79-6a7c38967712
+  owner: tradiasa@umich.edu
+  template_id: 'global_EBSD SEM Data Collection'
+  template_name: None
+  does_transform: False
+  process_type: measurement
+  output_files:
+    AM50_2p5_AC_center_36GH_1_clean_grainfiletype2.txt 32caa594-f9b5-48c2-8dc8-395442c0fb48
+    AM50_2p5_AC_center_36GH_1_cleangrain.bmp 32515d68-d361-4bf9-b8e4-30d5e2932907
+  files:
+    AM50_2p5_AC_center_36GH_1_clean_grainfiletype2.txt 32caa594-f9b5-48c2-8dc8-395442c0fb48
+    AM50_2p5_AC_center_36GH_1_cleangrain.bmp 32515d68-d361-4bf9-b8e4-30d5e2932907
+  input_samples:
+    AM50-2p5-F e0fd47cd-c014-41c8-8e64-863792410508
+----
+name: 'EPMA Data Collection'
+  description: None
+  id: e9755db9-2bdc-4f9b-b484-8c51910a7629
+  owner: tradiasa@umich.edu
+  template_id: 'global_EPMA Data Collection'
+  template_name: 'EPMA Data Collection'
+  does_transform: False
+  process_type: measurement
+  files:
+    epma_run20150615.xls b8409949-edba-42dc-a047-81772c02e2fb
+    AM60_2p5_E.xls c9f13f2a-6a6a-4798-b4f2-fa83395d3890
+    epma_run20150608.xls 4b606610-857e-45ab-a6e9-7bbf9b4a1a20
+    epma_run20150615.docx 1d7cc467-b637-4e27-930d-63e28fb53aab
+    epma_run20150608.docx 50685808-0cfb-4639-8591-088d99d55136
+    EMPA_AM60_and_AZ91_2p5_run8_20150313.xls 51e5aefd-2ae6-47c4-a348-d1fc2d65ec89
+----
+name: 'EBSD SEM Data Collection'
+  description: None
+  id: d48de2b1-2661-4505-851b-3d6106c18da2
+  owner: tradiasa@umich.edu
+  template_id: 'global_EBSD SEM Data Collection'
+  template_name: 'EBSD SEM Data Collection'
+  does_transform: False
+  process_type: measurement
+  files:
+    GF-AM70-5p0-F-E-scan3.xls d8e63483-c684-4fef-b127-88fae2d15e46
+    AM70-5-AC-29NH-1_edge300-clean.bmp dadbb93f-fd27-4cb6-8df9-6187fda57923
+    GF-AM70-5p0-F-E-scan2.xls 2c968288-f902-4928-8718-257b97f0fa8b
+    GF-AM70-5p0-F-E-scan1.xls d4fd770f-1b80-4b3b-8367-be25b637323f
+    AM70-5-AC-29NH-1_edge300-clean-grainfiletype2.txt 216401cf-5eeb-4cb1-b627-b7d1616b1d9c
+    '20140913 59Nh2 clean.tif' 66e8a786-452a-4d68-bc50-ff84c3633277
+----
+name: SEM
+  description: None
+  id: e33edae9-3741-4e2c-aca1-01b14b867d8d
+  owner: tradiasa@umich.edu
+  template_id: global_SEM
+  template_name: SEM
+  does_transform: False
+  process_type: measurement
+  files:
+    AM40_2p5_1736.tif d601a260-12ec-4cfe-9ddc-22f24bbf4064
+    AM40_2p5_1723.tif 9ce36116-e74d-4750-bb82-9a8eafb86cfb
+    AM40_2p5_1737.tif ce111a59-eb62-47ad-8810-5681b6623ad2
+    AM40_2p5_1738.tif 691cec4f-da2c-463a-864f-b403d80f7215
+    AM40_2p5_1724.tif a4b8b6cb-f84c-448d-8303-f93b68ac6ae2
+    AM40_2p5_1722.tif 565d4a8f-7d2c-4697-962c-111094d27eb6
+    AM40_2p5_1740.tif 964571ba-13d9-4523-8deb-5cbc538f05aa
+    AM40_2p5_1730.tif 75540471-b3e4-424c-9c68-ea06d5478022
+    AM40_2p5_1741.tif 29a8b374-c33d-4601-ba71-413d25fe6156
+    AM40_2p5_1727.tif fafc9448-e64b-48f6-a24f-524d169caf62
+    AM40_2p5_1725.tif 8c4ad3d8-7b9f-41e2-bc5a-73a464290b20
+    AM40_2p5_1732.tif 65204a45-e965-470e-92b1-c6abcaa53e05
+    AM40_2p5_1726.tif 10c9e65e-8ab8-4763-bca0-add024901e61
+    AM40_2p5_1729.tif 97be5268-c337-4a7d-a91f-540cabb6b67b
+    AM40_2p5_1734.tif 17485f1c-a479-43bd-9b28-f6476e69d565
+    AM40_2p5_1733.tif d371594c-c5c2-4f44-a710-e95f6ce12623
+    AM40_2p5_1728.tif 86eb15e9-f753-4c02-821c-47f82625c337
+    AM40_2p5_1735.tif 0a7e2407-c12e-4fc9-bf4b-9f7a816f7f76
+    AM40_2p5_1731.tif f6d2d8e7-e4c0-4a41-963c-b5137a497694
+----
+name: 'EBSD SEM Data Collection - AM60_2p5_center - 11/22/2015 @ 5:11PM'
+  description: None
+  id: d14349ed-9137-4dd6-862e-8ee51e6e4f8d
+  owner: tradiasa@umich.edu
+  template_id: 'global_EBSD SEM Data Collection'
+  template_name: None
+  does_transform: False
+  process_type: measurement
+  output_files:
+    '46YV1 clean.tif' c19c98d7-bd65-4efc-8356-e70cfdc99a67
+    GF-AM60-2p5-F-C-scan2.xls f3fcc498-0a0c-4388-8313-8d2aef6eb3f4
+  files:
+    '46YV1 clean.tif' c19c98d7-bd65-4efc-8356-e70cfdc99a67
+    GF-AM60-2p5-F-C-scan2.xls f3fcc498-0a0c-4388-8313-8d2aef6eb3f4
+  input_samples:
+    AM60-2p5-F 9cc1725d-9768-4f56-9909-9497837d2d8e
+----
+name: SEM
+  description: None
+  id: ce9e9c0e-b8a3-400a-880a-ebc2d0339a47
+  owner: masonab@umich.edu
+  template_id: global_SEM
+  template_name: SEM
+  does_transform: False
+  process_type: measurement
+  files:
+    AM50_2p5_1816.tif b9096fa9-1d45-4db3-a778-8feae9214f08
+    AM50_2p5_1814.tif f12c770d-644f-4a73-b8c3-b9b76546be48
+    AM50_2p5_1820.tif d89eb888-adc6-4f7f-ad99-aca5fd4634ce
+    AM50_2p5_1817.tif 05a36d1d-002a-460b-aebf-ee9e4651f114
+    AM50_2p5_1813.tif 7cade6ce-d49a-40b8-9254-1674a202a520
+    AM50_2p5_1811.tif 3dc314ad-0221-467a-b5d3-7c33e17d951a
+    AM50_2p5_1812.tif 568c928b-5d6e-4b58-b110-25708fe52d50
+    AM50_2p5_1819.tif 813efebe-636f-4835-9364-7ace1021b705
+    AM50_2p5_1815.tif 331839c0-7d84-48b5-9b55-0858d0c92632
+    AM50_2p5_1818.tif a04dddca-1ba3-467d-921c-5f69d86588b2
+----
+name: 'EBSD SEM Data Collection'
+  description: None
+  id: b1789cc9-9002-4bbe-a6fd-f15febd85a9e
+  owner: tradiasa@umich.edu
+  template_id: 'global_EBSD SEM Data Collection'
+  template_name: 'EBSD SEM Data Collection'
+  does_transform: False
+  process_type: measurement
+  files:
+    '29NH2 clean.tif' f7993a21-b0e1-4f4d-bfd7-b2dc91955992
+    AM70-5-AC-29NH-2_center600-clean-grainfiletype2.xls b462eaa9-38dd-44a9-82d2-e367c8c8f68f
+    GF-AM70-5p0-F-C-scan2.xls ac648530-d39b-47d5-97f1-518142dc8465
+    GF-AM70-5p0-F-C-scan1.xls 9c16e775-2517-448b-ad83-54d3762c68b9
+    '59NH2 clean.tif' 48b8c7a6-827a-43e0-9832-e242d890fd2b
+    '20140913 59Nh1 clean.tif' 66948ef8-af63-4df5-b888-84c4e84942c1
+    AM70-5-AC-29NH-2_center600-clean.bmp f7acdbdd-9cae-4012-9b12-8c23ea6d51e2
+    GF-AM70-5p0-F-C-scan3.xls 65e0172d-763e-4b61-b8b9-4e4d27eecd8b
+    AM70-5-AC-29NH-2_center600-clean-grainfiletype2.txt 6a8dff15-352e-4893-876a-5f12f69541f7
+----
+name: 'EBSD SEM Data Collection - AM60_2p5_edge - 11/21/2015 @ 7:47PM'
+  description: None
+  id: d644fbc4-921b-4976-9e19-083f30102e04
+  owner: tradiasa@umich.edu
+  template_id: 'global_EBSD SEM Data Collection'
+  template_name: None
+  does_transform: False
+  process_type: measurement
+  output_files:
+    GF-AM60-2p5-F-E-scan3.xls 02a78859-0139-49c8-92d5-80bef238a3d8
+  files:
+    GF-AM60-2p5-F-E-scan3.xls 02a78859-0139-49c8-92d5-80bef238a3d8
+  input_samples:
+    AM60-2p5-F 9cc1725d-9768-4f56-9909-9497837d2d8e
+----
+name: 'EBSD SEM Data Collection - AM70_2p5_edge - 11/22/2015 @ 5:35PM'
+  description: None
+  id: bd99c649-b489-4d1f-af8c-faf226db7d3e
+  owner: tradiasa@umich.edu
+  template_id: 'global_EBSD SEM Data Collection'
+  template_name: None
+  does_transform: False
+  process_type: measurement
+  output_files:
+    AM70_2p5_AC_45NH-2_edge300-clean-grainfiletype2.txt 990a6188-e0f4-4c58-af47-791cfeea9eb7
+    AM70_2p5_AC_45NH-2_edge300-cleangrain.bmp 8ce56472-3fd2-4722-af63-b6b1e19c0aea
+    AM70_2p5_AC_45NH-2_edge300-clean.bmp 1da40006-5a25-439a-ac3f-cef3e39bfe8a
+  files:
+    AM70_2p5_AC_45NH-2_edge300-clean-grainfiletype2.txt 990a6188-e0f4-4c58-af47-791cfeea9eb7
+    AM70_2p5_AC_45NH-2_edge300-cleangrain.bmp 8ce56472-3fd2-4722-af63-b6b1e19c0aea
+    AM70_2p5_AC_45NH-2_edge300-clean.bmp 1da40006-5a25-439a-ac3f-cef3e39bfe8a
+  input_samples:
+    AM70-2p5-F 6012fde5-398d-48fc-9dbe-059b241505a7
+----
+name: 'EBSD SEM Data Collection - AM60_2p5_center - 11/21/2015 @ 8:05PM'
+  description: None
+  id: c3eb6f96-47c8-4ea1-9a43-73039f77de18
+  owner: tradiasa@umich.edu
+  template_id: 'global_EBSD SEM Data Collection'
+  template_name: None
+  does_transform: False
+  process_type: measurement
+  output_files:
+    '54YH2 clean grain file type 2 center.txt' ee213c7b-d7e9-421b-aecf-4bcdc98970cd
+    '54YH2 clean partition.tif' b7e57374-7d2d-413e-be06-c9fd239fddd6
+    GF-AM60-2p5-F-C-scan1.xls 72d47631-6400-4e7a-a837-935525b6fc8d
+  files:
+    '54YH2 clean grain file type 2 center.txt' ee213c7b-d7e9-421b-aecf-4bcdc98970cd
+    '54YH2 clean partition.tif' b7e57374-7d2d-413e-be06-c9fd239fddd6
+    GF-AM60-2p5-F-C-scan1.xls 72d47631-6400-4e7a-a837-935525b6fc8d
+  input_samples:
+    AM60-2p5-F 9cc1725d-9768-4f56-9909-9497837d2d8e
+----
+name: SEM
+  description: None
+  id: abb98139-5c2a-4672-bfb3-2ce72fd84d15
+  owner: masonab@umich.edu
+  template_id: global_SEM
+  template_name: SEM
+  does_transform: False
+  process_type: measurement
+  files:
+    AM70_2p5_F_1590.tif d452bbeb-9620-4699-92b3-2258714ccf51
+    AM70_2p5_F_1599.tif d3328396-2bde-4584-8ac5-a0b2618cdec3
+    AM70_2p5_F_1596.tif bcd89dbe-419e-4fa9-8d65-3fb4f15805f0
+    AM70_2p5_F_1593.tif 7d66de70-88c1-400b-a9fd-517d1b46f435
+    AM70_2p5_F_1591.tif 7a051b75-e81d-4bca-b9d9-1be99cbb6eaf
+    AM70_2p5_F_1600.tif 62842a0b-3d77-47b6-b3aa-d51b411e7377
+    AM70_2p5_F_1592.tif 77ab5467-00b2-43de-b8e1-7a5e36a0acb5
+    AM70_2p5_F_1597.tif cbc84f3a-6f24-4d89-9f4b-3ac382303fd2
+    AM70_2p5_F_1598.tif 10f672b2-d97d-41d7-9962-d9797544b08c
+    AM70_2p5_F_1595.tif 732803db-4598-4b6b-833c-17de81c15e6e
+    AM70_2p5_F_1594.tif a8ac8584-2548-4fa2-9187-66cc6a6c1104
+----
+name: 'EPMA Data Collection'
+  description: None
+  id: d51b55c0-e24e-41b7-946a-0c6c96bb2730
+  owner: tradiasa@umich.edu
+  template_id: 'global_EPMA Data Collection'
+  template_name: 'EPMA Data Collection'
+  does_transform: False
+  process_type: measurement
+  files:
+    epma_am70_5p0_run20150626.xls eaaf3f07-03fe-4b93-9071-dfc8c072e204
+    EMPA_ford_AM70_5p0_run20150505.xls 9b66a53d-d469-481a-a28e-0a43128232eb
+    AM70_5p0_NE.xls 488090a8-b051-4cf5-b51d-2ef020a26f84
+    epma_am70_5p0_run20150626.docx 5f049d11-b920-498f-820c-04dbd3615455
+----
+name: 'EPMA Data Collection'
+  description: None
+  id: bcb7875b-3ca7-46c3-b896-78cb98ae0bef
+  owner: tradiasa@umich.edu
+  template_id: 'global_EPMA Data Collection'
+  template_name: 'EPMA Data Collection'
+  does_transform: False
+  process_type: measurement
+  files:
+    berman_run20150630.docx 3bf11825-7ffc-41e9-9470-f55fe8b50667
+    epma_am70_5p0_run20150626.xls eaaf3f07-03fe-4b93-9071-dfc8c072e204
+    berman_run20150630.xls 20ddfb10-a7ea-4799-b04e-492868da2424
+    AM70_5p0_E.xls a9be32eb-3e3b-416a-86cb-b53269fefc1a
+    EMPA_ford_AM70_5p0_run20150505.xls 9b66a53d-d469-481a-a28e-0a43128232eb
+    epma_am70_5p0_run20150626.docx 5f049d11-b920-498f-820c-04dbd3615455
+----
+name: 'As Received AM60-5p0-F'
+  description: None
+  id: bb81a800-dc2a-4932-8962-6e6cd544d9cf
+  owner: tradiasa@umich.edu
+  template_id: 'global_Create Samples'
+  template_name: None
+  does_transform: False
+  process_type: create
+  output_samples:
+    AM60-5p0-F 57d3bb7f-3346-4387-8632-641f0ace7ac6
+----
+name: 'EPMA Data Collection'
+  description: None
+  id: 988a840e-23f3-4817-a57c-7f10b149787c
+  owner: tradiasa@umich.edu
+  template_id: 'global_EPMA Data Collection'
+  template_name: 'EPMA Data Collection'
+  does_transform: False
+  process_type: measurement
+  files:
+    AM40_2p5_NE.xls e07a2a48-d55e-4762-a311-8d88459a0aba
+    epma_run20150608.docx 50685808-0cfb-4639-8591-088d99d55136
+    epma_run20150608.xlsx ff2e5803-e4a4-427f-a73c-af7466c3de78
+----
+name: 'EPMA Data Collection'
+  description: None
+  id: fe6b4271-9723-47b8-a72c-3d73a1ed88a8
+  owner: tradiasa@umich.edu
+  template_id: 'global_EPMA Data Collection'
+  template_name: 'EPMA Data Collection'
+  does_transform: False
+  process_type: measurement
+  files:
+    AM50_5p0_C.xls 84a61520-5b12-42a0-bd60-2249be822e94
+    EMPA_ford_AM70_2p5_and_am50_5p0_run20150529.xls 5690edc1-469e-4491-91f7-3168b178c9c4
+    EMPA_run20150601v2.xls af3eb851-296c-4ef0-a92d-b24af52788f5
+----
+name: 'EBSD SEM Data Collection - AM70_2p5_center - 11/22/2015 @ 8:00PM'
+  description: None
+  id: b1d3f863-9bf6-4451-90a9-69d9817ccb79
+  owner: tradiasa@umich.edu
+  template_id: 'global_EBSD SEM Data Collection'
+  template_name: None
+  does_transform: False
+  process_type: measurement
+  output_files:
+    AM70_2p5_AC_45NH-1_center500-cleangrain.bmp 2d2fab08-d8bd-4b72-933e-27cf922d6104
+    AM70_2p5_AC_45NH-1_center500-clean-grainfiletype2.txt ea5c7b1c-3830-4d4d-b7e3-576401f44049
+    AM70_2p5_AC_45NH-1_center500-clean.bmp 47e850d5-d1e3-462a-8c3f-65544cc333a2
+  files:
+    AM70_2p5_AC_45NH-1_center500-cleangrain.bmp 2d2fab08-d8bd-4b72-933e-27cf922d6104
+    AM70_2p5_AC_45NH-1_center500-clean-grainfiletype2.txt ea5c7b1c-3830-4d4d-b7e3-576401f44049
+    AM70_2p5_AC_45NH-1_center500-clean.bmp 47e850d5-d1e3-462a-8c3f-65544cc333a2
+  input_samples:
+    AM70-2p5-F 6012fde5-398d-48fc-9dbe-059b241505a7
+----
+name: 'EBSD SEM Data Collection - AM40_2p5_edge'
+  description: None
+  id: b47ea8d9-42f3-409f-83a5-b99e33620e3e
+  owner: tradiasa@umich.edu
+  template_id: 'global_EBSD SEM Data Collection'
+  template_name: None
+  does_transform: False
+  process_type: measurement
+  output_files:
+    AM40_2p5_AC_33WH-4-edge300-clean-grainfile.xls 83688bb0-73e1-40d2-b356-2f0a1a650517
+    AM40_2p5_AC_33WH-4-edge300-cleancrop.bmp f9434ffd-dc1d-468f-b079-9f95a75fa29b
+    AM40_2p5_AC_33WH-4-edge300-clean-grainfile.txt 5991c0ab-ed71-45e0-a113-e3ed9b7bdebd
+  files:
+    AM40_2p5_AC_33WH-4-edge300-clean-grainfile.xls 83688bb0-73e1-40d2-b356-2f0a1a650517
+    AM40_2p5_AC_33WH-4-edge300-cleancrop.bmp f9434ffd-dc1d-468f-b079-9f95a75fa29b
+    AM40_2p5_AC_33WH-4-edge300-clean-grainfile.txt 5991c0ab-ed71-45e0-a113-e3ed9b7bdebd
+  input_samples:
+    AM40-2p5-F c4a82033-b961-40e5-9844-f25447c027dd
+----
+name: SEM
+  description: None
+  id: b86daa7d-a3b8-43d1-9f34-e56a63073d63
+  owner: masonab@umich.edu
+  template_id: global_SEM
+  template_name: SEM
+  does_transform: False
+  process_type: measurement
+  files:
+    AM60_5p0_1657.tif fbc72328-3b1d-4d13-9798-7b341e74d429
+    AM60_5p0_1648.tif e3535ef8-ded5-44b4-8e4a-b3080f11c46b
+    AM60_5p0_1652.tif 88e259bf-adb0-4b24-ab93-c393a2a300f5
+    AM60_5p0_1647.tif 4a781308-fcc0-4a63-be41-f0ef72285229
+    AM60_5p0_1654.tif ae034d43-cc26-41b7-9382-7cd601b4c0d6
+    AM60_5p0_1653.tif 5abd9e6c-52d3-46fe-84f8-b21e438e9a9f
+    AM60_5p0_1650.tif ae1fd354-105e-4ac5-814c-9a8444212937
+    AM60_5p0_1656.tif 03e3dc15-5ff5-41c8-9517-cd295c78c587
+    AM60_5p0_1655.tif 669ed62d-5ca0-41b6-9600-1b27cb6834d2
+    AM60_5p0_1651.tif 3e140971-223c-4c70-94e7-9af9ecaba228
+    AM60_5p0_1649.tif ab364d7e-5f16-4098-b2a1-293608966796
+----
+name: 'EPMA Data Collection'
+  description: None
+  id: 8fe9a734-263f-4d63-add3-763c896b94cc
+  owner: tradiasa@umich.edu
+  template_id: 'global_EPMA Data Collection'
+  template_name: 'EPMA Data Collection'
+  does_transform: False
+  process_type: measurement
+  files:
+    AM70_2p5_C.xls 17e0b011-0180-4fb7-93e9-81aa9275d0ab
+    EMPA_ford_AM70_2p5_and_am50_5p0_run20150529.xls 5690edc1-469e-4491-91f7-3168b178c9c4
+----
+name: 'EPMA Data Collection'
+  description: None
+  id: f028ae4b-e659-4625-8b3f-f017b56aa259
+  owner: tradiasa@umich.edu
+  template_id: 'global_EPMA Data Collection'
+  template_name: 'EPMA Data Collection'
+  does_transform: False
+  process_type: measurement
+  files:
+    EMPA_ford_AM60_plate32_5p0_run20150331.xls aad0908d-7f13-4de6-b715-62368fe8c055
+    AM60_5p0_C.xls a1c296cd-38a1-416e-a2f4-7fa50a79a61e
+----
+name: SEM
+  description: None
+  id: 983789d5-a63c-46d3-8687-e4ee32b48b5e
+  owner: masonab@umich.edu
+  template_id: global_SEM
+  template_name: SEM
+  does_transform: False
+  process_type: measurement
+  files:
+    AM60_2p5_1689.tif 95a193a3-2cd0-4faa-bca2-c8bda4b68db7
+    AM60_2p5_1690.tif fdcfcc9f-7a84-4688-9b09-c21deff8b022
+    AM60_2p5_1685.tif ea98d2bd-1f70-4b29-9ac1-811b176eca3c
+    AM60_2p5_1681.tif 796140ff-4e83-442d-ab8a-7d7a7eff4805
+    AM60_2p5_1682.tif 64e07036-0851-4e8e-beed-eb1007e44639
+    AM60_2p5_1683.tif b3c9702e-dd15-4ef3-b6ff-8b6fc7bf8f46
+    AM60_2p5_1680.tif 7f362883-d862-4df0-a9c6-580586ec53ed
+    AM60_2p5_1684.tif 0597ce8b-7fd6-453b-9682-25881664520e
+    AM60_2p5_1688.tif 06dccd2c-5f70-4002-a680-5f55b84ffbac
+    AM60_2p5_1686.tif 2a585d66-fee1-42d4-9cbb-bd1526a21077
+    AM60_2p5_1687.tif 86a4d014-be20-49b9-af32-d36ee9785e85
+----
+name: SEM
+  description: None
+  id: 9a7a40b8-afcd-431a-9cb8-38d0aa69cf60
+  owner: masonab@umich.edu
+  template_id: global_SEM
+  template_name: SEM
+  does_transform: False
+  process_type: measurement
+  files:
+    AM50_2p5_1822.tif fa26dafe-78b0-420e-aca7-9f90f9b53bb6
+    AM50_2p5_1823.tif d3bc0ca3-e0fa-443f-a1d4-dd9d2d600b07
+    AM50_2p5_1830.tif f0e777ec-8857-4f36-8765-444f610fc798
+    AM50_2p5_1825.tif 322060d9-4d32-48e4-9c01-f0d05aa9d18f
+    AM50_2p5_1829.tif c903f12f-544b-43e5-80a2-c52304c653e9
+    AM50_2p5_1828.tif 1e8f1508-297b-49ca-9d0b-86405a77532a
+    AM50_2p5_1821.tif d1015973-5745-44f0-bd8c-481a546d7ae3
+    AM50_2p5_1826.tif a8179dac-1a81-4fe1-976b-2e88c5cca71e
+    AM50_2p5_1824.tif b5239cf5-dd4b-4847-bbfd-1ee8e40081b6
+    AM50_2p5_1827.tif 64d3cf69-70e0-47b3-9a72-c29d162e54e0
+----
+name: SEM
+  description: None
+  id: b33319cb-5bb3-4b25-92e2-113181155f8d
+  owner: masonab@umich.edu
+  template_id: global_SEM
+  template_name: SEM
+  does_transform: False
+  process_type: measurement
+  files:
+    AM60_5p0_edge_1634.tif f88aa638-a438-4dc9-b946-30ba6ac672c3
+    AM60_5p0_edge_1627.tif fd94007c-b3fb-48e6-82f4-dd063308490e
+    AM60_5p0_edge_1635.tif 91c847f2-e581-4d5d-8e3c-433175e4b96e
+    AM60_5p0_edge_1631.tif 9c3ea133-3ae6-4371-a5d0-90a774380915
+    AM60_5p0_edge_1632.tif 72e6539b-6999-4946-9f3f-444822c520af
+    AM60_5p0_edge_1623.tif ef1a0a15-af43-4c12-83d1-6b396106f9c3
+    AM60_5p0_edge_1625.tif 5e5d031e-b3c8-4fd4-a65a-14f9cbb432d0
+    AM60_5p0_edge_1628.tif 3c6d85d6-3120-488d-857b-c7570fd25140
+    AM60_5p0_edge_1629.tif 2264d3a3-9519-405f-9ab9-41be79ccb4f4
+    AM60_5p0_edge_1624.tif 467ec412-946c-4fbf-a2d2-b1c71ce59219
+    AM60_5p0_edge_1630.tif 944f38e8-0797-40a1-91bf-46f145175dc0
+    AM60_5p0_edge_1633.tif 3eeb3214-f554-4b27-a41b-d1aa819e6d8c
+    AM60_5p0_edge_1626.tif 7d1c6c40-c25f-4d05-aa0f-a29b83b34f98
+----
+name: 'EBSD SEM Data Collection'
+  description: None
+  id: 7da4ed80-d2f3-4015-a174-2840cea2486d
+  owner: tradiasa@umich.edu
+  template_id: 'global_EBSD SEM Data Collection'
+  template_name: 'EBSD SEM Data Collection'
+  does_transform: False
+  process_type: measurement
+  files:
+    GF-AM50-5p0-F-E-scan3.xls c328ab63-7955-447c-a2a2-9736aca8f88a
+    GF-AM50-5p0-F-E-scan5.xls 82017102-a0ca-422c-937d-b68686d62c0b
+    AM50_5_AC_edge300__45BH_1-cleangrain.bmp 7ed65d6e-fd02-4368-9c13-b155d4a42848
+    GF-AM50-5p0-F-E-scan1.xls f31e36f2-4517-4975-815c-e9f16651db06
+    GF-AM50-5p0-F-E-scan4.xls ca5a7471-f151-4eb8-b38c-033b8aae96f6
+    AM50_5p0_F_edge_scan5_partition_GF.xls cf101acc-19bf-4115-91b8-6ce7e879c60b
+    AM50_5_AC_edge300__45BH_1-clean-grainfile.txt 3c431aec-c9f6-4dc5-8efe-418c0acc2799
+    GF-AM50-5p0-F-E-scan2.xls d153bb82-c55b-4468-aadb-6735b18602d1
+----
+name: 'EBSD SEM Data Collection'
+  description: None
+  id: 95f166cc-0a81-4834-bbec-d238705da538
+  owner: tradiasa@umich.edu
+  template_id: 'global_EBSD SEM Data Collection'
+  template_name: 'EBSD SEM Data Collection'
+  does_transform: False
+  process_type: measurement
+  files:
+    AM60_5_AC_through2500_40RH_3-grainfile.txt 1d40b736-d66c-4838-9697-388f9cbeb0a5
+    AM60_5_AC_through2500_40RH_3-cleangrain.bmp 93e97237-45ed-4eda-a098-479406fd7c4a
+----
+name: SEM
+  description: None
+  id: 71e7f6a5-e414-429b-b346-8421eadb3c07
+  owner: masonab@umich.edu
+  template_id: global_SEM
+  template_name: SEM
+  does_transform: False
+  process_type: measurement
+  files:
+    AM70_5p0_F_E_1580.tif b24924b3-1f89-456f-8ef5-511b79f45355
+    AM70_5p0_F_E_1589.tif c382a4fe-9ce1-4407-98f2-dfecee58133c
+    AM70_5p0_F_E_1582.tif d72d5133-e6ec-42b0-99b1-476e3492eea6
+    AM70_5p0_F_E_1579.tif 57e1ccfc-a461-4285-858c-682d55897090
+    AM70_5p0_F_E_1585.tif df37c509-26ae-4588-b67b-a60aac880c3a
+    AM70_5p0_F_E_1584.tif c3070aea-94e5-4201-b40d-35c4a2c0cba4
+    AM70_5p0_F_E_1587.tif 44b73704-33a0-4fe8-9f3d-81d3324c5cae
+    AM70_5p0_F_E_1586.tif 374059a9-0487-4045-bfe5-af1832df9ce4
+    AM70_5p0_F_E_1583.tif 0f65e7b8-82ab-410d-a8e6-a0f74056e990
+    AM70_5p0_F_E_1581.tif 410688c5-0380-4f00-93b2-effb4914fee8
+    AM70_5p0_F_E_1578.tif cfbe22e8-52c8-4360-8e65-730e52a0668b
+    AM70_5p0_F_E_1588.tif 085cb92c-c071-44cc-876c-57b274f705ec
+----
+name: 'EBSD SEM Data Collection - AM60_2p5_center - 11/21/2015 @ 8:03PM'
+  description: None
+  id: 7d5d5270-294c-40f2-a477-aad67a52d9c0
+  owner: tradiasa@umich.edu
+  template_id: 'global_EBSD SEM Data Collection'
+  template_name: None
+  does_transform: False
+  process_type: measurement
+  output_files:
+    AM60_2p5_AC_46YH-6-center500-clean-grainfiletype2.txt ac177b86-0162-41c8-be13-4c683f58fc8a
+    AM60_2p5_AC_46YH-6-center500-cleangrain.bmp 010c38f5-91e2-4203-85a8-e9eba27cb72f
+  files:
+    AM60_2p5_AC_46YH-6-center500-clean-grainfiletype2.txt ac177b86-0162-41c8-be13-4c683f58fc8a
+    AM60_2p5_AC_46YH-6-center500-cleangrain.bmp 010c38f5-91e2-4203-85a8-e9eba27cb72f
+  input_samples:
+    AM60-2p5-F 9cc1725d-9768-4f56-9909-9497837d2d8e
+----
+name: SEM
+  description: None
+  id: b13cba49-fa24-4ab1-975e-baef6a309eaa
+  owner: masonab@umich.edu
+  template_id: global_SEM
+  template_name: SEM
+  does_transform: False
+  process_type: measurement
+  files:
+    AM60_2p5_1662.tif 8645a046-e3ee-47bd-bd43-8b6b6edb5749
+    AM60_2p5_1667.tif 7f900b2d-87d2-44e1-89c6-270a61d29bde
+    AM60_2p5_1666.tif 732b0031-f70c-4482-ae52-e8ae90426daf
+    AM60_2p5_1663.tif 630b57e7-c908-4d9f-ba16-026e7ab5fc9c
+    AM60_2p5_1660.tif 0fa0f791-b1f1-40b1-ae57-e22c3bfc822e
+    AM60_2p5_1659.tif 53142c66-dab2-4383-8fdf-16f65cf569b9
+    AM60_2p5_1664.tif 5d3617b7-5820-4af9-b536-006a8d53d28d
+    AM60_2p5_1665.tif a735bf1e-cca8-436f-b92a-5cdbb9c77ed8
+    AM60_2p5_1668.tif e80f21eb-a82e-47c9-a4b2-ee1339fb96ed
+    AM60_2p5_1658.tif 52830c4d-68ad-47da-ab0c-5836770fc950
+    AM60_2p5_1661.tif e1654c57-6434-4f96-9b0a-e03a433101ec
+----
+name: 'EPMA Data Collection'
+  description: None
+  id: e7809ab2-dd7f-41f2-b5d4-72696c8089e6
+  owner: tradiasa@umich.edu
+  template_id: 'global_EPMA Data Collection'
+  template_name: 'EPMA Data Collection'
+  does_transform: False
+  process_type: measurement
+  files:
+    AM40_2p5_C.xls eea5da62-3153-45ea-9bdf-b155b82d6631
+    berman_run20160328_AM40_and_AM50ST.xlsx ec58ef87-866f-4584-b024-bf6876f8161f
+    EMPA_ford_AM70_2p5_and_ford_AM40_5p0_run20150511.xls 05d1a7c8-e27a-4314-9735-a2268310e244
+    berman_run20160328_AM40_and_AM50ST.docx c8af8953-e1e8-438b-af8b-9471fc6a8c1e
+----
+name: 'EPMA Data Collection'
+  description: None
+  id: 85c9cf75-f01a-4528-aa50-ad20420cd382
+  owner: tradiasa@umich.edu
+  template_id: 'global_EPMA Data Collection'
+  template_name: 'EPMA Data Collection'
+  does_transform: False
+  process_type: measurement
+  files:
+    AM40_2p5_E.xls 9ca9757d-52ab-4eac-9904-e75727cfddab
+    EPMA_Analysis_Ford_AM40_2p5.jpg d421bd58-06e4-436c-a3f9-0a3e77f9e438
+    EMPA_ford_AM40_2p5and5p0_run20150421.xls 83c9ac84-62e6-4a52-822e-651813b3d9bc
+----
+name: SEM
+  description: None
+  id: 6b921d7f-a6bf-4bf7-9668-74a6b0178f46
+  owner: masonab@umich.edu
+  template_id: global_SEM
+  template_name: SEM
+  does_transform: False
+  process_type: measurement
+  files:
+    AM70_2p5_F_1613.tif fb48da81-3708-424b-a7ab-29729582c036
+    AM70_2p5_F_1615.tif 5509d6e2-0d4d-4d5b-8876-e9545174c6c4
+    AM70_2p5_F_1619.tif 8be5e832-d9e8-46c5-9771-3acd0350f82f
+    AM70_2p5_F_1616.tif 445e341a-7e02-439c-942d-bb7ed024279d
+    AM70_2p5_F_1611.tif 51bd9062-1f31-44b0-9ca2-f8f85184f3bc
+    AM70_2p5_F_1614.tif f7d20800-250c-4423-ac5d-d7e9cfba31d5
+    AM70_2p5_F_1617.tif 91e4dbf9-801a-4fe3-94ad-be749b8c6a51
+    AM70_2p5_F_1618.tif afc09c35-a66c-4767-a7be-f31823a2a358
+    AM70_2p5_F_1612.tif 02d54806-f5a1-467c-aeed-1745d3dff464
+    AM70_2p5_F_1620.tif 737b6bc6-1f8e-4173-ad0c-677486766ad3
+----
+name: 'EPMA Data Collection'
+  description: None
+  id: f2d1eeec-3568-4cee-819e-49cf19919301
+  owner: tradiasa@umich.edu
+  template_id: 'global_EPMA Data Collection'
+  template_name: 'EPMA Data Collection'
+  does_transform: False
+  process_type: measurement
+  files:
+    AM50_2p5_NE.xls 253ba4cb-31e0-49f9-a401-a78745815628
+    EMPA_run20150601v2.xls af3eb851-296c-4ef0-a92d-b24af52788f5
+----
+name: 'EBSD SEM Data Collection'
+  description: None
+  id: 785ccc56-221e-4b36-b49d-fa6ba2749615
+  owner: tradiasa@umich.edu
+  template_id: 'global_EBSD SEM Data Collection'
+  template_name: 'EBSD SEM Data Collection'
+  does_transform: False
+  process_type: measurement
+  files:
+    '20140418 45BV02 partition.tif' c67c3a73-b2f7-4d32-b3ed-091faa9132b2
+    '45BV5 clean.tif' 538ab796-ea0d-4c88-9842-085cabe97049
+    GF-AM50-5p0-F-C-scan2.xls 682b6e73-0ddb-48d4-8ce4-9b582305c35e
+    '45BV3 clean.tif' b4e51125-f287-460f-aa37-85f930161169
+    GF-AM50-5p0-F-C-scan5.xls 3dae194e-7b83-4887-8fba-b958dd36175e
+    GF-AM50-5p0-F-C-scan3.xls 3ed6db9e-69c6-49c6-8104-c0621bc5fac7
+    GF-AM50-5p0-F-C-scan1.xls 12501a70-08cd-4464-b636-a936d8bd519f
+    '45BV4 clean.tif' 4048fe90-a31c-47d9-b371-0df403d84acc
+    GF-AM50-5p0-F-C-scan4.xls 482859a5-52f2-40fc-b978-0566e0a004da
+----
+name: SEM
+  description: None
+  id: b1e9a98e-254d-41b7-ad78-bf4e485bba7f
+  owner: masonab@umich.edu
+  template_id: global_SEM
+  template_name: SEM
+  does_transform: False
+  process_type: measurement
+  files:
+    AM60_2p5_1675.tif d376dccc-fc1b-4185-a3db-68b5fef7a5bf
+    AM60_2p5_1671.tif b90a1a13-0f18-4632-a435-0b5433b50c55
+    AM60_2p5_1677.tif ba9ca496-ea7d-4bb3-a21f-224fa66455cc
+    AM60_2p5_1670.tif 96efd570-2b1b-44dd-9cd5-0d462b0d2165
+    AM60_2p5_1672.tif 989cf949-8f84-488e-bd63-73221bd9585e
+    AM60_2p5_1676.tif 83994f23-9fe1-463e-babf-9ec133ea43ff
+    AM60_2p5_1673.tif 49811cab-4835-4ec7-b54b-7c778b30b07e
+    AM60_2p5_1674.tif dda4c95c-6760-4d4c-8c79-2b48c9191fb2
+    AM60_2p5_1669.tif 7df9bb96-5d7f-49e7-93c8-054542e209b5
+    AM60_2p5_1678.tif f53a53f1-79ea-4b3b-9aad-3a1b3386c6f4
+----
+name: 'EBSD SEM Data Collection - AM70_2p5_edge - 11/22/2015 @ 7:49PM'
+  description: None
+  id: a7865b19-6cfc-4116-9dca-9251379d7480
+  owner: tradiasa@umich.edu
+  template_id: 'global_EBSD SEM Data Collection'
+  template_name: None
+  does_transform: False
+  process_type: measurement
+  output_files:
+    '20140918 45NH1 clean edge.tif' e92de289-f44c-46aa-b7dd-1a185bf058de
+    GF-AM70-2p5-F-E-scan2.xls 1cc1f67f-b87a-42b6-9144-8d66d6f28246
+  files:
+    '20140918 45NH1 clean edge.tif' e92de289-f44c-46aa-b7dd-1a185bf058de
+    GF-AM70-2p5-F-E-scan2.xls 1cc1f67f-b87a-42b6-9144-8d66d6f28246
+  input_samples:
+    AM70-2p5-F 6012fde5-398d-48fc-9dbe-059b241505a7
+----
+name: 'EPMA Data Collection'
+  description: None
+  id: cb3dd97f-841d-4a3a-b0c3-8d622ab88e83
+  owner: tradiasa@umich.edu
+  template_id: 'global_EPMA Data Collection'
+  template_name: 'EPMA Data Collection'
+  does_transform: False
+  process_type: measurement
+  files:
+    AM60_2p5_C.xls 0c4d0da2-c94c-406c-a0c5-6479e78c6560
+    EMPA_ford_AM60_2p5_run20150407.xls ee6c7f86-148a-4e66-9b2d-3c68997e3660
+    AM60_2p5_run1.xls 99ed46b3-c5f3-409f-b503-509a2ce3045f
+----
+name: SEM
+  description: None
+  id: fef22d44-cbd0-4691-aec2-a774696689af
+  owner: masonab@umich.edu
+  template_id: global_SEM
+  template_name: SEM
+  does_transform: False
+  process_type: measurement
+  files:
+    AM50_5p0_1792.tif ed0b40d3-a3dc-49ef-9a0e-dd277cf808b1
+    AM50_5p0_1799.tif 8c0b3360-f7f8-4392-9628-49d0cc283b04
+    AM50_5p0_1797.tif c1cb19d7-bcea-4065-8286-bec223de0344
+    AM50_5p0_1791.tif 07e22f21-3a2f-4c58-8260-bfca5b6d50ce
+    AM50_5p0_1795.tif c39365af-26ea-4106-9e93-2cf65888665f
+    AM50_5p0_1793.tif b83e0089-c825-4704-b3c9-c197ba2cd9d2
+    AM50_5p0_1800.tif f9924e4e-b0ac-418d-8417-b61877fd3398
+    AM50_5p0_1796.tif 361b9cc6-ecf0-494d-b6fe-53c4058ae4d4
+    AM50_5p0_1794.tif ae649e0b-850b-4876-9795-ece74b2aa733
+    AM50_5p0_1798.tif cb589f44-034b-4f2b-b048-cbe36de7073a
+----
+name: 'EBSD SEM Data Collection'
+  description: None
+  id: 859d262e-6b8b-4858-ba20-948f8c3ac2da
+  owner: tradiasa@umich.edu
+  template_id: 'global_EBSD SEM Data Collection'
+  template_name: 'EBSD SEM Data Collection'
+  does_transform: False
+  process_type: measurement
+  files:
+    GF-AM40-5p0-F-C-scan1.xls ae432474-a1c4-4d6c-90da-cd2c9faf904a
+    GF-AM40-5p0-F-E-scan3.xls f3a781d3-978b-40ea-b9fe-30ab2fbbae2f
+    '20150908 42BLH1 clean.tif' 41925420-5705-4fcd-9acb-24b3a19cc635
+    GF-AM40-5p0-F-C-scan3.xls 36e48f2f-460d-42b9-a737-4fcff049cb80
+    '20150905 42BLH2 clean.tif' d035d5f9-c785-4b9d-a53e-a5f86b6ffee1
+    GF-AM40-5p0-F-C-scan4.xls ec963b9e-d2ea-4f34-a050-6d95b7ccd057
+    GF-AM40-5p0-F-E-scan2.xls e436d910-1fba-409b-83dd-75fc9676888c
+    '31BLV1 clean.tif' 37c1953f-ddca-4e0b-8948-791954c7f0ac
+    GF-AM40-5p0-F-E-scan1.xls 984f2d2f-9a68-46f5-b0aa-3177b5c260f0
+    GF-AM40-5p0-F-C-scan2.xls 2db7e778-5dd1-417e-9530-7b8ece742c2f
+    '31BLH3 clean.bmp' 6ebbc720-d062-440c-9523-30504d40b057
+    '31BLH2 clean.bmp' bdc00c72-eb4f-495b-ad50-a040ac6910b0
+    GF-AM40-5p0-F-E-scan4.xls 44fa10ae-4dd9-4da9-bd95-a19b81810c29
+    '20150908 42BLH2 clean.tif' 155b7f72-0c77-49e7-aba7-6e4f9393443f
+    '31BLH1 clean.bmp' 23bab891-0d51-4c33-8910-1bec085a50d6
+----
+name: 'EBSD SEM Data Collection - AM60_2p5_edge - 11/21/2015 @ 7:43PM'
+  description: None
+  id: 533ab076-8b5d-43b3-8c32-fa2bb708f1d2
+  owner: tradiasa@umich.edu
+  template_id: 'global_EBSD SEM Data Collection'
+  template_name: None
+  does_transform: False
+  process_type: measurement
+  output_files:
+    GF-AM60-2p5-F-E-scan2.xls d2b6ac9b-17ae-4fa2-8c4d-09db19a15e77
+    IPF_AM60_2p5_edge_scan2.tif cea98dcc-6586-419c-81f8-d93a0b52ad88
+    GF-AM60-2p5-F-E-scan2.txt 9fed9ddc-a1f5-4b74-b3b0-203e44d35ced
+  files:
+    GF-AM60-2p5-F-E-scan2.xls d2b6ac9b-17ae-4fa2-8c4d-09db19a15e77
+    IPF_AM60_2p5_edge_scan2.tif cea98dcc-6586-419c-81f8-d93a0b52ad88
+    GF-AM60-2p5-F-E-scan2.txt 9fed9ddc-a1f5-4b74-b3b0-203e44d35ced
+  input_samples:
+    AM60-2p5-F 9cc1725d-9768-4f56-9909-9497837d2d8e
+----
+name: SEM
+  description: None
+  id: e9642d65-290b-4057-86fe-34d2ea3f247d
+  owner: masonab@umich.edu
+  template_id: global_SEM
+  template_name: SEM
+  does_transform: False
+  process_type: measurement
+  files:
+    AM40_5p0_1717.tif 78073d3c-dd25-4eff-9a31-dc20071bcb7e
+    AM40_5p0_1721.tif e92b38a2-78f9-4f53-96e2-7dc4edb41a38
+    AM40_5p0_1712.tif df28eace-1234-4c5e-b1d9-c45a965f7e92
+    AM40_5p0_1713.tif 41cd910a-ff9b-4c43-bca3-2eeab95af345
+    AM40_5p0_1716.tif 69763e63-6762-46f6-9e4a-6b207e58c658
+    AM40_5p0_1719.tif cc7b2589-424f-41ad-bdbb-db05def8505a
+    AM40_5p0_1720.tif 77034503-9b3e-4691-9e18-28d35ed696f6
+    AM40_5p0_1714.tif 0b99abf6-4622-4968-8187-821730fe26a1
+----
+name: 'EPMA Data Collection'
+  description: None
+  id: 617f3d24-8c6a-4c33-9e6e-3b4e11c1ca42
+  owner: tradiasa@umich.edu
+  template_id: 'global_EPMA Data Collection'
+  template_name: 'EPMA Data Collection'
+  does_transform: False
+  process_type: measurement
+  files:
+    AM50_2p5_E.xls 72baa284-8490-4155-9496-3d52c4caffbf
+    EMPA_run20150601v2.xls af3eb851-296c-4ef0-a92d-b24af52788f5
+----
+name: 'EPMA Data Collection'
+  description: None
+  id: 73a22485-08ba-41cd-851b-f611f6d07341
+  owner: tradiasa@umich.edu
+  template_id: 'global_EPMA Data Collection'
+  template_name: 'EPMA Data Collection'
+  does_transform: False
+  process_type: measurement
+  files:
+    EMPA_ford_AM60_2p5_and_am50_5p0_run20150601.xls eda9effd-a645-4876-9702-99d297d2921c
+    EMPA_run20150601v2.xls af3eb851-296c-4ef0-a92d-b24af52788f5
+    AM50_5p0_E.xls 249e28aa-ecd7-48c8-ac59-d9005bb715f1
+----
+name: 'EBSD SEM Data Collection - AM70_2p5_center - 11/22/2015 @ 7:56PM'
+  description: None
+  id: 9af4476b-4815-4f32-85e0-b8aba7e9129b
+  owner: tradiasa@umich.edu
+  template_id: 'global_EBSD SEM Data Collection'
+  template_name: None
+  does_transform: False
+  process_type: measurement
+  output_files:
+    '45NH2 clean grain file type 2.txt' b2bd814f-c74d-43bc-8ef2-929dfb973956
+    '45NH2 clean.tif' a7690bcf-1e61-406c-ba59-70455bf087ec
+  files:
+    '45NH2 clean grain file type 2.txt' b2bd814f-c74d-43bc-8ef2-929dfb973956
+    '45NH2 clean.tif' a7690bcf-1e61-406c-ba59-70455bf087ec
+  input_samples:
+    AM70-2p5-F 6012fde5-398d-48fc-9dbe-059b241505a7
+----
+name: 'As Received AM40-2p5-F'
+  description: None
+  id: befb85f4-1c19-495b-bdbf-0fd774be942c
+  owner: tradiasa@umich.edu
+  template_id: 'global_Create Samples'
+  template_name: None
+  does_transform: False
+  process_type: create
+  output_samples:
+    AM40-2p5-F c4a82033-b961-40e5-9844-f25447c027dd
+----
+name: 'EBSD SEM Data Collection - AM60_2p5_edge -11/21/2015 @ 7:41PM'
+  description: None
+  id: d4f2d38a-f573-4233-878b-450e32a20734
+  owner: tradiasa@umich.edu
+  template_id: 'global_EBSD SEM Data Collection'
+  template_name: None
+  does_transform: False
+  process_type: measurement
+  output_files:
+    IPF_AM60_2p5_edge_scan1.tif 239cdcef-7689-4e9a-9a49-11723fde7707
+    GF-AM60-2p5-F-E-scan1.txt dc7f7190-ec3b-4f36-b3a6-e9ec59160235
+    GF-AM60-2p5-F-E-scan1.xls 98f4d05d-1350-4f4a-8c48-f54a762daf1b
+  files:
+    IPF_AM60_2p5_edge_scan1.tif 239cdcef-7689-4e9a-9a49-11723fde7707
+    GF-AM60-2p5-F-E-scan1.txt dc7f7190-ec3b-4f36-b3a6-e9ec59160235
+    GF-AM60-2p5-F-E-scan1.xls 98f4d05d-1350-4f4a-8c48-f54a762daf1b
+  input_samples:
+    AM60-2p5-F 9cc1725d-9768-4f56-9909-9497837d2d8e
+----
+name: SEM
+  description: None
+  id: 7c19e058-a6eb-46d7-a839-d0444a09e98f
+  owner: tradiasa@umich.edu
+  template_id: global_SEM
+  template_name: SEM
+  does_transform: False
+  process_type: measurement
+  files:
+    AM40_2p5_1745.tif dac9bafe-f21a-4cca-bbe4-80f078c28114
+    AM40_2p5_1742.tif ab05cfe3-7c62-48f8-8a07-548123734e86
+    AM40_2p5_1748.tif ed044cb8-445f-433e-a7a7-5f1c57f56bbe
+    AM40_2p5_1752.tif 9a043483-5c86-499e-ab25-5875a96bfc17
+    AM40_2p5_1749.tif f7a01d23-5ac1-4b0e-8841-c4a43fc21407
+    AM40_2p5_1746.tif 8453b203-cdf3-4fe0-af3b-b2250952e192
+    AM40_2p5_1743.tif c34a3e8c-6ae4-4412-823e-817128511433
+    AM40_2p5_1747.tif ea4feb9a-98eb-485c-a710-5c10a6cda1d3
+    AM40_2p5_1751.tif 75192a62-8c3b-4f64-bf75-0b56aa48a458
+    AM40_2p5_1750.tif 2e046dc3-a42f-4c11-90f0-f9af57ec92a1
+    AM40_2p5_1744.tif df180d39-2502-4e0a-95b5-ee1113842a48
+    AM40_2p5_1753.tif 4e8453c0-26fd-424c-92ab-688bc66dbf25
+----
+name: 'EBSD SEM Data Collection - AM50_5p0_center - 11/21/2015 @ 5:47PM'
+  description: None
+  id: 49013db9-bf56-4ffd-8231-ec1ca38d0fd7
+  owner: tradiasa@umich.edu
+  template_id: 'global_EBSD SEM Data Collection'
+  template_name: None
+  does_transform: False
+  process_type: measurement
+  output_files:
+    '20140707 45GV2 clean.tif' 238c4298-51c8-44d2-bd7b-976f415e931e
+    GF-AM50-2p5-F-C-scan1.xls 8e6811ab-ef31-4547-a98a-1cb6c0dff013
+  files:
+    '20140707 45GV2 clean.tif' 238c4298-51c8-44d2-bd7b-976f415e931e
+    GF-AM50-2p5-F-C-scan1.xls 8e6811ab-ef31-4547-a98a-1cb6c0dff013
+  input_samples:
+    AM50-2p5-F e0fd47cd-c014-41c8-8e64-863792410508
+----
+name: 'EBSD SEM Data Collection - AM40_2p5_through thickness -11/19/2015 @ 6:16PM'
+  description: None
+  id: 8ef3b73e-eed1-4e1f-a72b-fed2d59998b0
+  owner: tradiasa@umich.edu
+  template_id: 'global_EBSD SEM Data Collection'
+  template_name: None
+  does_transform: False
+  process_type: measurement
+  output_files:
+    AM40_2p5_AC_33WH-2-through-cleangrain.bmp 5ee811bf-6aa6-4ec6-95cd-19ddda593641
+    AM40_2p5_AC_33WH-2-through-clean.bmp 25356aef-44a5-4909-a21d-9043c3472498
+    AM40_2p5_AC_33WH-2-through-clean-grainfile.txt 54c32f28-9f68-41dd-aec5-c03bdfdedf93
+  files:
+    AM40_2p5_AC_33WH-2-through-cleangrain.bmp 5ee811bf-6aa6-4ec6-95cd-19ddda593641
+    AM40_2p5_AC_33WH-2-through-clean.bmp 25356aef-44a5-4909-a21d-9043c3472498
+    AM40_2p5_AC_33WH-2-through-clean-grainfile.txt 54c32f28-9f68-41dd-aec5-c03bdfdedf93
+  input_samples:
+    AM40-2p5-F c4a82033-b961-40e5-9844-f25447c027dd
+----
+name: SEM
+  description: None
+  id: 4fd5df89-e246-4480-8145-ef0c753683da
+  owner: masonab@umich.edu
+  template_id: global_SEM
+  template_name: SEM
+  does_transform: False
+  process_type: measurement
+  files:
+    AM50_5p0_1781.tif 88295e95-fa6e-47da-bb24-bfc06989f2ff
+    AM50_5p0_1788.tif 52e7af21-5437-4a38-b519-f01d4bed50c4
+    AM50_5p0_1790.tif dba0ad84-2532-4acc-b6cd-68d1623077d2
+    AM50_5p0_1782.tif 9eb0ac32-b71b-4ae6-ba08-130963107238
+    AM50_5p0_1780.tif d6020c8a-6795-4b82-8234-f4938fa75555
+    AM50_5p0_1787.tif cf8ecbbf-ef66-4740-bb74-b7b1ab0d3908
+    AM50_5p0_1785.tif 032964f3-4cc1-4583-bdf0-1300c68ae0fc
+    AM50_5p0_1786.tif 5e687c4b-22da-4026-a641-c0ab140e5dbf
+    AM50_5p0_1784.tif 353aa6a0-4407-4ff3-8c84-18a4c5611b6b
+    AM50_5p0_1789.tif 03164e66-235c-4435-8f4b-e95a99372ed1
+    AM50_5p0_1783.tif 5a922b21-a8a4-44f9-a5cf-95550d303be7
+----
+name: 'EBSD SEM Data Collection - AM70_2p5_center - 11/22/2015 @ 8:02PM'
+  description: None
+  id: 6d34b2d8-772e-4223-aeee-4b0cbe5a33e3
+  owner: tradiasa@umich.edu
+  template_id: 'global_EBSD SEM Data Collection'
+  template_name: None
+  does_transform: False
+  process_type: measurement
+  output_files:
+    GF-AM70-2p5-F-C-scan1.xls 3f3bfc8a-b007-441e-82dc-3a8eb0bbff30
+  files:
+    GF-AM70-2p5-F-C-scan1.xls 3f3bfc8a-b007-441e-82dc-3a8eb0bbff30
+  input_samples:
+    AM70-2p5-F 6012fde5-398d-48fc-9dbe-059b241505a7
+----
+name: 'EPMA Data Collection'
+  description: None
+  id: 67f2c2fe-61a1-46ac-86bb-aa2d3694b072
+  owner: tradiasa@umich.edu
+  template_id: 'global_EPMA Data Collection'
+  template_name: 'EPMA Data Collection'
+  does_transform: False
+  process_type: measurement
+  files:
+    berman_run20150630.docx 3bf11825-7ffc-41e9-9470-f55fe8b50667
+    berman_run20150716.xls bb20775c-7093-4013-9d8c-01ee2a9c08a0
+    epma_run20150608.docx 50685808-0cfb-4639-8591-088d99d55136
+    epma_run20150608.xls 4b606610-857e-45ab-a6e9-7bbf9b4a1a20
+    berman_run20150630.xls 20ddfb10-a7ea-4799-b04e-492868da2424
+    AM60_5p0_E.xls a351857c-cadd-4649-8d8c-d55d8d1b23ab
+    EMPA_ford_AM60_plate40_5p0_run20150401.xls 08e1f393-f979-42e3-82d4-d5b6f6965823
+    berman_run20150716.docx 31d6b248-678c-4410-aac0-3a97290b2890
+----
+name: 'EBSD SEM Data Collection - AM70_2p5_edge - 11/22/2015 @ 7:53PM'
+  description: None
+  id: 83f491c2-14d2-4797-aa4e-c41386f8901d
+  owner: tradiasa@umich.edu
+  template_id: 'global_EBSD SEM Data Collection'
+  template_name: None
+  does_transform: False
+  process_type: measurement
+  output_files:
+    '20150128 45NH2 clean edge.bmp' f215db87-de5d-4158-892c-b27b54853865
+    '20150128 45NH2 clean grain file type 2 edge.txt' 9c479f26-35d0-42a6-a5db-96a314ca55c8
+  files:
+    '20150128 45NH2 clean edge.bmp' f215db87-de5d-4158-892c-b27b54853865
+    '20150128 45NH2 clean grain file type 2 edge.txt' 9c479f26-35d0-42a6-a5db-96a314ca55c8
+  input_samples:
+    AM70-2p5-F 6012fde5-398d-48fc-9dbe-059b241505a7
+----
+name: 'EBSD SEM Data Collection'
+  description: None
+  id: a1491e72-af21-43f8-ab4a-abe919575ead
+  owner: tradiasa@umich.edu
+  template_id: 'global_EBSD SEM Data Collection'
+  template_name: 'EBSD SEM Data Collection'
+  does_transform: False
+  process_type: measurement
+  files:
+    '40RH1 clean partition.tif' eafe91e2-de86-4427-bb7a-1d86127822a5
+    '40RH2 clean partition.tif' bb2c2dab-a387-4014-8aea-1d641561c4a0
+    GF-AM60-5p0-F-E-scan3.xls 8f4fef5d-8e49-426a-9adc-909225779bbd
+    '32RH3 clean partition.tif' 42348a37-b0c8-4256-99cc-54373ae40a14
+    GF-AM60-5p0-F-E-scan2.xls df1de6bb-9414-405a-bbf0-2157cb6d885c
+    GF-AM60-5p0-F-E-scan1.xls 47fb73ac-9f96-4384-81e4-6d2b5120faaf
+    GF-AM60-5p0-F-E-scan4.xls 15e6e46a-c912-4ce9-b235-90f86f15d6e1
+    '32RH4 clean partition center.tif' 39d71c80-916d-46cd-92c6-33e12180cb16
+----
+name: 'As Received AM40-5p0-F'
+  description: None
+  id: 6f54d12f-d423-4958-8af1-c921259bb978
+  owner: tradiasa@umich.edu
+  template_id: 'global_Create Samples'
+  template_name: None
+  does_transform: False
+  process_type: create
+  output_samples:
+    AM40-5p0-F f6e114b7-ae79-4e57-95f5-f6bdef11c3b2
+----
+name: 'EBSD SEM Data Collection - AM60_2p5_edge -11/21/2015 @ 7:20PM'
+  description: None
+  id: 3d7a3a8e-dc4c-4536-92cd-a1f7f44121d0
+  owner: tradiasa@umich.edu
+  template_id: 'global_EBSD SEM Data Collection'
+  template_name: None
+  does_transform: False
+  process_type: measurement
+  output_files:
+    AM60_2p5_AC_46YH-2-edge300-cleangrain.bmp f4860411-23ac-41d2-baee-a33e1657614c
+    AM60_2p5_AC_46YH-2-edge300-clean-grainfiletype2.txt e901b12c-f480-48b1-9914-ac871b7aa028
+  files:
+    AM60_2p5_AC_46YH-2-edge300-cleangrain.bmp f4860411-23ac-41d2-baee-a33e1657614c
+    AM60_2p5_AC_46YH-2-edge300-clean-grainfiletype2.txt e901b12c-f480-48b1-9914-ac871b7aa028
+  input_samples:
+    AM60-2p5-F 9cc1725d-9768-4f56-9909-9497837d2d8e
+----
+name: 'EPMA Data Collection'
+  description: None
+  id: 7110c3a8-5008-4131-abc9-524fc0a3a24e
+  owner: tradiasa@umich.edu
+  template_id: 'global_EPMA Data Collection'
+  template_name: 'EPMA Data Collection'
+  does_transform: False
+  process_type: measurement
+  files:
+    epma_am70_5p0_run20150626.xls eaaf3f07-03fe-4b93-9071-dfc8c072e204
+    EMPA_ford_AM70_5p0_run20150505.xls 9b66a53d-d469-481a-a28e-0a43128232eb
+    AM70_5p0_C.xls 0d89def4-1b02-4add-b45e-97e3a7e99311
+    epma_am70_5p0_run20150626.docx 5f049d11-b920-498f-820c-04dbd3615455
+----
+name: 'EPMA Data Collection'
+  description: None
+  id: 34a002e0-e6c3-49d7-95c9-7bbec6f440e6
+  owner: tradiasa@umich.edu
+  template_id: 'global_EPMA Data Collection'
+  template_name: 'EPMA Data Collection'
+  does_transform: False
+  process_type: measurement
+  files:
+    berman_run20150716.xls bb20775c-7093-4013-9d8c-01ee2a9c08a0
+    EMPA_ford_AM60_plate32_5p0_run20150331.xls aad0908d-7f13-4de6-b715-62368fe8c055
+    AM60_5p0_NE.xls 50aed5d5-5af3-443c-b542-f79969d5fa30
+    berman_run20150716.docx 31d6b248-678c-4410-aac0-3a97290b2890
+----
+name: 'As Received AM60-2p5-F'
+  description: None
+  id: 5037843b-9dca-4032-97ab-654844bff17e
+  owner: tradiasa@umich.edu
+  template_id: 'global_Create Samples'
+  template_name: None
+  does_transform: False
+  process_type: create
+  output_samples:
+    AM60-2p5-F 9cc1725d-9768-4f56-9909-9497837d2d8e
+----
+name: 'EPMA Data Collection'
+  description: None
+  id: 6554f0d6-e9be-42f7-ad74-1284d47479bd
+  owner: tradiasa@umich.edu
+  template_id: 'global_EPMA Data Collection'
+  template_name: 'EPMA Data Collection'
+  does_transform: False
+  process_type: measurement
+  files:
+    AM70_2p5_E.xls 61bb7535-68d8-4d5d-943d-1a66ea1e33f9
+    berman_run20150716.xls bb20775c-7093-4013-9d8c-01ee2a9c08a0
+    EMPA_ford_AM70_2p5_and_am50_5p0_run20150529.xls 5690edc1-469e-4491-91f7-3168b178c9c4
+    berman_run20150716.docx 31d6b248-678c-4410-aac0-3a97290b2890
+----
+name: 'EBSD SEM Data Collection - AM70_2p5_center - 11/22/2015 @ 8:06PM'
+  description: None
+  id: 5c9c1e32-f6b6-4ce1-9aa7-6add621e5c76
+  owner: tradiasa@umich.edu
+  template_id: 'global_EBSD SEM Data Collection'
+  template_name: None
+  does_transform: False
+  process_type: measurement
+  output_files:
+    GF-AM70-2p5-F-C-scan2.xls a700c0d8-5099-4b02-8b41-6371a28904dd
+    '20150128 45NH1 clean.bmp' 7a208550-5eb4-47c2-8962-040a518b7df5
+  files:
+    GF-AM70-2p5-F-C-scan2.xls a700c0d8-5099-4b02-8b41-6371a28904dd
+    '20150128 45NH1 clean.bmp' 7a208550-5eb4-47c2-8962-040a518b7df5
+  input_samples:
+    AM70-2p5-F 6012fde5-398d-48fc-9dbe-059b241505a7
+----
+name: 'EBSD SEM Data Collection - AM60_2p5_edge - 11/21/2015 @ 7:26PM'
+  description: None
+  id: 89b5e944-078f-4f79-a443-9d6872c4ca8e
+  owner: tradiasa@umich.edu
+  template_id: 'global_EBSD SEM Data Collection'
+  template_name: None
+  does_transform: False
+  process_type: measurement
+  output_files:
+    AM60_2p5_AC_46YH-5-edge300-cleangrain.bmp 237bd9bd-0bf6-4a41-a407-3ca51664a188
+    AM60_2p5_AC_46YH-5-edge300-clean-grainfiletype2.txt 763a343d-d575-4c84-bd71-809b76cf6e0f
+  files:
+    AM60_2p5_AC_46YH-5-edge300-cleangrain.bmp 237bd9bd-0bf6-4a41-a407-3ca51664a188
+    AM60_2p5_AC_46YH-5-edge300-clean-grainfiletype2.txt 763a343d-d575-4c84-bd71-809b76cf6e0f
+  input_samples:
+    AM60-2p5-F 9cc1725d-9768-4f56-9909-9497837d2d8e
+----
+name: 'EPMA Data Collection'
+  description: None
+  id: 5027435c-21f7-450b-a48c-be0ef48e81d6
+  owner: tradiasa@umich.edu
+  template_id: 'global_EPMA Data Collection'
+  template_name: 'EPMA Data Collection'
+  does_transform: False
+  process_type: measurement
+  files:
+    EMPA_ford_AM70_2p5_and_am50_5p0_run20150529.xls 5690edc1-469e-4491-91f7-3168b178c9c4
+    AM50_5p0_NE.xls 7589037b-852b-4d49-ba17-3e24dda43b47
+----
+name: SEM
+  description: None
+  id: 3c2a24ad-760f-4736-a6b9-908b286c35ac
+  owner: masonab@umich.edu
+  template_id: global_SEM
+  template_name: SEM
+  does_transform: False
+  process_type: measurement
+  files:
+    AM40_2p5_1764.tif 6dbd9010-66c5-4711-988b-830c4b396b62
+    AM40_2p5_1766.tif 54d06381-9748-44da-a702-623944efccbf
+    AM40_2p5_1757.tif 43acf394-6876-4467-bc85-19f7ba607ad6
+    AM40_2p5_1758.tif ffb1fcb7-fac8-4b73-9214-72cfc9269e65
+    AM40_2p5_1765.tif 5f318d96-56ca-480b-a0a8-abd33be23b01
+    AM40_2p5_1763.tif 32628b0e-30a7-47b4-9bf7-e39f073d9853
+    AM40_2p5_1767.tif ee5f2d17-46d2-4520-bc5b-15d879ae5c36
+    AM40_2p5_1759.tif 0ee8db12-f34f-4c98-8f4c-f6498aefad42
+    AM40_2p5_1761.tif 10a8e402-49f3-49e4-b1b3-1864ca42de47
+    AM40_2p5_1756.tif 25bfb889-830f-4733-9b56-f4fc63e19289
+    AM40_2p5_1754.tif e9d36c62-d3e2-42c4-8a8e-c3b6bafd485b
+    AM40_2p5_1760.tif 0914e2eb-c3d9-4910-8383-89d7cb41c79f
+    AM40_2p5_1768.tif a3b9e11a-bace-4e62-b7ab-fdf0ffc5dc45
+    AM40_2p5_1762.tif 134a4b67-5fa9-479d-a231-ae076017a6d9
+    AM40_2p5_1755.tif bfc16842-3697-4b63-bf6d-3d647fe7ace0
+----
+name: 'EBSD SEM Data Collection - AM50_2p5_center-11/21/2015 @ 6:56PM'
+  description: None
+  id: 4006bae7-7194-4d5c-8a8c-9fc3badd4dbb
+  owner: tradiasa@umich.edu
+  template_id: 'global_EBSD SEM Data Collection'
+  template_name: None
+  does_transform: False
+  process_type: measurement
+  output_files:
+    '20140707 45GV1 clean.tif' 2d6bfe7a-9dc2-44e9-a3a1-c91e36242b40
+    GF-AM50-2p5-F-C-scan2.xls ed27ed02-bf94-457e-82ae-d5955b0817be
+  files:
+    '20140707 45GV1 clean.tif' 2d6bfe7a-9dc2-44e9-a3a1-c91e36242b40
+    GF-AM50-2p5-F-C-scan2.xls ed27ed02-bf94-457e-82ae-d5955b0817be
+  input_samples:
+    AM50-2p5-F e0fd47cd-c014-41c8-8e64-863792410508
+----
+name: 'As Received AM50-2p5-F'
+  description: None
+  id: 3116ce58-7163-42f3-8363-d3723cc334de
+  owner: tradiasa@umich.edu
+  template_id: 'global_Create Samples'
+  template_name: None
+  does_transform: False
+  process_type: create
+  output_samples:
+    AM50-2p5-F e0fd47cd-c014-41c8-8e64-863792410508
+----
+name: 'EBSD SEM Data Collection'
+  description: None
+  id: 3ffa98d5-183d-4df2-8cff-8fc6750e87e6
+  owner: tradiasa@umich.edu
+  template_id: 'global_EBSD SEM Data Collection'
+  template_name: 'EBSD SEM Data Collection'
+  does_transform: False
+  process_type: measurement
+  files:
+    AM70_5_AC_29NH-3-through2500-cleangrain.bmp 747efc47-b1d0-48fe-9098-6d0cd0b5bb33
+    AM70_5_AC_29NH-3-through2500-grainfile.txt 9ad08fa9-b4d0-4756-85b6-fe8fe13807a1
+----
+name: 'EPMA Data Collection'
+  description: None
+  id: 60937ebd-014a-41ec-a5b6-10ed2636ecf4
+  owner: tradiasa@umich.edu
+  template_id: 'global_EPMA Data Collection'
+  template_name: 'EPMA Data Collection'
+  does_transform: False
+  process_type: measurement
+  files:
+    EMPA_ford_AM60_2p5_run20150407.xls ee6c7f86-148a-4e66-9b2d-3c68997e3660
+    AM60_2p5_NE.xls a360fcc0-fdd8-4fba-ad52-46f7f3cb4e4b
+----
+name: 'EBSD SEM Data Collection - AM60_2p5_center -  11/21/2015 @ 7:52PM'
+  description: None
+  id: 546517d4-3978-4da0-b7de-435e81c4d646
+  owner: tradiasa@umich.edu
+  template_id: 'global_EBSD SEM Data Collection'
+  template_name: None
+  does_transform: False
+  process_type: measurement
+  output_files:
+    AM60_2p5_AC_46YH-3-center500-clean-grainfiletype2.txt d853727f-5898-4ea3-b673-56291903032d
+    AM60_2p5_AC_46YH-3-center500-cleangrain.bmp a43f0bfa-394c-423c-8214-b7f8c2b1271f
+  files:
+    AM60_2p5_AC_46YH-3-center500-clean-grainfiletype2.txt d853727f-5898-4ea3-b673-56291903032d
+    AM60_2p5_AC_46YH-3-center500-cleangrain.bmp a43f0bfa-394c-423c-8214-b7f8c2b1271f
+  input_samples:
+    AM60-2p5-F 9cc1725d-9768-4f56-9909-9497837d2d8e
+----
+name: 'EPMA Data Collection'
+  description: None
+  id: 82e48a65-4353-4072-a836-0e58828445b8
+  owner: tradiasa@umich.edu
+  template_id: 'global_EPMA Data Collection'
+  template_name: 'EPMA Data Collection'
+  does_transform: False
+  process_type: measurement
+  files:
+    berman_run20160328_AM40_and_AM50ST.xlsx ec58ef87-866f-4584-b024-bf6876f8161f
+    AM40_5p0_E.xls c2d3d69a-3f8b-4f37-a267-9b18b4b92899
+    berman_run20160328_AM40_and_AM50ST.docx c8af8953-e1e8-438b-af8b-9471fc6a8c1e
+    EMPA_ford_AM40_2p5and5p0_run20150421.xls 83c9ac84-62e6-4a52-822e-651813b3d9bc
+----
+name: SEM
+  description: None
+  id: 24e1d4db-842e-477c-95f8-d00dee3f623a
+  owner: masonab@umich.edu
+  template_id: global_SEM
+  template_name: SEM
+  does_transform: False
+  process_type: measurement
+  files:
+    AM40_5p0_1717.tif 78073d3c-dd25-4eff-9a31-dc20071bcb7e
+    AM40_5p0_1721.tif e92b38a2-78f9-4f53-96e2-7dc4edb41a38
+    AM40_5p0_1712.tif df28eace-1234-4c5e-b1d9-c45a965f7e92
+    AM40_5p0_1713.tif 41cd910a-ff9b-4c43-bca3-2eeab95af345
+    AM40_5p0_1716.tif 69763e63-6762-46f6-9e4a-6b207e58c658
+    AM40_5p0_1719.tif cc7b2589-424f-41ad-bdbb-db05def8505a
+    AM40_5p0_1720.tif 77034503-9b3e-4691-9e18-28d35ed696f6
+    AM40_5p0_1714.tif 0b99abf6-4622-4968-8187-821730fe26a1
+----
+name: 'As Received AM70-2p5-F'
+  description: None
+  id: 26ef9f32-65c5-428f-a0e8-4e7b789bb2f7
+  owner: tradiasa@umich.edu
+  template_id: 'global_Create Samples'
+  template_name: None
+  does_transform: False
+  process_type: create
+  output_samples:
+    AM70-2p5-F 6012fde5-398d-48fc-9dbe-059b241505a7
+----
+name: SEM
+  description: None
+  id: 3d7e861f-978f-4dd8-b677-6c96a2d1e572
+  owner: masonab@umich.edu
+  template_id: global_SEM
+  template_name: SEM
+  does_transform: False
+  process_type: measurement
+  files:
+    AM70_5p0_F_E_1570.tif 69e18e41-85bb-4187-81a1-2c8d0414ce31
+    AM70_5p0_F_E_1568.tif d1a105bb-cb88-4fba-b1ce-b2fe2cbbeec8
+    AM70_5p0_F_E_1574.tif 99a91d82-8f0a-48a4-a84f-f5bd44f01f70
+    AM70_5p0_F_E_1566.tif 58a19ca1-5e1f-4be0-a812-22fd963cedb8
+    AM70_5p0_F_E_1575.tif b3d6e194-04fa-4565-82ef-d58518e30990
+    AM70_5p0_F_E_1567.tif 832dd736-ff60-40cd-8d4d-d5cbd2eb0c65
+    AM70_5p0_F_E_1571.tif 90da8616-64b8-44e5-8f43-8a19fbf298e5
+    AM70_5p0_F_E_1573.tif 1de1d347-6171-4dc8-a46c-7c1dd9fb2585
+    AM70_5p0_F_E_1565.tif 155c5c9d-313f-43e6-a8da-26132ce24dc3
+    AM70_5p0_F_E_1576.tif 84b505c7-7640-421f-87fb-6c2bd938671f
+    AM70_5p0_F_E_1572.tif 2e545593-0e2c-4b30-ac6b-048d4fa17cb9
+    AM70_5p0_F_E_1577.tif 0aa82a46-42d0-45f2-a831-f144d41d3691
+    AM70_5p0_F_E_1569.tif 00b195ae-5ddc-4bf8-a764-1aa67e41e7b1
+----
+name: 'EBSD SEM Data Collection - AM60_2p5_edge - 11/21/2015 @ 7:33PM'
+  description: None
+  id: 27e6b451-1c79-4a0c-a76e-d68bbd3d9205
+  owner: tradiasa@umich.edu
+  template_id: 'global_EBSD SEM Data Collection'
+  template_name: None
+  does_transform: False
+  process_type: measurement
+  output_files:
+    AM60_2p5_AC_46YH-8-edge300-cleangrain.bmp 28d7d124-cd5b-4f0b-9f92-6b34586abe27
+    AM60_2p5_AC_46YH-8-edge300-clean-grainfiletype2.txt a97f0a54-5b85-48ed-9a8b-909b35211cfd
+  files:
+    AM60_2p5_AC_46YH-8-edge300-cleangrain.bmp 28d7d124-cd5b-4f0b-9f92-6b34586abe27
+    AM60_2p5_AC_46YH-8-edge300-clean-grainfiletype2.txt a97f0a54-5b85-48ed-9a8b-909b35211cfd
+  input_samples:
+    AM60-2p5-F 9cc1725d-9768-4f56-9909-9497837d2d8e
+----
+name: SEM
+  description: None
+  id: 28bf844f-607b-4e69-af23-0584e161b6dd
+  owner: masonab@umich.edu
+  template_id: global_SEM
+  template_name: SEM
+  does_transform: False
+  process_type: measurement
+  files:
+    AM60_5p0_1644.tif ec03942f-e97d-4d70-b6bd-8784961cc893
+    AM60_5p0_1638.tif 47c20716-b40c-49bd-8e47-bb65081c0bbe
+    AM60_5p0_1636.tif d43ba4c4-50b1-4813-bcdd-79687b7e9126
+    AM60_5p0_1637.tif 231865e8-d682-42d4-b209-d8eb080ff449
+    AM60_5p0_1646.tif e90f2869-2792-4860-b6e6-02ab8e8352f6
+    AM60_5p0_1642.tif 5388beea-9f07-43ad-ba7e-bf2f0cccefde
+    AM60_5p0_1639.tif c5d1073d-af7c-4bde-85c2-ba8b1d819d57
+    AM60_5p0_1641.tif 00d7a8e1-3d1c-4d3e-994d-6cbf78db5b8b
+    AM60_5p0_1643.tif 019a65b0-f114-470c-befd-41bfc5808714
+    AM60_5p0_1645.tif 4a6ebd66-b95c-49fc-bc76-6d9109100fb8
+    AM60_5p0_1640.tif 0a48275d-9c0f-4da3-832e-b8b5a4aa0d91
+----
+name: 'EBSD SEM Data Collection - AM60_2p5_through - 11/22/2015 @ 5:24PM'
+  description: None
+  id: 514259c4-9a14-4b6b-9fef-33b0b5ec694c
+  owner: tradiasa@umich.edu
+  template_id: 'global_EBSD SEM Data Collection'
+  template_name: None
+  does_transform: False
+  process_type: measurement
+  output_files:
+    AM60_2p5_AC_46YH-4-through-clean-grainfiletype2.txt 153429ab-66fd-46e5-ac82-80a3571b1acf
+    AM60_2p5_AC_46YH-4-through-cleangrain.bmp 95e86f28-2765-4936-83a9-560e5609defd
+  files:
+    AM60_2p5_AC_46YH-4-through-clean-grainfiletype2.txt 153429ab-66fd-46e5-ac82-80a3571b1acf
+    AM60_2p5_AC_46YH-4-through-cleangrain.bmp 95e86f28-2765-4936-83a9-560e5609defd
+  input_samples:
+    AM60-2p5-F 9cc1725d-9768-4f56-9909-9497837d2d8e
+----
+name: SEM
+  description: None
+  id: 269e2aa5-a84b-491b-a1cb-d680ad272e7f
+  owner: masonab@umich.edu
+  template_id: global_SEM
+  template_name: SEM
+  does_transform: False
+  process_type: measurement
+  files:
+    AM40_5p0_1699.tif 9d44415e-79fc-4d32-8f73-7940a42f411c
+    AM40_5p0_1697.tif 43c68a4a-051c-47d6-8faf-c013bec8a93d
+    AM40_5p0_1691.tif 863cca02-a82c-4fb3-9c21-fa62dd33a709
+    AM40_5p0_1692.tif 328e07aa-cbe0-4d03-be38-35515bac2c54
+    AM40_5p0_1695.tif 28701a59-3891-46e9-ab3c-99b34fd159b5
+    AM40_5p0_1693.tif 1fa346b3-e6e9-4645-8fae-7be03828a21e
+    AM40_5p0_1694.tif 5ec10b06-cfd3-4e4a-a5fc-3f02eff42f7a
+    AM40_5p0_1700.tif efaac05d-9d77-4866-a67c-ea0983a490ca
+    AM40_5p0_1696.tif 33b92de2-65a7-4140-ac13-079cc77eed9e
+    AM40_5p0_1698.tif dc64995f-b45f-4877-a16a-f4d980732cd3
+----
+name: 'EBSD SEM Data Collection'
+  description: None
+  id: 81df224c-9d0b-44a4-ba46-52cf898b7de1
+  owner: tradiasa@umich.edu
+  template_id: 'global_EBSD SEM Data Collection'
+  template_name: 'EBSD SEM Data Collection'
+  does_transform: False
+  process_type: measurement
+  files:
+    '40RV01 partition.tif' 98a14c51-b098-429c-8104-ab03c0bab126
+    GF-AM60-5p0-F-C-scan5.xls ff1b167c-f69e-4555-8578-d844994fc331
+    '32RH2 clean edge.tif' 4f33aa58-441f-4af7-aa5c-5c8bcfda264a
+    '32RH3 clean partition.tif' 42348a37-b0c8-4256-99cc-54373ae40a14
+    GF-AM60-5p0-F-C-scan3.xls 8748f659-9827-44ad-b31a-da5199cfa25c
+    '32RH1 clean.tif' 13ba7dcb-d437-469e-9aeb-6730ac25883c
+    GF-AM60-5p0-F-C-scan1.xls 07bfa66e-8441-4b38-aa92-e65cb20f5c48
+    GF-AM60-5p0-F-C-scan2.xls f3154967-5e4f-4433-8d3e-1dec95ca7a82
+    GF-AM60-5p0-F-C-scan4.xls 0e9519b1-aaaf-4636-8306-678acbe3640a
+    Ford_HPDC_AM60_5p0_center_fullclean.tif faf6563c-af62-412e-88c5-30d359d28c39
+----
+name: 'EBSD SEM Data Collection - AM60_2p5_center - 11/22/2015 @ 5:21PM'
+  description: None
+  id: 1567ebf0-8f50-414f-b973-dcfa7cba286a
+  owner: tradiasa@umich.edu
+  template_id: 'global_EBSD SEM Data Collection'
+  template_name: None
+  does_transform: False
+  process_type: measurement
+  output_files:
+    GF-AM60-2p5-F-C-scan3.xls 70e1d7bd-596d-48d4-94e0-28e5a62b5396
+  files:
+    GF-AM60-2p5-F-C-scan3.xls 70e1d7bd-596d-48d4-94e0-28e5a62b5396
+  input_samples:
+    AM60-2p5-F 9cc1725d-9768-4f56-9909-9497837d2d8e
+----
+name: 'EPMA Data Collection'
+  description: None
+  id: 262d9765-9946-46f8-b03a-f37c3a54b36d
+  owner: tradiasa@umich.edu
+  template_id: 'global_EPMA Data Collection'
+  template_name: 'EPMA Data Collection'
+  does_transform: False
+  process_type: measurement
+  files:
+    berman_run20160328_AM40_and_AM50ST.xlsx ec58ef87-866f-4584-b024-bf6876f8161f
+    epma_run20150615.xls b8409949-edba-42dc-a047-81772c02e2fb
+    EMPA_ford_AM40_2p5and5p0_run20150421.xls 83c9ac84-62e6-4a52-822e-651813b3d9bc
+    epma_run20150615.docx 1d7cc467-b637-4e27-930d-63e28fb53aab
+    berman_run20160328_AM40_and_AM50ST.docx c8af8953-e1e8-438b-af8b-9471fc6a8c1e
+    AM40_5p0_NE.xls 6638d368-2254-4504-889c-4020083524f4
+----
+name: 'EPMA Data Collection'
+  description: None
+  id: 37e3577a-e631-4e6f-83a8-14f6d6d20a54
+  owner: tradiasa@umich.edu
+  template_id: 'global_EPMA Data Collection'
+  template_name: 'EPMA Data Collection'
+  does_transform: False
+  process_type: measurement
+  files:
+    berman_run20150716.xls bb20775c-7093-4013-9d8c-01ee2a9c08a0
+    AM70_2p5_NE.xls 3e379cb4-16ae-4cab-9611-d0a2d6893717
+    EMPA_ford_AM70_2p5_and_am50_5p0_run20150529.xls 5690edc1-469e-4491-91f7-3168b178c9c4
+    berman_run20150716.docx 31d6b248-678c-4410-aac0-3a97290b2890
+----
+name: 'As Received AM70-5p0-F'
+  description: None
+  id: 153441bc-0402-444a-86f3-33feeb435647
+  owner: tradiasa@umich.edu
+  template_id: 'global_Create Samples'
+  template_name: None
+  does_transform: False
+  process_type: create
+  output_samples:
+    AM70-5p0-F 7902caaa-78d7-4ed8-b1f3-616ae6a272d0
+----
+name: 'EBSD SEM Data Collection -AM40_2p5_center - 11/19/2015 @ 6:09PM'
+  description: None
+  id: 01bab79a-65ab-45a0-815c-559ec925883f
+  owner: tradiasa@umich.edu
+  template_id: 'global_EBSD SEM Data Collection'
+  template_name: None
+  does_transform: False
+  process_type: measurement
+  output_files:
+    AM40_2p5_AC_33WH-1-center500-cleangrain.bmp 791ba14a-f5a4-4110-be2d-4da3c763713f
+    AM40_2p5_AC_33WH-1-center500-clean-grainfile.txt 23e9e8c4-17a2-4013-85d8-d284126e02bc
+  files:
+    AM40_2p5_AC_33WH-1-center500-cleangrain.bmp 791ba14a-f5a4-4110-be2d-4da3c763713f
+    AM40_2p5_AC_33WH-1-center500-clean-grainfile.txt 23e9e8c4-17a2-4013-85d8-d284126e02bc
+  input_samples:
+    AM40-2p5-F c4a82033-b961-40e5-9844-f25447c027dd
+----
+name: 'EBSD SEM Data Collection - 11/05/2015 @ 11:00AM'
+  description: None
+  id: 1f7298d6-0e87-4130-9819-f570c96c21da
+  owner: tradiasa@umich.edu
+  template_id: 'global_EBSD SEM Data Collection'
+  template_name: None
+  does_transform: False
+  process_type: measurement
+  output_files:
+    GF-AM40-2p5-F-E-scan1.xls ebefd287-e8a7-41e2-bc16-677d5f217f08
+  files:
+    GF-AM40-2p5-F-E-scan1.xls ebefd287-e8a7-41e2-bc16-677d5f217f08
+  input_samples:
+    AM40-2p5-F c4a82033-b961-40e5-9844-f25447c027dd
+----
+name: 'EPMA Data Collection'
+  description: None
+  id: 1956069a-2cbd-41ff-a30b-25d826613d1e
+  owner: tradiasa@umich.edu
+  template_id: 'global_EPMA Data Collection'
+  template_name: 'EPMA Data Collection'
+  does_transform: False
+  process_type: measurement
+  files:
+    berman_run20160328_AM40_and_AM50ST.docx c8af8953-e1e8-438b-af8b-9471fc6a8c1e
+    berman_run20160328_AM40_and_AM50ST.xlsx ec58ef87-866f-4584-b024-bf6876f8161f
+    EMPA_ford_AM70_2p5_and_ford_AM40_5p0_run20150511.xls 05d1a7c8-e27a-4314-9735-a2268310e244
+    AM40_5p0_C.xls c5302439-446e-451c-a155-ec71de0bdae1
+----
+name: SEM
+  description: None
+  id: 6d716221-94f6-4c1e-b114-93d674543aa2
+  owner: masonab@umich.edu
+  template_id: global_SEM
+  template_name: SEM
+  does_transform: False
+  process_type: measurement
+  files:
+    AM70_2p5_F_1604.tif 86f55571-3c23-476d-aec6-52dfe37715a9
+    AM70_2p5_F_1605.tif b401d7ae-9f5a-48c5-b27a-07767c00d4ed
+    AM70_2p5_F_1607.tif 34589df4-5418-4761-8c5e-38c7a9af9785
+    AM70_2p5_F_1609.tif b8b7d157-d9de-45cb-8105-5197202e9fcd
+    AM70_2p5_F_1601.tif 09bf3663-b5e3-46e9-aaf4-364478fbb8e5
+    AM70_2p5_F_1608.tif 055e0f35-0078-443b-84fe-a26a223b128c
+    AM70_2p5_F_1603.tif 946e78fd-a392-46f3-8659-986c82884b16
+    AM70_2p5_F_1610.tif 0bf6b79c-937c-468f-9df2-b70e2439c4d0
+    AM70_2p5_F_1602.tif 7af9cd74-7f6d-4938-b0bf-d62fda3388e9
+    AM70_2p5_F_1606.tif ca8c0903-d0cc-44c2-a997-f2cfe7c231bf
+----
+name: 'EBSD SEM Data Collection - AM50_2p5_edge-11/19/2015 @ 6:18PM'
+  description: None
+  id: 147acee0-4319-4a99-8098-48c9659aad07
+  owner: tradiasa@umich.edu
+  template_id: 'global_EBSD SEM Data Collection'
+  template_name: None
+  does_transform: False
+  process_type: measurement
+  output_files:
+    AM50_2p5_AC_edge_36GH_1_cleangrain.bmp f9d31ce9-bff4-4d0a-81fe-ed2a7f080169
+    AM50_2p5_AC_edge_36GH_1_clean_grainfiletype2.txt 522e002d-4d78-4af3-8b6d-d26b4f681c05
+  files:
+    AM50_2p5_AC_edge_36GH_1_cleangrain.bmp f9d31ce9-bff4-4d0a-81fe-ed2a7f080169
+    AM50_2p5_AC_edge_36GH_1_clean_grainfiletype2.txt 522e002d-4d78-4af3-8b6d-d26b4f681c05
+  input_samples:
+    AM50-2p5-F e0fd47cd-c014-41c8-8e64-863792410508
+----
+name: 'EBSD SEM Data Collection - AM70_2p5_through -  11/22/2015 @ 8:08PM'
+  description: None
+  id: 1bc96033-aee8-4fb5-a764-8c9d839123a7
+  owner: tradiasa@umich.edu
+  template_id: 'global_EBSD SEM Data Collection'
+  template_name: None
+  does_transform: False
+  process_type: measurement
+  output_files:
+    AM70_2p5_AC_3_45NH_through2500-cleangrain.bmp 9f8b1015-a769-4781-aaec-1c9b5902421c
+    AM70_2p5_AC_3_45NH_through2500-grainfile.txt 72961fe2-db01-43d2-adcd-28c0954c058d
+  files:
+    AM70_2p5_AC_3_45NH_through2500-cleangrain.bmp 9f8b1015-a769-4781-aaec-1c9b5902421c
+    AM70_2p5_AC_3_45NH_through2500-grainfile.txt 72961fe2-db01-43d2-adcd-28c0954c058d
+  input_samples:
+    AM70-2p5-F 6012fde5-398d-48fc-9dbe-059b241505a7
+----
+name: 'As Received AM50-5p0-F'
+  description: None
+  id: 262fe909-7bbb-46e0-8f16-47af73db1426
+  owner: tradiasa@umich.edu
+  template_id: 'global_Create Samples'
+  template_name: None
+  does_transform: False
+  process_type: create
+  output_samples:
+    AM50-5p0-F ca9dc26f-441f-4756-832c-857e6e47d21e
+----
+name: 'EPMA Data Collection'
+  description: None
+  id: 14251640-b501-4adb-acc3-831e4ed81c13
+  owner: tradiasa@umich.edu
+  template_id: 'global_EPMA Data Collection'
+  template_name: 'EPMA Data Collection'
+  does_transform: False
+  process_type: measurement
+  files:
+    EMPA_run20150601v2.xls af3eb851-296c-4ef0-a92d-b24af52788f5
+    AM50_2p5_C.xls 5594a85c-9a81-40ed-97df-f6fdfb5df25f
