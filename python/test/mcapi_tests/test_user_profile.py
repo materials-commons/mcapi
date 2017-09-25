@@ -7,7 +7,7 @@ from mcapi import _getFromUserProfile as getFromUserProfile
 from mcapi import _clearFromUserProfile as clearFromUserProfile
 
 
-url = 'http://mctest.localhost/api'
+url = 'http://mcdev.localhost/api'
 
 
 def fake_name(prefix):

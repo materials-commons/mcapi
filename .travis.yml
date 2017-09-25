@@ -19,11 +19,11 @@ branches:
 language: python
 
 python:
-  - 2.7
+  - 3.6.2
 
 addons:
   hosts:
-  - mctest.localhost
+  - mcdev.localhost
 
 env:
   global:
@@ -68,7 +68,7 @@ install:
   - npm install -g node-gyp@3.5.0
   - npm install -g gulp
   - mkdir .materialscommons
-  - git clone -b sprint --depth 3 https://github.com/materials-commons/materialscommons.org.git
+  - git clone -b seperate-test-database --depth 3 https://github.com/materials-commons/materialscommons.org.git
 
   - pushd materialscommons.org
   - git log -1
@@ -105,13 +105,22 @@ before_script:
   - sudo cp ${TEST_DATA_DIR}/test_config_data/mctest.localhost.conf /etc/nginx/conf.d/
   - sudo nginx -s reload
   - cd $MC_CLONE_DIR
+  - pwd
+  - pushd backend
   - rethinkdb --driver-port $MCDB_PORT --cluster-port $RETHINKDB_CLUSTER_PORT --http-port $RETHINKDB_HTTP_PORT --daemon
   - sleep 5
-  - rethinkdb restore 'test_data/test_rethinkdb_dump.tar.gz' --connect $MCDB_CONNECTION --force
-  - sleep 5
-  - cd backend
-  - pushd scripts/templates
+
+  - pushd scripts
+  - python dbcreate.py --port $MCDB_PORT
+  - pushd testdb
+  - python makeUsersForTests.py --port $MCDB_PORT --password $MC_USERPW
+  - popd
+  - pushd templates
   - ./run.sh
+  - popd
+
+  - node servers/mcapi/mcapi.js -p ${MC_API_SERVICE_PORT} > ${MC_LOG_DIR}/mcapi.out.travis.txt 2>&1&
+  - sleep 5
   - popd
 
   - gulp build-lib
@@ -127,15 +136,15 @@ before_script:
   - cp test/test_data/test_config_data/travisconfig.json ~/.materialscommons/config.json
 
   - sleep 20
+
+  # Note: guard to prevent tests if host is not available
   - curl -o junk.txt http://mctest.localhost/api/users?apikey=totally-bogus
   - cat junk.txt
-# Note: guard to prevent tests if host is not available
-#  - curl -o junk.txt http://mctest.localhost/api/v2/templates?apikey=totally-bogus
-#  - grep 'otype' junk.txt
 
 script:
   - pytest test -rsx
 #  - -rsx to show reasons for skipping and failed tests - updated
+#  or ...
 #  - coverage run --source mcapi,casm_mcapi,demo_project -m py.test test
 #  - coverage report -m
 
