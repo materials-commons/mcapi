@@ -62,6 +62,7 @@ before_install:
   - sudo cat /etc/hosts
 
 install:
+  - mkdir -p ${MC_LOG_DIR}
   - nvm install v8.2.1
   - node --version
   - sudo apt-get install nginx
