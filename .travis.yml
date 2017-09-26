@@ -78,6 +78,7 @@ install:
 
   - pushd backend
   - pip install rethinkdb
+  - pip install rethinkdbdash
   - pip install Flask
   - pip install pytest
   - pip install pbkdf2
@@ -103,15 +104,13 @@ install:
 
 before_script:
 # Note: nginx appears to have been started on install - so, reload should work
-  - sudo cp ${TEST_DATA_DIR}/test_config_data/mctest.localhost.conf /etc/nginx/conf.d/
+  - sudo cp ${TEST_DATA_DIR}/test_config_data/mcdev.localhost.conf /etc/nginx/conf.d/
   - sudo nginx -s reload
 
   - cd $MC_CLONE_DIR/backend
   - scripts/testdb/setup-and-start-test-db.sh all
 
-  - pwd
-  - ls
-  - ./mcservers ss mcapi -d
+  - mcservers ss mcapi -d
   - sleep 5
 
   - cd $MC_PYTHON_API_DIR
@@ -123,7 +122,7 @@ before_script:
   - sleep 20
 
   # Note: guard to prevent tests if host is not available
-  - curl -o junk.txt http://mctest.localhost/api/users?apikey=totally-bogus
+  - curl -o junk.txt http://mcdev.localhost/api/users?apikey=totally-bogus
   - cat junk.txt
 
 script:
