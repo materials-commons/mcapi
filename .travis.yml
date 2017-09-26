@@ -110,7 +110,7 @@ before_script:
 
   - pwd
   - ls
-  - mcservers ss mcapi -d
+  - ./mcservers ss mcapi -d
   - sleep 5
 
   - cd $MC_PYTHON_API_DIR
