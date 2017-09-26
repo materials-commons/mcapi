@@ -113,7 +113,8 @@ before_script:
   - cd $MC_CLONE_DIR/backend
   - scripts/testdb/setup-and-start-test-db.sh all
 
-  - mcservers sr mcapi -d
+  - echo 'node servers/mcapi/mcapi.js -p ${MC_API_SERVICE_PORT} > ${MC_LOG_DIR}/mcapi.out.${SERVERTYPE}'
+  - node servers/mcapi/mcapi.js -p ${MC_API_SERVICE_PORT} > ${MC_LOG_DIR}/mcapi.out.${SERVERTYPE} 2>&1&
   - sleep 10
   - mcservers
 
