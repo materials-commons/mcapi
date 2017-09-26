@@ -78,7 +78,6 @@ install:
 
   - pushd backend
   - pip install rethinkdb
-  - pip install rethinkdbdash
   - pip install Flask
   - pip install pytest
   - pip install pbkdf2
