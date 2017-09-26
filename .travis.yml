@@ -104,22 +104,19 @@ before_script:
 # Note: nginx appears to have been started on install - so, reload should work
   - sudo cp ${TEST_DATA_DIR}/test_config_data/mctest.localhost.conf /etc/nginx/conf.d/
   - sudo nginx -s reload
-  - cd $MC_CLONE_DIR
-  - pwd
-  - pushd backend
 
   - rethinkdb --driver-port $MCDB_PORT --cluster-port $RETHINKDB_CLUSTER_PORT --http-port $RETHINKDB_HTTP_PORT --daemon
   - sleep 5
 
+  - cd $MC_CLONE_DIR/backend
   - scripts/testdb/setup-and-start-test-db.sh all
 
   - node servers/mcapi/mcapi.js -p ${MC_API_SERVICE_PORT} > ${MC_LOG_DIR}/mcapi.out.travis.txt 2>&1&
   - sleep 5
 
+  - pwd
   - mcservers ss mcapi -d
   - sleep 5
-
-  - popd
 
   - cd $MC_PYTHON_API_DIR
   - pwd
