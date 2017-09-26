@@ -115,6 +115,7 @@ before_script:
   - sleep 5
 
   - pwd
+  - ls
   - mcservers ss mcapi -d
   - sleep 5
 
