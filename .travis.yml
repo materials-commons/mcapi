@@ -114,9 +114,7 @@ before_script:
 
   - mcservers sr mcapi -d
   - sleep 5
-
-  - cd $MC_CLONE_DIR/website
-
+  - mcservers
 
   - cd $MC_PYTHON_API_DIR
   - pwd
