@@ -19,7 +19,7 @@ class TestConfig(unittest.TestCase):
         self.assertIsNotNone(config.params['apikey'])
         self.assertIsNotNone(config.mcurl)
         self.assertEqual(config.params['apikey'], "12345678901234567890123456789012")
-        self.assertEqual(config.mcurl, "http://not.mctest.localhost/api")
+        self.assertEqual(config.mcurl, "http://not.mcdev.localhost/api")
 
     def make_test_dir_path(self):
         self.assertTrue('TEST_DATA_DIR' in environ)
