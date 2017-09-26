@@ -80,6 +80,7 @@ install:
   - yarn install
 
   - pushd backend
+  - npm install
   - pip install rethinkdb
   - pip install Flask
   - pip install pytest
