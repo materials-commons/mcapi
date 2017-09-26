@@ -129,7 +129,7 @@ before_script:
   # Note: guard to prevent tests if host is not available
   - curl -o junk.txt http://mcdev.localhost/api/users?apikey=totally-bogus
   - cat junk.txt
-  - cat junk.txt | grep 'fullname'
+  # - cat junk.txt | grep 'fullname'
 
   - cd $MC_PYTHON_API_DIR
   - pwd
