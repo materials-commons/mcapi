@@ -112,8 +112,11 @@ before_script:
   - cd $MC_CLONE_DIR/backend
   - scripts/testdb/setup-and-start-test-db.sh all
 
-  - mcservers ss mcapi -d
+  - mcservers sr mcapi -d
   - sleep 5
+
+  - cd $MC_CLONE_DIR/website
+
 
   - cd $MC_PYTHON_API_DIR
   - pwd
@@ -127,7 +130,7 @@ before_script:
 
 
 script:
-  - pytest test -rsx test/test_workflow.py
+  - pytest -rsx test/test_workflow.py
 #  - -rsx to show reasons for skipping and failed tests - updated
 #  or ...
 #  - coverage run --source mcapi,casm_mcapi,demo_project -m py.test test
