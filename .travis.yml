@@ -48,7 +48,10 @@ git:
   depth: 3
 
 before_install:
+    # PATH
   - export PATH=./:$PATH
+    # hosts
+  - cat /etc/hosts
     # RethinkDB
   - source /etc/lsb-release && echo "deb http://download.rethinkdb.com/apt $DISTRIB_CODENAME main" | sudo tee /etc/apt/sources.list.d/rethinkdb.list
   - wget -qO- https://download.rethinkdb.com/apt/pubkey.gpg | sudo apt-key add -
@@ -100,7 +103,6 @@ install:
   - pwd
 
 
-
 before_script:
 # Note: nginx appears to have been started on install - so, reload should work
   - sudo cp ${TEST_DATA_DIR}/test_config_data/mcdev.localhost.conf /etc/nginx/conf.d/
@@ -118,18 +120,18 @@ before_script:
   - python setup_dev.py install
   - cp test/test_data/test_config_data/travisconfig.json ~/.materialscommons/config.json
 
-  - sleep 20
-
   # Note: guard to prevent tests if host is not available
   - curl -o junk.txt http://mcdev.localhost/api/users?apikey=totally-bogus
   - cat junk.txt
 
+
 script:
-  - pytest test -rsx
+  - pytest test -rsx test/test_workflow.py
 #  - -rsx to show reasons for skipping and failed tests - updated
 #  or ...
 #  - coverage run --source mcapi,casm_mcapi,demo_project -m py.test test
 #  - coverage report -m
+
 
 after_failure:
   - echo ${MC_LOG_DIR}/mcapi.out.${SERVERTYPE}
