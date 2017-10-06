@@ -10,6 +10,12 @@ setup(
 )
 
 setup(
+    name='dataset',
+    version='0.1',
+    packages=['dataset']
+)
+
+setup(
     name='demo_project',
     version='0.9',
     packages=['demo_project']
