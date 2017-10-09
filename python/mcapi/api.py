@@ -87,7 +87,7 @@ def set_remote_config_url(url):
     :param url: the URL as a string
     :return: None
 
-    >>> mcapi.set_remote_config_url("http://mctest.localhost/api")
+    >>> mcapi.set_remote_config_url("http://mcdev.localhost/api")
 
     """
     set_remote(Remote(config=Config(override_config={'mcurl': url})))

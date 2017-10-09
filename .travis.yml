@@ -19,11 +19,11 @@ branches:
 language: python
 
 python:
-  - 2.7
+  - 3.6.2
 
 addons:
   hosts:
-  - mctest.localhost
+  - mcdev.localhost
 
 env:
   global:
@@ -32,10 +32,10 @@ env:
     - MCDB_NAME=materialscommons
     - MCDB_FILE=test_data/test_ready_rethinkdb_dump_2016-12-15.tar.gz
     - MCDB_PORT=30815
-    - MC_LOG_DIR=/tmp
+    - MC_LOG_DIR=~/logs
     - SERVERTYPE=travisrun
     - MCDB_CONNECTION=localhost:$MCDB_PORT
-    - MCAPI_SERVER_PORT=5004
+    - MC_API_SERVICE_PORT=5004
     - MC_SERVICE_PORT=5000
     - RETHINKDB_CLUSTER_PORT=31815
     - RETHINKDB_HTTP_PORT=8090
@@ -48,6 +48,10 @@ git:
   depth: 3
 
 before_install:
+    # PATH
+  - export PATH=./:$PATH
+    # hosts
+  - cat /etc/hosts
     # RethinkDB
   - source /etc/lsb-release && echo "deb http://download.rethinkdb.com/apt $DISTRIB_CODENAME main" | sudo tee /etc/apt/sources.list.d/rethinkdb.list
   - wget -qO- https://download.rethinkdb.com/apt/pubkey.gpg | sudo apt-key add -
@@ -58,6 +62,7 @@ before_install:
   - sudo cat /etc/hosts
 
 install:
+  - mkdir -p ${MC_LOG_DIR}
   - nvm install v8.2.1
   - node --version
   - sudo apt-get install nginx
@@ -68,7 +73,7 @@ install:
   - npm install -g node-gyp@3.5.0
   - npm install -g gulp
   - mkdir .materialscommons
-  - git clone -b sprint --depth 3 https://github.com/materials-commons/materialscommons.org.git
+  - git clone -b seperate-test-database --depth 3 https://github.com/materials-commons/materialscommons.org.git
 
   - pushd materialscommons.org
   - git log -1
@@ -76,6 +81,7 @@ install:
   - yarn install
 
   - pushd backend
+  - npm install
   - pip install rethinkdb
   - pip install Flask
   - pip install pytest
@@ -88,10 +94,13 @@ install:
 
   - cd python
   - export MC_PYTHON_API_DIR=`pwd`
+  - pip install coverage
   - pip install -r requirements.txt
+  - python setup_dev.py install
 # Note: github does not store or recover empty directories
 #       this is needed for testing - creating empty dir
   - mkdir -p test/test_data/test_upload_data/test_upload_dir/sub_directory_c/empty_dir
+  - cp test/test_data/test_config_data/travisconfig.json ~/.materialscommons/config.json
 
   - pushd test/test_data
   - export TEST_DATA_DIR=`pwd`
@@ -99,46 +108,42 @@ install:
   - pwd
 
 
-
 before_script:
 # Note: nginx appears to have been started on install - so, reload should work
-  - sudo cp ${TEST_DATA_DIR}/test_config_data/mctest.localhost.conf /etc/nginx/conf.d/
+  - sudo cp ${TEST_DATA_DIR}/test_config_data/mcdev.localhost.conf /etc/nginx/conf.d/
   - sudo nginx -s reload
-  - cd $MC_CLONE_DIR
-  - rethinkdb --driver-port $MCDB_PORT --cluster-port $RETHINKDB_CLUSTER_PORT --http-port $RETHINKDB_HTTP_PORT --daemon
-  - sleep 5
-  - rethinkdb restore 'test_data/test_rethinkdb_dump.tar.gz' --connect $MCDB_CONNECTION --force
-  - sleep 5
-  - cd backend
-  - pushd scripts/templates
-  - ./run.sh
-  - popd
 
-  - gulp build-lib
-  - gulp build-mcapi-server
-  - sleep 5
-  # MCAPI_SERVER_PORT is 5004
-  - node sbin/mcapi/mcapi.js -p $MCAPI_SERVER_PORT > ${MC_LOG_DIR}/mcapi.out.${SERVERTYPE} 2>&1&
-  - sleep 5
+  - cd $MC_CLONE_DIR/backend
+  - scripts/testdb/setup-and-start-test-db.sh all
+
+  - echo ${MC_API_SERVICE_PORT}
+  - echo ${MC_SERVICE_PORT}
+  - echo ${MC_LOG_DIR}
+  - echo ${SERVERTYPE}
+  - ./mcapiserver.py -p ${MC_SERVICE_PORT} > ${MC_LOG_DIR}/mcapiserver.out.${SERVERTYPE} 2>&1&
+  - node servers/mcapi/mcapi.js -p ${MC_API_SERVICE_PORT} > ${MC_LOG_DIR}/mcapi.out.${SERVERTYPE} 2>&1&
+  - sleep 10
+  - ps -eo "pid,command" | grep rethinkdb
+  - ps -eo "pid,command" | grep servers
+
+  # Note: guard to prevent tests if host is not available
+  - curl -o junk.txt http://mcdev.localhost/api/users?apikey=totally-bogus
+  - cat junk.txt
+  - cat junk.txt | grep 'fullname'
+
   - cd $MC_PYTHON_API_DIR
   - pwd
-  - pip install coverage
-  - python setup_dev.py install
-  - cp test/test_data/test_config_data/travisconfig.json ~/.materialscommons/config.json
-
-  - sleep 20
-  - curl -o junk.txt http://mctest.localhost/api/users?apikey=totally-bogus
-  - cat junk.txt
-# Note: guard to prevent tests if host is not available
-#  - curl -o junk.txt http://mctest.localhost/api/v2/templates?apikey=totally-bogus
-#  - grep 'otype' junk.txt
 
 script:
-  - pytest test -rsx
+  - pytest -rsx test
 #  - -rsx to show reasons for skipping and failed tests - updated
+#  or ...
 #  - coverage run --source mcapi,casm_mcapi,demo_project -m py.test test
 #  - coverage report -m
 
+
 after_failure:
   - echo ${MC_LOG_DIR}/mcapi.out.${SERVERTYPE}
+  - ls ${MC_LOG_DIR}
   - cat ${MC_LOG_DIR}/mcapi.out.${SERVERTYPE}
+  - cat ${MC_LOG_DIR}/mcapiserver.out.${SERVERTYPE}
