@@ -1106,6 +1106,8 @@ class Process(MCObject):
         #: extra field for convenience; equivalent to description
         self.notes = ''
 
+        self._files = []
+
         if not data:
             data = {}
 
@@ -1118,9 +1120,8 @@ class Process(MCObject):
         for a in attr:
             setattr(self, a, data.get(a, None))
 
-        attr = ['files', 'measurements', 'output_samples', 'input_samples',
-                'transformed_samples', 'input_files', 'output_files',
-                'experiments']
+        attr = ['measurements', 'output_samples', 'input_samples',
+                'transformed_samples', 'experiments']
         for a in attr:
             setattr(self, a, data.get(a, []))
 
@@ -1179,10 +1180,7 @@ class Process(MCObject):
             for sample in self.output_samples:
                 sample.project = self.project
                 sample.experiment = self.experiment
-        if self.input_files:
-            self.input_files = [make_object(s.input_data) for s in self.input_files]
-        if self.output_files:
-            self.output_files = [make_object(s.input_data) for s in self.output_files]
+        del self.files
 
     def _update_project_experiment(self):
         for sample in self.input_samples:
@@ -1357,6 +1355,20 @@ class Process(MCObject):
 
     # Process - File-related methods - truncated?
     # TODO: should Process have File-related create, get_by_id, get_all?
+    def get_all_files(self):
+        """
+        Get the list of files for this process.
+
+        :return: files_list: a list of :class:`mcapi.File` instances
+
+        """
+        project = self.project
+        experiment = self.experiment
+        process = self
+        results = api.get_all_files_for_process(project.id, experiment.id, process.id)
+        file_list = [make_object(x) for x in results]
+        return file_list
+
     def add_files(self, files_list):
         """
         Add files to this process.
