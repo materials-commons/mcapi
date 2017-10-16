@@ -1180,7 +1180,8 @@ class Process(MCObject):
             for sample in self.output_samples:
                 sample.project = self.project
                 sample.experiment = self.experiment
-        del self.files
+        if hasattr(self, 'filesLoaded') and not self.filesLoaded:
+            del self.files
 
     def _update_project_experiment(self):
         for sample in self.input_samples:
