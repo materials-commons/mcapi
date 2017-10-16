@@ -608,7 +608,6 @@ def add_files_to_process(project_id, experiment_id, process, files, remote=None)
         "process_id": process.id,
         "files": file_id_list
     }
-    print(json.dumps(data))
     api_url = "projects/" + project_id + \
               "/experiments/" + experiment_id + \
               "/processes/" + process.id
