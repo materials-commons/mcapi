@@ -29,41 +29,11 @@ class TestProjectDelete(unittest.TestCase):
 
         self.helper.confirm_demo_project_content(project, project_name, 1)
 
-        deleted_project = project.delete()
+        deleted_project_id = project.delete()
 
-        self.assertEqual(deleted_project.id, project.id)
-        self.assertEqual(deleted_project.delete_tally.project['id'], project.id)
-
-        self.assertEqual(len(deleted_project.delete_tally.files), 16)
-        self.assertEqual(len(deleted_project.delete_tally.processes), 5)
-        self.assertEqual(len(deleted_project.delete_tally.datasets), 0)
-        self.assertEqual(len(deleted_project.delete_tally.experiments), 1)
-        self.assertEqual(len(deleted_project.delete_tally.samples), 7)
-
+        self.assertEqual(deleted_project_id, project.id)
         with pytest.raises(Exception):
             get_project_by_id(project.id)
-
-    def test_delete_dry_run(self):
-        self.helper = AssertHelper(self)
-
-        project = self._build_project()
-
-        project_name = self.test_project_name
-
-        self.helper.confirm_demo_project_content(project, project_name, 1)
-
-        deleted_project = project.delete(dry_run=True)
-
-        self.assertEqual(deleted_project.id, project.id)
-        self.assertEqual(deleted_project.delete_tally.project['id'], project.id)
-
-        self.assertEqual(len(deleted_project.delete_tally.files), 16)
-        self.assertEqual(len(deleted_project.delete_tally.processes), 5)
-        self.assertEqual(len(deleted_project.delete_tally.datasets), 0)
-        self.assertEqual(len(deleted_project.delete_tally.experiments), 1)
-        self.assertEqual(len(deleted_project.delete_tally.samples), 7)
-
-        self.helper.confirm_demo_project_content(project, project_name, 1)
 
     @pytest.mark.skip(reason="failing - need to review")
     def test_delete_all_projects(self):

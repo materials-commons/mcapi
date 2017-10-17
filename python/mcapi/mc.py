@@ -172,7 +172,6 @@ class Project(MCObject):
         # additional fields
         self._top = None
         self.source = remote_url            #: remote URL for this project - string (local only - not in database)
-        self.delete_tally = {}              #: the :class:`mcapi.DeleteTally` once the project has been deleted
 
         if not data:
             data = {}
@@ -254,21 +253,23 @@ class Project(MCObject):
         # TODO: Project.put()
         pass
 
-    def delete(self, dry_run=False):
+    def delete(self):
         """
-        Delete this project from the database or (when dry_run is True)
-        determine the objects to be deleted.
+        Delete this project from the database.
 
-        :param dry_run: (optional) if True, then only determine what would be deleted
-        :return: a :class:`mcapi.DeleteTally` instance, which lists the id's of the objects (to be or actually) deleted.
+        :return: a the id the deleted project or None if the delete failed.
 
         """
-        if dry_run:
-            results = api.delete_project_dry_run(self.id)
-        else:
-            results = api.delete_project(self.id)
-        self.delete_tally = DeleteTally(data=results)
-        return self
+
+        results = None
+        try:
+            results =  api.delete_project(self.id);
+            if 'error' in results:
+                results = None
+        except:
+            pass
+
+        return results
 
     # Project - Experiment-related methods - basic: create, get_by_id, get_all (in context)
 
@@ -825,11 +826,6 @@ class Experiment(MCObject):
         self.samples = []                     #: list of :class:`mcapi.Sample` instances
         self.processes = {}                   #: set of :class:`mcapi.Process` instances
 
-        #: the :class:`mcapi.DeleteTally` once the experiment has been deleted;
-        #: **delete_tally** is only set if the experiment was deleted directly;
-        #: for example, not if the experiment was deleted by deleting it's project
-        self.delete_tally = {}
-
         if not data:
             data = {}
 
@@ -907,23 +903,16 @@ class Experiment(MCObject):
         # TODO: Experiment.put()
         pass
 
-    def delete(self, dry_run=False, delete_processes_and_samples=False):
+    def delete(self):
         """
         Delete this Experiment from the database or (when dry_run is True)
         determine the objects to be deleted.
 
-        :param dry_run: (optional) if True, then only determine what would be deleted
-        :return: a :class:`DeleteTally` instance, which lists the id's of the objects (to be or actually) deleted.
+        :return: the id of the deleted experiment
 
         """
-        if dry_run:
-            results = api.delete_experiment_dry_run(self.project.id, self.id)
-        elif delete_processes_and_samples:
-            results = api.delete_experiment_fully(self.project.id, self.id)
-        else:
-            results = api.delete_experiment(self.project.id, self.id)
-        self.delete_tally = DeleteTally(data=results)
-        return self
+        api.delete_experiment(self.project.id, self.id)
+        return self.id
 
     # Experiment - Process-related methods
 
@@ -982,19 +971,6 @@ class Experiment(MCObject):
         for process in processes:
             process._update_project_experiment()
         return processes
-
-    def deleteAllProcessesAndSamples(self):
-        """
-        Delete all processes and samples in the experiment.
-
-        :return: a :class:`DeleteTally` instance, which lists the id's of the processes and samples deleted
-
-        .. note:: Currently not implemented - as an alternative delete the Experiment
-            and rebuild it; see :func:`mcapi.Experiment.delete()`
-
-        """
-        # TODO: Experiment.deleteAllProcessesAndSamples()
-        pass
 
     # Experiment - Sample-related methods
 
@@ -1232,10 +1208,9 @@ class Process(MCObject):
     def delete(self):
         """
         Delete this process. The process is removed from the database leaving only the local copy.
-        A process can not be deleted if any of the follwoing are true: (1) it is not a leaf node in
+        A process can not be deleted if any of the following are true: (1) it is not a leaf node in
         the workflow, (2) is is in a dataset, (3) it is a create sample (type) process with one or
         more output samples.
-        For an alternative: see :func:`mcapi.Experiment.deleteAllProcessesAndSamples()`
 
         :return: id - the id of the process deleted or None (if the process was not deleted)
 
@@ -2816,28 +2791,6 @@ def make_measured_property(data):
     measurement_property = MeasuredProperty(data)
     measurement_property._process_special_objects()
     return measurement_property
-
-
-class DeleteTally(object):
-    """
-    A Helper Class for the delete methods of Property and Experiment.
-    Returned by those methods to report the id values of all objects deleted.
-    Or, in the case of dry_run==True, that would be deleted.
-    """
-    def __init__(self, data=None):
-        if data:
-            if data.get('project'):
-                # for delete project
-                attr = ['files', 'processes', 'datasets', 'project', 'experiments', 'samples']
-                for a in attr:
-                    setattr(self, a, data.get(a, None))
-            else:
-                # for delete experiment
-                attr = ['datasets', 'best_measure_history', 'processes', 'samples', 'experiment_notes',
-                        'experiment_task_processes', 'experiment_tasks', 'notes', 'reviews', 'experiments']
-                for a in attr:
-                    setattr(self, a, data.get(a, None))
-
 
 #
 # ---

@@ -170,14 +170,6 @@ def delete_project(project_id, remote=None):
     api_url = "/projects/" + project_id
     return delete(remote.make_url_v2(api_url))
 
-
-def delete_project_dry_run(project_id, remote=None):
-    if not remote:
-        remote = use_remote()
-    api_url = "/projects/" + project_id + "/delete/dryrun"
-    return get(remote.make_url_v2(api_url))
-
-
 def get_project_processes(project_id, remote=None):
     if not remote:
         remote = use_remote()
