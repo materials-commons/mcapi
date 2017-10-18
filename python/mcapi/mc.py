@@ -1225,6 +1225,8 @@ class Process(MCObject):
             results = api.delete_process(self.project.id, self.id)
             if 'error' in results:
                 results = None
+            else:
+                results = results['id']
         except:
             pass
 
