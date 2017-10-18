@@ -260,12 +260,10 @@ class Project(MCObject):
         :return: a the id the deleted project or None if the delete failed.
 
         """
-
         results = None
         try:
-            results =  api.delete_project(self.id);
-            if 'error' in results:
-                results = None
+            results =  api.delete_project(self.id)
+            results = results['project_id']
         except:
             pass
 

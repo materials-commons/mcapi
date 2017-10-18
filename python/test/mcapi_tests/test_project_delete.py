@@ -24,9 +24,8 @@ class TestProjectDelete(unittest.TestCase):
         self.helper = AssertHelper(self)
 
         project = self._build_project()
-
         project_name = self.test_project_name
-
+        experiment = project.get_all_experiments()[0]
         self.helper.confirm_demo_project_content(project, project_name, 1)
 
         deleted_project_id = project.delete()
@@ -34,6 +33,11 @@ class TestProjectDelete(unittest.TestCase):
         self.assertEqual(deleted_project_id, project.id)
         with pytest.raises(Exception):
             get_project_by_id(project.id)
+
+        with pytest.raises(Exception):
+            project.get_all_experiments()
+
+        self.assertIsNone(project.get_experiment_by_id(experiment.id))
 
     @pytest.mark.skip(reason="failing - need to review")
     def test_delete_all_projects(self):
@@ -65,12 +69,13 @@ class TestProjectDelete(unittest.TestCase):
                 user = probe
         self.assertIsNotNone(user)
 
-        user.can_access(project)
+        project.add_user_to_access_list(another_user_id)
+        self.assertTrue(user.can_access(project))
 
         self._set_up_remote_for(another_user_key)
 
-        with pytest.raises(Exception):
-            project.delete()
+        results = project.delete()
+        self.assertIsNone(results)
 
         self._set_up_remote_for(self.mcapikey)
 
