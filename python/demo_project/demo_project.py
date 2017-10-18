@@ -25,7 +25,7 @@ class DemoProject:
                 project = p
         return project
 
-    def what_build_project(self):
+    def build_project(self):
         project_name = self.project_name
         print('---------------------------')
         print('Project name: ', project_name)

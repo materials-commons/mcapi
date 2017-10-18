@@ -2624,10 +2624,11 @@ class SelectionProperty(Property):
 
     def verify_value_type(self, value):
         if isinstance(value, dict):
-            if isinstance(value['name'], str) and isinstance(value['value'], str):
+            if (isinstance(value['name'], str) or isinstance(value['name'], unicode))\
+                    and (isinstance(value['value'], str) or isinstance(value['value'], unicode)):
                 return
         if not isinstance(value, str):
-            message = "Only str values for a SelectionProperty; "
+            message = "Only str/unicode values for a SelectionProperty; "
             message += "value = '" + str(value) + "', type = " + str(type(value)) + " is not valid"
             raise MCPropertyException(message)
         found = False
