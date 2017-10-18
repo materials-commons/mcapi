@@ -1122,7 +1122,8 @@ class Process(MCObject):
         pp.write("process_type: " + pp.str(self.process_type))
         pp.write_objects("input_files: ", self.input_files)
         pp.write_objects("output_files: ", self.output_files)
-        pp.write_objects("files: ", self.files)
+        if hasattr(self,'files'):
+            pp.write_objects("files: ", self.files)
         pp.write_objects("input_samples: ", self.input_samples)
         pp.write_objects("output_samples: ", self.output_samples)
         if len(self.transformed_samples):
