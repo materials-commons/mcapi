@@ -119,6 +119,8 @@ class TestDemoProject(unittest.TestCase):
 
         for process in processes:
             process.decorate_with_output_samples()
+            files = process.get_all_files()
+            process.files = files
 
         process_file_list = [
             [0, 2, 3], [0, 1], [1], [4, 5, 6, 7, 8, 9, 10], [11, 12, 13, 14, 15]

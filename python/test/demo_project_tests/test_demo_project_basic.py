@@ -77,9 +77,14 @@ class TestDemoProjectBasic(unittest.TestCase):
         self.assertEqual(sample_file.name, filename_for_sample)
 
         create_sample_process = experiment.get_process_by_id(create_sample_process.id)
+        files = create_sample_process.get_all_files()
+        create_sample_process.files = files
+
         if not self._process_has_file(create_sample_process, sample_file):
             create_sample_process.add_files([sample_file])
             create_sample_process = experiment.get_process_by_id(create_sample_process.id)
+            files = create_sample_process.get_all_files()
+            create_sample_process.files = files
         self.assertIsNotNone(create_sample_process.files)
         self.assertEqual(len(create_sample_process.files), 1)
         file1 = create_sample_process.files[0]
