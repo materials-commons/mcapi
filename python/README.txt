@@ -1,1 +1,0 @@
-Please see README.md for description of package.
