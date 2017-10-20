@@ -22,6 +22,8 @@ from .mc import _make_dir_tree_table, _create_new_tamplate, _update_template
 from .mc import _storeInUserProfile, _getFromUserProfile, _clearFromUserProfile
 from . import api as __api
 
+name='api'
+
 # __all__ = dir()
 __all__ = ['get_all_projects', 'create_project', 'get_project_by_id', 'get_all_users', 'get_all_templates',
            'Project', 'Experiment', 'Process', 'Sample', 'Template', 'Directory', 'File',
