@@ -13,7 +13,7 @@ class TestWorkflow(unittest.TestCase):
 
     def test_workflow(self):
         # #-# the workflow #-#
-        project_name = "Workflow Project - test001"
+        project_name = fake_name("Workflow Test Project - ")
         project_description = "a test project generated from api"
         project = create_project(
             name=project_name,
@@ -47,7 +47,9 @@ class TestWorkflow(unittest.TestCase):
         )
         create_sample_process.add_files([sample_file])
         create_sample_process = experiment.get_process_by_id(create_sample_process.id)
-        create_sample_process.rename("Create Simulation Sample")
+        create_sample_process = create_sample_process.rename("Create Simulation Sample")
+
+        create_sample_process = experiment.get_process_by_id(create_sample_process.id)
 
         compute_process = experiment. \
             create_process_from_template(Template.compute). \
@@ -125,12 +127,8 @@ class TestWorkflow(unittest.TestCase):
         self.assertIsNotNone(sample_file.name)
         self.assertEqual(sample_file.name, filename_for_sample)
 
-        self.assertIsNotNone(create_sample_process.files)
-        self.assertEqual(len(create_sample_process.files), 1)
-        file1 = create_sample_process.files[0]
-        self.assertIsNotNone(file1)
-        self.assertIsNotNone(file1.id)
-        self.assertEqual(file1.id, sample_file.id)
+        self.assertEqual(create_sample_process.files_count, 1)
+        self.assertEqual(create_sample_process.filesLoaded, False)
 
         self.assertIsNotNone(compute_process)
         self.assertIsNotNone(compute_process.id)
@@ -153,12 +151,8 @@ class TestWorkflow(unittest.TestCase):
         self.assertIsNotNone(compute_file.name)
         self.assertEqual(compute_file.name, filename_for_compute)
 
-        self.assertIsNotNone(compute_process.files)
-        self.assertEqual(len(compute_process.files), 1)
-        file2 = compute_process.files[0]
-        self.assertIsNotNone(file2)
-        self.assertIsNotNone(file2.id)
-        self.assertEqual(file2.id, compute_file.id)
+        self.assertEqual(compute_process.files_count, 1)
+        self.assertEqual(compute_process.filesLoaded, False)
 
         measurement_out = create_sample_process_updated.measurements[0]
         self.assertEqual(measurement_out.name, measurement.name)

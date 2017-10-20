@@ -1,4 +1,5 @@
 import unittest
+import sys
 from os import environ
 from os import path as os_path
 import demo_project as demo
@@ -6,6 +7,10 @@ import demo_project as demo
 
 class TestDemoProject(unittest.TestCase):
     def test_build_demo_project(self):
+
+        print('')
+        print("Start test ----------")
+        print(sys.path)
 
         # Expected test values
         project_name = 'Demo Project'
@@ -19,19 +24,24 @@ class TestDemoProject(unittest.TestCase):
             'EBSD SEM Data Collection - 5 mm plate', 'EPMA Data Collection - 5 mm plate - center'
         ]
 
+        print("before call ----------")
         builder = demo.DemoProject(self._make_test_dir_path())
+        print("after call ----------")
 
         if (builder.does_project_exist()):
             project = builder.get_existing_project()
             project.rename("Set aside","Forcing existing demo project to be set aside")
 
         table = builder._make_template_table()
+        print("after _make_template_table ----------")
         self.assertIsNotNone(builder._template_id_with(table, 'Create'))
         self.assertIsNotNone(builder._template_id_with(table, 'Sectioning'))
         self.assertIsNotNone(builder._template_id_with(table, 'EBSD SEM'))
         self.assertIsNotNone(builder._template_id_with(table, 'EPMA'))
 
+        print("before builder.build_project() ----------")
         project = builder.build_project()
+        print("after builder.build_project() ----------")
 
         self.assertIsNotNone(project)
         experiments = project.get_all_experiments()
@@ -109,6 +119,8 @@ class TestDemoProject(unittest.TestCase):
 
         for process in processes:
             process.decorate_with_output_samples()
+            files = process.get_all_files()
+            process.files = files
 
         process_file_list = [
             [0, 2, 3], [0, 1], [1], [4, 5, 6, 7, 8, 9, 10], [11, 12, 13, 14, 15]

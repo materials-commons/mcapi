@@ -76,20 +76,22 @@ class TestMCExpt(unittest.TestCase):
         self.assertEqual(len(expts_list), 2)
         self.assertTrue('test_A' in expts_dict)
         self.assertTrue('test_B' in expts_dict)
-        
-        testargs = ['mc', 'expt', '-d', 'test_B', '-n']
-        with captured_output(wd=self.proj_path) as (sout, serr):
-            expt_subcommand(testargs)
+
+
+        # dry-run is no longer an option on delete (e.g can not use -n)
+        # testargs = ['mc', 'expt', '-d', 'test_B', '-n']
+        #with captured_output(wd=self.proj_path) as (sout, serr):
+        #    expt_subcommand(testargs)
         #print_stringIO(sout)
-        out = sout.getvalue().splitlines()
+        #out = sout.getvalue().splitlines()
         
-        proj_list = mcapi.get_all_projects()
-        proj_dict = {p.name:p for p in proj_list}
-        expts_list = proj_dict['CLITest'].get_all_experiments()
-        expts_dict = {e.name:e for e in expts_list}
-        self.assertEqual(len(expts_list), 2)
-        self.assertTrue('test_A' in expts_dict)
-        self.assertTrue('test_B' in expts_dict)
+        #proj_list = mcapi.get_all_projects()
+        #proj_dict = {p.name:p for p in proj_list}
+        #expts_list = proj_dict['CLITest'].get_all_experiments()
+        #expts_dict = {e.name:e for e in expts_list}
+        #self.assertEqual(len(expts_list), 2)
+        #self.assertTrue('test_A' in expts_dict)
+        #self.assertTrue('test_B' in expts_dict)
         
         testargs = ['mc', 'expt', '-d', 'test_B']
         with captured_output(wd=self.proj_path) as (sout, serr):

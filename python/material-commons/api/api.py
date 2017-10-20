@@ -170,14 +170,6 @@ def delete_project(project_id, remote=None):
     api_url = "/projects/" + project_id
     return delete(remote.make_url_v2(api_url))
 
-
-def delete_project_dry_run(project_id, remote=None):
-    if not remote:
-        remote = use_remote()
-    api_url = "/projects/" + project_id + "/delete/dryrun"
-    return get(remote.make_url_v2(api_url))
-
-
 def get_project_processes(project_id, remote=None):
     if not remote:
         remote = use_remote()
@@ -350,6 +342,15 @@ def delete_sample_created_by_process(project_id, process_id, sample_id, property
     }
     api_url = "projects/" + project_id + "/processes/" + process_id
     return put(remote.make_url_v2(api_url), data)
+
+def get_all_files_for_process(project_id, experiment_id, process_id, remote=None):
+    if not remote:
+        remote = use_remote()
+    api_url = "projects/" + project_id \
+              + "/experiments/" + experiment_id \
+              + "/processes/" + process_id \
+              + "/files"
+    return get(remote.make_url_v2(api_url))
 
 
 # Sample
@@ -608,7 +609,6 @@ def add_files_to_process(project_id, experiment_id, process, files, remote=None)
         "process_id": process.id,
         "files": file_id_list
     }
-    print(json.dumps(data))
     api_url = "projects/" + project_id + \
               "/experiments/" + experiment_id + \
               "/processes/" + process.id

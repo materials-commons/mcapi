@@ -21,8 +21,6 @@ def expt_subcommand(argv=sys.argv):
     parser.add_argument('-s', '--set', action="store_true", default=False, help='Set current experiment')
     parser.add_argument('--id', action="store_true", default=False, help='Input experiment id instead of name')
     parser.add_argument('--desc', type=str, default="", help='Experiment description')
-    parser.add_argument('-n', '--dry-run', action="store_true", default=False, help='Dry run deletion')
-    parser.add_argument('-a', '--all', action="store_true", default=False, help='Delete all samples and processes')
     #parser.add_argument('-m', '--rename', type=str, default='origin', help='Rename experiment')
     
     # ignore 'mc expt'
@@ -54,11 +52,12 @@ def expt_subcommand(argv=sys.argv):
                 _expts = expt_ids
             else:
                 _expts = expts
-            _expts[name].delete(dry_run=args.dry_run, delete_processes_and_samples=args.all)
-            print('Deleted experiment:', name)
-            for key, val in _expts[name].delete_tally.__dict__.items():
-                print(key, val)
-            print("")
+            _expts[name].delete()
+            # Note Delete tally depreciated
+            # print('Deleted experiment:', name)
+            # for key, val in _expts[name].delete_tally.__dict__.items():
+            #    print(key, val)
+            # print("")
     
     elif args.set:
         if len(args.expts) != 1:

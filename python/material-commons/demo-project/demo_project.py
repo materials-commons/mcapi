@@ -5,6 +5,9 @@ class DemoProject:
     def __init__(self, data_directory_path):
         self.build_data_directory = data_directory_path
         self.project_name = "Demo Project"
+        print('\n---------------------------')
+        print('Project name: ', self.project_name)
+        print('---------------------------')
 
     def does_project_exist(self):
         projects = get_all_projects()
@@ -24,6 +27,9 @@ class DemoProject:
 
     def build_project(self):
         project_name = self.project_name
+        print('---------------------------')
+        print('Project name: ', project_name)
+        print('---------------------------')
         project_description = "A project for trying things out."
         experiment_name = "Demo: Microsegregation in HPDC L380"
         experiment_description = "A demo experiment -  A study of microsegregation in High Pressure Die Cast L380."
@@ -135,14 +141,24 @@ class DemoProject:
                 )
             file_list.append(sample_file)
 
+        count = 0
+        for process in processes:
+            updated_process = experiment.get_process_by_id(process.id)
+            files = updated_process.get_all_files()
+            updated_process.files = files
+            processes[count] = updated_process
+            count = count + 1
+
         process_index = 0
         for file_index_list in process_file_list:
-            processes[process_index] = experiment.get_process_by_id(processes[process_index].id)
             for file_index in file_index_list:
                 sample_file = file_list[file_index]
                 if not self._process_has_file(processes[process_index], sample_file):
                     processes[process_index].add_files([sample_file])
-                    processes[process_index] = experiment.get_process_by_id(processes[process_index].id)
+                    updated_process = experiment.get_process_by_id(processes[process_index].id)
+                    files = updated_process.get_all_files()
+                    updated_process.files = files
+                    processes[process_index] = updated_process
             process_index += 1
 
         measurement_data = {
