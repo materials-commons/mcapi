@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='materials-commons',
-    version='0.5.4',
+    version='0.5.5',
     description='The Materials Commons tool set',
     long_description="""This modules contains: (1) materials-commons.mcapi, the Materials
     Commons Python API, an interface to the Materials Commons servers; (2) materials-commons.cli,
@@ -18,8 +18,8 @@ setup(
     author='Materials Commons development team',
     author_email='materials-commons-authors@umich.edu',
     license='MIT',
-    packages = ['material-commons', 'material-commons.api',
-              'material-commons.cli', 'material-commons.demo-project'],
+    packages = ['materials-commons', 'materials-commons.api',
+              'materials-commons.cli', 'materials-commons.demo-project'],
     scripts=['scripts/mc'],
     classifiers=[
         # How mature is this project? Common values are
