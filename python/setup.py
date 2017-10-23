@@ -1,10 +1,10 @@
 # build with: python setup.py install --user
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
     name='materials-commons',
-    version='0.5.0',
+    version='0.5.3',
     description='The Materials Commons tool set',
     long_description="""This modules contains: (1) materials-commons.mcapi, the Materials
     Commons Python API, an interface to the Materials Commons servers; (2) materials-commons.cli,
@@ -16,9 +16,10 @@ setup(
     materials commons REST-interface, and intends to use these tools in that context""",
     url='https://materials-commons.github.io/python-api/',
     author='Materials Commons development team',
-    author_email='weymouth@umich.edu',
+    author_email='materials-commons-authors@umich.edu',
     license='MIT',
-    packages=['materials-commons.api', 'materials-commons.cli', 'materials-commons.demo-project'],
+    py_modules = ['material-commons', 'material-commons.api',
+              'material-commons.cli', 'material-commons.demo-project'],
     scripts=['scripts/mc'],
     classifiers=[
         # How mature is this project? Common values are
