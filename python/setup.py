@@ -2,26 +2,30 @@
 
 from setuptools import setup, find_packages
 
+print("----")
+print(find_packages())
+print("----")
+
 setup(
     name='materials-commons',
-    version='0.5.5',
+    version='0.5.6',
     description='The Materials Commons tool set',
-    long_description="""This package contains three modules:
-    (1) materials-commons.mcapi, the Materials Commons Python API, an interface 
-    to the Materials Commons servers; (2) materials-commons.cli, the 
+    long_description="""This package contains two modules:
+    (1) materials_commons.api, the Materials Commons Python API, an interface 
+    to the Materials Commons servers; and (2) materials_commons.cli, the 
     Material Commons command line interface which is built on the API and provides
-    command line access to the Materials Commons servers; and (3) materials-commons.demo-project
-    which provides a tool for building a demo project in your account on a Materials Commons
-    servers. We assume you have used (or are otherwise familiar with) the Materials 
+    command line access to the Materials Commons servers.
+    We assume you have used (or are otherwise familiar with) the Materials 
     Commons web site, https://materialscommons.org/, or a similar site based on the
     materials commons code (https://github.com/materials-commons/materialscommons.org),
-    and intend to use these tools in that context""",
+    and intend to use these tools in that context. There are additional examples and code at
+    the github site shown above; these include demo_project.py a script that builds
+    a demo project in the materials-commons web site.""",
     url='https://materials-commons.github.io/python-api/',
     author='Materials Commons development team',
     author_email='materials-commons-authors@umich.edu',
     license='MIT',
-    packages = ['materials-commons', 'materials-commons.api',
-              'materials-commons.cli', 'materials-commons.demo-project'],
+    packages = find_packages(),
     scripts=['scripts/mc'],
     classifiers=[
         # How mature is this project? Common values are
@@ -50,3 +54,7 @@ setup(
                       "tabulate", "sortedcontainers"
                       ]
 )
+
+print("----")
+print(find_packages())
+print("----")

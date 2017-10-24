@@ -1,5 +1,5 @@
-from mcapi import create_project, get_all_templates
-from mcapi import get_all_projects
+from materials_commons.api import create_project, get_all_templates
+from materials_commons.api import get_all_projects
 
 class DemoProject:
     def __init__(self, data_directory_path):

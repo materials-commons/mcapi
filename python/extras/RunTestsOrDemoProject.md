@@ -1,5 +1,5 @@
-Compiling and Running Tests
-===========================
+Compiling and Running Tests and Examples
+========================================
 
 Preconditions
 -------------
@@ -31,8 +31,8 @@ access to all the data that you have access to. If you wish to reset your key,
 there is an option to do so on this same page. When you reset you key, remember to
 also update it in the .materialscommons/config.jason file.
 
-Dependencies on materialcommons.org and specific database
----------------------------------------------------------
+For tests - Dependencies on materialcommons.org and specific database
+---------------------------------------------------------------------
 
 Right the complete set of these tests will only run if you have set 
 a "matching version" of materialscommons.org
@@ -67,6 +67,13 @@ https://mctest.localhost/api/v2/templates?apikey=totally-bogus
 ```
 The returned "value" should be a lot of json. It's actuall the list of all the templates in
 Materials Commons.
+
+Demo Project script
+-------------------
+
+In the folder extras/demo_project the code in demo_project.py can be used to build
+a demo project in upload it to a users account on the Materials Commons site. Note that
+the preconditions (above) for running the tests also apply the using this demo project code.
 
 Libraries
 ---------
