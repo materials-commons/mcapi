@@ -32,110 +32,22 @@ class TestExperimentDelete(unittest.TestCase):
         self.assertIsNotNone(experiment.project.id)
         self.assertEqual(experiment.project,project)
         self.assertEqual(experiment.project.id,project.id)
-
-        deleted_experiment = experiment.delete()
-
-        self.assertEqual(len(deleted_experiment.delete_tally.datasets), 0)
-        self.assertEqual(len(deleted_experiment.delete_tally.best_measure_history), 0)
-        self.assertEqual(len(deleted_experiment.delete_tally.processes), 0)
-        self.assertEqual(len(deleted_experiment.delete_tally.samples), 0)
-        self.assertEqual(len(deleted_experiment.delete_tally.experiment_notes), 0)
-        self.assertEqual(len(deleted_experiment.delete_tally.experiment_task_processes), 0)
-        self.assertEqual(len(deleted_experiment.delete_tally.experiment_tasks), 1)
-        self.assertEqual(len(deleted_experiment.delete_tally.notes), 0)
-        self.assertEqual(len(deleted_experiment.delete_tally.reviews), 0)
-        self.assertEqual(len(deleted_experiment.delete_tally.experiments), 1)
-
-    def test_delete_dry_run(self):
-        self.helper = aid.AssertHelper(self)
-
-        self.old_experiment = None
-        self.new_experiment = None
-        project = self._build_project()
-        self.assertIsNotNone(self.old_experiment)
-        self.assertIsNotNone(self.new_experiment)
-
-        project_name = self.test_project_name
-
-        self.helper.confirm_demo_project_content(project, project_name, 2)
-
-        experiment = self.old_experiment
-        self.assertIsNotNone(experiment)
-        self.assertEqual(experiment.otype,"experiment")
-        self.assertIsNotNone(experiment.project)
-        self.assertIsNotNone(experiment.project.id)
-        self.assertEqual(experiment.project,project)
-        self.assertEqual(experiment.project.id,project.id)
-
-        deleted_experiment = experiment.delete(dry_run=True)
-
-        self.assertEqual(len(deleted_experiment.delete_tally.datasets), 0)
-        self.assertEqual(len(deleted_experiment.delete_tally.best_measure_history), 1)
-        self.assertEqual(len(deleted_experiment.delete_tally.processes), 5)
-        self.assertEqual(len(deleted_experiment.delete_tally.samples), 7)
-        self.assertEqual(len(deleted_experiment.delete_tally.experiment_notes), 0)
-        self.assertEqual(len(deleted_experiment.delete_tally.experiment_task_processes), 0)
-        self.assertEqual(len(deleted_experiment.delete_tally.experiment_tasks), 1)
-        self.assertEqual(len(deleted_experiment.delete_tally.notes), 0)
-        self.assertEqual(len(deleted_experiment.delete_tally.reviews), 0)
-        self.assertEqual(len(deleted_experiment.delete_tally.experiments), 1)
-
-        self.assertEqual(deleted_experiment.delete_tally.experiments[0],self.old_experiment.id)
-
         experiments = project.get_all_experiments()
+        self.assertIsNotNone(experiments)
         self.assertEqual(len(experiments),2)
 
-        old_experiment = None
-        new_experiment = None
-        for experiment in experiments:
-            if experiment.id == self.old_experiment.id:
-                old_experiment = experiment
-            if experiment.id == self.new_experiment.id:
-                new_experiment = experiment
+        deleted_experiment_id = experiment.delete()
 
-        self.assertIsNotNone(old_experiment)
-        self.assertIsNotNone(new_experiment)
+        self.assertIsNotNone(deleted_experiment_id)
+        self.assertEqual(deleted_experiment_id,experiment.id)
 
-        self.helper.confirm_demo_project_content(project, project_name, 2)
-
-    def test_delete_fully(self):
-        self.helper = aid.AssertHelper(self)
-
-        self.old_experiment = None
-        self.new_experiment = None
-        project = self._build_project()
-        self.assertIsNotNone(self.old_experiment)
-        self.assertIsNotNone(self.new_experiment)
-
-        project_name = self.test_project_name
-
-        self.helper.confirm_demo_project_content(project, project_name, 2)
-
-        experiment = self.old_experiment
-        self.assertIsNotNone(experiment)
-        self.assertEqual(experiment.otype,"experiment")
-        self.assertIsNotNone(experiment.project)
-        self.assertIsNotNone(experiment.project.id)
-        self.assertEqual(experiment.project,project)
-        self.assertEqual(experiment.project.id,project.id)
-
-        deleted_experiment = experiment.delete(delete_processes_and_samples=True)
-
-        self.assertEqual(len(deleted_experiment.delete_tally.datasets), 0)
-        self.assertEqual(len(deleted_experiment.delete_tally.best_measure_history), 1)
-        self.assertEqual(len(deleted_experiment.delete_tally.processes), 5)
-        self.assertEqual(len(deleted_experiment.delete_tally.samples), 7)
-        self.assertEqual(len(deleted_experiment.delete_tally.experiment_notes), 0)
-        self.assertEqual(len(deleted_experiment.delete_tally.experiment_task_processes), 0)
-        self.assertEqual(len(deleted_experiment.delete_tally.experiment_tasks), 1)
-        self.assertEqual(len(deleted_experiment.delete_tally.notes), 0)
-        self.assertEqual(len(deleted_experiment.delete_tally.reviews), 0)
-        self.assertEqual(len(deleted_experiment.delete_tally.experiments), 1)
-        self.assertEqual(deleted_experiment.delete_tally.experiments[0],self.old_experiment.id)
+        results = project.get_experiment_by_id(deleted_experiment_id)
+        self.assertIsNone(results)
 
         experiments = project.get_all_experiments()
+        self.assertIsNotNone(experiments)
         self.assertEqual(len(experiments),1)
-        self.assertEqual(experiments[0].id,self.new_experiment.id)
+        self.assertEqual(self.new_experiment.id, experiments[0].id)
 
     def _build_project(self):
 

@@ -24,46 +24,20 @@ class TestProjectDelete(unittest.TestCase):
         self.helper = AssertHelper(self)
 
         project = self._build_project()
-
         project_name = self.test_project_name
-
+        experiment = project.get_all_experiments()[0]
         self.helper.confirm_demo_project_content(project, project_name, 1)
 
-        deleted_project = project.delete()
+        deleted_project_id = project.delete()
 
-        self.assertEqual(deleted_project.id, project.id)
-        self.assertEqual(deleted_project.delete_tally.project['id'], project.id)
-
-        self.assertEqual(len(deleted_project.delete_tally.files), 16)
-        self.assertEqual(len(deleted_project.delete_tally.processes), 5)
-        self.assertEqual(len(deleted_project.delete_tally.datasets), 0)
-        self.assertEqual(len(deleted_project.delete_tally.experiments), 1)
-        self.assertEqual(len(deleted_project.delete_tally.samples), 7)
-
+        self.assertEqual(deleted_project_id, project.id)
         with pytest.raises(Exception):
             get_project_by_id(project.id)
 
-    def test_delete_dry_run(self):
-        self.helper = AssertHelper(self)
+        with pytest.raises(Exception):
+            project.get_all_experiments()
 
-        project = self._build_project()
-
-        project_name = self.test_project_name
-
-        self.helper.confirm_demo_project_content(project, project_name, 1)
-
-        deleted_project = project.delete(dry_run=True)
-
-        self.assertEqual(deleted_project.id, project.id)
-        self.assertEqual(deleted_project.delete_tally.project['id'], project.id)
-
-        self.assertEqual(len(deleted_project.delete_tally.files), 16)
-        self.assertEqual(len(deleted_project.delete_tally.processes), 5)
-        self.assertEqual(len(deleted_project.delete_tally.datasets), 0)
-        self.assertEqual(len(deleted_project.delete_tally.experiments), 1)
-        self.assertEqual(len(deleted_project.delete_tally.samples), 7)
-
-        self.helper.confirm_demo_project_content(project, project_name, 1)
+        self.assertIsNone(project.get_experiment_by_id(experiment.id))
 
     @pytest.mark.skip(reason="failing - need to review")
     def test_delete_all_projects(self):
@@ -95,12 +69,13 @@ class TestProjectDelete(unittest.TestCase):
                 user = probe
         self.assertIsNotNone(user)
 
-        user.can_access(project)
+        project.add_user_to_access_list(another_user_id)
+        self.assertTrue(user.can_access(project))
 
         self._set_up_remote_for(another_user_key)
 
-        with pytest.raises(Exception):
-            project.delete()
+        results = project.delete()
+        self.assertIsNone(results)
 
         self._set_up_remote_for(self.mcapikey)
 

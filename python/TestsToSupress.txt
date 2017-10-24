@@ -1,0 +1,7 @@
+        files = self.process.get_all_files()
+        process.files = files
+
+
+test/mcapi_tests/test_experiment_delete.py FFF
+test/mcapi_tests/test_process_delete.py FF..F.
+test/mcapi_tests/test_project_delete.py FsFF
