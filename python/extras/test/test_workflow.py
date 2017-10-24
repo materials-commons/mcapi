@@ -2,7 +2,7 @@ import unittest
 from random import randint
 from os import environ
 from os import path as os_path
-from mcapi import create_project, Template
+from materials_commons.api import create_project, Template
 
 def fake_name(prefix):
     number = "%05d" % randint(0, 99999)
