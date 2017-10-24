@@ -39,6 +39,7 @@ env:
     - MC_DOI_PUBLICATION_BASE=http://mcpub.localhost/#/details
     - MC_DOI_NAMESPACE='doi:10.5072/FK2'
     - SERVERTYPE=travisrun
+    - MC_ORG_BRANCH=release
 
 git:
   depth: 3
@@ -69,7 +70,7 @@ install:
   - npm install -g node-gyp@3.5.0
   - npm install -g gulp
   - mkdir .materialscommons
-  - git clone -b sprint --depth 3 https://github.com/materials-commons/materialscommons.org.git
+  - git clone -b $MC_ORG_BRANCH --depth 3 https://github.com/materials-commons/materialscommons.org.git
 
   - pushd materialscommons.org
   - git log -1
@@ -132,7 +133,7 @@ before_script:
   - pwd
 
 script:
-  - pytest -rsx test
+  - pytest -rsx test/mcapi_tests
 #  - -rsx to show reasons for skipping and failed tests - updated
 #  or ...
 #  - coverage run --source mcapi,casm_mcapi,demo_project -m py.test test
