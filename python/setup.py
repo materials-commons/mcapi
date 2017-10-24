@@ -6,14 +6,16 @@ setup(
     name='materials-commons',
     version='0.5.5',
     description='The Materials Commons tool set',
-    long_description="""This modules contains: (1) materials-commons.mcapi, the Materials
-    Commons Python API, an interface to the Materials Commons servers; (2) materials-commons.cli,
-    the Material Commons command line interface which is built on the API and provides
+    long_description="""This package contains three modules:
+    (1) materials-commons.mcapi, the Materials Commons Python API, an interface 
+    to the Materials Commons servers; (2) materials-commons.cli, the 
+    Material Commons command line interface which is built on the API and provides
     command line access to the Materials Commons servers; and (3) materials-commons.demo-project
-    which provides a tool for building a demo project in your account at a Materials Commons
-    servers. We assume that the reader has used (or is otherwise familiar with) the Materials 
-    Commons web site, https://materialscommons.org/ or a similar site based on the
-    materials commons REST-interface, and intends to use these tools in that context""",
+    which provides a tool for building a demo project in your account on a Materials Commons
+    servers. We assume you have used (or are otherwise familiar with) the Materials 
+    Commons web site, https://materialscommons.org/, or a similar site based on the
+    materials commons code (https://github.com/materials-commons/materialscommons.org),
+    and intend to use these tools in that context""",
     url='https://materials-commons.github.io/python-api/',
     author='Materials Commons development team',
     author_email='materials-commons-authors@umich.edu',
@@ -43,7 +45,7 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.6'
     ],
-    keywords='materials science mc lift prisims',
+    keywords='materials science mc lift prisms',
     install_requires=["requests", "rethinkdb","pathlib", "numpy", "pandas",
                       "tabulate", "sortedcontainers"
                       ]
