@@ -132,7 +132,7 @@ before_script:
   - pwd
 
 script:
-  - pytest -rsx test
+  - pytest -rsx test/mcapi_tests
 #  - -rsx to show reasons for skipping and failed tests - updated
 #  or ...
 #  - coverage run --source mcapi,casm_mcapi,demo_project -m py.test test
