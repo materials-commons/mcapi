@@ -2,7 +2,7 @@ import unittest
 import os
 import re
 import materials_commons.api as mcapi
-from .cli_test_functions import working_dir, captured_output, print_string_io
+from extras.test.cli_tests.cli_test_functions import working_dir, captured_output, print_string_io
 from materials_commons.cli.init import init_subcommand
 from materials_commons.cli.up import up_subcommand
 from materials_commons.cli.functions import make_local_project

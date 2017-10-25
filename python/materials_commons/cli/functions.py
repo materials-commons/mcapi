@@ -2,6 +2,9 @@ import os
 import copy
 import json
 import materials_commons.api as mcapi
+from materials_commons.api import _Remote as Remote
+# TODO: we should not be using the RAW api interface!
+from materials_commons.api import __api as mc_raw_api
 import pandas
 import string
 import time
@@ -25,8 +28,7 @@ def _trunc_desc(obj, size=100):
     return _desc
 
 
-# mc.py - project object - with appropriate mapping to api.py
-def _experiments(project_id, remote=mcapi.Remote()):
+def _experiments(project_id, remote=Remote()):
     """
     get experiments data for specified project
 
@@ -35,14 +37,17 @@ def _experiments(project_id, remote=mcapi.Remote()):
       results: List[dict()]
 
     """
-    return mcapi.api.get(remote.make_url_v2('projects/' + project_id + '/experiments'), remote=remote)
+    # TODO: needs to be refactored - there is a method in the Project that gets all the experiments
+    return mc_raw_api.get(remote.make_url_v2('projects/' + project_id + '/experiments'), remote=remote)
 
 
 # mc.py - project object
 def _get_experiments(proj):
     """
-    get List[mcapi.Experiment] for project
+    get List[materails_comnnons_api.Experiment] for project
+    NOTE: this is not the way to do this - there is a method in the project that gets all the experiments.
     """
+    # TODO: needs to be refactored - there is a method in the Project that gets all the experiments
     results = _experiments(proj.id, proj.remote)
     ret = []
     for data in results:
@@ -56,10 +61,9 @@ def _get_experiments(proj):
 # mc_cli.py/mc.py - additional objects...
 def _mc_remotes(path=None):
     """
-    Dict of {name: mcapi.Remote}
+    Dict of {origin: materialscommons.api.Remote}
     """
-    # just 'origin' for now
-    return {'origin': mcapi.Remote()}
+    return {'origin': Remote()}
 
 
 def _format_mtime(mtime):
@@ -76,8 +80,8 @@ def _print_projects(projects, current=None):
     Print() list of projects, include '*' for current project
 
     Arguments:
-        projects: List[mcapi.Project]
-        current: mcapi.Project containing os.getcwd()
+        projects: List[materials_commons.api.Project]
+        current: materials_commons.api.Project containing os.getcwd()
     """
     data = []
     for p in projects:
@@ -114,8 +118,8 @@ def _print_experiments(experiments, current=None):
     Print() list of experiments, include '*' for current experiment
 
     Arguments:
-        experiments: List[mcapi.Experiment]
-        current: current working mcapi.Experiment
+        experiments: List[materials_commons.api.Experiment]
+        current: current working materials_commons.api.Experiment
     """
     data = []
     for e in experiments:
@@ -221,7 +225,7 @@ def make_local_project(path=None):
     if remote is None:
         print("could not find remote:", j['remote_url'])
 
-    # get mcapi.Project
+    # get materials_commons.api.Project by id
     proj = mcapi.get_project_by_id(j['project_id'])
 
     proj.local_path = _proj_path(path)

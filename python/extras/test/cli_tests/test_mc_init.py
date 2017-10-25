@@ -2,6 +2,7 @@ import unittest
 import os
 import re
 import materials_commons.api as mcapi
+from materials_commons.api import _use_remote as mcapi_use_remote
 from .cli_test_functions import working_dir, captured_output
 from materials_commons.cli.init import init_subcommand
 from materials_commons.cli.functions import make_local_project
@@ -46,7 +47,7 @@ class TestMCInit(unittest.TestCase):
             init_subcommand(testargs)
         # print_stringIO(sout)
         out = sout.getvalue().splitlines()
-        remote = mcapi.use_remote()
+        remote = mcapi_use_remote()
         url = remote.config.mcurl
         self.assertEqual(out[0], "Created new project at: " + url)
 
