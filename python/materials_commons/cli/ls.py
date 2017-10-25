@@ -106,7 +106,7 @@ def _ls_group(proj, paths, files_only=True, checksum=False, json=False, id=False
             path_data.append(data)
 
     return pandas.DataFrame.from_records(path_data, columns=columns) \
-               .sort_values(by='name'), files, dirs, remotes
+        .sort_values(by='name'), files, dirs, remotes
 
 
 def _humanize(file_size_bytes):
