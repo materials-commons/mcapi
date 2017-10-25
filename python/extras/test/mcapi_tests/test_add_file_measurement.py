@@ -4,7 +4,7 @@ from os import environ
 from os import path as os_path
 from os.path import getsize
 from pathlib import Path as PathClass
-from mcapi import create_project, Template
+from materials_commons.api import create_project, Template
 
 
 def fake_name(prefix):

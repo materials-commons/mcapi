@@ -1,9 +1,9 @@
 import unittest
 import pytest
 from random import randint
-from mcapi import get_all_templates
-from mcapi import use_remote, set_remote, get_all_users
-from mcapi import _create_new_tamplate, _update_template
+from materials_commons.api import get_all_templates
+from materials_commons.api import _use_remote as use_remote, _set_remote as set_remote, get_all_users
+from materials_commons.api import _create_new_tamplate, _update_template
 
 
 def fake_name(prefix):

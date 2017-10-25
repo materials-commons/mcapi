@@ -1,10 +1,10 @@
 import unittest
 import os
 import re
-import mcapi
+import materials_commons.api as mcapi
 from .cli_test_functions import captured_output
-from mcapi.cli.init import init_subcommand
-from mcapi.cli.expt import expt_subcommand
+from materials_commons.cli.init import init_subcommand
+from materials_commons.cli.expt import expt_subcommand
 
 
 def mkdir_if(path):

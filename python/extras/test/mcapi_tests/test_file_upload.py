@@ -3,7 +3,7 @@ from os import environ
 from os import path as os_path
 from os.path import getsize
 from pathlib import Path
-from mcapi import create_project
+from materials_commons.api import create_project
 
 
 class TestFileUpload(unittest.TestCase):

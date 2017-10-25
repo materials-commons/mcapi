@@ -2,7 +2,7 @@ from os import path as os_path
 from os import walk
 import time
 from random import randint
-from mcapi import get_remote_config_url, create_project
+from materials_commons.api import get_remote_config_url, create_project
 
 BASE_DIRECTORY = "/tmp/a_thousand_files"
 

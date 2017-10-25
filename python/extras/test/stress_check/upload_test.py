@@ -1,6 +1,6 @@
 import time
 from random import randint
-from mcapi import create_project
+from materials_commons.api import create_project
 
 BASE_DIRECTORY = "/tmp/a_thousand_files/"
 

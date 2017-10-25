@@ -2,8 +2,8 @@ import unittest
 from os import environ
 from os import path as os_path
 from random import randint
-import demo_project as demo
-import test.mcapi_tests.assert_helper as aid
+import extras.demo_project.demo_project as demo
+import extras.test.mcapi_tests.assert_helper as aid
 
 
 def _fake_name(prefix):

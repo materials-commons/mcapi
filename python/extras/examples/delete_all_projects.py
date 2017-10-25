@@ -1,4 +1,4 @@
-# from mcapi import get_all_projects
+# from materials_commons.api import get_all_projects
 #
 # for project in get_all_projects():
 #     try:

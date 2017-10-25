@@ -1,6 +1,6 @@
 import unittest
 from os import environ, path
-from mcapi import Config
+from materials_commons.api import _Config as Config
 
 
 class TestConfig(unittest.TestCase):

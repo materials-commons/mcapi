@@ -7,7 +7,7 @@ from os import remove
 from os import path as os_path
 from os.path import getsize, exists, isfile
 from pathlib import Path
-from mcapi import create_project
+from materials_commons.api import create_project
 
 
 class TestFileDownload(unittest.TestCase):

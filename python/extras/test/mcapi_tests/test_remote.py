@@ -1,8 +1,8 @@
 import unittest
 from os.path import exists
 from os import environ, path
-from mcapi import Config
-from mcapi import Remote
+from materials_commons.api import _Config as Config
+from materials_commons.api import _Remote as Remote
 
 
 class TestRemote(unittest.TestCase):

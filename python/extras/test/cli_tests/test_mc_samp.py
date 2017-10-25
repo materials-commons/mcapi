@@ -1,13 +1,13 @@
 import unittest
 import os
 import re
-import mcapi
+import materials_commons.api as mcapi
 import json
-from mcapi import Template
+from materials_commons.api import Template
 from .cli_test_functions import working_dir, captured_output, print_stringIO
-from mcapi.cli.init import init_subcommand
-from mcapi.cli.samp import SampSubcommand
-from mcapi.cli.functions import make_local_project, make_local_expt, set_current_experiment
+from materials_commons.cli.init import init_subcommand
+from materials_commons.cli.samp import SampSubcommand
+from materials_commons.cli.functions import make_local_project, make_local_expt, set_current_experiment
 
 
 def mkdir_if(path):

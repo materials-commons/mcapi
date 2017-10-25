@@ -1,4 +1,4 @@
-from mcapi import get_all_projects, get_project_by_id
+from materials_commons.api import get_all_projects, get_project_by_id
 
 all_projects = get_all_projects()
 

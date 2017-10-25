@@ -1,7 +1,7 @@
 from os import environ
 from os import path as os_path
 from random import randint
-import demo_project.demo_project as demo
+import extras.demo_project.demo_project as demo
 # for test-only dataset - normally datasets are not created through API!
 from materials_commons.api import __api as api
 from materials_commons.api import get_project_by_id

@@ -2,7 +2,7 @@ import unittest
 import string
 import json
 from .cli_test_functions import captured_output, print_stringIO
-from mcapi.cli.templates import TemplatesSubcommand
+from materials_commons.cli.templates import TemplatesSubcommand
 
 
 class TestMCTemplates(unittest.TestCase):

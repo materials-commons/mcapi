@@ -3,11 +3,11 @@ import pytest
 from os import environ
 from os import path as os_path
 from random import randint
-from mcapi import get_project_by_id, get_all_projects
-from mcapi import use_remote, set_remote, get_all_users
-from mcapi import get_remote_config_url
-import demo_project as demo
-from test.mcapi_tests.assert_helper import AssertHelper
+from materials_commons.api import get_project_by_id, get_all_projects
+from materials_commons.api import _use_remote as use_remote, _set_remote as set_remote, get_all_users
+from materials_commons.api import get_remote_config_url
+import extras.demo_project.demo_project as demo
+from extras.test.mcapi_tests.assert_helper.AssertHelper import AssertHelper
 
 
 def _fake_name(prefix):

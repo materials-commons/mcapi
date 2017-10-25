@@ -1,9 +1,9 @@
 import unittest
 import datetime
 from random import randint
-from mcapi import api
-from mcapi import create_project
-from mcapi import Template
+from materials_commons.api import api
+from materials_commons.api import create_project
+from materials_commons.api import Template
 
 
 def fake_name(prefix):

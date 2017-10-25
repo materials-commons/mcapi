@@ -1,7 +1,7 @@
 import unittest
 from random import randint
-from mcapi import create_project, get_all_templates
-from mcapi import Template
+from materials_commons.api import create_project, get_all_templates
+from materials_commons.api import Template
 
 
 def fake_name(prefix):

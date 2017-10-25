@@ -1,8 +1,8 @@
 import time
 import sys
 from random import randint
-from mcapi import get_remote_config_url, create_project
-from mcapi import BulkFileUploader
+from materials_commons.api import get_remote_config_url, create_project
+from materials_commons.api import BulkFileUploader
 
 # from populate import populate
 

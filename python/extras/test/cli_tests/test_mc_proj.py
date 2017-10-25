@@ -1,6 +1,6 @@
 import unittest
 from .cli_test_functions import captured_output, print_stringIO
-from mcapi.cli.proj import ProjSubcommand
+from materials_commons.cli.proj import ProjSubcommand
 
 
 class TestMCProj(unittest.TestCase):

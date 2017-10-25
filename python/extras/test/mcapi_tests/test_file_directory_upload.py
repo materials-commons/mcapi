@@ -5,8 +5,8 @@ from os import path as os_path
 from os import listdir
 from os import makedirs
 from os.path import getsize
-from mcapi import create_project
-from mcapi import _make_dir_tree_table
+from materials_commons.api import create_project
+from materials_commons.api import _make_dir_tree_table
 
 
 def fake_name(prefix):

@@ -1,6 +1,6 @@
 import unittest
 from random import randint
-from mcapi import create_project
+from materials_commons.api import create_project
 
 
 def fake_name(prefix):

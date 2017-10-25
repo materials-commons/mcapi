@@ -1,10 +1,10 @@
 import unittest
 import pytest
 from random import randint
-from mcapi import set_remote_config_url, get_remote_config_url
-from mcapi import _storeInUserProfile as storeInUserProfile
-from mcapi import _getFromUserProfile as getFromUserProfile
-from mcapi import _clearFromUserProfile as clearFromUserProfile
+from materials_commons.api import set_remote_config_url, get_remote_config_url
+from materials_commons.api import _storeInUserProfile as storeInUserProfile
+from materials_commons.api import _getFromUserProfile as getFromUserProfile
+from materials_commons.api import _clearFromUserProfile as clearFromUserProfile
 
 
 url = 'http://mcdev.localhost/api'

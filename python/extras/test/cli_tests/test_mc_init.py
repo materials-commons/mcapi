@@ -1,10 +1,10 @@
 import unittest
 import os
 import re
-import mcapi
+import materials_commons.api as mcapi
 from .cli_test_functions import working_dir, captured_output
-from mcapi.cli.init import init_subcommand
-from mcapi.cli.functions import make_local_project
+from materials_commons.cli.init import init_subcommand
+from materials_commons.cli.functions import make_local_project
 
 
 class TestMCInit(unittest.TestCase):

@@ -1,8 +1,8 @@
 import unittest
 from os import environ
 from os import path as os_path
-from mcapi import create_project, Template
-from mcapi import get_all_projects
+from materials_commons.api import create_project, Template
+from materials_commons.api import get_all_projects
 
 
 class TestDemoProjectBasic(unittest.TestCase):

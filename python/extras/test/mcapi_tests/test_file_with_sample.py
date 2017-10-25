@@ -4,8 +4,8 @@ from os import environ
 from os import path as os_path
 from os.path import getsize
 from pathlib import Path
-from mcapi import create_project
-from mcapi import Template, get_all_templates
+from materials_commons.api import create_project
+from materials_commons.api import Template, get_all_templates
 
 
 def fake_name(prefix):

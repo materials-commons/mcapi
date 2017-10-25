@@ -5,8 +5,8 @@ from os import environ
 from os import path as os_path
 from os import walk
 
-from mcapi import create_project
-from mcapi import BulkFileUploader
+from materials_commons.api import create_project
+from materials_commons.api import BulkFileUploader
 
 
 def fake_name(prefix):

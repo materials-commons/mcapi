@@ -1,7 +1,7 @@
 import unittest
 import datetime
-from test.mcapi_tests.test_object_create_input_examples import data_examples
-from mcapi import mc
+from extras.test.mcapi_tests.test_object_create_input_examples import data_examples
+from materials_commons.api import mc
 
 
 class TestObjectFactory(unittest.TestCase):

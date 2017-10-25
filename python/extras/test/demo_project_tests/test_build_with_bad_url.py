@@ -2,8 +2,8 @@ import unittest
 import pytest
 from os import environ
 from os import path as os_path
-from mcapi import use_remote, set_remote
-import demo_project as demo
+from materials_commons.api import _use_remote as use_remote, _set_remote as set_remote
+import extras.demo_project.demo_project as demo
 
 
 class TestDemoProject(unittest.TestCase):

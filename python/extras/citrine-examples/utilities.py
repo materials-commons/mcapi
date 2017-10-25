@@ -79,8 +79,7 @@ def create_test_project():
 
 
 def print_mc_file_or_dir(obj):
-    print("    " + obj.otype + ", name = " + obj.name +\
-        ", id = " + obj.id)
+    print("    " + obj.otype + ", name = " + obj.name + ", id = " + obj.id)
 
 
 def get_temp_dir():

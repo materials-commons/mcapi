@@ -1,7 +1,7 @@
 import unittest
 from .cli_test_functions import captured_output, print_stringIO
-from mcapi.cli.remote import remote_subcommand
-from mcapi import use_remote
+from materials_commons.cli.remote import remote_subcommand
+from materials_commons.api import _use_remote as use_remote
 
 
 class TestMCRemote(unittest.TestCase):

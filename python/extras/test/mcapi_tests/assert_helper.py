@@ -1,4 +1,4 @@
-from mcapi import Template
+from materials_commons.api import Template
 
 
 class AssertHelper():

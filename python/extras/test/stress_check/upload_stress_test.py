@@ -5,7 +5,7 @@ from multiprocessing import Queue
 from threading import Thread
 from os import path as os_path
 from os import walk
-from mcapi import get_remote_config_url, create_project
+from materials_commons.api import get_remote_config_url, create_project
 
 # from populate import populate
 

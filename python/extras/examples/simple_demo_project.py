@@ -1,4 +1,4 @@
-from mcapi import create_project, get_all_templates
+from materials_commons.api import create_project, get_all_templates
 import os.path
 
 local_path = './example_data/simple_demo_data'

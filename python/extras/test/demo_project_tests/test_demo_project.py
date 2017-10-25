@@ -2,7 +2,7 @@ import unittest
 import sys
 from os import environ
 from os import path as os_path
-import demo_project as demo
+import extras.demo_project.demo_project as demo
 
 
 class TestDemoProject(unittest.TestCase):

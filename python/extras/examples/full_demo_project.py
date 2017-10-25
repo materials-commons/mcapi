@@ -1,5 +1,5 @@
 from os import path as os_path
-import demo_project as demo
+import extras.demo_project.demo_project as demo
 
 local_example_data_path = './example_data/data_for_full_demo_project'
 project_data_path = os_path.abspath(local_example_data_path)
