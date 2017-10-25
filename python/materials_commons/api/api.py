@@ -748,7 +748,7 @@ def _update_template(template_id, template_data, remote=None):
 # ---
 #   testing user profile backend
 # ---
-def _storeInUserProfile(user_id, name, value, remote=None):
+def _store_in_user_profile(user_id, name, value, remote=None):
     if not remote:
         remote = use_remote()
     api_url = "users/" + user_id + "/profiles/" + name
@@ -758,14 +758,14 @@ def _storeInUserProfile(user_id, name, value, remote=None):
     return put(remote.make_url_v2(api_url), data)
 
 
-def _getFromUserProfile(user_id, name, remote=None):
+def _get_from_user_profile(user_id, name, remote=None):
     if not remote:
         remote = use_remote()
     api_url = "users/" + user_id + "/profiles/" + name
     return get(remote.make_url_v2(api_url))
 
 
-def _clearFromUserProfile(user_id, name, remote=None):
+def _clear_from_user_profile(user_id, name, remote=None):
     if not remote:
         remote = use_remote()
     api_url = "users/" + user_id + "/profiles/" + name

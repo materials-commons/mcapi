@@ -47,7 +47,7 @@ class TestBulkUpload(unittest.TestCase):
         parallel = False
         verbose = False
         limit = 1
-        # buik loader with very small limit to test for upload failure and shorten test length
+        # bulk loader with very small limit to test for upload failure and shorten test length
         loader = BulkFileUploader(parallel=parallel, limit=limit, verbose=verbose)
         missed_files = loader.bulk_upload(project, local_path)
 
@@ -76,7 +76,7 @@ class TestBulkUpload(unittest.TestCase):
         parallel = True
         verbose = False
         limit = 1
-        # buik loader with very small limit to test for upload failure and shorten test length
+        # bulk loader with very small limit to test for upload failure and shorten test length
         loader = BulkFileUploader(parallel=parallel, limit=limit, verbose=verbose)
         missed_files = loader.bulk_upload(project, local_path)
 
@@ -124,7 +124,7 @@ class TestBulkUpload(unittest.TestCase):
         for (dirpath, dirnames, filenames) in walk(local_path):
             for name in filenames:
                 probe = os_path.join(dirpath, name)
-                file_size_MB = os_path.getsize(probe) >> 20
-                if file_size_MB > limit:
+                file_size_mb = os_path.getsize(probe) >> 20
+                if file_size_mb > limit:
                     collect.append(probe)
         return collect

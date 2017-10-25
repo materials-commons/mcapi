@@ -31,7 +31,7 @@ access to all the data that you have access to. If you wish to reset your key,
 there is an option to do so on this same page. When you reset you key, remember to
 also update it in the .materialscommons/config.jason file.
 
-For tests - Dependencies on materialcommons.org and specific database
+For tests - Dependencies on materialscommons.org and specific database
 ---------------------------------------------------------------------
 
 Right the complete set of these tests will only run if you have set 
@@ -45,7 +45,7 @@ statement that clones materialscommons.org, the 'correct' branch will be indicat
 
 To set up the test database, you need to understand how materialscommons.org is determining
 its database. In general, the default database is the one that is used for testing.
-Specificially, the environment variable **MCDB_FILE** needs either to be cleared (which
+Specifically, the environment variable **MCDB_FILE** needs either to be cleared (which
 will indicate to materialscommons.org to use the default database) or set to the path of
 the zip file for that defaults: **materialscommons.org/backend/test_data/test_rethinkdb_dump.tar.gz**.
 where **materialscommons.org** is the path to the location of that cloned github repository.
@@ -65,7 +65,7 @@ entering the following url into your browser:
 ```html
 https://mctest.localhost/api/v2/templates?apikey=totally-bogus
 ```
-The returned "value" should be a lot of json. It's actuall the list of all the templates in
+The returned "value" should be a lot of json. It's actually the list of all the templates in
 Materials Commons.
 
 Demo Project script
@@ -105,11 +105,11 @@ To Compile
 To Test
 -------
 
-Prior to running the test you will need to set an environment varialbe TEST_DATA_DIR
+Prior to running the test you will need to set an environment variable TEST_DATA_DIR
 to point to the directory python/test/test_data. That is:
 ```bash
   cd to the python top level directory of the python section of the mcapi repo
-  source set_test_dir.sh
+  source ./scripts/set_test_dir.sh
 ```
 
 ```bash
@@ -122,7 +122,7 @@ And to run test using an individual test class, for example:
   pytest -rap --setup-show -s test/mcapi_tests/test_sample_associate.py::TestSampleAssociate  
 ```
 
-To Generate Coveratge
+To Generate Coverage
 ---------------------
 
 If you wish to generate coverage information, set up as in "To Test" above and them run:

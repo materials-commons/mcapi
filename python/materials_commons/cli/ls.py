@@ -10,10 +10,11 @@ import pandas
 from tabulate import tabulate
 from sortedcontainers import SortedSet
 
+
 #  Want to print() something like:
 #
 #  warning! file0 is a local file and remote dir!
-#  warning! file1 is a local direcotry and remote file!
+#  warning! file1 is a local directory and remote file!
 #
 #  remote_owner local_mtime local_size remote_mtime remote_size file0
 #             - local_mtime local_size            -           - file1
@@ -104,7 +105,8 @@ def _ls_group(proj, paths, files_only=True, checksum=False, json=False, id=False
         if not files_only or ('file' in [data['l_type'], data['r_type']]):
             path_data.append(data)
 
-    return (pandas.DataFrame.from_records(path_data, columns=columns).sort_values(by='name'), files, dirs, remotes)
+    return pandas.DataFrame.from_records(path_data, columns=columns) \
+               .sort_values(by='name'), files, dirs, remotes
 
 
 def _humanize(file_size_bytes):
@@ -193,5 +195,5 @@ def ls_subcommand(argv=sys.argv):
 def _name_key(obj):
     try:
         return obj.name
-    except (Exception):
+    except Exception:
         return ""

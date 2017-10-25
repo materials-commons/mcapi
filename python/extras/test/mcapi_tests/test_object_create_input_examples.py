@@ -4,12 +4,14 @@ __samples_example__ = {u'samples': [
     {u'property_set_id': u'702de353-739a-445f-b687-8479bb73a492', u'name': u'Test Sample 1',
      u'id': u'4d3d997e-22c5-4036-9365-64cf910f715e'}]}
 
+# noinspection SpellCheckingInspection
 __timestamp__ = {
     u'timezone': u'+00:00',
     u'$reql_type$': u'TIME',
     u'epoch_time': 1478031698.441
 }
 
+# noinspection SpellCheckingInspection
 __settings_example__ = {
     u'otype': u'settings',
     u'name': u'Instrument', u'attribute': u'instrument',
@@ -61,6 +63,7 @@ __example_experiment__ = \
      u'birthtime': {u'timezone': u'+00:00', u'$reql_type$': u'TIME', u'epoch_time': 1478019910.086},
      u'id': u'79b53479-3ab2-4d53-80fe-f029d63aaf02', u'name': u'TestExperiment-from-data'}
 
+# noinspection SpellCheckingInspection,SpellCheckingInspection
 __process_example_create__ = \
     {u'files': [], u'otype': u'process', u'name': u'Create Samples', u'output_samples': [],
      u'setup': [{u'otype': u'settings', u'name': u'Instrument', u'attribute': u'instrument',
@@ -93,6 +96,7 @@ __process_example_create__ = \
      u'birthtime': {u'timezone': u'+00:00', u'$reql_type$': u'TIME', u'epoch_time': 1478031698.405},
      u'output_files': [], u'id': u'd8cf9165-1803-4250-aedc-23e78717494d', u'input_files': []}
 
+# noinspection SpellCheckingInspection
 __process_example_compute__ = \
     {u'files': [],
      u'otype': u'process',
@@ -171,6 +175,7 @@ __process_example_compute__ = \
         u'input_files': []
     }
 
+# noinspection SpellCheckingInspection
 __added_sample_results__ = \
     {u'files': [], u'otype': u'process', u'name': u'Computation', u'output_samples': [], u'setup': [
         {u'otype': u'settings', u'name': u'Job Settings', u'attribute': u'job_settings', u'properties': [
@@ -219,6 +224,7 @@ __added_sample_results__ = \
      u'birthtime': {u'timezone': u'+00:00', u'$reql_type$': u'TIME', u'epoch_time': 1478100133.769},
      u'output_files': [], u'id': u'b21d4346-d33d-4ad5-8096-a9e7392cee6a', u'input_files': []}
 
+# noinspection SpellCheckingInspection
 __create_process_with_sample_measurement_properties__ = \
     {u'files': [],
      u'name': u'Create Samples',

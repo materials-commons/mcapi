@@ -1,26 +1,26 @@
 import unittest
 
-from dataset import Public
+from extras.dataset.public_connection import Public
 
 
 class TestDatasetRaw(unittest.TestCase):
     def test_form_url(self):
         public = Public()
-        probe_url = public.make_url(Public.path_for_dateaset_id + "testing")
-        self.assertEqual(probe_url, Public.default_base_url + Public.path_for_dateaset_id + "testing")
+        probe_url = public.make_url(Public.path_for_dataset_id + "testing")
+        self.assertEqual(probe_url, Public.default_base_url + Public.path_for_dataset_id + "testing")
 
     def test_get_public_dataset(self):
         id = "57490e70-df32-4592-8a6f-8a6cfbd36174"
         public = Public()
-        probe_url = public.make_url(Public.path_for_dateaset_id + id)
-        self.assertEqual(probe_url, Public.default_base_url + Public.path_for_dateaset_id + id)
+        probe_url = public.make_url(Public.path_for_dataset_id + id)
+        self.assertEqual(probe_url, Public.default_base_url + Public.path_for_dataset_id + id)
         dataset = public.get_dataset(id)
         self.assertIsNotNone(dataset)
         self.assertIsNotNone(dataset.raw_data)
         self.assertEqual(dataset.raw_data['id'], id)
 
 
-class TestDatasetApptributes(unittest.TestCase):
+class TestDatasetAttributes(unittest.TestCase):
     def test_attributes(self):
         id = "57490e70-df32-4592-8a6f-8a6cfbd36174"
         public = Public()

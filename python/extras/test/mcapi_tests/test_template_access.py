@@ -3,7 +3,7 @@ import pytest
 from random import randint
 from materials_commons.api import get_all_templates
 from materials_commons.api import _use_remote as use_remote, _set_remote as set_remote, get_all_users
-from materials_commons.api import _create_new_tamplate, _update_template
+from materials_commons.api import _create_new_template, _update_template
 
 
 def fake_name(prefix):
@@ -27,7 +27,7 @@ class TestTemplateAccess(unittest.TestCase):
         self.assertIsNotNone(self.test_user)
         self.assertEqual(self.test_user_id, self.test_user.id)
 
-    def test_all_templets(self):
+    def test_all_templates(self):
         templates = get_all_templates()
         self.assertIsNotNone(templates)
         self.assertTrue(len(templates) > 0)
@@ -41,7 +41,7 @@ class TestTemplateAccess(unittest.TestCase):
         test_name = fake_name('test-template')
         test_id = "global_" + test_name
         template_data = self.make_template_data(test_name)
-        template = _create_new_tamplate(template_data)
+        template = _create_new_template(template_data)
         self.assertIsNotNone(template)
         self.assertEqual(template.id, test_id)
         self.assertEqual(template.otype, 'template')
@@ -51,20 +51,20 @@ class TestTemplateAccess(unittest.TestCase):
         test_name = fake_name('test-template')
         test_id = "global_" + test_name
         template_data = self.make_template_data(test_name)
-        template = _create_new_tamplate(template_data)
+        template = _create_new_template(template_data)
         self.assertIsNotNone(template)
         self.assertEqual(template.id, test_id)
         self.assertEqual(template.otype, 'template')
         self.assertFalse(template.does_transform)
 
         with pytest.raises(Exception):
-            _create_new_tamplate(template_data)
+            _create_new_template(template_data)
 
     def test_can_update(self):
         test_name = fake_name('test-template')
         test_id = "global_" + test_name
         template_data = self.make_template_data(test_name)
-        template = _create_new_tamplate(template_data)
+        template = _create_new_template(template_data)
         self.assertIsNotNone(template)
         self.assertEqual(template.id, test_id)
         self.assertEqual(template.otype, 'template')
@@ -86,7 +86,7 @@ class TestTemplateAccess(unittest.TestCase):
         test_name = fake_name('test-template')
         test_id = "global_" + test_name
         template_data = self.make_template_data(test_name)
-        template = _create_new_tamplate(template_data)
+        template = _create_new_template(template_data)
         self.assertIsNotNone(template)
         self.assertEqual(template.id, test_id)
         self.assertEqual(template.otype, 'template')

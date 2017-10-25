@@ -30,8 +30,10 @@ def up_subcommand(argv=sys.argv):
         description='upload files',
         prog='mc up')
     parser.add_argument('paths', nargs='*', default=None, help='Files or directories')
-    parser.add_argument('-r', '--recursive', action="store_true", default=False, help='Upload directory contents recursively')
-    parser.add_argument('--limit', nargs=1, type=float, default=[50], help='File size upload limit (MB). Default=50MB.')
+    parser.add_argument('-r', '--recursive', action="store_true", default=False,
+                        help='Upload directory contents recursively')
+    parser.add_argument('--limit', nargs=1, type=float, default=[50],
+                        help='File size upload limit (MB). Default=50MB.')
 
     # ignore 'mc up'
     args = parser.parse_args(argv[2:])

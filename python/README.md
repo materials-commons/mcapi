@@ -12,6 +12,6 @@ It consists of three packages/modules:
 Materials Commons server, for a given user, using the API
  
 In addition there is a distribution package (which includes 
-the demo_project and mcapi moduels): **mcapi_dist**.
+the demo_project and mcapi modules): **mcapi_dist**.
 
 For testing: see **test/RunTests.md**

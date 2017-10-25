@@ -7,13 +7,13 @@ TOTAL_NUMBER_OF_FILE = 10000
 DIRECTORY_SIZE = 500
 
 
-def randomTagForLine(line):
+def random_tag_for_line(line):
     tag = randint(0, 9999999999)
     return line + " ::  random tag %010d" % tag
 
 
-def clearDir():
-    createDirIfNeeded(BASE_DIR)
+def clear_dir():
+    create_dir_if_needed(BASE_DIR)
     test_dir_path = os.path.abspath(BASE_DIR)
     for (dirpath, dirnames, filenames) in walk(test_dir_path):
         for name in filenames:
@@ -22,7 +22,7 @@ def clearDir():
                 os.remove(path)
 
 
-def createDirIfNeeded(name):
+def create_dir_if_needed(name):
     try:
         os.makedirs(name)
     except BaseException:
@@ -30,19 +30,19 @@ def createDirIfNeeded(name):
 
 
 def populate():
-    clearDir()
+    clear_dir()
     os.chdir(BASE_DIR)
     for i in range(TOTAL_NUMBER_OF_FILE):
         if i % DIRECTORY_SIZE == 0:
             os.chdir(BASE_DIR)
             name = 'sub-' + '%04d' % i
-            createDirIfNeeded(name)
+            create_dir_if_needed(name)
             os.chdir(name)
         filename = "testFile" + "%04d" % i + ".txt"
         f = open(filename, "w+")
         lines = randint(10, 3000)
-        for i in range(0, lines):
-            line = randomTagForLine("This is line of text in file %s" % filename)
+        for j in range(0, lines):
+            line = random_tag_for_line("This is line of text in file %s" % filename)
             f.write(line + "\n")
         f.close()
 

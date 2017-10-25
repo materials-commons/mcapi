@@ -49,7 +49,7 @@ class TestProcess(unittest.TestCase):
         self.assertFalse(process.does_transform)
 
     def test_rename_process(self):
-        new_name = "Procees Test Rename"
+        new_name = "Process Test Rename"
         process = self.base_experiment.create_process_from_template(Template.compute)
         undated_process = process.rename(new_name)
         self.assertEqual(undated_process.name, new_name)

@@ -29,10 +29,10 @@ selects the "Build Demo Project" on the projects home page of the Materials Comm
 https://materialscommons.org/
 
 Note: this example actually uses a module of the Python API project called demo_project,
-so the bluk of the code in NOT in this folder (the **examples** folder) but is, instead
+so the bulk of the code in NOT in this folder (the **examples** folder) but is, instead
 in the folder for that modules; in particular see
 **https://github.com/materials-commons/mcapi/blob/master/python/demo_project/demo_project.py**
-or coresponding local file (in that case that you have download or cloned the content).
+or corresponding local file (in that case that you have download or cloned the content).
 
 Build from Excel Spreadsheet
 ----------------------------

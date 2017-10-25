@@ -35,7 +35,7 @@ def init_subcommand(argv=sys.argv):
                 proj = make_local_project()
                 print("Already in project.  name:", proj.name, "  id:", proj.id)
                 return
-            except (Exception):
+            except Exception:
                 raise Exception(".mc directory exists, but could not find existing project")
 
         name = os.path.basename(os.getcwd())

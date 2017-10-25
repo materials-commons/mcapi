@@ -55,7 +55,7 @@ try:
     else:
         print("Sketch of download of dir content no yet implemented.")
         exit(2)
-    if (filepath):
+    if filepath:
         print("Downloaded Materials commons test data to: ")
         print(filepath)
 

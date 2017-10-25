@@ -46,8 +46,8 @@ class TestAddFileToDirectory(unittest.TestCase):
         self.assertIsNotNone(added_file)
         self.assertEqual(added_file.size, byte_count)
         found = None
-        decendents = self.rootDir.get_children()
-        for one in decendents:
+        descendants = self.rootDir.get_children()
+        for one in descendants:
             if (one.otype == 'file') and (one.name == file_name):
                 found = one
         self.assertIsNotNone(found)
@@ -58,8 +58,8 @@ class TestAddFileToDirectory(unittest.TestCase):
         self.assertIsNotNone(added_file)
         self.assertEqual(added_file.size, byte_count)
         found = None
-        decendents = self.testDir.get_children()
-        for one in decendents:
+        descendants = self.testDir.get_children()
+        for one in descendants:
             if (one.otype == 'file') and (one.name == file_name):
                 found = one
         self.assertIsNotNone(found)

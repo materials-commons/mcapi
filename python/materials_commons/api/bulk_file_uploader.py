@@ -8,7 +8,7 @@ class BulkFileUploader(object):
     '''
     A utility for uploading entire directory trees.
 
-    :param parallel: boolean - flag indicating that the upload should be multithreaded
+    :param parallel: boolean - flag indicating that the upload should be multi-threaded
     :param verbose: boolean - flag indicating that trace output should be printed
     :param limit: int - maximum size in MB of files that we be upload
     '''
@@ -93,10 +93,10 @@ class BulkFileUploader(object):
 
     def _upload_one(self, project, directory, input_path):
         try:
-            file_size_MB = os_path.getsize(input_path) >> 20
-            if file_size_MB > self.limit:
+            file_size_mb = os_path.getsize(input_path) >> 20
+            if file_size_mb > self.limit:
                 msg = "File too large (>{0}MB), skipping. File size = {1}MB" \
-                    .format(self.limit, file_size_MB)
+                    .format(self.limit, file_size_mb)
                 raise BulkFileUploaderSizeException(msg)
             filename = os_path.basename(input_path)
             project.add_file_using_directory(directory, filename, input_path,

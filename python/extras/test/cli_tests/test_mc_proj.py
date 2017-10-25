@@ -1,5 +1,5 @@
 import unittest
-from .cli_test_functions import captured_output, print_stringIO
+from .cli_test_functions import captured_output, print_string_io
 from materials_commons.cli.proj import ProjSubcommand
 
 
@@ -13,7 +13,7 @@ class TestMCProj(unittest.TestCase):
         testargs = ['mc', 'proj']
         with captured_output() as (sout, serr):
             self.proj_subcommand(testargs)
-        print_stringIO(sout)
+        print_string_io(sout)
         out = sout.getvalue().splitlines()
         err = serr.getvalue().splitlines()
 

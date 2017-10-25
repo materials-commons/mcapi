@@ -2,10 +2,10 @@ import requests
 from .dataset import Dataset
 
 
-class Public():
+class Public:
 
     default_base_url = "https://materialscommons.org/"
-    path_for_dateaset_id = 'api/pub/datasets/'
+    path_for_dataset_id = 'api/pub/datasets/'
 
     def __init__(self, base_url=None):
         if not base_url:
@@ -18,7 +18,7 @@ class Public():
         return self.base_url + rest
 
     def get_dataset(self, id):
-        r = requests.get(self.make_url(Public.path_for_dateaset_id + id), verify=False)
+        r = requests.get(self.make_url(Public.path_for_dataset_id + id), verify=False)
         if r.status_code == requests.codes.ok:
             return Dataset(data=r.json())
         r.raise_for_status()

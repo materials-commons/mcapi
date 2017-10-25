@@ -28,5 +28,5 @@ def captured_output(wd=None):
             sys.stdout, sys.stderr = old_out, old_err
 
 
-def print_stringIO(strio):
+def print_string_io(strio):
     print("\n----\n", strio.getvalue(), "\n----")

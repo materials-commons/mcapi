@@ -46,7 +46,7 @@ class Measurement(MCObject):
         pp.write("attribute: " + pp.str(self.attribute))
         pp.n_indent += 1
         # Note: Measurement in Process, outside of actual measurement, has no id
-        if (self.id):
+        if self.id:
             pp.write("id: " + pp.str(self.id))
             pp.write("measurement_id: " + pp.str(self.measurement_id))
             pp.write("property_id: " + pp.str(self.property_id))

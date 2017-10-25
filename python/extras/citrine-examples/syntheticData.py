@@ -14,14 +14,14 @@ def create_clusters(num_points=1000, num_features=2):
     The points are grouped into four Gaussian-distributed clusters.
     """
     num_clusters = 4
-    X = np.zeros((1, num_features))
-    Y = np.zeros((1, 1))
+    xx = np.zeros((1, num_features))
+    yy = np.zeros((1, 1))
     for i in range(num_clusters):
         x = np.random.randn(num_points/num_clusters, num_features)/6.0+i
-        X = np.vstack((X, x))
+        xx = np.vstack((xx, x))
         y = np.ones((num_points/num_clusters, 1))*i
-        Y = np.vstack((Y, y))
-    return X, Y
+        yy = np.vstack((yy, y))
+    return xx, yy
 
 
 def write_cluster_csv(filename, x, y):
@@ -43,7 +43,8 @@ try:
     # test_dataset = '153696'  # "Weymouth - Test dataset"
     test_dataset = '153654'  # "Weymouth-MC-Test"
     client = CitrinationClient(get_citrination_key(), 'https://citrination.com')
-    # response = client.create_data_set("Weymouth - Test dataset 01","A scrap dataset for testing - Terry E Weymouth - ")
+    # response = client.create_data_set("Weymouth - Test dataset 01",
+    #           "A scrap dataset for testing - Terry E Weymouth - ")
     # response = client.create_data_set_version(test_dataset)
     # print response.status_code
     # print response.content
@@ -51,9 +52,8 @@ try:
 
     # print 'attempting upload of cluster_data.csv'
     # filepath = path.abspath("./cluster_data.csv")
-    # filepath = '/Users/weymouth/working/MaterialsCommons/workspace/src/github.com/citrine/learn-citrination/example_data'
-    # filepath = '/Users/weymouth/working/MaterialsCommons/workspace/src/github.com/citrine/learn-citrination/example_data/Cu.cF4'
-    filepath = '/Users/weymouth/working/MaterialsCommons/workspace/src/github.com/materials-commons/mcapi/python/citrine-examples/Al4-pif.json'
+    filepath = '/Users/weymouth/working/MaterialsCommons/workspace/src/github.com/' + \
+               'materials-commons/mcapi/python/citrine-examples/Al4-pif.json'
     type = "unknown"
     if path.isfile(filepath):
         type = "file"

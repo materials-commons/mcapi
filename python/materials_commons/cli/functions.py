@@ -25,7 +25,7 @@ def _trunc_desc(obj, size=100):
     return _desc
 
 
-# mc.py - project object - with approperate mapping to api.py
+# mc.py - project object - with appropriate mapping to api.py
 def _experiments(project_id, remote=mcapi.Remote()):
     """
     get experiments data for specified project
@@ -53,7 +53,7 @@ def _get_experiments(proj):
 
 
 # maybe another file for CLI support
-# mcli.py/mc.py - additional objects...
+# mc_cli.py/mc.py - additional objects...
 def _mc_remotes(path=None):
     """
     Dict of {name: mcapi.Remote}

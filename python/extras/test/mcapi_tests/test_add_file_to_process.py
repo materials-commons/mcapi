@@ -54,8 +54,8 @@ class TestAddFileToProcess(unittest.TestCase):
         self.assertIsNotNone(test_file)
         self.assertEqual(test_file.size, byte_count)
         found = None
-        decendents = self.test_dir.get_children()
-        for one in decendents:
+        decendants = self.test_dir.get_children()
+        for one in decendants:
             if (one.otype == 'file') and (one.name == self.file_name):
                 found = one
         self.assertIsNotNone(found)

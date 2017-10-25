@@ -14,7 +14,7 @@ def fake_name(prefix):
 
 def get_project():
     project_name = fake_name("Repeat-Update")
-    project = create_project(project_name, "Project for redundent upload test")
+    project = create_project(project_name, "Project for redundant upload test")
     print("Project: " + project.name)
     return project
 

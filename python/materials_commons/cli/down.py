@@ -67,8 +67,10 @@ def down_subcommand(argv=sys.argv):
         description='download files',
         prog='mc down')
     parser.add_argument('paths', nargs='*', default=None, help='Files or directories')
-    parser.add_argument('-r', '--recursive', action="store_true", default=False, help='Download directory contents recursively')
-    parser.add_argument('-f', '--force', action="store_true", default=False, help='Force overwrite of existing files')
+    parser.add_argument('-r', '--recursive', action="store_true", default=False,
+                        help='Download directory contents recursively')
+    parser.add_argument('-f', '--force', action="store_true", default=False,
+                        help='Force overwrite of existing files')
 
     # ignore 'mc down'
     args = parser.parse_args(argv[2:])

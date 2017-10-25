@@ -13,9 +13,9 @@ def check_api_keys():
 
 def check_data_samples_dir():
     directory = get_data_samples_dir()
-    if (directory and os.path.isdir(directory)):
+    if directory and os.path.isdir(directory):
         return True
-    elif(directory):
+    elif directory:
         direction = str(directory)
         print("The supplied SAMPLES_DIRECTORY, " + directory + ", is not a directory")
         return False
@@ -25,7 +25,7 @@ def check_data_samples_dir():
 
 
 def check_citrination_key():
-    if (get_citrination_key()):
+    if get_citrination_key():
         return True
     else:
         print("The environment variable CITRINATION_API_KEY must be assigned to the user's API key")

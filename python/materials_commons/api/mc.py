@@ -72,7 +72,7 @@ def get_all_projects():
 # -- top level user function ---
 def get_all_users():
     """
-    Return the list of all users registerd on the server.
+    Return the list of all users registered on the server.
 
     :return: a list of :class:`mcapi.User`
 
@@ -178,7 +178,7 @@ class Project(MCObject):
         if not data:
             data = {}
 
-        # holds Datafile, using id for key;  initally empty, additional calls needed to fill
+        # holds Datafile, using id for key;  initially empty, additional calls needed to fill
         self._files = dict()
 
         # attr = ['id', 'name', 'description', 'birthtime', 'mtime', 'otype', 'owner']
@@ -266,7 +266,7 @@ class Project(MCObject):
         try:
             results = api.delete_project(self.id)
             results = results['project_id']
-        except (RuntimeError, IOError, StandardError):
+        except (Exception):
             print("Delete of project failed: ", self.name, "(" + self.id + ")")
 
         return results
@@ -275,7 +275,7 @@ class Project(MCObject):
 
     def create_experiment(self, name, description):
         """
-        Create and return an Experiemnt in this project.
+        Create and return an Experiment in this project.
 
         :param name: name for the Experiment
         :param description: description for the Experiment
@@ -371,7 +371,7 @@ class Project(MCObject):
 
     def get_top_directory(self):
         """
-        Get the top leve directory.
+        Get the top level directory.
 
         :return: a :class:`mcapi.Directory` instance
 
@@ -470,13 +470,13 @@ class Project(MCObject):
 
     def add_directory_list(self, path_list, top=None):
         """
-        Given a list of directory paths, create all the directories in the path; this is be most efficent
+        Given a list of directory paths, create all the directories in the path; this is be most efficient
         if the paths in the list are all leaf directories in the desired tree. The intent of this
         method is to support rapid upload of multiple files by pre-creating the needed directories.
 
         :param path_list: a list of project directory paths, limit 100;
             see :func:`mcapi.Project.add_directory` for more information
-        :param top: (optional) an instance of :class:`mcaip.Directory` - if given will be use
+        :param top: (optional) an instance of :class:`materials_commons.api.Directory` - if given will be use
             as the top level directory for the request; otherwise the project's root directory
             is used
         :return: a dictionary, indexed by path of the ids of the created directories,
@@ -492,16 +492,16 @@ class Project(MCObject):
         """
         if len(path_list) > 100:
             raise ValueError('list of directory paths is limited to 100 in length')
-        baseDirectory = top
-        if not baseDirectory:
-            baseDirectory = self.get_top_directory()
+        base_directory = top
+        if not base_directory:
+            base_directory = self.get_top_directory()
         new_path_list = []
         for path in path_list:
             if not path.startswith('/'):
                 path = "/" + path
             new_path_list.append(path)
         results = api.directory_create_subdirectories_from_path_list(
-            self.id, baseDirectory.id, new_path_list)
+            self.id, base_directory.id, new_path_list)
         data = results['val']
         table = {}
         project_name = self.name
@@ -527,9 +527,9 @@ class Project(MCObject):
         >>> print(file.name)
 
         """
-        file_size_MB = os_path.getsize(local_path) >> 20
-        if file_size_MB > limit:
-            msg = "File too large (>{0}MB), skipping. File size: {1}M".format(limit, file_size_MB)
+        file_size_mb = os_path.getsize(local_path) >> 20
+        if file_size_mb > limit:
+            msg = "File too large (>{0}MB), skipping. File size: {1}M".format(limit, file_size_mb)
             raise Exception(msg)
         if verbose:
             print("uploading:", os_path.relpath(local_path, getcwd()), " as:", file_name)
@@ -599,13 +599,13 @@ class Project(MCObject):
         Uses path on local machine to get a the matching File or Directory in the project.
         Return None if the local file or directory does not match one in the project.
 
-        :param local_path: file or directory local path equivalant.
+        :param local_path: file or directory local path equivalent.
         :return: one of :class:`mcapi.File`, :class:'mcapi.Directory`, or None.
 
         >>> project.local_path = "/path/to/Proj"
         >>> local_path = project.local_path + "/test_dir/dir_A" # a local directory
         >>> directory = get_by_local_path(local_path)
-        >>> if (directory):
+        >>> if directory:
         >>>     print(directory.path)
 
         """
@@ -628,7 +628,7 @@ class Project(MCObject):
         Check if files exists locally and remotely. Optionally compares md5 hash.
 
         :param local_path: file or directory local path equivalent.
-        :param checksum: (optional) a flag (True) to complare local and remote checksums
+        :param checksum: (optional) a flag (True) to compare local and remote checksums
         :return: file_exists [, checksums_are_equal] - both Boolean
 
         Return Values::
@@ -715,7 +715,7 @@ class Project(MCObject):
         return samples
 
     def fetch_sample_by_id(self, sample_id):
-        # TODO: determine and document the differance between mcapi.fetch_sample_by_id and mcapi.get_sample_by_id
+        # TODO: determine and document the difference between mcapi.fetch_sample_by_id and mcapi.get_sample_by_id
         """
         Get the sample in question.
 
@@ -724,7 +724,7 @@ class Project(MCObject):
 
         >>> sample = project.get_sample_by_id(sample.id)
 
-        ..todo:: determine and document the differance between mcapi.fetch_sample_by_id and mcapi.get_sample_by_id
+        ..todo:: determine and document the difference between mcapi.fetch_sample_by_id and mcapi.get_sample_by_id
 
         """
         sample_json_dict = api.get_project_sample_by_id(self.id, sample_id)
@@ -733,7 +733,7 @@ class Project(MCObject):
         return sample
 
     def get_sample_by_id(self, sample_id):
-        # TODO: determine and document the differance between mcapi.fetch_sample_by_id and mcapi.get_sample_by_id
+        # TODO: determine and document the difference between mcapi.fetch_sample_by_id and mcapi.get_sample_by_id
         """
         Get the sample in question.
 
@@ -742,7 +742,7 @@ class Project(MCObject):
 
         >>> sample = project.fetch_sample_by_id(sample.id)
 
-        ..todo:: determine and document the differance between mcapi.fetch_sample_by_id and mcapi.get_sample_by_id
+        ..todo:: determine and document the difference between mcapi.fetch_sample_by_id and mcapi.get_sample_by_id
 
         """
         results = api.get_sample_by_id(self.id, sample_id)
@@ -878,7 +878,7 @@ class Experiment(MCObject):
         pp.write("id: " + self.id)
         pp.write("owner: " + pp.str(self.owner))
 
-    # Experiment - basic rethods: rename, put, delete
+    # Experiment - basic methods: rename, put, delete
 
     def rename(self, name, description=None):
         """
@@ -1063,7 +1063,7 @@ class Process(MCObject):
         self.project = None  #: the :class:`mcapi.Project` containing this process
 
         #: a derived dictionary of the setup properties of this process;
-        #: a dictionaly of :class:`mcapi.Property` with *key* = property.attribute;
+        #: a dictionary of :class:`mcapi.Property` with *key* = property.attribute;
         #: see :func:`mcapi.Process.get_setup_properties_as_dictionary`
         self.properties_dictionary = {}
 
@@ -1278,7 +1278,7 @@ class Process(MCObject):
         Create output samples for this process.
 
         .. note:: this function only works for processes with process_type == 'create' or with
-            the 'sectioning' proceess (that is template_name == 'sectioning').
+            the 'sectioning' process (that is template_name == 'sectioning').
 
         :param sample_names: a list of string
         :return: a list of :class:`mcapi.Sample`
@@ -1418,7 +1418,7 @@ class Process(MCObject):
     def update_setup_properties(self, name_list):
         """
         For local properties indicated by *name_list*, push (to the database) those
-        properties as set-up properteis for this process.
+        properties as set-up properties for this process.
 
         :param name_list: list of string
         :return: the updated process
@@ -1528,7 +1528,7 @@ class Process(MCObject):
         :return: the updated process
 
         """
-        if (not name):
+        if not name:
             name = attribute
 
         if "name" not in measurement_data:
@@ -1559,7 +1559,7 @@ class Process(MCObject):
         :param name: - (optional) string - if not given the name=attribute
         :return: the updated process
         """
-        if (not name):
+        if not name:
             name = attrname
 
         measurement_data = {
@@ -1836,7 +1836,7 @@ class Process(MCObject):
         samples_array_dict = api.create_samples_in_project(project.id, process.id, sample_names)
         samples_array = samples_array_dict['samples']
         # NOTE: in this case, for this version of API, for the call implemented, the
-        # returned object is very sparse; hence the samples need to be refetched...
+        # returned object is very sparse; hence the samples need to be re-fetched...
         # however, the fetched object is missing the property_set_id, to add it..
         lookup_table = {}
         for simple_sample in samples_array:
@@ -1921,17 +1921,17 @@ class Sample(MCObject):
         pp.write("description: " + pp.str(self.description))
         pp.write("id: " + pp.str(self.id))
         pp.write("owner: " + pp.str(self.owner))
-        if (len(self.files) > 0):
+        if len(self.files) > 0:
             pp.write_objects("files: ", self.files)
-        if (len(self.experiments) > 0):
+        if len(self.experiments) > 0:
             pp.write_objects("experiments: ", self.experiments)
-        if (self.direction):
+        if self.direction:
             pp.write("direction: " + pp.str(self.direction))
             pp.write("property_set_id: " + pp.str(self.property_set_id))
             pp.write("sample_id: " + pp.str(self.sample_id))
             pp.write_objects("experiments: ", self.experiments)
             pp.write_pretty_print_objects("properties: ", self.properties)
-        if (len(self.processes) == 0):
+        if len(self.processes) == 0:
             self.decorate_with_processes()
         pp.write("processes: ")
         pp.n_indent += 1
@@ -1987,7 +1987,7 @@ class Sample(MCObject):
                 results = api.delete_sample_created_by_process(self.project.id, proc_id, self.id, property_set_id)
                 if 'error' in results:
                     results = None
-            except (Exception):
+            except Exception:
                 pass
 
         return results
@@ -2022,7 +2022,7 @@ class Directory(MCObject):
     """
     A Materials Commons Directory.
 
-    .. note:: normally created from the databse by call to :func:`mcapi.Project.add_directory` or
+    .. note:: normally created from the database by call to :func:`mcapi.Project.add_directory` or
         any of the project methods that create directories on a given path
 
     """
@@ -2554,7 +2554,7 @@ class Property(MCObject):
         :raises: MCPropertyException when value does not match type
         '''
         # TODO: set verify for all types
-        # raise MCPropertyException('Attempt to verify value type for generic Property - use approperate subclass')
+        # raise MCPropertyException('Attempt to verify value type for generic Property - use appropriate subclass')
         pass
 
 
@@ -2819,7 +2819,7 @@ def make_measured_property(data):
 # ---
 #    testing template backend
 # ---
-def _create_new_tamplate(template_data):
+def _create_new_template(template_data):
     print("Create new template")
     results = api._create_new_template(template_data)
     template = make_object(results)
@@ -2837,24 +2837,24 @@ def _update_template(template_id, template_data):
 # ---
 #   testing user profile backend
 # ---
-def _storeInUserProfile(user_id, name, value):
-    results = api._storeInUserProfile(user_id, name, value)
+def _store_in_user_profile(user_id, name, value):
+    results = api._store_in_user_profile(user_id, name, value)
     value = results['val']
     if not value:
         return None
     return value
 
 
-def _getFromUserProfile(user_id, name):
-    results = api._getFromUserProfile(user_id, name)
+def _get_from_user_profile(user_id, name):
+    results = api._get_from_user_profile(user_id, name)
     value = results['val']
     if not value:
         return None
     return value
 
 
-def _clearFromUserProfile(user_id, name):
-    results = api._clearFromUserProfile(user_id, name)
+def _clear_from_user_profile(user_id, name):
+    results = api._clear_from_user_profile(user_id, name)
     value = results['val']
     if not value:
         return None

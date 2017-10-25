@@ -9,7 +9,7 @@ class SimpleDemoBuilder:
     def __init__(self):
         self.template_table = self._make_template_table()
 
-    def buildProject(self):
+    def build_project(self):
         name = "My Simple Project"
         description = "A simple demo project from a script"
         project = create_project(name, description)
@@ -61,7 +61,7 @@ class SimpleDemoBuilder:
 
 
 builder = SimpleDemoBuilder()
-builder.buildProject()
+builder.build_project()
 
 print("Built simple demo project with name = " + builder.project.name)
 print("With processes...")

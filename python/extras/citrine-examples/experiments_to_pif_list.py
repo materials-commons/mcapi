@@ -177,7 +177,7 @@ pif.chemicalFormula = "Not Sure What this is - need to find out!"
 pif.composition = composition = [composition_al, composition_ca, composition_zr]
 pif.source = Source(producer="LIFT Materials")
 pif.properties = properties
-pif.preperation = [casting_process, sectioning_process]
+pif.preparation = [casting_process, sectioning_process]
 pif.references = [doi_reference]
 pif.licenses = [open_data_liscense]
 

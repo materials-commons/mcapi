@@ -44,14 +44,14 @@ def _make_test_dir_path():
     return test_path
 
 
-def _addDataset(project, experiment, title):
+def _add_dataset(project, experiment, title):
     project_id = project.id
     experiment_id = experiment.id
     results = api.create_dataset(project_id, experiment_id, title, "Example dataset for testing")
     return results
 
 
-def _addProcessToDataset(project, experiment, dataset, process):
+def _add_process_to_dataset(project, experiment, dataset, process):
     project_id = project.id
     experiment_id = experiment.id
     dataset_id = dataset['id']
@@ -63,10 +63,10 @@ def _addProcessToDataset(project, experiment, dataset, process):
 def _generate_demo_project():
     project = _build_project()
     experiment = project.get_all_experiments()[0]
-    dataset = _addDataset(project, experiment, "Test datasets")
+    dataset = _add_dataset(project, experiment, "Test datasets")
     processes = project.get_all_processes()
     for process in processes:
-        _addProcessToDataset(project, experiment, dataset, process)
+        _add_process_to_dataset(project, experiment, dataset, process)
     project = get_project_by_id(project.id)
 
     print(dataset)

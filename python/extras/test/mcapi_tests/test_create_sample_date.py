@@ -89,18 +89,18 @@ class TestCreateSampleDate(unittest.TestCase):
 
     def test_setting_manufacturing_computed_date_setup(self):
 
-        emperical_correction = 70319347
+        empirical_correction = 70319347
 
         # Note this method produces a date value that is two days short
         # That is Feb 2, 2017 shows up in the UI as Jan 31, 2017
-        # The emperical_correction value above, determined by the differance
+        # The empirical_correction value above, determined by the difference
         # between the computed value (below) and the observed value (at the UI),
         # of self.test_date_value (at top of this code), makes the correction
         # to the computed value so that it matches the expected value (!!!)
         dt = datetime.date(2017, 2, 1)
         value = int((dt - datetime.date(1970, 1, 1)).total_seconds() * 1000.0)
 
-        value = value + emperical_correction
+        value = value + empirical_correction
 
         self.assertEqual(value, self.test_date_value)
 

@@ -8,6 +8,7 @@ def fake_name(prefix):
     return prefix + number
 
 
+# noinspection SpellCheckingInspection
 class TestAddChoiceMeasurements(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -47,7 +48,9 @@ class TestAddChoiceMeasurements(unittest.TestCase):
         self.assertEqual(sample.name, self.sample_name)
         self.assertEqual(sample.name, samples[0].name)
 
+    # noinspection SpellCheckingInspection
     def test_measurement_attribute_lattice_system_direct(self):
+        # noinspection SpellCheckingInspection
         choices = \
             [
                 {"name": "Triclinic", "value": "triclinic"},  # 0

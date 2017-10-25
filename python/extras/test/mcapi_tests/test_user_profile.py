@@ -2,9 +2,9 @@ import unittest
 import pytest
 from random import randint
 from materials_commons.api import set_remote_config_url, get_remote_config_url
-from materials_commons.api import _storeInUserProfile as storeInUserProfile
-from materials_commons.api import _getFromUserProfile as getFromUserProfile
-from materials_commons.api import _clearFromUserProfile as clearFromUserProfile
+from materials_commons.api import _store_in_user_profile
+from materials_commons.api import _get_from_user_profile
+from materials_commons.api import _clear_from_user_profile
 
 
 url = 'http://mcdev.localhost/api'
@@ -29,59 +29,59 @@ class TestUserProfile(unittest.TestCase):
     def test_can_store_value(self):
         name = fake_name("test value - ")
         value = name
-        probe = storeInUserProfile(user_id, name, value)
+        probe = _store_in_user_profile(user_id, name, value)
         self.assertIsNotNone(probe)
         self.assertEqual(probe, name)
-        probe = storeInUserProfile(user_id, name, value)
+        probe = _store_in_user_profile(user_id, name, value)
         self.assertIsNotNone(probe)
         self.assertEqual(probe, name)
-        probe = getFromUserProfile(user_id, name)
+        probe = _get_from_user_profile(user_id, name)
         self.assertIsNotNone(probe)
         self.assertEqual(probe, name)
-        probe = clearFromUserProfile(user_id, name)
+        probe = _clear_from_user_profile(user_id, name)
         self.assertIsNotNone(probe)
         self.assertEqual(probe, name)
-        probe = clearFromUserProfile(user_id, name)
+        probe = _clear_from_user_profile(user_id, name)
         self.assertIsNone(probe)
-        probe = getFromUserProfile(user_id, name)
+        probe = _get_from_user_profile(user_id, name)
         self.assertIsNone(probe)
 
     def test_cannot_access_others_profile(self):
         name = fake_name("test value - ")
         value = name
-        probe = storeInUserProfile(user_id, name, value)
+        probe = _store_in_user_profile(user_id, name, value)
         self.assertIsNotNone(probe)
         self.assertEqual(probe, name)
-        probe = getFromUserProfile(user_id, name)
+        probe = _get_from_user_profile(user_id, name)
         self.assertIsNotNone(probe)
         self.assertEqual(probe, name)
 
         another_user_id = "another@test.mc"
         with pytest.raises(Exception):
-            getFromUserProfile(another_user_id, name)
+            _get_from_user_profile(another_user_id, name)
 
-        probe = clearFromUserProfile(user_id, name)
+        probe = _clear_from_user_profile(user_id, name)
         self.assertIsNotNone(probe)
         self.assertEqual(probe, name)
-        probe = getFromUserProfile(user_id, name)
+        probe = _get_from_user_profile(user_id, name)
         self.assertIsNone(probe)
 
     def test_cannot_modify_others_profile(self):
         name = fake_name("test value - ")
         value = name
-        probe = storeInUserProfile(user_id, name, value)
+        probe = _store_in_user_profile(user_id, name, value)
         self.assertIsNotNone(probe)
         self.assertEqual(probe, name)
-        probe = getFromUserProfile(user_id, name)
+        probe = _get_from_user_profile(user_id, name)
         self.assertIsNotNone(probe)
         self.assertEqual(probe, name)
 
         another_user_id = "another@test.mc"
         with pytest.raises(Exception):
-            storeInUserProfile(another_user_id, name, value)
+            _store_in_user_profile(another_user_id, name, value)
 
-        probe = clearFromUserProfile(user_id, name)
+        probe = _clear_from_user_profile(user_id, name)
         self.assertIsNotNone(probe)
         self.assertEqual(probe, name)
-        probe = getFromUserProfile(user_id, name)
+        probe = _get_from_user_profile(user_id, name)
         self.assertIsNone(probe)

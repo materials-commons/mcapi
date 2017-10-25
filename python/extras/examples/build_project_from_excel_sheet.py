@@ -150,7 +150,7 @@ class WorkflowBuilder:
     def _make_unique_project_name(self, name):
         probe = name
         count = 0
-        while (self._projects_exists(probe)):
+        while self._projects_exists(probe):
             count += 1
             probe = name + " " + str(count)
         return probe

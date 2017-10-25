@@ -1,7 +1,7 @@
 import unittest
 import string
 import json
-from .cli_test_functions import captured_output, print_stringIO
+from .cli_test_functions import captured_output, print_string_io
 from materials_commons.cli.templates import TemplatesSubcommand
 
 

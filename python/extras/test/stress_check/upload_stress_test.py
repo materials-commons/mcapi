@@ -56,7 +56,7 @@ def upload_all_sequential(project, keys, table):
 
 
 def upload_one_parallel(q):
-    while (True):
+    while True:
         packet = q.get()
         try:
             upload_one(packet['project'], packet['path'])
@@ -87,7 +87,7 @@ def upload_all_parallel(project, keys, table):
 
 def exec_all(flag, subdir):
     directory = BASE_DIRECTORY
-    if (subdir):
+    if subdir:
         directory = BASE_DIRECTORY + "/" + subdir
     print("Starting test: " + flag)
     print("Using data at: " + directory)

@@ -11,6 +11,7 @@ def fake_name(prefix):
     return prefix + number
 
 
+# noinspection SpellCheckingInspection
 class TestProcessDelete(unittest.TestCase):
 
     @classmethod

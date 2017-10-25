@@ -249,7 +249,7 @@ class DemoProject:
         return samples
 
     def _setup_for_node(self, index, process):
-        if index == 0:  # case: Create Sample: Lift 380 Castining Day #1
+        if index == 0:  # case: Create Sample: Lift 380 Casting Day #1
             date_value = 1485977519347  # February 1, 2017
             process.set_value_of_setup_property(
                 'manufacturer', 'Ohio State University')

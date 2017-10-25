@@ -28,7 +28,7 @@ class Dataset:
         self.samples = [convert_sample(sample) for sample in self.samples]
         self.zip = DatasetZip(self.zip)
         self.license = DatasetLicense(self.license)
-        if (self.embargo_date):
+        if self.embargo_date:
             self.embargo_date = convert_string_date_time(self.embargo_date)
         self.birthtime = convert_string_date_time(self.birthtime)
         self.mtime = convert_string_date_time(self.mtime)

@@ -69,6 +69,7 @@ class TestSetSimpleMeasurements(unittest.TestCase):
         self.assertEqual(measurement_out.unit, "")
         self.assertEqual(measurement_out.value, value)
 
+    # noinspection SpellCheckingInspection,SpellCheckingInspection
     def test_set_string_measurement(self):
         attribute = "label"
         value = "booloo ball"

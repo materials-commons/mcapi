@@ -25,7 +25,7 @@ def get_project(mode):
 
 def exec_all(flag, subdir):
     directory = BASE_DIRECTORY
-    if (subdir):
+    if subdir:
         directory = BASE_DIRECTORY + "/" + subdir
     print("Starting test: " + flag)
     print("Using data at: " + directory)

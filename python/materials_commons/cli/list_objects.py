@@ -44,7 +44,7 @@ class ListObjects(object):
     """
 
     def __init__(self, cmdname, typename, typename_plural, desc=None, requires_project=True,
-                 proj_member=True, expt_member=True, list_columns=[], headers=None,
+                 proj_member=True, expt_member=True, list_columns=None, headers=None,
                  deletable=False, has_owner=True, creatable=False, custom_options=False):
         """
 
@@ -75,6 +75,8 @@ class ListObjects(object):
                 If true, object can be created via derived class 'create' function
 
         """
+        if list_columns is None:
+            list_columns = []
         self.cmdname = cmdname
         self.typename = typename
         self.typename_plural = typename_plural
