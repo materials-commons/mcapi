@@ -109,12 +109,12 @@ class TestProcessDelete(unittest.TestCase):
         self.assertEqual(leaf_process.process_type, 'measurement')
         self.assertFalse(leaf_process.does_transform)
 
-        l = len(experiment.get_all_processes())
+        length = len(experiment.get_all_processes())
 
         results = non_leaf_process.delete()
         self.assertIsNone(results)
 
-        self.assertEqual(len(experiment.get_all_processes()), l)
+        self.assertEqual(len(experiment.get_all_processes()), length)
 
     def test_can_delete_noncreate_process_with_output_samples(self):
         name = fake_name("TestExperiment-")
@@ -151,7 +151,7 @@ class TestProcessDelete(unittest.TestCase):
         self.assertEqual(leaf_process.process_type, 'measurement')
         self.assertFalse(leaf_process.does_transform)
 
-        l = len(experiment.get_all_processes())
+        length = len(experiment.get_all_processes())
 
         results = leaf_process.delete()
         self.assertIsNotNone(results)
@@ -162,7 +162,7 @@ class TestProcessDelete(unittest.TestCase):
         self.assertIsNotNone(results)
         self.assertEqual(non_leaf_process.id, results)
 
-        self.assertEqual(len(experiment.get_all_processes()), l - 2)
+        self.assertEqual(len(experiment.get_all_processes()), length - 2)
 
     def test_cannot_delete_create_process_with_output_samples(self):
         name = fake_name("TestExperiment-")
@@ -199,7 +199,7 @@ class TestProcessDelete(unittest.TestCase):
         self.assertEqual(leaf_process.process_type, 'measurement')
         self.assertFalse(leaf_process.does_transform)
 
-        l = len(experiment.get_all_processes())
+        length = len(experiment.get_all_processes())
 
         results = leaf_process.delete()
         self.assertIsNotNone(results)
@@ -213,7 +213,7 @@ class TestProcessDelete(unittest.TestCase):
         results = create_sample_process.delete()
         self.assertIsNone(results)
 
-        self.assertEqual(len(experiment.get_all_processes()), l - 2)
+        self.assertEqual(len(experiment.get_all_processes()), length - 2)
 
     def test_cannot_delete_process_in_dataset(self):
         name = fake_name("TestExperiment-")
@@ -255,12 +255,12 @@ class TestProcessDelete(unittest.TestCase):
         process_id = leaf_process.id
         self._addProcessToDataset(experiment, dataset_id, process_id)
 
-        l = len(experiment.get_all_processes())
+        length = len(experiment.get_all_processes())
 
         results = leaf_process.delete()
         self.assertIsNone(results)
 
-        self.assertEqual(len(experiment.get_all_processes()), l)
+        self.assertEqual(len(experiment.get_all_processes()), length)
 
     def make_template_table(self):
         template_list = get_all_templates()
