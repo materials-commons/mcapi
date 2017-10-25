@@ -16,7 +16,7 @@ class WorkflowBuilder:
         self.projects = []
         self.data_path = data_path
         self._make_template_table()
-        row = 0;
+        row = 0
         while row < len(self.source):
             action = self.source[row][0]
             if action == 'project':
@@ -96,18 +96,18 @@ class WorkflowBuilder:
                     self.sample_table[name] = sample
 
         if file_directory:
-            full_path = os.path.abspath(os.path.join(self.data_path,file_directory))
-            process = self.add_files(full_path,process)
+            full_path = os.path.abspath(os.path.join(self.data_path, file_directory))
+            process = self.add_files(full_path, process)
 
         return process
 
-    def add_files(self,directory_path,process):
+    def add_files(self, directory_path, process):
         project = self.current_project
         print("project local_path = " + project.local_path)
         files = []
         for (dirpath, dirnames, filenames) in walk(directory_path):
             for file in filenames:
-                file_path = os.path.join(dirpath,file)
+                file_path = os.path.join(dirpath, file)
                 file = project.add_file_by_local_path(file_path)
                 files.append(file)
         process = process.add_files(files)

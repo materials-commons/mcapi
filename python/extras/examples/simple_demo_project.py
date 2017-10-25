@@ -4,6 +4,7 @@ import os.path
 local_path = './example_data/simple_demo_data'
 BASE_DIRECTORY = os.path.abspath(local_path)
 
+
 class SimpleDemoBuilder:
     def __init__(self):
         self.template_table = self._make_template_table()
@@ -42,7 +43,7 @@ class SimpleDemoBuilder:
         measurement_process.add_input_samples_to_process([transformed_sample])
 
         project.local_path = BASE_DIRECTORY
-        project.add_file_by_local_path(os.path.join(project.local_path,"example_data/SEM.png"))
+        project.add_file_by_local_path(os.path.join(project.local_path, "example_data/SEM.png"))
 
     def _make_template_table(self):
         template_list = get_all_templates()
