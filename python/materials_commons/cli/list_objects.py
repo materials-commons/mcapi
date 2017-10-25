@@ -18,7 +18,7 @@ def output_method(file=None, force=False):
         raise Exception(msg)
     else:
         out = open(file, 'w')
-    
+
     try:
         yield out
     finally:
@@ -29,25 +29,25 @@ def output_method(file=None, force=False):
 class ListObjects(object):
     """
     Base class to create an 'mc X' command for listing objects of type X.
-    
+
     Expects derived class members:
         get_all_from_experiment(self, expt)
         get_all_from_project(self, proj)
         list_data(self, obj)
-    
+
     Optional derived class members:
         create(self, args)
         add_create_options(self, parser)
-        
+
     See ProcSubcommand for an example.
-    
+
     """
-    
+
     def __init__(self, cmdname, typename, typename_plural, desc=None, requires_project=True,
                  proj_member=True, expt_member=True, list_columns=[], headers=None,
                  deletable=False, has_owner=True, creatable=False, custom_options=False):
         """
-        
+
         Arguments:
             cmdname: List[str]
                 Names to use for 'mc X Y ...', for instance: ["casm", "prim"] for "mc casm prim"
@@ -73,7 +73,7 @@ class ListObjects(object):
                 If true, enable --owner
             creatable: bool
                 If true, object can be created via derived class 'create' function
-        
+
         """
         self.cmdname = cmdname
         self.typename = typename
@@ -89,15 +89,15 @@ class ListObjects(object):
         self.deletable = deletable
         self.has_owner = has_owner
         self.creatable = creatable
-    
+
     def __call__(self, argv):
         """
         List Materials Commons Objects.
-        
+
         mc proc [--expt] [--details | --json] [--id] [<name> ...]
-        
+
         """
-        
+
         expr_help = 'select ' + self.typename_plural + ' that match the given regex (default uses name)'
         id_help = 'match by id instead of name'
         owner_help = 'match by owner instead of name'
@@ -110,17 +110,17 @@ class ListObjects(object):
         create_help = 'create a ' + self.typename
         delete_help = 'delete a ' + self.typename + ', specified by id'
         dry_run_help = 'dry run deletion'
-        
+
         if self.desc is None:
             if self.creatable:
                 self.desc = 'List and create ' + self.typename_plural
             else:
                 self.desc = 'List ' + self.typename_plural.lower()
-        
+
         cmd = "mc "
         for n in self.cmdname:
             cmd += n + " "
-        
+
         parser = argparse.ArgumentParser(
             description=self.desc,
             prog=cmd)
@@ -141,15 +141,14 @@ class ListObjects(object):
         if self.deletable:
             parser.add_argument('--delete', action="store_true", default=False, help=delete_help)
             parser.add_argument('-n', '--dry-run', action="store_true", default=False, help=dry_run_help)
-        
-        
+
         # ignore 'mc proc'
         args = parser.parse_args(argv[2:])
-        
+
         output = None
         if args.output:
             output = args.output[0]
-        
+
         if hasattr(args, 'create') and args.create:
             with output_method(output, args.force) as out:
                 # interfaces 'mc casm monte --create ...'
@@ -159,7 +158,7 @@ class ListObjects(object):
             with output_method(output, args.force) as out:
                 if self.deletable and args.delete:
                     objects = self.get_all_objects(args)
-                    
+
                     if not args.force:
                         self.output(out, args, objects)
                         if args.dry_run:
@@ -175,35 +174,34 @@ class ListObjects(object):
                         if args.dry_run:
                             print("** Dry run **")
                         self.delete(objects, args.dry_run, out=out)
-                
+
                 else:
                     objects = self.get_all_objects(args)
                     self.output(out, args, objects)
             return
 
-
     def get_all_objects(self, args):
-        
+
         if self.requires_project and _proj_path() is None:
             raise Exception("Not in any Materials Commons project directory")
-        
+
         if not self.proj_member:
             data = self.get_all()
         else:
             proj = make_local_project()
-                
+
             if self.expt_member and args.expt:
                 expt = make_local_expt(proj)
                 data = self.get_all_from_experiment(expt)
             else:
                 data = self.get_all_from_project(proj)
-        
+
         def _any_match(value):
             for n in args.expr:
                 if re.match(n, value):
                     return True
             return False
-        
+
         if args.expr:
             if args.id:
                 objects = [d for d in data if _any_match(d.id)]
@@ -213,10 +211,9 @@ class ListObjects(object):
                 objects = [d for d in data if _any_match(d.name)]
         else:
             objects = data
-        
+
         return objects
-    
-    
+
     def output(self, out, args, objects):
         if not len(objects):
             out.write("No " + self.typename_plural + " found matching specified criteria\n")
@@ -236,5 +233,3 @@ class ListObjects(object):
                 df.sort_values(inplace=True, by=args.sort_by)
             out.write(tabulate(df, showindex=False, headers=self.headers))
             out.write("\n")
-            
-

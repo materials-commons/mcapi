@@ -24,7 +24,7 @@ def _build_project():
 
 
 def _make_test_dir_path():
-    if not 'TEST_DATA_DIR' in environ:
+    if 'TEST_DATA_DIR' not in environ:
         print "'TEST_DATA_DIR' is not defined. quiting."
         exit(1)
 
@@ -44,11 +44,13 @@ def _make_test_dir_path():
 
     return test_path
 
+
 def _addDataset(project, experiment, title):
     project_id = project.id
     experiment_id = experiment.id
     results = api.create_dataset(project_id, experiment_id, title, "Example dataset for testing")
     return results
+
 
 def _addProcessToDataset(project, experiment, dataset, process):
     project_id = project.id
@@ -58,13 +60,13 @@ def _addProcessToDataset(project, experiment, dataset, process):
     results = api.add_process_to_dataset(project_id, experiment_id, dataset_id, process_id)
     return results
 
+
 project = _build_project()
 experiment = project.get_all_experiments()[0]
-dataset = _addDataset(project,experiment,"Test datasets")
+dataset = _addDataset(project, experiment, "Test datasets")
 processes = project.get_all_processes()
 for process in processes:
     _addProcessToDataset(project, experiment, dataset, process)
 project = get_project_by_id(project.id)
 
 print dataset
-

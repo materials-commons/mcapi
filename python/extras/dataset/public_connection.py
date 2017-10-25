@@ -1,6 +1,7 @@
 import requests
 from .dataset import Dataset
 
+
 class Public():
 
     default_base_url = "https://materialscommons.org/"
@@ -13,7 +14,7 @@ class Public():
             base_url += '/'
         self.base_url = base_url
 
-    def make_url(self,rest):
+    def make_url(self, rest):
         return self.base_url + rest
 
     def get_dataset(self, id):
@@ -21,6 +22,7 @@ class Public():
         if r.status_code == requests.codes.ok:
             return Dataset(data=r.json())
         r.raise_for_status()
+
 
 def disable_warnings():
     """Temporary fix to disable requests' InsecureRequestWarning"""

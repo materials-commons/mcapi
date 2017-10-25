@@ -8,6 +8,7 @@ from citrination_client import PifQuery
 if not check_citrination_key():
     exit(1)
 
+
 def create_clusters(num_points=1000, num_features=2):
     """
     Create synthetic data with num_points total points and num_features input dimensionality.
@@ -23,6 +24,7 @@ def create_clusters(num_points=1000, num_features=2):
         Y = np.vstack((Y, y))
     return X, Y
 
+
 def write_cluster_csv(filename, x, y):
     """
     Write the data to a csv file
@@ -32,14 +34,15 @@ def write_cluster_csv(filename, x, y):
     #  Let's define the header for the csv:
     str1 = ""
     for i in range(num_features):
-        str1 += "x" + str(i) +","
+        str1 += "x" + str(i) + ","
     str1 += "y"
     #  Then write the csv:
     np.savetxt(filename, data, delimiter=',', header=str1, comments="", fmt="%.5e")
 
+
 try:
-    # test_dataset = '153696' # "Weymouth - Test dataset"
-    test_dataset = '153654' # "Weymouth-MC-Test"
+    # test_dataset = '153696'  # "Weymouth - Test dataset"
+    test_dataset = '153654'  # "Weymouth-MC-Test"
     client = CitrinationClient(get_citrination_key(), 'https://citrination.com')
     # response = client.create_data_set("Weymouth - Test dataset 01","A scrap dataset for testing - Terry E Weymouth - ")
     # response = client.create_data_set_version(test_dataset)

@@ -2,6 +2,7 @@ from .base import MCObject, PrettyPrint, _data_has_type
 import sys
 from io import StringIO
 
+
 class Measurement(MCObject):
     """
     A Materials Commons measurement.
@@ -31,7 +32,7 @@ class Measurement(MCObject):
 
     def abbrev_print(self, shift=0, indent=2, out=sys.stdout):
         self.pretty_print(shift=shift, indent=indent, out=out)
-        
+
     def pretty_print(self, shift=0, indent=2, out=sys.stdout):
         """
         Prints a nice layout of the object and all of it's values.
@@ -68,6 +69,7 @@ class Measurement(MCObject):
                 for line in lines:
                     pp.write(line)
                 pp.n_indent -= 1
+
 
 class MeasurementComposition(Measurement):
     """

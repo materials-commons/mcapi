@@ -118,6 +118,7 @@ class User(MCObject):
     .. note:: normally created from the database by a call to top level function :func:`mcapi.get_all_users`
 
     """
+
     def __init__(self, data=None):
         # normally, from the data base
         self.id = ""
@@ -158,11 +159,12 @@ class Project(MCObject):
     .. note:: normally created from the database by call to the top level function :func:`mcapi.create_project`.
 
     """
+
     def __init__(self, name="", description="", remote_url="", data=None):
         # normally, from the data base
-        self.id = ""                        #: project id - string (from database)
-        self.name = ""                      #: project name - string (from database)
-        self.description = ""               #: project description - string (from database)
+        self.id = ""  #: project id - string (from database)
+        self.name = ""  #: project name - string (from database)
+        self.description = ""  #: project description - string (from database)
         self.size = 0
         self.mediatypes = {}
 
@@ -171,7 +173,7 @@ class Project(MCObject):
 
         # additional fields
         self._top = None
-        self.source = remote_url            #: remote URL for this project - string (local only - not in database)
+        self.source = remote_url  #: remote URL for this project - string (local only - not in database)
 
         if not data:
             data = {}
@@ -799,32 +801,33 @@ class Experiment(MCObject):
     .. note:: normally created from database by by a call to :func:`mcapi.Project.create_experiment`
 
     """
+
     def __init__(self, project_id=None, name=None, description=None,
                  data=None):
-        self.id = None                        #: experiment id - string (from database)
-        self.name = ""                        #: experiment name - string (from database)
-        self.description = ""                 #: experiment description - string (from database)
+        self.id = None  #: experiment id - string (from database)
+        self.name = ""  #: experiment name - string (from database)
+        self.description = ""  #: experiment description - string (from database)
 
         self.project_id = None
-        self.project = None                   #: the :class:`mcapi.Project` instance of the project that contains this experiment
+        self.project = None  #: the :class:`mcapi.Project` instance of the project that contains this experiment
 
-        self.status = None                    #: the status of the experiment - string
-        self.funding = ''                     #: funding description - string
-        self.note = ''                        #: any notes - string
+        self.status = None  #: the status of the experiment - string
+        self.funding = ''  #: funding description - string
+        self.note = ''  #: any notes - string
 
         self.tasks = None
-        self.publications = None              #: list of string
-        self.notes = None                     #: list of string
-        self.papers = None                    #: list of string
-        self.collaborators = None             #: list of string
-        self.citations = None                 #: list of string
-        self.goals = None                     #: list of string
-        self.aims = None                      #: list of string
+        self.publications = None  #: list of string
+        self.notes = None  #: list of string
+        self.papers = None  #: list of string
+        self.collaborators = None  #: list of string
+        self.citations = None  #: list of string
+        self.goals = None  #: list of string
+        self.aims = None  #: list of string
 
-        self.category = None                  #: string
+        self.category = None  #: string
 
-        self.samples = []                     #: list of :class:`mcapi.Sample` instances
-        self.processes = {}                   #: set of :class:`mcapi.Process` instances
+        self.samples = []  #: list of :class:`mcapi.Sample` instances
+        self.processes = {}  #: set of :class:`mcapi.Process` instances
 
         if not data:
             data = {}
@@ -1040,23 +1043,24 @@ class Process(MCObject):
     .. note:: Normally created from the database by a call to :func:`mcapi.Experiment.create_process_from_template`
 
     """
+
     def __init__(self, data=None):
         self.does_transform = False
-        self.input_files = []               #: list of :class:`mcapi.File` instance
-        self.output_files = []              #: list of :class:`mcapi.File` instance
-        self.input_samples = []             #: list of :class:`mcapi.Sample` instance
-        self.output_samples = []            #: list of :class:`mcapi.Sample` instance
+        self.input_files = []  #: list of :class:`mcapi.File` instance
+        self.output_files = []  #: list of :class:`mcapi.File` instance
+        self.input_samples = []  #: list of :class:`mcapi.Sample` instance
+        self.output_samples = []  #: list of :class:`mcapi.Sample` instance
 
         self.owner = ''
         self.setup = []
-        self.measurements = []              #: list of :class:`mcapi.Measurement` instance
-        self.transformed_samples = []       #: list of :class:`mcapi.Sample` instance
-        self.what = ''                      #: string
-        self.why = ''                       #: string
-        self.category = None                #: string
-        self.experiment = None              #: the :class:`mcapi.Experiment` containing this process
+        self.measurements = []  #: list of :class:`mcapi.Measurement` instance
+        self.transformed_samples = []  #: list of :class:`mcapi.Sample` instance
+        self.what = ''  #: string
+        self.why = ''  #: string
+        self.category = None  #: string
+        self.experiment = None  #: the :class:`mcapi.Experiment` containing this process
 
-        self.project = None                 #: the :class:`mcapi.Project` containing this process
+        self.project = None  #: the :class:`mcapi.Project` containing this process
 
         #: a derived dictionary of the setup properties of this process;
         #: a dictionaly of :class:`mcapi.Property` with *key* = property.attribute;
@@ -1068,9 +1072,9 @@ class Process(MCObject):
         #: 'in' or 'out' - filled in when process is in Sample.processes; see :class:`mcapi.Sample`
         self.direction = ''
 
-        self.process_id = ''        #: string - filled in when process is in Sample.processes; see :class:`mcapi.Sample`
-        self.sample_id = ''         #: string - filled in when process is in Sample.processes; see :class:`mcapi.Sample`
-        self.property_set_id = ''   #: string - filled in when process is in Sample.processes; see :class:`mcapi.Sample`
+        self.process_id = ''  #: string - filled in when process is in Sample.processes; see :class:`mcapi.Sample`
+        self.sample_id = ''  #: string - filled in when process is in Sample.processes; see :class:`mcapi.Sample`
+        self.property_set_id = ''  #: string - filled in when process is in Sample.processes; see :class:`mcapi.Sample`
 
         #: list of :class:`mcapi.Experiment` instances - filled in when process is in Sample.processes;
         #: see :class:`mcapi.Sample`
@@ -1282,9 +1286,9 @@ class Process(MCObject):
         """
         process_ok = (self.process_type == 'create' or self.template_name == 'Sectioning')
         if not process_ok:
-            print("Either Process.process_type is not 'create' or " + \
-                  "Process.template_name is not 'sectioning'; instead: " + \
-                  "process_type == " + self.process_type + " and " + \
+            print("Either Process.process_type is not 'create' or " +
+                  "Process.template_name is not 'sectioning'; instead: " +
+                  "process_type == " + self.process_type + " and " +
                   "template_name == " + self.template_name + " -- returning None")
             # throw exception?
             return None
@@ -1527,13 +1531,13 @@ class Process(MCObject):
         if (not name):
             name = attribute
 
-        if not "name" in measurement_data:
+        if "name" not in measurement_data:
             measurement_data['name'] = name
 
-        if not "attribute" in measurement_data:
+        if "attribute" not in measurement_data:
             measurement_data['attribute'] = attribute
 
-        if not "unit" in measurement_data:
+        if "unit" not in measurement_data:
             measurement_data['unit'] = ""
 
         measurement = self.create_measurement(data=measurement_data)
@@ -1863,18 +1867,19 @@ class Sample(MCObject):
         using a 'create sample' style process.
 
     """
-    def __init__(self, name=None, data=None):
-        self.id = None                          #: id for this Sample - string
-        self.name = ""                          #: name for this Sample - string
 
-        self.property_set_id = ''               #: the id of the related property set
-        self.project = None                     #: the project that 'contains' this Sample
-        self.experiment = None                  #: the experiment that 'contains' this Sample
+    def __init__(self, name=None, data=None):
+        self.id = None  #: id for this Sample - string
+        self.name = ""  #: name for this Sample - string
+
+        self.property_set_id = ''  #: the id of the related property set
+        self.project = None  #: the project that 'contains' this Sample
+        self.experiment = None  #: the experiment that 'contains' this Sample
         # filled in when measurements exist (?)
-        self.properties = []                    #: when measurements exist - the properties of this sample
-        self.experiments = []                   #: the experiments that create or transform this sample
-        self.property_set_id = None             #: the id of the property_set for this sample
-        self.direction = ''                     #: the direction relationship ('input' or 'output') that sample
+        self.properties = []  #: when measurements exist - the properties of this sample
+        self.experiments = []  #: the experiments that create or transform this sample
+        self.property_set_id = None  #: the id of the property_set for this sample
+        self.direction = ''  #: the direction relationship ('input' or 'output') that sample
         self.sample_id = None
         # to be filled in later
         self.processes = {}
@@ -1960,8 +1965,8 @@ class Sample(MCObject):
 
     def delete(self):
         """
-        Delete a sample. The sample is removed from the database leaving only the 
-        local copy. A sample can not be deleted if any of the following are true: 
+        Delete a sample. The sample is removed from the database leaving only the
+        local copy. A sample can not be deleted if any of the following are true:
         ... ? ...
 
         :return: id - the id of the sample deleted or None (if the sample was not deleted)
@@ -1982,11 +1987,10 @@ class Sample(MCObject):
                 results = api.delete_sample_created_by_process(self.project.id, proc_id, self.id, property_set_id)
                 if 'error' in results:
                     results = None
-            except:
+            except (Exception):
                 pass
 
         return results
-
 
     # Sample - additional methods
     def link_files(self, file_list):
@@ -2022,12 +2026,13 @@ class Directory(MCObject):
         any of the project methods that create directories on a given path
 
     """
+
     def __init__(self, name="", path="", data=None):
         # normally, from the data base
-        self.id = ""                            #: directory id
-        self.name = ""                          #: directory name
+        self.id = ""  #: directory id
+        self.name = ""  #: directory name
         self.checksum = ""
-        self.path = ""                          #: directory path within project
+        self.path = ""  #: directory path within project
         self.size = 0
 
         # additional fields
@@ -2249,21 +2254,22 @@ class File(MCObject):
     .. note:: normally created from the database by a call to :func:`mcapi.Project.add_file_using_directory`
         or any of the other project functions that uploading a file.
     """
+
     def __init__(self, data=None):
         # normally, from the data base
-        self.id = ""                        #: file id - string
-        self.name = ""                      #: file name - string
-        self.description = ""               #: file description - string
-        self.owner = ""                     #: file owner - string
+        self.id = ""  #: file id - string
+        self.name = ""  #: file name - string
+        self.description = ""  #: file description - string
+        self.owner = ""  #: file owner - string
 
-        self.path = ""                      #: file path - string
-        self.size = 0                       #: file size - long
+        self.path = ""  #: file path - string
+        self.size = 0  #: file size - long
         self.uploaded = 0
-        self.checksum = ""                  #: file checksum - string
-        self.current = True                 #: file version flag - boolean
-        self.mediatype = {}                 #: - directory
-        self.tags = []                      #: - array of string
-        self.notes = []                     #: - array of string
+        self.checksum = ""  #: file checksum - string
+        self.current = True  #: file version flag - boolean
+        self.mediatype = {}  #: - directory
+        self.tags = []  #: - array of string
+        self.notes = []  #: - array of string
 
         # from database, not inserted now, additional code needed
         self.samples = []
@@ -2396,7 +2402,7 @@ class Template(MCObject):
 
     """
     # global static
-    create = "global_Create Samples"                #: a typical template id, used for testing.
+    create = "global_Create Samples"  #: a typical template id, used for testing.
     compute = "global_Computation"
     primitive_crystal_structure = "global_Primitive Crystal Structure"
 
@@ -2459,21 +2465,22 @@ class Property(MCObject):
     Normally created by calls to :func:`mcapi.Process.set_measurements_for_process_samples`
     or :func:`mcapi.Process.update_setup_properties`.
     """
+
     def __init__(self, data=None):
-        self.id = ''                        #: this property's id
-        self.name = ''                      #:
-        self.description = ''               #:
-        self.setup_id = ''                  #: the id of the setup, if set indicates that this is a setup property
-        self.property_set_id = ''           #: the property_set id, if set this property for measurement
-        self.parent_id = ''                 #: previous version of this property, if any
-        self.property_id = ''               #: this property's id
-        self.required = False               #: a required property?
-        self.unit = ''                      #: unit, if any
-        self.attribute = ''                 #: attribute
+        self.id = ''  #: this property's id
+        self.name = ''  #:
+        self.description = ''  #:
+        self.setup_id = ''  #: the id of the setup, if set indicates that this is a setup property
+        self.property_set_id = ''  #: the property_set id, if set this property for measurement
+        self.parent_id = ''  #: previous version of this property, if any
+        self.property_id = ''  #: this property's id
+        self.required = False  #: a required property?
+        self.unit = ''  #: unit, if any
+        self.attribute = ''  #: attribute
         self._value = ''  #: value - is actually set and fetched by covering methods on 'value'
 
-        self.units = []                     #: array of string
-        self.choices = []                   #: array of string
+        self.units = []  #: array of string
+        self.choices = []  #: array of string
 
         # attr = ['id', 'name', 'description', 'birthtime', 'mtime', 'otype', 'owner']
         super(Property, self).__init__(data)
@@ -2517,7 +2524,7 @@ class Property(MCObject):
         pp.write("attribute: " + pp.str(self.attribute))
         pp.n_indent += 1
         pp.write("id: " + pp.str(self.id))
-        if hasattr(self,'best_measure') and self.best_measure is not None:
+        if hasattr(self, 'best_measure') and self.best_measure is not None:
             pp.write("best_measure_id: " + pp.str(self.best_measure_id))
             pp.write_pretty_print_objects("best_measure: ", self.best_measure)
         strout = StringIO()
@@ -2558,6 +2565,7 @@ class MeasuredProperty(Property):
     See :class:`mcapi.Property`
 
     """
+
     def __init__(self, data=None):
         # attr = ['id', 'name', 'description', 'birthtime', 'mtime', 'otype', 'owner',
         # 'setup_id', 'required', 'unit', 'attribute', 'value', 'units', 'choices']
@@ -2585,10 +2593,12 @@ class MeasuredProperty(Property):
 class MCPropertyException(BaseException):
     pass
 
+
 class NumberProperty(Property):
     """
     See :class:`mcapi.Property`
     """
+
     def __init__(self, data=None):
         super(NumberProperty, self).__init__(data)
 
@@ -2597,6 +2607,7 @@ class StringProperty(Property):
     """
     See :class:`mcapi.Property`
     """
+
     def __init__(self, data=None):
         super(StringProperty, self).__init__(data)
 
@@ -2605,6 +2616,7 @@ class BooleanProperty(Property):
     """
     See :class:`mcapi.Property`
     """
+
     def __init__(self, data=None):
         super(BooleanProperty, self).__init__(data)
 
@@ -2613,21 +2625,22 @@ class DateProperty(Property):
     """
     See :class:`mcapi.Property`
     """
+
     def __init__(self, data=None):
         super(DateProperty, self).__init__(data)
-
 
 
 class SelectionProperty(Property):
     """
     See :class:`mcapi.Property`
     """
+
     def __init__(self, data=None):
         super(SelectionProperty, self).__init__(data)
 
     def verify_value_type(self, value):
         if isinstance(value, dict):
-            if (isinstance(value['name'], str) or isinstance(value['name'], unicode))\
+            if (isinstance(value['name'], str) or isinstance(value['name'], unicode)) \
                     and (isinstance(value['value'], str) or isinstance(value['value'], unicode)):
                 return
         if not isinstance(value, str):
@@ -2661,10 +2674,12 @@ class SelectionProperty(Property):
             self.verify_value_type(value)
         self._value = found
 
+
 class FunctionProperty(Property):
     """
     See :class:`mcapi.Property`
     """
+
     def __init__(self, data=None):
         super(FunctionProperty, self).__init__(data)
 
@@ -2673,6 +2688,7 @@ class CompositionProperty(Property):
     """
     See :class:`mcapi.Property`
     """
+
     def __init__(self, data=None):
         super(CompositionProperty, self).__init__(data)
 
@@ -2681,6 +2697,7 @@ class VectorProperty(Property):
     """
     See :class:`mcapi.Property`
     """
+
     def __init__(self, data=None):
         super(VectorProperty, self).__init__(data)
 
@@ -2689,6 +2706,7 @@ class MatrixProperty(Property):
     """
     See :class:`mcapi.Property`
     """
+
     def __init__(self, data=None):
         super(MatrixProperty, self).__init__(data)
 
@@ -2718,7 +2736,7 @@ def make_object(data):
 
 
 def make_base_object_for_type(data):
-    if _has_key('_type', data): # catch, convert legacy objects
+    if _has_key('_type', data):  # catch, convert legacy objects
         data['otype'] = data['_type']
     if _data_has_type(data):
         object_type = data['otype']
@@ -2759,7 +2777,7 @@ def make_property_object(obj):
     data = obj
     if isinstance(obj, MCObject):
         data = obj.input_data
-    if _has_key('_type', data): # catch, convert legacy objects
+    if _has_key('_type', data):  # catch, convert legacy objects
         data['otype'] = data['_type']
     if _data_has_type(data):
         object_type = data['otype']
@@ -2783,7 +2801,7 @@ def make_property_object(obj):
         if object_type == 'matrix':
             holder = MatrixProperty(data=data)
         if not holder:
-            #raise Exception("No Property Object, unrecognized otype = " + object_type, data)
+            # raise Exception("No Property Object, unrecognized otype = " + object_type, data)
             holder = Property(data=data)
         holder._process_special_objects()
         return holder
@@ -2796,6 +2814,7 @@ def make_measured_property(data):
     measurement_property._process_special_objects()
     return measurement_property
 
+
 #
 # ---
 #    testing template backend
@@ -2806,22 +2825,25 @@ def _create_new_tamplate(template_data):
     template = make_object(results)
     return template
 
-def _update_template(template_id,template_data):
+
+def _update_template(template_id, template_data):
     print("Updating template")
-    results = api._update_template(template_id,template_data)
+    results = api._update_template(template_id, template_data)
     template = make_object(results)
     return template
+
 
 #
 # ---
 #   testing user profile backend
 # ---
-def _storeInUserProfile(user_id, name,value):
-    results = api._storeInUserProfile(user_id, name,value)
+def _storeInUserProfile(user_id, name, value):
+    results = api._storeInUserProfile(user_id, name, value)
     value = results['val']
     if not value:
         return None
     return value
+
 
 def _getFromUserProfile(user_id, name):
     results = api._getFromUserProfile(user_id, name)
@@ -2829,6 +2851,7 @@ def _getFromUserProfile(user_id, name):
     if not value:
         return None
     return value
+
 
 def _clearFromUserProfile(user_id, name):
     results = api._clearFromUserProfile(user_id, name)

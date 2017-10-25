@@ -1,6 +1,7 @@
 from materials_commons.api import create_project, get_all_templates
 from materials_commons.api import get_all_projects
 
+
 class DemoProject:
     def __init__(self, data_directory_path):
         self.build_data_directory = data_directory_path
@@ -43,23 +44,23 @@ class DemoProject:
         processes_data = [
             {
                 'name': 'Lift 380 Casting Day  # 1',
-                'template': self._template_id_with(template_table,'Create Samples')
+                'template': self._template_id_with(template_table, 'Create Samples')
             },
             {
                 'name': 'Casting L124',
-                'template': self._template_id_with(template_table,'Sectioning')
+                'template': self._template_id_with(template_table, 'Sectioning')
             },
             {
                 'name': 'Sectioning of Casting L124',
-                'template': self._template_id_with(template_table,'Sectioning')
+                'template': self._template_id_with(template_table, 'Sectioning')
             },
             {
                 'name': 'EBSD SEM Data Collection - 5 mm plate',
-                'template': self._template_id_with(template_table,'EBSD SEM')
+                'template': self._template_id_with(template_table, 'EBSD SEM')
             },
             {
                 'name': 'EPMA Data Collection - 5 mm plate - center',
-                'template': self._template_id_with(template_table,'EPMA')
+                'template': self._template_id_with(template_table, 'EPMA')
             }
         ]
 
@@ -67,7 +68,7 @@ class DemoProject:
         for entry in processes_data:
             process_name = entry['name']
             template = entry['template']
-            process = self._get_or_create_process(experiment,process_name,template)
+            process = self._get_or_create_process(experiment, process_name, template)
             processes.append(process)
 
         sample_names = [
@@ -100,9 +101,9 @@ class DemoProject:
             processes[count] = experiment.get_process_by_id(process.id)
             count = count + 1
 
-        processes[0] = self._setup_for_node(0,processes[0])
-        processes[3] = self._setup_for_node(3,processes[3])
-        processes[4] = self._setup_for_node(4,processes[4])
+        processes[0] = self._setup_for_node(0, processes[0])
+        processes[3] = self._setup_for_node(3, processes[3])
+        processes[4] = self._setup_for_node(4, processes[4])
 
         filename_list = [
             'LIFT Specimen Die.jpg',
@@ -124,9 +125,8 @@ class DemoProject:
         ]
 
         process_file_list = [
-            [0,2,3], [0,1], [1], [4,5,6,7,8,9,10], [11,12,13,14,15]
+            [0, 2, 3], [0, 1], [1], [4, 5, 6, 7, 8, 9, 10], [11, 12, 13, 14, 15]
         ]
-
 
         project_directory_path = "/FilesForSample"
         file_list = []
@@ -191,7 +191,7 @@ class DemoProject:
             table[template.id] = template
         return table
 
-    def _template_id_with(self,table,match):
+    def _template_id_with(self, table, match):
         found_id = None
         for key in table:
             if match in key:
@@ -210,11 +210,11 @@ class DemoProject:
                 description=project_description)
         return project
 
-    def _get_or_create_experiment(self, project, experiment_name,experiment_description):
+    def _get_or_create_experiment(self, project, experiment_name, experiment_description):
         experiments = project.get_all_experiments()
         experiment = None
         for ex in experiments:
-            if (ex.name == experiment_name):
+            if ex.name == experiment_name:
                 experiment = ex
         if not experiment:
             experiment = project.create_experiment(
@@ -248,21 +248,21 @@ class DemoProject:
             )
         return samples
 
-    def _setup_for_node(self,index,process):
-        if index == 0: # case: Create Sample: Lift 380 Castining Day #1
+    def _setup_for_node(self, index, process):
+        if index == 0:  # case: Create Sample: Lift 380 Castining Day #1
             date_value = 1485977519347  # February 1, 2017
             process.set_value_of_setup_property(
                 'manufacturer', 'Ohio State University')
             process.set_value_of_setup_property('manufacturing_date', date_value)
             # process.set_value_of_setup_property('production_method', 'cast')
             process = process.update_setup_properties([
-                'manufacturer','manufacturing_date'
-                #,'production_method'
+                'manufacturer', 'manufacturing_date'
+                # ,'production_method'
             ])
             process = process.update_setup_properties([
                 'manufacturer'
             ])
-        if index == 3: # case: EBSD SEM Data Collection - 5 mm plate
+        if index == 3:  # case: EBSD SEM Data Collection - 5 mm plate
             process.set_value_of_setup_property('voltage', 31)
             process.set_unit_of_setup_property('voltage', 'kV')
             process.set_value_of_setup_property('sample_tilt', 70)
@@ -271,9 +271,10 @@ class DemoProject:
             process.set_value_of_setup_property('step_size', 1)
             process.set_value_of_setup_property('working_distance', 20)
             process = process.update_setup_properties([
-                'voltage', 'sample_tilt', 'scan_size_width','scan_size_height','step_size','working_distance'
+                'voltage', 'sample_tilt', 'scan_size_width',
+                'scan_size_height', 'step_size', 'working_distance'
             ])
-        if index == 4: # case: EPMA Data Collection - 5 mm plate - center
+        if index == 4:  # case: EPMA Data Collection - 5 mm plate - center
             process.set_value_of_setup_property('voltage', 15)
             process.set_unit_of_setup_property('voltage', 'kV')
             process.set_value_of_setup_property('beam_current', 20)
@@ -282,7 +283,7 @@ class DemoProject:
             process.set_value_of_setup_property('grid_dimensions', '20 x 20')
             process.set_value_of_setup_property('location', 'center, mid-thickness')
             process = process.update_setup_properties([
-                'voltage', 'beam_current', 'step_size','grid_dimensions','location'
+                'voltage', 'beam_current', 'step_size', 'grid_dimensions', 'location'
             ])
         return process
 
@@ -294,7 +295,7 @@ class DemoProject:
         children = directory.get_children()
         selected_file = None
         for entry in children:
-            if entry.otype =='file' and entry.name == filename:
+            if entry.otype == 'file' and entry.name == filename:
                 selected_file = entry
         return selected_file
 

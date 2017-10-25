@@ -1,6 +1,7 @@
 from mcapi import mc_object_utility
 from datetime import datetime
 
+
 class Dataset:
 
     def __init__(self, data=None):
@@ -62,12 +63,15 @@ def convert_file(file):
     file['otype'] = 'datafile'
     return mc_object_utility.make_mc_file(file)
 
+
 def convert_process(process):
     return mc_object_utility.make_mc_process(process)
+
 
 def convert_sample(sample):
     return mc_object_utility.make_mc_sample(sample)
 
+
 def convert_string_date_time(dt):
     # '2016-07-30T02:32:20.140Z'
-    return datetime.strptime(dt,'%Y-%m-%dT%H:%M:%S.%fZ')
+    return datetime.strptime(dt, '%Y-%m-%dT%H:%M:%S.%fZ')

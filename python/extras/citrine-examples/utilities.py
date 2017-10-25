@@ -40,8 +40,9 @@ def check_materials_commons_config():
         print "The Materials Commons configuration ~/.materialscommons/config.json is not set up"
         return False
 
+
 def get_citrination_key():
-    return os.getenv('CITRINATION_API_KEY','')
+    return os.getenv('CITRINATION_API_KEY', '')
 
 
 def get_data_samples_dir():
@@ -86,5 +87,5 @@ def get_temp_dir():
     return tempfile.mkdtemp()
 
 
-def path_to_temp_file(dir,name):
-    return os.path.join(dir,name)
+def path_to_temp_file(dir, name):
+    return os.path.join(dir, name)

@@ -1,7 +1,7 @@
 from utilities import check_api_keys, check_data_samples_dir
 from utilities import get_data_samples_dir, print_mc_file_or_dir
 from utilities import get_citrination_key, setup_data, create_test_project
-from utilities import get_temp_dir,path_to_temp_file
+from utilities import get_temp_dir, path_to_temp_file
 from citrination_client import CitrinationClient
 from citrination_client import PifQuery
 
@@ -11,7 +11,7 @@ if not check_api_keys():
 if not check_data_samples_dir():
     exit(1)
 
-test_dataset = '153654' # "Weymouth-MC-Test"
+test_dataset = '153654'  # "Weymouth-MC-Test"
 test_file_or_dir = 'Al4-pif.json'
 
 try:
@@ -49,7 +49,7 @@ try:
     temp_dir = get_temp_dir()
     filepath = None
     if type == "file":
-        temp_file_path = path_to_temp_file(temp_dir,test_file_or_dir)
+        temp_file_path = path_to_temp_file(temp_dir, test_file_or_dir)
         project.local_path = temp_dir
         filepath = found.download_file_content(temp_file_path)
     else:
@@ -67,4 +67,3 @@ try:
 
 except Exception as e:
     print e
-
