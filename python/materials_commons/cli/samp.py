@@ -1,6 +1,6 @@
 import sys
-from mcapi.cli.list_objects import ListObjects
-from mcapi.cli.functions import _trunc_name, _format_mtime
+from .list_objects import ListObjects
+from .functions import _trunc_name, _format_mtime
 
 
 class SampSubcommand(ListObjects):

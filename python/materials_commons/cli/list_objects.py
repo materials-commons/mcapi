@@ -6,7 +6,7 @@ import json
 import re
 from tabulate import tabulate
 from pandas import DataFrame
-from mcapi.cli.functions import make_local_project, make_local_expt, _proj_path
+from .functions import make_local_project, make_local_expt, _proj_path
 
 
 @contextlib.contextmanager

@@ -1,8 +1,8 @@
 import sys
 import json
-from mcapi import get_all_projects
-from mcapi.cli.list_objects import ListObjects
-from mcapi.cli.functions import _trunc_name, _proj_path, _format_mtime, _proj_config
+from materials_commons.api import get_all_projects
+from .list_objects import ListObjects
+from .functions import _trunc_name, _proj_path, _format_mtime, _proj_config
 
 
 class ProjSubcommand(ListObjects):

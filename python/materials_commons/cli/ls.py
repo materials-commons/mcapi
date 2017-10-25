@@ -1,8 +1,8 @@
 import sys
 import os
 import argparse
-import mcapi
-from mcapi.cli.functions import make_local_project
+import materials_commons.api as mcapi
+from .functions import make_local_project
 import copy
 import time
 import hashlib

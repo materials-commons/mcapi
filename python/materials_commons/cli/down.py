@@ -1,8 +1,8 @@
 import sys
 import os
 import argparse
-import mcapi
-from mcapi.cli.functions import make_local_project
+import materials_commons.api as mcapi
+from .functions import make_local_project
 
 
 def _obj_path_to_local_path(proj, obj_path):

@@ -1,18 +1,18 @@
 # temporary home before integrating else where
 import sys
 import argparse
-import mcapi
-from mcapi.cli.remote import remote_subcommand
-from mcapi.cli.proj import ProjSubcommand
-from mcapi.cli.expt import expt_subcommand
-from mcapi.cli.init import init_subcommand
-from mcapi.cli.clone import clone_subcommand
-from mcapi.cli.ls import ls_subcommand
-from mcapi.cli.up import up_subcommand
-from mcapi.cli.down import down_subcommand
-from mcapi.cli.templates import TemplatesSubcommand
-from mcapi.cli.proc import ProcSubcommand
-from mcapi.cli.samp import SampSubcommand
+import materials_commons.api as mcapi
+from .remote import remote_subcommand
+from .proj import ProjSubcommand
+from .expt import expt_subcommand
+from .init import init_subcommand
+from .clone import clone_subcommand
+from .ls import ls_subcommand
+from .up import up_subcommand
+from .down import down_subcommand
+from .templates import TemplatesSubcommand
+from .proc import ProcSubcommand
+from .samp import SampSubcommand
 from io import StringIO
 import imp
 

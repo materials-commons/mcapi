@@ -1,6 +1,6 @@
 import sys
 import argparse
-from mcapi.cli.functions import _mc_remotes
+from .functions import _mc_remotes
 import pandas
 
 

@@ -2,8 +2,8 @@ import sys
 import os
 import json
 import argparse
-import mcapi
-from mcapi.cli.functions import _mc_remotes, _print_projects, _proj_config, \
+import materials_commons.api as mcapi
+from .functions import _mc_remotes, _print_projects, _proj_config, \
     make_local_project
 
 

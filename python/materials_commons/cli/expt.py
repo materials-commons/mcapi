@@ -1,6 +1,6 @@
 import sys
 import argparse
-from mcapi.cli.functions import make_local_project, make_local_expt, \
+from .functions import make_local_project, make_local_expt, \
     set_current_experiment, _print_experiments
 
 

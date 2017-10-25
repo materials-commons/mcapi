@@ -1,7 +1,7 @@
 import sys
 import os
 import argparse
-from mcapi.cli.functions import make_local_project
+from .functions import make_local_project
 
 
 def _local_to_remote_relpath(proj, local_path):

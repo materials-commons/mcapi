@@ -1,7 +1,7 @@
 import os
 import copy
 import json
-import mcapi
+import materials_commons.api as mcapi
 import pandas
 import string
 import time

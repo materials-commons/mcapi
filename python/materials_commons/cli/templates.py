@@ -1,6 +1,6 @@
-from mcapi import get_all_templates
-from mcapi.cli.list_objects import ListObjects
-from mcapi.cli.functions import _trunc_name, _format_mtime
+from materials_commons.api import get_all_templates
+from .list_objects import ListObjects
+from .functions import _trunc_name, _format_mtime
 
 
 class TemplatesSubcommand(ListObjects):
