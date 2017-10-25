@@ -137,7 +137,7 @@ properties = [
     grid_dimension, casting_image_file, casting_description_file, sem_results_summary
 ]
 
-for key in materials_commons_properties.keys():
+for key in list(materials_commons_properties.keys()):
     properties.append(value_property(key, materials_commons_properties[key], [data_supply_method]))
 
 # Process Steps...
@@ -165,7 +165,7 @@ open_data_liscense = License(
 contact = Person(name=Name(title="HRH", given="Test", family="User"), email="test@mc.org")
 
 names = []
-for key in materials_commons_properties.keys():
+for key in list(materials_commons_properties.keys()):
     names.append(materials_commons_properties[key])
 
 # Put it all together... BTW: every object has tags = [string]

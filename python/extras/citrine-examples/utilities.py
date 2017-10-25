@@ -1,5 +1,5 @@
 import os
-import mcapi
+import materials_commons.api as mcapi
 import tempfile
 from random import randint
 
@@ -17,10 +17,10 @@ def check_data_samples_dir():
         return True
     elif(directory):
         direction = str(directory)
-        print "The supplied SAMPLES_DIRECTORY, " + directory + ", is not a directory"
+        print("The supplied SAMPLES_DIRECTORY, " + directory + ", is not a directory")
         return False
     else:
-        print "The environment variable SAMPLES_DIRECTORY must be set to a directory path"
+        print("The environment variable SAMPLES_DIRECTORY must be set to a directory path")
         return False
 
 
@@ -28,7 +28,7 @@ def check_citrination_key():
     if (get_citrination_key()):
         return True
     else:
-        print "The environment variable CITRINATION_API_KEY must be assigned to the user's API key"
+        print("The environment variable CITRINATION_API_KEY must be assigned to the user's API key")
         return False
 
 
@@ -37,7 +37,7 @@ def check_materials_commons_config():
     if config.params and config.mcurl and config.params['apikey']:
         return True
     else:
-        print "The Materials Commons configuration ~/.materialscommons/config.json is not set up"
+        print("The Materials Commons configuration ~/.materialscommons/config.json is not set up")
         return False
 
 
@@ -59,8 +59,8 @@ def setup_data(test_file_or_dir_path):
     if os.path.isdir(filepath):
         type = "directory"
     if type == 'unknown':
-        print filepath
-        print "The proposed example data file or directory is not either; can not continue"
+        print(filepath)
+        print("The proposed example data file or directory is not either; can not continue")
         exit(1)
 
     return type, filepath
@@ -79,8 +79,8 @@ def create_test_project():
 
 
 def print_mc_file_or_dir(obj):
-    print "    " + obj.otype + ", name = " + obj.name +\
-        ", id = " + obj.id
+    print("    " + obj.otype + ", name = " + obj.name +\
+        ", id = " + obj.id)
 
 
 def get_temp_dir():

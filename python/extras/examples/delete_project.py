@@ -1,4 +1,4 @@
-from mcapi import get_all_projects
+from materials_commons.api import get_all_projects
 import sys
 
 if len(sys.argv) < 2:

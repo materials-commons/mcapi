@@ -4,7 +4,7 @@ import datetime
 import os.path
 from os import walk
 import sys
-from mcapi import create_project, get_all_projects, get_all_templates
+from materials_commons.api import create_project, get_all_projects, get_all_templates
 
 local_path = './example_data/excel_spreadsheet_files'
 BASE_DIRECTORY = os.path.abspath(local_path)

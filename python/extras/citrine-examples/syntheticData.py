@@ -1,9 +1,8 @@
 import numpy as np
-import matplotlib.pyplot as plt
 from os import path
-from utilities import check_citrination_key, get_citrination_key
+from .utilities import check_citrination_key, get_citrination_key
 from citrination_client import CitrinationClient
-from citrination_client import PifQuery
+# from citrination_client import PifQuery
 
 if not check_citrination_key():
     exit(1)
@@ -60,13 +59,13 @@ try:
         type = "file"
     if path.isdir(filepath):
         type = "directory"
-    print filepath
-    print "    is a: " + type
+    print(filepath)
+    print(("    is a: " + type))
     response = client.upload(test_dataset, filepath)
-    print response
+    print(response)
 
 except Exception as e:
-    print e
+    print(("Exception: ", e))
 
 # x, y = create_clusters(100, 4)
 # write_cluster_csv("cluster_data.csv", x, y)
