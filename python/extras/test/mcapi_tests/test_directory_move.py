@@ -60,14 +60,14 @@ class TestDirectoryMove(unittest.TestCase):
         directory = self.directory_b
         target = self.directory_e
         self.assertEqual(directory._project, self.project)
-        self.assertEqual(directory._parent_id,self.directory_a.id)
+        self.assertEqual(directory._parent_id, self.directory_a.id)
         self.assertEqual(directory.name, self.project.name + self.test_dir_path_b)
         self.assertEqual(target.name, self.project.name + self.test_dir_path_e)
         updatedDirectory = directory.move(target)
         self.assertEqual(updatedDirectory.path, self.project.name + "/TestForMove/A/E/B")
         self.assertEqual(updatedDirectory._project, self.project)
-        self.assertEqual(updatedDirectory._parent_id,self.directory_e.id)
-        self.assertEqual(updatedDirectory.id,directory.id)
+        self.assertEqual(updatedDirectory._parent_id, self.directory_e.id)
+        self.assertEqual(updatedDirectory.id, directory.id)
 
         directory_list = self.project.get_all_directories()
         self.assertIsNotNone(directory_list)

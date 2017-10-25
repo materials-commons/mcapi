@@ -98,8 +98,8 @@ class TestFileMove(unittest.TestCase):
         self.assertEqual(file._directory.id, self.directory_for_file_move.id)
         child_list = self.directory_for_file_move.get_children()
         probe = child_list[0]
-        self.assertEqual(file.id,probe.id)
-        self.assertEqual(file.name,probe.name)
+        self.assertEqual(file.id, probe.id)
+        self.assertEqual(file.name, probe.name)
         self.assertEqual(file._directory_id, probe._directory_id)
         self.assertEqual(file._directory_id, self.directory_for_file_move.id)
 
@@ -118,4 +118,3 @@ class TestFileMove(unittest.TestCase):
         print(child_list)
         for child in child_list:
             print(child.name)
-

@@ -2,6 +2,7 @@ import unittest
 import pytest
 from mcapi import get_all_users
 
+
 class TestUser(unittest.TestCase):
 
     def test_get_all(self):

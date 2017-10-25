@@ -60,7 +60,7 @@ def upload_one_parallel(q):
         packet = q.get()
         try:
             upload_one(packet['project'], packet['path'])
-        except:
+        except BaseException:
             print("Requeueing: " + packet['path'])
             q.put(packet)
         finally:

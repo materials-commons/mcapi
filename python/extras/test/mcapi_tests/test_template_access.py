@@ -8,7 +8,8 @@ from mcapi import _create_new_tamplate, _update_template
 
 def fake_name(prefix):
     number = "%05d" % randint(0, 99999)
-    return prefix+number
+    return prefix + number
+
 
 class TestTemplateAccess(unittest.TestCase):
     @classmethod
@@ -24,7 +25,7 @@ class TestTemplateAccess(unittest.TestCase):
 
     def test_is_setup_correctly(self):
         self.assertIsNotNone(self.test_user)
-        self.assertEqual(self.test_user_id,self.test_user.id)
+        self.assertEqual(self.test_user_id, self.test_user.id)
 
     def test_all_templets(self):
         templates = get_all_templates()
@@ -42,8 +43,8 @@ class TestTemplateAccess(unittest.TestCase):
         template_data = self.make_template_data(test_name)
         template = _create_new_tamplate(template_data)
         self.assertIsNotNone(template)
-        self.assertEqual(template.id,test_id)
-        self.assertEqual(template.otype,'template')
+        self.assertEqual(template.id, test_id)
+        self.assertEqual(template.otype, 'template')
         self.assertFalse(template.does_transform)
 
     def test_cannot_create_twice(self):
@@ -65,20 +66,20 @@ class TestTemplateAccess(unittest.TestCase):
         template_data = self.make_template_data(test_name)
         template = _create_new_tamplate(template_data)
         self.assertIsNotNone(template)
-        self.assertEqual(template.id,test_id)
-        self.assertEqual(template.otype,'template')
+        self.assertEqual(template.id, test_id)
+        self.assertEqual(template.otype, 'template')
         self.assertFalse(template.does_transform)
         self.assertEqual(template.owner, 'test@test.mc')
 
         update_data = template.input_data
         update_data["does_transform"] = True
-        self.assertEqual(update_data['owner'],'test@test.mc')
+        self.assertEqual(update_data['owner'], 'test@test.mc')
         update_data.pop('id')
 
-        template = _update_template(template.id,update_data)
+        template = _update_template(template.id, update_data)
         self.assertIsNotNone(template)
-        self.assertEqual(template.id,test_id)
-        self.assertEqual(template.otype,'template')
+        self.assertEqual(template.id, test_id)
+        self.assertEqual(template.otype, 'template')
         self.assertTrue(template.does_transform)
 
     def test_non_admin_other_user_cannot_modify_users_template(self):
@@ -87,8 +88,8 @@ class TestTemplateAccess(unittest.TestCase):
         template_data = self.make_template_data(test_name)
         template = _create_new_tamplate(template_data)
         self.assertIsNotNone(template)
-        self.assertEqual(template.id,test_id)
-        self.assertEqual(template.otype,'template')
+        self.assertEqual(template.id, test_id)
+        self.assertEqual(template.otype, 'template')
         self.assertFalse(template.does_transform)
         self.assertEqual(template.owner, 'test@test.mc')
 
@@ -106,7 +107,7 @@ class TestTemplateAccess(unittest.TestCase):
 
         update_data = template.input_data
         update_data["does_transform"] = True
-        self.assertEqual(update_data['owner'],'test@test.mc')
+        self.assertEqual(update_data['owner'], 'test@test.mc')
         update_data.pop('id')
 
         with pytest.raises(Exception):
@@ -121,7 +122,7 @@ class TestTemplateAccess(unittest.TestCase):
         template_id = 'global_As Measured'
         template = table[template_id]
         self.assertIsNotNone(template)
-        self.assertEqual(template.id,template_id)
+        self.assertEqual(template.id, template_id)
         update_data = template.input_data
         update_data["does_transform"] = True
         self.assertNotEqual(update_data['owner'], 'test@test.mc')
@@ -129,7 +130,6 @@ class TestTemplateAccess(unittest.TestCase):
         update_data.pop('owner')
         with pytest.raises(Exception):
             _update_template(template.id, update_data)
-
 
     def template_admin_can_update_any_template(self):
         another_user_id = 'tadmin@test.mc'
@@ -152,7 +152,7 @@ class TestTemplateAccess(unittest.TestCase):
         template_id = 'global_As Measured'
         template = table[template_id]
         self.assertIsNotNone(template)
-        self.assertEqual(template.id,template_id)
+        self.assertEqual(template.id, template_id)
 
         update_data = template.input_data
         update_data["does_transform"] = True
@@ -160,10 +160,10 @@ class TestTemplateAccess(unittest.TestCase):
         update_data.pop('id')
         update_data.pop('owner')
 
-        template = _update_template(template.id,update_data)
+        template = _update_template(template.id, update_data)
         self.assertIsNotNone(template)
-        self.assertEqual(template.id,template_id)
-        self.assertEqual(template.otype,'template')
+        self.assertEqual(template.id, template_id)
+        self.assertEqual(template.otype, 'template')
         self.assertTrue(template.does_transform)
 
         update_data = template.input_data
@@ -172,10 +172,10 @@ class TestTemplateAccess(unittest.TestCase):
         update_data.pop('id')
         update_data.pop('owner')
 
-        template = _update_template(template.id,update_data)
+        template = _update_template(template.id, update_data)
         self.assertIsNotNone(template)
-        self.assertEqual(template.id,template_id)
-        self.assertEqual(template.otype,'template')
+        self.assertEqual(template.id, template_id)
+        self.assertEqual(template.otype, 'template')
         self.assertFalse(template.does_transform)
 
     def make_template_table(self, templates):

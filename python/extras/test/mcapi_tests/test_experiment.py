@@ -6,7 +6,7 @@ from mcapi import create_project
 
 def fake_name(prefix):
     number = "%05d" % randint(0, 99999)
-    return prefix+number
+    return prefix + number
 
 
 class TestExperiment(unittest.TestCase):

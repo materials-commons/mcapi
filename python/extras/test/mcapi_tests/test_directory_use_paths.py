@@ -5,7 +5,7 @@ from mcapi import create_project
 
 def fake_name(prefix):
     number = "%05d" % randint(0, 99999)
-    return prefix+number
+    return prefix + number
 
 
 class TestDirectory(unittest.TestCase):
@@ -39,7 +39,7 @@ class TestDirectory(unittest.TestCase):
     def test_get_all_dirs_from_project(self):
         base = self.base_project_name
         directory_list = self.base_project.get_all_directories()
-        self.assertEqual(len(directory_list),5)
+        self.assertEqual(len(directory_list), 5)
         self.assertEqual(directory_list[0].name, base)
         self.assertEqual(directory_list[1].name, base + '/TestDir1')
         self.assertEqual(directory_list[2].name, base + '/TestDir1/TestDir2')
@@ -49,7 +49,7 @@ class TestDirectory(unittest.TestCase):
     def test_dirs_by_path(self):
         top_directory = self.base_project.get_top_directory()
         self.assertIsNotNone(top_directory)
-        self.assertEqual(top_directory.name,self.base_project.name)
+        self.assertEqual(top_directory.name, self.base_project.name)
 
         directory_list = top_directory.get_descendant_list_by_path(self.test_dir_path)
         self.assertIsNotNone(directory_list)

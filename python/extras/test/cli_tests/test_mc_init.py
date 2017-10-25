@@ -11,7 +11,7 @@ class TestMCInit(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        if not 'TEST_DATA_DIR' in os.environ:
+        if 'TEST_DATA_DIR' not in os.environ:
             raise Exception("No TEST_DATA_DIR environment variable")
         cli_test_project_path = os.path.join(os.environ['TEST_DATA_DIR'], 'cli_test_project')
         cls.proj_path = os.path.join(cli_test_project_path, 'CLITest')
@@ -20,11 +20,11 @@ class TestMCInit(unittest.TestCase):
             os.mkdir(cli_test_project_path)
         if not os.path.exists(cls.proj_path):
             os.mkdir(cls.proj_path)
-        
+
     @classmethod
     def clean(cls):
         proj_list = mcapi.get_all_projects()
-        proj_dict = {p.name:p for p in proj_list}
+        proj_dict = {p.name: p for p in proj_list}
         if 'CLITest' in proj_dict:
             proj_dict['CLITest'].delete()
         mc = os.path.join(cls.proj_path, ".mc")
@@ -38,35 +38,33 @@ class TestMCInit(unittest.TestCase):
 
     def test_mc_init(self):
         proj_list = mcapi.get_all_projects()
-        proj_dict = {p.name:p for p in proj_list}
+        proj_dict = {p.name: p for p in proj_list}
         self.assertFalse('CLITest' in proj_dict)
-        
+
         testargs = ['mc', 'init']
         with captured_output(wd=self.proj_path) as (sout, serr):
             init_subcommand(testargs)
-        #print_stringIO(sout)
+        # print_stringIO(sout)
         out = sout.getvalue().splitlines()
         remote = mcapi.use_remote()
         url = remote.config.mcurl
         self.assertEqual(out[0], "Created new project at: " + url)
-        
+
         testargs = ['mc', 'init']
         with captured_output(wd=self.proj_path) as (sout, serr):
             init_subcommand(testargs)
-        #print_stringIO(sout)
+        # print_stringIO(sout)
         out = sout.getvalue().splitlines()
         self.assertTrue(re.match("Already in project.  name: CLITest", out[0]))
-        
+
         proj_list = mcapi.get_all_projects()
-        proj_dict = {p.name:p for p in proj_list}
+        proj_dict = {p.name: p for p in proj_list}
         self.assertTrue('CLITest' in proj_dict)
-        
+
         with working_dir(self.proj_path):
             proj = make_local_project()
             self.assertEqual(proj.name, 'CLITest')
-    
+
     @classmethod
     def tearDownClass(cls):
         cls.clean()
-        
-            

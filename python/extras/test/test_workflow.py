@@ -4,6 +4,7 @@ from os import environ
 from os import path as os_path
 from materials_commons.api import create_project, Template
 
+
 def fake_name(prefix):
     number = "%05d" % randint(0, 99999)
     return prefix + number
@@ -95,9 +96,8 @@ class TestWorkflow(unittest.TestCase):
             "attribute": "composition"
         }
         create_sample_process_updated = \
-            create_sample_process. \
-                set_measurements_for_process_samples(
-                    measurement_property, [measurement])
+            create_sample_process.\
+            set_measurements_for_process_samples(measurement_property, [measurement])
 
         # #-# tests #-# #
         self.assertIsNotNone(project.id)

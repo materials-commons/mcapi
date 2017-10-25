@@ -8,7 +8,8 @@ import test.mcapi_tests.assert_helper as aid
 
 def _fake_name(prefix):
     number = "%05d" % randint(0, 99999)
-    return prefix+number
+    return prefix + number
+
 
 class TestExperimentDelete(unittest.TestCase):
 
@@ -27,26 +28,26 @@ class TestExperimentDelete(unittest.TestCase):
 
         experiment = self.old_experiment
         self.assertIsNotNone(experiment)
-        self.assertEqual(experiment.otype,"experiment")
+        self.assertEqual(experiment.otype, "experiment")
         self.assertIsNotNone(experiment.project)
         self.assertIsNotNone(experiment.project.id)
-        self.assertEqual(experiment.project,project)
-        self.assertEqual(experiment.project.id,project.id)
+        self.assertEqual(experiment.project, project)
+        self.assertEqual(experiment.project.id, project.id)
         experiments = project.get_all_experiments()
         self.assertIsNotNone(experiments)
-        self.assertEqual(len(experiments),2)
+        self.assertEqual(len(experiments), 2)
 
         deleted_experiment_id = experiment.delete()
 
         self.assertIsNotNone(deleted_experiment_id)
-        self.assertEqual(deleted_experiment_id,experiment.id)
+        self.assertEqual(deleted_experiment_id, experiment.id)
 
         results = project.get_experiment_by_id(deleted_experiment_id)
         self.assertIsNone(results)
 
         experiments = project.get_all_experiments()
         self.assertIsNotNone(experiments)
-        self.assertEqual(len(experiments),1)
+        self.assertEqual(len(experiments), 1)
         self.assertEqual(self.new_experiment.id, experiments[0].id)
 
     def _build_project(self):
@@ -104,4 +105,3 @@ class TestExperimentDelete(unittest.TestCase):
         self.assertIsNotNone(test_path)
         self.assertTrue(os_path.isdir(test_path))
         return test_path
-

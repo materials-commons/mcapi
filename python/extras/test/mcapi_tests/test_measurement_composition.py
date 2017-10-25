@@ -90,7 +90,7 @@ class TestMeasurementComposition(unittest.TestCase):
             "attribute": "composition"
         }
         measurement = self.process.create_measurement(data=data)
-        process_out = self.process.set_measurements_for_process_samples( \
+        process_out = self.process.set_measurements_for_process_samples(
             property, [measurement])
         measurement_out = process_out.measurements[0]
         self.assertEqual(measurement_out.name, measurement.name)

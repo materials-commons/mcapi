@@ -6,6 +6,7 @@ from mcapi import get_remote_config_url, create_project
 
 BASE_DIRECTORY = "/tmp/a_thousand_files"
 
+
 def fake_name(prefix):
     number = "%05d" % randint(0, 99999)
     return prefix + number
@@ -16,6 +17,7 @@ def get_project():
     project = create_project(project_name, "Project for redundent upload test")
     print("Project: " + project.name)
     return project
+
 
 def make_file_tree_table(tree_dir_path):
     table = {}
@@ -29,6 +31,7 @@ def make_file_tree_table(tree_dir_path):
                 keys.append(name)
 
     return table, keys
+
 
 def upload_one(project, input_path):
     try:
@@ -58,7 +61,7 @@ def main():
 
     print(len(keys))
 
-    for i in range(0,2):
+    for i in range(0, 2):
         print("Different project - run %d" % i)
         project = get_project()
         project.local_path = test_dir_path

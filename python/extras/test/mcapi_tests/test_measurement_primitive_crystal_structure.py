@@ -5,7 +5,8 @@ from mcapi import create_project, Template
 
 def fake_name(prefix):
     number = "%05d" % randint(0, 99999)
-    return prefix+number
+    return prefix + number
+
 
 class TestMeasurementPrimitiveCrystalStructure(unittest.TestCase):
 
@@ -50,7 +51,7 @@ class TestMeasurementPrimitiveCrystalStructure(unittest.TestCase):
 
         samples = self.process.output_samples
         self.assertIsNotNone(samples)
-        self.assertEqual(len(samples),1)
+        self.assertEqual(len(samples), 1)
         output_sample = samples[0]
         self.assertIsNotNone(output_sample)
         self.assertIsNotNone(output_sample.id)
@@ -58,46 +59,45 @@ class TestMeasurementPrimitiveCrystalStructure(unittest.TestCase):
         self.assertEqual(output_sample.id, self.sample.id)
         self.assertEqual(output_sample.name, self.sample.name)
 
-
     def test_measurement_attribute_name(self):
         value = "Test Primitive Crystal Structure"
-        data = {"name":"Name",
-            "attribute":"name",
-            "otype":"string",
-            "unit":"",
-            "units": [],
-            "value":value,
-            "is_best_measure":True}
+        data = {"name": "Name",
+                "attribute": "name",
+                "otype": "string",
+                "unit": "",
+                "units": [],
+                "value": value,
+                "is_best_measure": True}
         measurement = self.process.create_measurement(data=data)
-        self.assertEqual(measurement.name,"Name")
-        self.assertEqual(measurement.attribute,"name")
-        self.assertEqual(measurement.otype,"string")
-        self.assertEqual(measurement.unit,"")
-        self.assertEqual(measurement.value,value)
+        self.assertEqual(measurement.name, "Name")
+        self.assertEqual(measurement.attribute, "name")
+        self.assertEqual(measurement.otype, "string")
+        self.assertEqual(measurement.unit, "")
+        self.assertEqual(measurement.value, value)
 
     def test_add_or_update_attribute_name(self):
         value = "Test Primitive Crystal Structure"
-        data = {"name":"Name",
-            "attribute":"name",
-            "otype":"string",
-            "unit":"",
-            "units": [],
-            "value":value,
-            "is_best_measure":True}
+        data = {"name": "Name",
+                "attribute": "name",
+                "otype": "string",
+                "unit": "",
+                "units": [],
+                "value": value,
+                "is_best_measure": True}
         property = {
             "name": "Name",
             "attribute": "name"
         }
         measurement = self.process.create_measurement(data=data)
-        process_out = self.process.set_measurements_for_process_samples(\
-                property, [measurement])
+        process_out = self.process.set_measurements_for_process_samples(
+            property, [measurement])
         sample_out = process_out.output_samples[0]
         properties_out = sample_out.properties
         table = self.make_properties_dictionary(properties_out)
         property = table["Name"]
-        self.assertEqual(len(property.best_measure),1)
+        self.assertEqual(len(property.best_measure), 1)
         measurement_out = property.best_measure[0]
-        self.assertEqual(measurement_out.name,measurement.name)
+        self.assertEqual(measurement_out.name, measurement.name)
         self.assertEqual(measurement_out.name, "Name")
         self.assertEqual(measurement_out.attribute, "name")
         self.assertEqual(measurement_out.otype, "string")
@@ -105,56 +105,56 @@ class TestMeasurementPrimitiveCrystalStructure(unittest.TestCase):
         self.assertEqual(measurement_out.value, value)
 
     def test_measurement_attribute_lattice(self):
-        value = [[1.0,2.0,3.0],[4.0,5.0,6.0],[7.0,8.0,9.0]]
-        data = {"name":"Lattice",
-            "attribute":"lattice",
-            "otype":"matrix",
-            "unit":"",
-            "units": [],
-            "value": {
-                "dimensions": [3,3],
-                "otype": "float",
-                "value": value
-            },
-            "is_best_measure":True}
+        value = [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]]
+        data = {"name": "Lattice",
+                "attribute": "lattice",
+                "otype": "matrix",
+                "unit": "",
+                "units": [],
+                "value": {
+                    "dimensions": [3, 3],
+                    "otype": "float",
+                    "value": value
+                },
+                "is_best_measure": True}
         measurement = self.process.create_measurement(data=data)
-        self.assertEqual(measurement.name,"Lattice")
-        self.assertEqual(measurement.attribute,"lattice")
-        self.assertEqual(measurement.otype,"matrix")
-        self.assertEqual(measurement.unit,"")
+        self.assertEqual(measurement.name, "Lattice")
+        self.assertEqual(measurement.attribute, "lattice")
+        self.assertEqual(measurement.otype, "matrix")
+        self.assertEqual(measurement.unit, "")
         self.assertEqual(measurement.value['value'], value)
 
     def test_add_or_update_attribute_lattice(self):
-        value = [[1.0,2.0,3.0],[4.0,5.0,6.0],[7.0,8.0,9.0]]
-        data = {"name":"Lattice",
-            "attribute":"lattice",
-            "otype":"matrix",
-            "unit":"",
-            "units": [],
-            "value": {
-                "dimensions": [3,3],
-                "otype": "float",
-                "value": value
-            },
-            "is_best_measure":True}
+        value = [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]]
+        data = {"name": "Lattice",
+                "attribute": "lattice",
+                "otype": "matrix",
+                "unit": "",
+                "units": [],
+                "value": {
+                    "dimensions": [3, 3],
+                    "otype": "float",
+                    "value": value
+                },
+                "is_best_measure": True}
         property = {
             "name": "Lattice",
             "attribute": "lattice"
         }
         measurement = self.process.create_measurement(data=data)
-        process_out = self.process.set_measurements_for_process_samples(\
-                property, [measurement])
+        process_out = self.process.set_measurements_for_process_samples(
+            property, [measurement])
         sample_out = process_out.output_samples[0]
         properties_out = sample_out.properties
         table = self.make_properties_dictionary(properties_out)
         property = table["Lattice"]
-        self.assertEqual(len(property.best_measure),1)
+        self.assertEqual(len(property.best_measure), 1)
         measurement_out = property.best_measure[0]
-        self.assertEqual(measurement_out.name,measurement.name)
-        self.assertEqual(measurement_out.name,"Lattice")
-        self.assertEqual(measurement_out.attribute,"lattice")
-        self.assertEqual(measurement_out.otype,"matrix")
-        self.assertEqual(measurement_out.unit,"")
+        self.assertEqual(measurement_out.name, measurement.name)
+        self.assertEqual(measurement_out.name, "Lattice")
+        self.assertEqual(measurement_out.attribute, "lattice")
+        self.assertEqual(measurement_out.otype, "matrix")
+        self.assertEqual(measurement_out.unit, "")
         self.assertEqual(measurement_out.value['value'], value)
 
     def test_measurement_attribute_parameters(self):
@@ -178,7 +178,7 @@ class TestMeasurementPrimitiveCrystalStructure(unittest.TestCase):
         self.assertEqual(measurement.value['value'], value)
 
     def test_add_or_update_attribute_parameters(self):
-        value = [1.0,2.0,3.0,4.0,5.0,6.0]
+        value = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0]
         data = {"name": "Parameters",
                 "attribute": "parameters",
                 "otype": "vector",
@@ -195,13 +195,13 @@ class TestMeasurementPrimitiveCrystalStructure(unittest.TestCase):
             "attribute": "parameters"
         }
         measurement = self.process.create_measurement(data=data)
-        process_out = self.process.set_measurements_for_process_samples( \
+        process_out = self.process.set_measurements_for_process_samples(
             property, [measurement])
         sample_out = process_out.output_samples[0]
         properties_out = sample_out.properties
         table = self.make_properties_dictionary(properties_out)
         property = table["Parameters"]
-        self.assertEqual(len(property.best_measure),1)
+        self.assertEqual(len(property.best_measure), 1)
         measurement_out = property.best_measure[0]
         self.assertEqual(measurement_out.name, measurement.name)
         self.assertEqual(measurement_out.name, "Parameters")
@@ -212,15 +212,15 @@ class TestMeasurementPrimitiveCrystalStructure(unittest.TestCase):
 
     def test_measurement_attribute_lattice_system(self):
         choices = \
-        [
-            {"name": "Triclinic", "value": "triclinic"},        # 0
-            {"name": "Monoclinic", "value": "monoclinic"},      # 1
-            {"name": "Orthorhombic","value": "orthorhombic"},   # 2
-            {"name": "Tetragonal","value": "tetragonal"},       # 3
-            {"name": "Hexagonal","value": "hexagonal"},         # 4
-            {"name": "Rhombohedral","value": "rhombohedral"},   # 5
-            {"name": "Cubic","value": "cubic"}                  # 6
-        ]
+            [
+                {"name": "Triclinic", "value": "triclinic"},        # 0
+                {"name": "Monoclinic", "value": "monoclinic"},      # 1
+                {"name": "Orthorhombic", "value": "orthorhombic"},   # 2
+                {"name": "Tetragonal", "value": "tetragonal"},       # 3
+                {"name": "Hexagonal", "value": "hexagonal"},         # 4
+                {"name": "Rhombohedral", "value": "rhombohedral"},   # 5
+                {"name": "Cubic", "value": "cubic"}                  # 6
+            ]
         value = choices[4]['value']
         data = {"name": "Lattice System",
                 "attribute": "lattice_system",
@@ -236,18 +236,17 @@ class TestMeasurementPrimitiveCrystalStructure(unittest.TestCase):
         self.assertEqual(measurement.unit, "")
         self.assertEqual(measurement.value, value)
 
-
     def test_add_or_update_attribute_lattice_system(self):
         choices = \
-        [
-            {"name": "Triclinic", "value": "triclinic"},        # 0
-            {"name": "Monoclinic", "value": "monoclinic"},      # 1
-            {"name": "Orthorhombic","value": "orthorhombic"},   # 2
-            {"name": "Tetragonal","value": "tetragonal"},       # 3
-            {"name": "Hexagonal","value": "hexagonal"},         # 4
-            {"name": "Rhombohedral","value": "rhombohedral"},   # 5
-            {"name": "Cubic","value": "cubic"}                  # 6
-        ]
+            [
+                {"name": "Triclinic", "value": "triclinic"},        # 0
+                {"name": "Monoclinic", "value": "monoclinic"},      # 1
+                {"name": "Orthorhombic", "value": "orthorhombic"},   # 2
+                {"name": "Tetragonal", "value": "tetragonal"},       # 3
+                {"name": "Hexagonal", "value": "hexagonal"},         # 4
+                {"name": "Rhombohedral", "value": "rhombohedral"},   # 5
+                {"name": "Cubic", "value": "cubic"}                  # 6
+            ]
         value = choices[4]['value']
         data = {"name": "Lattice System",
                 "attribute": "lattice_system",
@@ -261,13 +260,13 @@ class TestMeasurementPrimitiveCrystalStructure(unittest.TestCase):
             "attribute": "lattice_system"
         }
         measurement = self.process.create_measurement(data=data)
-        process_out = self.process.set_measurements_for_process_samples( \
+        process_out = self.process.set_measurements_for_process_samples(
             property, [measurement])
         sample_out = process_out.output_samples[0]
         properties_out = sample_out.properties
         table = self.make_properties_dictionary(properties_out)
         property = table["Lattice System"]
-        self.assertEqual(len(property.best_measure),1)
+        self.assertEqual(len(property.best_measure), 1)
         measurement_out = property.best_measure[0]
         self.assertEqual(measurement_out.name, measurement.name)
         self.assertEqual(measurement_out.name, "Lattice System")
@@ -278,51 +277,50 @@ class TestMeasurementPrimitiveCrystalStructure(unittest.TestCase):
 
     def test_measurement_attribute_symmetry(self):
         value = "Test Primitive Crystal Structure"
-        data = {"name":"Symmetry",
-            "attribute":"symmetry",
-            "otype":"string",
-            "unit":"",
-            "units": [],
-            "value":value,
-            "is_best_measure":True}
+        data = {"name": "Symmetry",
+                "attribute": "symmetry",
+                "otype": "string",
+                "unit": "",
+                "units": [],
+                "value": value,
+                "is_best_measure": True}
         measurement = self.process.create_measurement(data=data)
-        self.assertEqual(measurement.name,"Symmetry")
-        self.assertEqual(measurement.attribute,"symmetry")
-        self.assertEqual(measurement.otype,"string")
-        self.assertEqual(measurement.unit,"")
-        self.assertEqual(measurement.value,value)
+        self.assertEqual(measurement.name, "Symmetry")
+        self.assertEqual(measurement.attribute, "symmetry")
+        self.assertEqual(measurement.otype, "string")
+        self.assertEqual(measurement.unit, "")
+        self.assertEqual(measurement.value, value)
 
     def test_add_or_update_attribute_symmetry(self):
         value = ""
-        data = {"name":"Name",
-            "attribute":"name",
-            "otype":"string",
-            "unit":"",
-            "units": [],
-            "value":value,
-            "is_best_measure":True}
+        data = {"name": "Name",
+                "attribute": "name",
+                "otype": "string",
+                "unit": "",
+                "units": [],
+                "value": value,
+                "is_best_measure": True}
         property = {
             "name": "Name",
             "attribute": "name"
         }
         measurement = self.process.create_measurement(data=data)
-        process_out = self.process.set_measurements_for_process_samples(\
-                property, [measurement])
+        process_out = self.process.set_measurements_for_process_samples(
+            property, [measurement])
         sample_out = process_out.output_samples[0]
         properties_out = sample_out.properties
         table = self.make_properties_dictionary(properties_out)
         property = table["Name"]
-        self.assertEqual(len(property.best_measure),1)
+        self.assertEqual(len(property.best_measure), 1)
         measurement_out = property.best_measure[0]
-        self.assertEqual(measurement_out.name,measurement.name)
+        self.assertEqual(measurement_out.name, measurement.name)
         self.assertEqual(measurement_out.name, "Name")
         self.assertEqual(measurement_out.attribute, "name")
         self.assertEqual(measurement_out.otype, "string")
         self.assertEqual(measurement_out.unit, "")
         self.assertEqual(measurement_out.value, value)
 
-
-    def make_properties_dictionary(self,properties):
+    def make_properties_dictionary(self, properties):
         ret = {}
         for property in properties:
             name = property.name

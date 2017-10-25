@@ -15,6 +15,7 @@ def working_dir(wd):
     finally:
         os.chdir(orig_wd)
 
+
 @contextmanager
 def captured_output(wd=None):
     with working_dir(wd):
@@ -26,7 +27,6 @@ def captured_output(wd=None):
         finally:
             sys.stdout, sys.stderr = old_out, old_err
 
+
 def print_stringIO(strio):
     print("\n----\n", strio.getvalue(), "\n----")
-        
-

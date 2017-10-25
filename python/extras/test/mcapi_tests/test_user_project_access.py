@@ -34,7 +34,7 @@ class TestUserProjectAccess(unittest.TestCase):
         another_user = "another@test.mc"
         added_user = self.project.add_user_to_access_list(another_user)
         self.assertIsNotNone(added_user)
-        self.assertEqual(another_user,added_user)
+        self.assertEqual(another_user, added_user)
         all_users = self.project.get_access_list()
         count = 0
         for user_id in all_users:
@@ -46,14 +46,14 @@ class TestUserProjectAccess(unittest.TestCase):
         invalid_user = "This-is-not-a-User"
         message = self.project.add_user_to_access_list(invalid_user)
         self.assertIsNotNone(message)
-        self.assertNotEqual(message,invalid_user)
+        self.assertNotEqual(message, invalid_user)
         self.assertTrue("invalid" in message)
 
     def test_adding_twice_valid_user_ok(self):
         another_user = "another@test.mc"
         added_user = self.project.add_user_to_access_list(another_user)
         self.assertIsNotNone(added_user)
-        self.assertEqual(another_user,added_user)
+        self.assertEqual(another_user, added_user)
         another_user = "another@test.mc"
         added_user = self.project.add_user_to_access_list(another_user)
         self.assertIsNotNone(added_user)
@@ -69,7 +69,7 @@ class TestUserProjectAccess(unittest.TestCase):
         another_user = "another@test.mc"
         added_user = self.project.add_user_to_access_list(another_user)
         self.assertIsNotNone(added_user)
-        self.assertEqual(another_user,added_user)
+        self.assertEqual(another_user, added_user)
         all_users = self.project.get_access_list()
         count = 0
         for user_id in all_users:
@@ -77,11 +77,10 @@ class TestUserProjectAccess(unittest.TestCase):
                 count += 1
         self.assertEqual(count, 1)
         removed_user = self.project.remove_user_from_access_list(another_user)
-        self.assertEqual(another_user,removed_user)
+        self.assertEqual(another_user, removed_user)
         all_users = self.project.get_access_list()
         count = 0
         for user_id in all_users:
             if user_id == another_user:
                 count += 1
         self.assertEqual(count, 0)
-

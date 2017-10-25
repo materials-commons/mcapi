@@ -9,7 +9,7 @@ from mcapi import create_project
 
 def fake_name(prefix):
     number = "%05d" % randint(0, 99999)
-    return prefix+number
+    return prefix + number
 
 
 class TestAddFileToDirectory(unittest.TestCase):
@@ -20,8 +20,8 @@ class TestAddFileToDirectory(unittest.TestCase):
         cls.project_description = "Test project, " + cls.project_name
         cls.testDirPath = "/testDir1/testdir2/testdir3"
         cls.project = create_project(
-            name = cls.project_name,
-            description = cls.project_description)
+            name=cls.project_name,
+            description=cls.project_description)
 
         cls.rootDir = cls.project.get_top_directory()
         cls.testDir = cls.project.add_directory(cls.testDirPath)
@@ -80,13 +80,11 @@ class TestAddFileToDirectory(unittest.TestCase):
         self.assertIsNotNone(added_file)
         self.assertEqual(added_file.size, byte_count)
 
-
-    def make_test_dir_path(self,file_name):
+    def make_test_dir_path(self, file_name):
         self.assertTrue('TEST_DATA_DIR' in environ)
         test_path = os_path.abspath(environ['TEST_DATA_DIR'])
         self.assertIsNotNone(test_path)
         self.assertTrue(os_path.isdir(test_path))
-        test_file = os_path.join(test_path, 'test_upload_data',file_name)
+        test_file = os_path.join(test_path, 'test_upload_data', file_name)
         self.assertTrue(os_path.isfile(test_file))
         return test_file
-

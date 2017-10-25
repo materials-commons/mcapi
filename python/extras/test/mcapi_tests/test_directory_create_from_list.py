@@ -6,7 +6,8 @@ from mcapi import create_project
 
 def fake_name(prefix):
     number = "%05d" % randint(0, 99999)
-    return prefix+number
+    return prefix + number
+
 
 @pytest.mark.skip(reason="no way of currently testing this")
 class TestDirectoryCreateFromList(unittest.TestCase):
@@ -30,4 +31,4 @@ class TestDirectoryCreateFromList(unittest.TestCase):
         self.assertIsNotNone(directory_table)
         for path in directory_path_list:
             self.assertIsNotNone(directory_table[path])
-            self.assertEqual(directory_table[path].name,project.name + path)
+            self.assertEqual(directory_table[path].name, project.name + path)

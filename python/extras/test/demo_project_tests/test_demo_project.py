@@ -30,7 +30,7 @@ class TestDemoProject(unittest.TestCase):
 
         if (builder.does_project_exist()):
             project = builder.get_existing_project()
-            project.rename("Set aside","Forcing existing demo project to be set aside")
+            project.rename("Set aside", "Forcing existing demo project to be set aside")
 
         table = builder._make_template_table()
         print("after _make_template_table ----------")

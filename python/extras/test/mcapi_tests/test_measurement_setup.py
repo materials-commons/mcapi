@@ -6,7 +6,8 @@ from mcapi import create_project, Template
 
 def fake_name(prefix):
     number = "%05d" % randint(0, 99999)
-    return prefix+number
+    return prefix + number
+
 
 class TestMeasurementSetup(unittest.TestCase):
 
@@ -49,17 +50,17 @@ class TestMeasurementSetup(unittest.TestCase):
         fetched_sample = self.project.fetch_sample_by_id(self.sample.id)
         self.assertIsNotNone(fetched_sample)
         self.assertIsNotNone(fetched_sample.processes)
-        self.assertEqual(len(fetched_sample.processes),1)
+        self.assertEqual(len(fetched_sample.processes), 1)
         process = fetched_sample.processes[0]
         self.assertIsNotNone(process.input_data['property_set_id'])
         self.assertIsNotNone(process.property_set_id)
-        self.assertEqual(process.input_data['property_set_id'],process.property_set_id)
+        self.assertEqual(process.input_data['property_set_id'], process.property_set_id)
 
     def test_process_list_of_samples_and_property_sets(self):
         process = self.process
         self.assertIsNotNone(process.output_samples)
-        self.assertEqual(len(process.output_samples),1)
-        self.assertEqual(process.output_samples[0].id,self.sample.id)
+        self.assertEqual(len(process.output_samples), 1)
+        self.assertEqual(process.output_samples[0].id, self.sample.id)
         samples = process.output_samples
         list = process.make_list_of_samples_with_property_set_ids(samples)
         self.assertTrue(len(list), 1)
@@ -69,4 +70,3 @@ class TestMeasurementSetup(unittest.TestCase):
         self.assertIsNotNone(list[0]['sample'].name)
         self.assertEqual(list[0]['sample'].id, self.sample.id)
         self.assertEqual(list[0]['sample'].name, self.sample.name)
-

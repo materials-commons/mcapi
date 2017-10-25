@@ -9,6 +9,7 @@ from mcapi import get_remote_config_url
 import demo_project as demo
 from test.mcapi_tests.assert_helper import AssertHelper
 
+
 def _fake_name(prefix):
     number = "%05d" % randint(0, 99999)
     return prefix + number

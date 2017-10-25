@@ -29,13 +29,13 @@ class TestUserProfile(unittest.TestCase):
     def test_can_store_value(self):
         name = fake_name("test value - ")
         value = name
-        probe = storeInUserProfile(user_id,name, value)
+        probe = storeInUserProfile(user_id, name, value)
         self.assertIsNotNone(probe)
         self.assertEqual(probe, name)
         probe = storeInUserProfile(user_id, name, value)
         self.assertIsNotNone(probe)
         self.assertEqual(probe, name)
-        probe = getFromUserProfile(user_id,name)
+        probe = getFromUserProfile(user_id, name)
         self.assertIsNotNone(probe)
         self.assertEqual(probe, name)
         probe = clearFromUserProfile(user_id, name)
@@ -49,10 +49,10 @@ class TestUserProfile(unittest.TestCase):
     def test_cannot_access_others_profile(self):
         name = fake_name("test value - ")
         value = name
-        probe = storeInUserProfile(user_id,name, value)
+        probe = storeInUserProfile(user_id, name, value)
         self.assertIsNotNone(probe)
         self.assertEqual(probe, name)
-        probe = getFromUserProfile(user_id,name)
+        probe = getFromUserProfile(user_id, name)
         self.assertIsNotNone(probe)
         self.assertEqual(probe, name)
 
@@ -69,10 +69,10 @@ class TestUserProfile(unittest.TestCase):
     def test_cannot_modify_others_profile(self):
         name = fake_name("test value - ")
         value = name
-        probe = storeInUserProfile(user_id,name, value)
+        probe = storeInUserProfile(user_id, name, value)
         self.assertIsNotNone(probe)
         self.assertEqual(probe, name)
-        probe = getFromUserProfile(user_id,name)
+        probe = getFromUserProfile(user_id, name)
         self.assertIsNotNone(probe)
         self.assertEqual(probe, name)
 

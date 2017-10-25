@@ -3,10 +3,10 @@ from mcapi import Template
 
 class AssertHelper():
 
-    def __init__(self,tester):
+    def __init__(self, tester):
         self.tester = tester
 
-    def confirm_demo_project_content(self,project,name,number_of_experiments):
+    def confirm_demo_project_content(self, project, name, number_of_experiments):
 
         # Expected test values
         project_name = name
@@ -16,8 +16,8 @@ class AssertHelper():
             'L124 - 5mm plate', 'L124 - 5mm plate - 3ST', 'L124 - tensil bar, gage'
         ]
         process_names = [
-            'Lift 380 Casting Day  # 1','Casting L124','Sectioning of Casting L124',
-            'EBSD SEM Data Collection - 5 mm plate','EPMA Data Collection - 5 mm plate - center'
+            'Lift 380 Casting Day  # 1', 'Casting L124', 'Sectioning of Casting L124',
+            'EBSD SEM Data Collection - 5 mm plate', 'EPMA Data Collection - 5 mm plate - center'
         ]
 
         experiment = self._get_experiment(project, experiment_name)
@@ -25,19 +25,19 @@ class AssertHelper():
         self.tester.assertIsNotNone(experiment)
         self.tester.assertIsNotNone(experiment.project)
         self.tester.assertIsNotNone(experiment.processes)
-        self.tester.assertEqual(project.id,experiment.project.id)
-        self.tester.assertEqual(project.name,project_name)
-        self.tester.assertEqual(experiment.name,experiment_name)
+        self.tester.assertEqual(project.id, experiment.project.id)
+        self.tester.assertEqual(project.name, project_name)
+        self.tester.assertEqual(experiment.name, experiment_name)
 
-        self.tester.assertEqual(len(experiment.processes),len(process_names))
+        self.tester.assertEqual(len(experiment.processes), len(process_names))
         for name in process_names:
             found_process = None
             for process in experiment.processes:
                 if name == process.name:
                     found_process = process
-            self.tester.assertIsNotNone(found_process,"Expecting to find process.name == " + name)
+            self.tester.assertIsNotNone(found_process, "Expecting to find process.name == " + name)
 
-        self.tester.assertEqual(len(experiment.samples),len(sample_names))
+        self.tester.assertEqual(len(experiment.samples), len(sample_names))
         for name in sample_names:
             found_sample = None
             for sample in experiment.samples:
@@ -67,18 +67,17 @@ class AssertHelper():
         ]
 
         directory = project.get_directory_list(project_directory_path)[-1]
-        self.tester.assertEqual(directory.otype,'directory')
-        self.tester.assertEqual(directory.path,project.name + project_directory_path)
+        self.tester.assertEqual(directory.otype, 'directory')
+        self.tester.assertEqual(directory.path, project.name + project_directory_path)
 
         project_files = directory.get_children()
-        self.tester.assertEqual(len(project_files),len(filename_list))
+        self.tester.assertEqual(len(project_files), len(filename_list))
         for name in filename_list:
             found_file = None
             for file in project_files:
                 if name == file.name:
                     found_file = file
             self.tester.assertIsNotNone(found_file, "Expecting to find file.name == " + name)
-
 
         experiment = self._get_experiment(project, experiment_name)
         self.tester.assertIsNotNone(experiment)
@@ -92,7 +91,7 @@ class AssertHelper():
             for probe in processes:
                 if name == probe.name:
                     processes_reordered.append(probe)
-        self.tester.assertEqual(len(processes),len(processes_reordered))
+        self.tester.assertEqual(len(processes), len(processes_reordered))
         processes = processes_reordered
 
         for process in processes:
@@ -101,7 +100,7 @@ class AssertHelper():
             process.files = files
 
         process_file_list = [
-            [0,2,3], [0,1], [1], [4,5,6,7,8,9,10], [11,12,13,14,15]
+            [0, 2, 3], [0, 1], [1], [4, 5, 6, 7, 8, 9, 10], [11, 12, 13, 14, 15]
         ]
 
         process_index = 0
@@ -117,7 +116,7 @@ class AssertHelper():
                 self.tester.assertIsNotNone(found_file, error)
             process_index += 1
 
-    def add_additional_experiment(self,project,experiment_name):
+    def add_additional_experiment(self, project, experiment_name):
 
         experiment_description = "A secondary demo experiment"
         experiment = self._get_experiment(project, experiment_name)
@@ -129,7 +128,7 @@ class AssertHelper():
         self.tester.assertEqual(experiment_name, experiment.name)
         self.tester.assertEqual(experiment_description, experiment.description)
         self.tester.assertIsNotNone(experiment.project)
-        self.tester.assertEqual(experiment.project.id,project.id)
+        self.tester.assertEqual(experiment.project.id, project.id)
 
         process_name = "Setup_Samples"
         create_sample_process = self. \
@@ -145,9 +144,9 @@ class AssertHelper():
         self.tester.assertEqual(create_sample_process.process_type, 'create')
         self.tester.assertTrue(create_sample_process.does_transform)
         self.tester.assertIsNotNone(create_sample_process.project)
-        self.tester.assertEqual(create_sample_process.project.id,project.id)
+        self.tester.assertEqual(create_sample_process.project.id, project.id)
         self.tester.assertIsNotNone(create_sample_process.experiment)
-        self.tester.assertEqual(create_sample_process.experiment.id,experiment.id)
+        self.tester.assertEqual(create_sample_process.experiment.id, experiment.id)
 
         sample_name = 'Demo Sample'
         sample = self._get_output_sample_from_process(create_sample_process, sample_name)

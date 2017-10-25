@@ -9,7 +9,7 @@ from mcapi import create_project, Template
 
 def fake_name(prefix):
     number = "%05d" % randint(0, 99999)
-    return prefix+number
+    return prefix + number
 
 
 class TestAddFileToProcess(unittest.TestCase):
@@ -92,7 +92,6 @@ class TestAddFileToProcess(unittest.TestCase):
         self.assertIsNotNone(file2.id)
 
         self.assertEqual(file1.id, file2.id)
-
 
     def make_test_dir_path(self, file_name):
         self.assertTrue('TEST_DATA_DIR' in environ)

@@ -2,12 +2,13 @@ import unittest
 from .cli_test_functions import captured_output, print_stringIO
 from mcapi.cli.proj import ProjSubcommand
 
+
 class TestMCProj(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
         cls.proj_subcommand = ProjSubcommand()
-    
+
     def test_mc_proj(self):
         testargs = ['mc', 'proj']
         with captured_output() as (sout, serr):
@@ -15,7 +16,7 @@ class TestMCProj(unittest.TestCase):
         print_stringIO(sout)
         out = sout.getvalue().splitlines()
         err = serr.getvalue().splitlines()
-        
+
         headers = out[0].split()
         self.assertEqual(headers[0], "name")
         self.assertEqual(headers[1], "owner")

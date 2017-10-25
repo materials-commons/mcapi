@@ -41,7 +41,7 @@ def exec_all(flag, subdir):
 
     loader = BulkFileUploader(parallel=parallel)
     start = time.clock()
-    loader.bulk_upload(project,directory)
+    loader.bulk_upload(project, directory)
     seconds = (time.clock() - start)
     print(seconds)
 

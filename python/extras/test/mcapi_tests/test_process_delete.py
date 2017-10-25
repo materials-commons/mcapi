@@ -5,9 +5,10 @@ from mcapi import Template
 # for test-only dataset - normally datasets are not created through API!
 from mcapi import __api as api
 
+
 def fake_name(prefix):
     number = "%05d" % randint(0, 99999)
-    return prefix+number
+    return prefix + number
 
 
 class TestProcessDelete(unittest.TestCase):
@@ -69,9 +70,9 @@ class TestProcessDelete(unittest.TestCase):
         results = leaf_process.delete()
 
         self.assertIsNotNone(results)
-        self.assertEqual(leaf_process.id,results)
+        self.assertEqual(leaf_process.id, results)
 
-        self.assertEqual(len(experiment.get_all_processes()),2)
+        self.assertEqual(len(experiment.get_all_processes()), 2)
 
     def test_cannot_delete_non_leaf_node(self):
         name = fake_name("TestExperiment-")
@@ -113,7 +114,7 @@ class TestProcessDelete(unittest.TestCase):
         results = non_leaf_process.delete()
         self.assertIsNone(results)
 
-        self.assertEqual(len(experiment.get_all_processes()),l)
+        self.assertEqual(len(experiment.get_all_processes()), l)
 
     def test_can_delete_noncreate_process_with_output_samples(self):
         name = fake_name("TestExperiment-")
@@ -155,13 +156,13 @@ class TestProcessDelete(unittest.TestCase):
         results = leaf_process.delete()
         self.assertIsNotNone(results)
 
-        self.assertEqual(leaf_process.id,results)
+        self.assertEqual(leaf_process.id, results)
 
         results = non_leaf_process.delete()
         self.assertIsNotNone(results)
-        self.assertEqual(non_leaf_process.id,results)
+        self.assertEqual(non_leaf_process.id, results)
 
-        self.assertEqual(len(experiment.get_all_processes()),l-2)
+        self.assertEqual(len(experiment.get_all_processes()), l - 2)
 
     def test_cannot_delete_create_process_with_output_samples(self):
         name = fake_name("TestExperiment-")
@@ -203,16 +204,16 @@ class TestProcessDelete(unittest.TestCase):
         results = leaf_process.delete()
         self.assertIsNotNone(results)
 
-        self.assertEqual(leaf_process.id,results)
+        self.assertEqual(leaf_process.id, results)
 
         results = non_leaf_process.delete()
         self.assertIsNotNone(results)
-        self.assertEqual(non_leaf_process.id,results)
+        self.assertEqual(non_leaf_process.id, results)
 
         results = create_sample_process.delete()
         self.assertIsNone(results)
 
-        self.assertEqual(len(experiment.get_all_processes()),l-2)
+        self.assertEqual(len(experiment.get_all_processes()), l - 2)
 
     def test_cannot_delete_process_in_dataset(self):
         name = fake_name("TestExperiment-")
@@ -252,14 +253,14 @@ class TestProcessDelete(unittest.TestCase):
         dataset = self._addDataset(experiment, "test dataset", "a dataset for texting")
         dataset_id = dataset['id']
         process_id = leaf_process.id
-        self._addProcessToDataset(experiment, dataset_id,process_id)
+        self._addProcessToDataset(experiment, dataset_id, process_id)
 
         l = len(experiment.get_all_processes())
 
         results = leaf_process.delete()
         self.assertIsNone(results)
 
-        self.assertEqual(len(experiment.get_all_processes()),l)
+        self.assertEqual(len(experiment.get_all_processes()), l)
 
     def make_template_table(self):
         template_list = get_all_templates()
@@ -282,7 +283,7 @@ class TestProcessDelete(unittest.TestCase):
         results = api.create_dataset(project_id, experiment_id, title, description)
         return results
 
-    def _addProcessToDataset(self, experiment, dataset_id,process_id):
+    def _addProcessToDataset(self, experiment, dataset_id, process_id):
         project_id = self.project.id
         experiment_id = experiment.id
         results = api.add_process_to_dataset(project_id, experiment_id, dataset_id, process_id)

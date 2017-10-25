@@ -6,7 +6,7 @@ with open('file_size_raw.txt') as f:
         values = line.split()
         if len(values) != 4:
             print(line)
-        names = values[3].split('/');
+        names = values[3].split('/')
         outline = values[2] + "," + names[-1] + '\n'
         outfile.write(outline)
 

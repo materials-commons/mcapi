@@ -17,7 +17,7 @@ class TestDatasetRaw(unittest.TestCase):
         dataset = public.get_dataset(id)
         self.assertIsNotNone(dataset)
         self.assertIsNotNone(dataset.raw_data)
-        self.assertEqual(dataset.raw_data['id'],id)
+        self.assertEqual(dataset.raw_data['id'], id)
 
 
 class TestDatasetApptributes(unittest.TestCase):
@@ -28,26 +28,25 @@ class TestDatasetApptributes(unittest.TestCase):
         self.assertIsNotNone(dataset)
         authors = dataset.authors
         self.assertIsNotNone(authors)
-        self.assertEqual(len(authors),4)
+        self.assertEqual(len(authors), 4)
         berman = authors[0]
-        self.assertEqual(berman.lastname,'Berman')
+        self.assertEqual(berman.lastname, 'Berman')
         self.assertTrue('microstructure and microsegregation' in dataset.description)
-        self.assertEqual(dataset.doi,"")
+        self.assertEqual(dataset.doi, "")
         files = dataset.files
-        self.assertEqual(len(files),440)
-        self.assertEqual(files[0].name,'epma_run20150608.xlsx')
+        self.assertEqual(len(files), 440)
+        self.assertEqual(files[0].name, 'epma_run20150608.xlsx')
         self.assertTrue(dataset.funding.startswith("Department of Energy"))
         self.assertEqual(dataset.id, id)
         self.assertTrue(dataset.institution.startswith("University of Michigan"))
         self.assertTrue('opendatacommons' in dataset.license.link)
         self.assertTrue('Attribution' in dataset.license.name)
         self.assertEqual(dataset.owner, 'tradiasa@umich.edu')
-        self.assertEqual(len(dataset.processes),95)
-        self.assertEqual(dataset.processes[0].name,"SEM")
+        self.assertEqual(len(dataset.processes), 95)
+        self.assertEqual(dataset.processes[0].name, "SEM")
         self.assertTrue(dataset.published)
         self.assertEqual(dataset.publisher, "Tracy Berman")
         self.assertEqual(dataset.title, "Microsegregation & Microstructure in HPDC AM Series Alloys")
-        self.assertEqual(dataset.zip.filename,'Microsegregation_&_Microstructure_in_HPDC_AM_Series_Alloys.zip')
-        self.assertEqual(len(dataset.samples),8)
-        self.assertEqual(dataset.samples[0].name,"AM40-2p5-F")
-
+        self.assertEqual(dataset.zip.filename, 'Microsegregation_&_Microstructure_in_HPDC_AM_Series_Alloys.zip')
+        self.assertEqual(len(dataset.samples), 8)
+        self.assertEqual(dataset.samples[0].name, "AM40-2p5-F")
