@@ -84,15 +84,15 @@ def _make_datetime(data):
     timestamp = int(data['epoch_time'])
     return datetime.datetime.utcfromtimestamp(timestamp)
 
-# -- pretty printing --
 
+# -- pretty printing --
 class PrettyPrint(object):
     def __init__(self, shift=0, indent=2, out=sys.stdout):
         self.shift = shift
         self.indent = indent
         self.out = out
         self.n_indent = 0
-    
+
     def str(self, val):
         result = str(val)
         if ' ' in result:

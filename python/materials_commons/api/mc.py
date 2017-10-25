@@ -262,10 +262,10 @@ class Project(MCObject):
         """
         results = None
         try:
-            results =  api.delete_project(self.id)
+            results = api.delete_project(self.id)
             results = results['project_id']
-        except:
-            pass
+        except (RuntimeError, IOError, StandardError):
+            print("Delete of project failed: ", self.name, "(" + self.id + ")")
 
         return results
 
@@ -466,7 +466,7 @@ class Project(MCObject):
         directory._project = self
         return directory
 
-    def add_directory_list(self,path_list,top=None):
+    def add_directory_list(self, path_list, top=None):
         """
         Given a list of directory paths, create all the directories in the path; this is be most efficent
         if the paths in the list are all leaf directories in the desired tree. The intent of this
@@ -498,7 +498,8 @@ class Project(MCObject):
             if not path.startswith('/'):
                 path = "/" + path
             new_path_list.append(path)
-        results = api.directory_create_subdirectories_from_path_list(self.id,baseDirectory.id,new_path_list)
+        results = api.directory_create_subdirectories_from_path_list(
+            self.id, baseDirectory.id, new_path_list)
         data = results['val']
         table = {}
         project_name = self.name
@@ -541,7 +542,7 @@ class Project(MCObject):
 
     def add_file_by_local_path(self, local_path, verbose=False, limit=50):
         """
-        Upload a file, specified by local_path, creating intermediate 
+        Upload a file, specified by local_path, creating intermediate
         directories as necessary; the file name on the directory of the project (remote) is the
         file name from the local path. See :func:`mcapi.Project.add_file_using_directory`.
 
@@ -566,7 +567,7 @@ class Project(MCObject):
 
     def add_directory_tree_by_local_path(self, local_path, verbose=False, limit=50):
         """
-        Upload a directory, specified by local_path, and all its contents 
+        Upload a directory, specified by local_path, and all its contents
         creating intermediate directories as necessary; the directory name,
         in project (remote), is the same as the local directory name.
 
@@ -674,7 +675,7 @@ class Project(MCObject):
         """
         process_list = api.get_project_processes(self.id, self.remote)
         processes = [make_object(x) for x in process_list]
-        processes =  [_decorate_object_with(x, 'project', self) for x in processes]
+        processes = [_decorate_object_with(x, 'project', self) for x in processes]
         return processes
 
     def get_process_by_id(self, process_id):
@@ -789,6 +790,7 @@ class Project(MCObject):
         if 'error' in results:
             return results['error']
         return results['val']
+
 
 class Experiment(MCObject):
     """
@@ -1122,7 +1124,7 @@ class Process(MCObject):
         pp.write("process_type: " + pp.str(self.process_type))
         pp.write_objects("input_files: ", self.input_files)
         pp.write_objects("output_files: ", self.output_files)
-        if hasattr(self,'files'):
+        if hasattr(self, 'files'):
             pp.write_objects("files: ", self.files)
         pp.write_objects("input_samples: ", self.input_samples)
         pp.write_objects("output_samples: ", self.output_samples)
@@ -1228,7 +1230,7 @@ class Process(MCObject):
                 results = None
             else:
                 results = results['id']
-        except:
+        except Exception:
             pass
 
         return results

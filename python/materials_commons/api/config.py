@@ -30,7 +30,7 @@ class Config(object):
         self.mcapikey = config['apikey']
         self.mcurl = config['mcurl']
         self.params = {'apikey': self.mcapikey}
-        
+
         # 'interfaces': [
         #   { 'name': 'casm',
         #     'desc':'Create CASM samples, processes, measurements, etc.',
