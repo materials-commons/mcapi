@@ -57,14 +57,13 @@ def _addProcessToDataset(project, experiment, dataset, process):
     results = api.add_process_to_dataset(project_id, experiment_id, dataset_id, process_id)
     return results
 
-def _generate_demo_project_
-project = _build_project()
-experiment = project.get_all_experiments()[0]
-dataset = _addDataset(project,experiment,"Test datasets")
-processes = project.get_all_processes()
-for process in processes:
-    _addProcessToDataset(project, experiment, dataset, process)
-project = get_project_by_id(project.id)
+def _generate_demo_project()
+    project = _build_project()
+    experiment = project.get_all_experiments()[0]
+    dataset = _addDataset(project,experiment,"Test datasets")
+    processes = project.get_all_processes()
+    for process in processes:
+        _addProcessToDataset(project, experiment, dataset, process)
+    project = get_project_by_id(project.id)
 
-print dataset
-
+    print (dataset)

@@ -2,20 +2,16 @@
 
 from setuptools import setup, find_packages
 
-print("----")
-print(find_packages())
-print("----")
-
 setup(
     name='materials-commons',
     version='0.5.6',
     description='The Materials Commons tool set',
     long_description="""This package contains two modules:
-    (1) materials_commons.api, the Materials Commons Python API, an interface 
-    to the Materials Commons servers; and (2) materials_commons.cli, the 
+    (1) materials_commons.api, the Materials Commons Python API, an interface
+    to the Materials Commons servers; and (2) materials_commons.cli, the
     Material Commons command line interface which is built on the API and provides
     command line access to the Materials Commons servers.
-    We assume you have used (or are otherwise familiar with) the Materials 
+    We assume you have used (or are otherwise familiar with) the Materials
     Commons web site, https://materialscommons.org/, or a similar site based on the
     materials commons code (https://github.com/materials-commons/materialscommons.org),
     and intend to use these tools in that context. There are additional examples and code at
@@ -25,7 +21,7 @@ setup(
     author='Materials Commons development team',
     author_email='materials-commons-authors@umich.edu',
     license='MIT',
-    packages = find_packages(),
+    packages=find_packages(),
     scripts=['scripts/mc'],
     classifiers=[
         # How mature is this project? Common values are
@@ -50,11 +46,7 @@ setup(
         'Programming Language :: Python :: 3.6'
     ],
     keywords='materials science mc lift prisms',
-    install_requires=["requests", "rethinkdb","pathlib", "numpy", "pandas",
+    install_requires=["requests", "rethinkdb", "pathlib", "numpy", "pandas",
                       "tabulate", "sortedcontainers"
                       ]
 )
-
-print("----")
-print(find_packages())
-print("----")

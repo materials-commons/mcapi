@@ -44,7 +44,9 @@ def post(restpath, data, remote=None):
     if not remote:
         remote = use_remote()
     data = OrderedDict(data)
-    r = requests.post(restpath, params=remote.config.params, verify=False, json=data)
+    r = requests.post(
+        restpath, params=remote.config.params, verify=False, json=data
+    )
     if r.status_code == requests.codes.ok:
         return r.json()
     r.raise_for_status()
@@ -53,7 +55,9 @@ def post(restpath, data, remote=None):
 def put(restpath, data, remote=None):
     if not remote:
         remote = use_remote()
-    r = requests.put(restpath, params=remote.config.params, verify=False, json=data)
+    r = requests.put(
+        restpath, params=remote.config.params, verify=False, json=data
+    )
     if r.status_code == requests.codes.ok:
         return r.json()
     r.raise_for_status()
@@ -81,8 +85,8 @@ disable_warnings()
 
 def set_remote_config_url(url):
     """
-    Set the base url for the REST query layer, normally taken from the user configuration file
-    at ~/.materialscommons/config.json
+    Set the base url for the REST query layer, normally taken from
+    the user configuration file at ~/.materialscommons/config.json
 
     :param url: the URL as a string
     :return: None
@@ -170,6 +174,7 @@ def delete_project(project_id, remote=None):
     api_url = "/projects/" + project_id
     return delete(remote.make_url_v2(api_url))
 
+
 def get_project_processes(project_id, remote=None):
     if not remote:
         remote = use_remote()
@@ -183,13 +188,15 @@ def get_project_samples(project_id, remote=None):
     api_url = "/projects/" + project_id + "/samples"
     return get(remote.make_url_v2(api_url))
 
+
 def users_with_access_to_project(project_id, remote=None):
     if not remote:
         remote = use_remote()
     api_url = "projects/" + project_id + "/access"
     return get(remote.make_url_v2(api_url))
 
-def add_user_access_to_project(project_id,user_id, remote=None):
+
+def add_user_access_to_project(project_id, user_id, remote=None):
     if not remote:
         remote = use_remote()
     data = {
@@ -197,9 +204,10 @@ def add_user_access_to_project(project_id,user_id, remote=None):
         "user_id": user_id
     }
     api_url = "projects/" + project_id + "/access"
-    return put(remote.make_url_v2(api_url),data)
+    return put(remote.make_url_v2(api_url), data)
 
-def remove_user_access_to_project(project_id,user_id, remote=None):
+
+def remove_user_access_to_project(project_id, user_id, remote=None):
     if not remote:
         remote = use_remote()
     data = {
@@ -207,10 +215,10 @@ def remove_user_access_to_project(project_id,user_id, remote=None):
         "user_id": user_id
     }
     api_url = "projects/" + project_id + "/access"
-    return put(remote.make_url_v2(api_url),data)
+    return put(remote.make_url_v2(api_url), data)
+
 
 # Experiment
-
 def create_experiment(project_id, name, description, remote=None):
     if not remote:
         remote = use_remote()
@@ -342,6 +350,7 @@ def delete_sample_created_by_process(project_id, process_id, sample_id, property
     }
     api_url = "projects/" + project_id + "/processes/" + process_id
     return put(remote.make_url_v2(api_url), data)
+
 
 def get_all_files_for_process(project_id, experiment_id, process_id, remote=None):
     if not remote:
@@ -508,8 +517,8 @@ def get_all_users(remote=None):
     api_url = "users"
     return get(remote.make_url_v2(api_url))
 
-# directory
 
+# directory
 def directory_by_id(project_id, directory_id, remote=None):
     if not remote:
         remote = use_remote()
@@ -653,7 +662,9 @@ def create_dataset(project_id, experiment_id, title, description, remote=None):
               "/datasets"
     return post(remote.make_url_v2(api_url), data)
 
-def add_process_to_dataset(project_id, experiment_id, dataset_id, process_id, remote=None):
+
+def add_process_to_dataset(project_id,
+                           experiment_id, dataset_id, process_id, remote=None):
     if not remote:
         remote = use_remote()
     data = {
@@ -668,7 +679,9 @@ def add_process_to_dataset(project_id, experiment_id, dataset_id, process_id, re
               "/processes"
     return put(remote.make_url_v2(api_url), data)
 
-def check_statue_of_doi_server(project_id, experiment_id, dataset_id, remote=None):
+
+def check_statue_of_doi_server(project_id,
+                               experiment_id, dataset_id, remote=None):
     if not remote:
         remote = use_remote()
     api_url = "projects/" + project_id + \
@@ -678,7 +691,8 @@ def check_statue_of_doi_server(project_id, experiment_id, dataset_id, remote=Non
     return get(remote.make_url_v2(api_url))
 
 
-def create_doi(project_id, experiment_id, dataset_id, title, description, author, year, remote=None):
+def create_doi(project_id, experiment_id, dataset_id, title,
+               description, author, year, remote=None):
     if not remote:
         remote = use_remote()
     data = {
