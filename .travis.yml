@@ -90,18 +90,18 @@ install:
   - popd
 
   - cd python
+  - pushd extras/test/test_data
+  - export TEST_DATA_DIR=`pwd`
+  - popd
   - export MC_PYTHON_API_DIR=`pwd`
   - pip install coverage
   - pip install -r requirements.txt
   - python setup.py install
 # Note: as github does not store or recover empty directories...
 #       and this is needed for testing - creating empty dir
-  - mkdir -p test/test_data/test_upload_data/test_upload_dir/sub_directory_c/empty_dir
-  - cp test/test_data/test_config_data/travisconfig.json ~/.materialscommons/config.json
+  - mkdir -p ${TEST_DATA_DIR}/test_upload_data/test_upload_dir/sub_directory_c/empty_dir
+  - cp ${TEST_DATA_DIR}/test_config_data/travisconfig.json ~/.materialscommons/config.json
 
-  - pushd test/test_data
-  - export TEST_DATA_DIR=`pwd`
-  - popd
   - pwd
 
 
