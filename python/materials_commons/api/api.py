@@ -649,7 +649,7 @@ def file_move(project_id, old_directory_id, new_directory_id, file_id, remote=No
     return put(remote.make_url_v2(api_url), data)
 
 
-# for testing only
+# for testing only - datasets
 def create_dataset(project_id, experiment_id, title, description, remote=None):
     if not remote:
         remote = use_remote()
@@ -691,6 +691,36 @@ def add_process_to_dataset(project_id,
     return put(remote.make_url_v2(api_url), data)
 
 
+# for testing only - comments
+def add_comment(item_type, item_id, text, remote=None):
+    if not remote:
+        remote = use_remote()
+    data = {
+        'item_type': item_type,
+        'item_id': item_id,
+        'text': text
+    }
+    api_url = "comments"
+    print(remote.make_url_v2(api_url))
+    return post(remote.make_url_v2(api_url), data)
+
+
+def update_comment(comment_id, updated_text, remote=None):
+    if not remote:
+        remote = use_remote()
+    data = {
+        'text': updated_text
+    }
+    api_url = "comments/" + comment_id
+    return put(remote.make_url_v2(api_url), data)
+
+def delete_comment(comment_id, remote=None):
+    if not remote:
+        remote = use_remote()
+    api_url = "comments/" + comment_id
+    return delete(remote.make_url_v2(api_url))
+
+# for testing only - doi
 def check_statue_of_doi_server(project_id,
                                experiment_id, dataset_id, remote=None):
     if not remote:
