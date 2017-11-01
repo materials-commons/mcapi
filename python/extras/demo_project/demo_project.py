@@ -6,9 +6,6 @@ class DemoProject:
     def __init__(self, data_directory_path):
         self.build_data_directory = data_directory_path
         self.project_name = "Demo Project"
-        print('\n---------------------------')
-        print('Project name: ', self.project_name)
-        print('---------------------------')
 
     def does_project_exist(self):
         projects = get_all_projects()
@@ -28,9 +25,6 @@ class DemoProject:
 
     def build_project(self):
         project_name = self.project_name
-        print('---------------------------')
-        print('Project name: ', project_name)
-        print('---------------------------')
         project_description = "A project for trying things out."
         experiment_name = "Demo: Microsegregation in HPDC L380"
         experiment_description = "A demo experiment -  A study of microsegregation in High Pressure Die Cast L380."
