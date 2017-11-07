@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='materials-commons',
-    version='0.6.7',
+    version='0.6.8',
     description='The Materials Commons tool set',
     long_description="""This package contains two modules:
     (1) materials_commons.api, the Materials Commons Python API, an interface
@@ -47,12 +47,13 @@ setup(
     ],
     keywords='materials science mc lift prisms',
     install_requires=[
+        "python-magic",
         "requests",
         "rethinkdb",
         "pathlib>=1.0.1",
         "numpy",
         "pandas>=0.21.0",
         "tabulate>=0.8.1",
-        "sortedcontainers>=1.5.7"
+        "sortedcontainers>=1.5.7",
     ]
 )
