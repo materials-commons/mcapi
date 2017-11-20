@@ -35,7 +35,7 @@ class CommonsCLIParser(object):
 
     def __init__(self, argv):
 
-        usage_help = StringIO.StringIO()
+        usage_help = StringIO()
         usage_help.write("mc <command> [<args>]\n\n")
         usage_help.write("The standard mc commands are:\n")
 
@@ -44,7 +44,7 @@ class CommonsCLIParser(object):
         standard_interfaces = {d['name']: d for d in CommonsCLIParser.standard_usage}
 
         # read custom interfaces from config file
-        config = mcapi.Config()
+        config = mcapi._Config()
         custom_interfaces = {d['name']: d for d in config.interfaces}
         if len(config.interfaces):
             usage_help.write("\nSpecialized commands are:\n")
