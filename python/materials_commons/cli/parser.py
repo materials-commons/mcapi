@@ -13,6 +13,7 @@ from .down import down_subcommand
 from .templates import TemplatesSubcommand
 from .proc import ProcSubcommand
 from .samp import SampSubcommand
+from __future__ import unicode_literals
 from io import StringIO
 import imp
 
@@ -35,7 +36,7 @@ class CommonsCLIParser(object):
 
     def __init__(self, argv):
 
-        usage_help = StringIO.StringIO()
+        usage_help = StringIO()
         usage_help.write("mc <command> [<args>]\n\n")
         usage_help.write("The standard mc commands are:\n")
 
