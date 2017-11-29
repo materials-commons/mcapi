@@ -1,10 +1,9 @@
 import os
 import copy
 import json
-import materials_commons.api as mcapi
-from materials_commons.api import _Remote as Remote
+from ..api import _Remote as Remote, make_object
 # TODO: we should not be using the RAW api interface!
-from materials_commons.api import __api as mc_raw_api
+from ..api import __api as mc_raw_api
 import pandas
 import string
 import time

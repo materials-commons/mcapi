@@ -1,7 +1,9 @@
 import sys
 import os
 import argparse
-import materials_commons.api as mcapi
+from ..api import File, Directory
+# TODO: we should not be using the RAW api interface!
+from ..api import __api as raw_api
 from .functions import make_local_project
 
 
@@ -23,13 +25,13 @@ def _check_download(proj_id, file_id, local_path, remote, force=False):
         dir = os.path.dirname(local_path)
         if not os.path.exists(dir):
             os.makedirs(dir)
-        return mcapi.api.file_download(proj_id, file_id, local_path, remote)
+        return raw_api.file_download(proj_id, file_id, local_path, remote)
     else:
         print("Overwrite '" + os.path.relpath(local_path, os.getcwd()) + "'?")
         while True:
             ans = raw_input('y/n: ')
             if ans == 'y':
-                return mcapi.api.file_download(proj_id, file_id, local_path, remote)
+                return raw_api.file_download(proj_id, file_id, local_path, remote)
             elif ans == 'n':
                 break
     return None
@@ -40,7 +42,7 @@ def _download(proj, dir, recursive=False, force=False):
     children = dir.get_children()
     for child in children:
 
-        if isinstance(child, mcapi.File):
+        if isinstance(child, File):
             # p = _obj_path_to_local_path(proj, os.path.join(child.parent().path, child.name))
             p = child.local_path()
             if not os.path.exists(os.path.dirname(p)):
@@ -50,7 +52,7 @@ def _download(proj, dir, recursive=False, force=False):
                 print("downloaded:", os.path.relpath(result_path, os.getcwd()))
             results.append(result_path)
 
-        elif isinstance(child, mcapi.Directory) and recursive:
+        elif isinstance(child, Directory) and recursive:
             _download(proj, child, recursive=recursive, force=force)
 
     return results
@@ -86,13 +88,13 @@ def down_subcommand(argv=sys.argv):
         else:
             obj = proj.get_by_local_path(p)
 
-        if isinstance(obj, mcapi.File):
+        if isinstance(obj, File):
             # (project_id, file_id, output_file_path, remote=use_remote())
             result_path = _check_download(proj.id, obj.id, p, proj.remote, force=args.force)
             if result_path is not None:
                 print("downloaded:", os.path.relpath(result_path, os.getcwd()))
 
-        elif isinstance(obj, mcapi.Directory):
+        elif isinstance(obj, Directory):
             _download(proj, obj, force=args.force, recursive=args.recursive)
 
     return

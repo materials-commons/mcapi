@@ -1,4 +1,4 @@
-from materials_commons.api import get_all_templates
+from ..api import get_all_templates
 from .list_objects import ListObjects
 from .functions import _trunc_name, _format_mtime
 

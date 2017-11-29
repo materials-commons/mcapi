@@ -2,7 +2,7 @@ import sys
 import os
 import json
 import argparse
-import materials_commons.api as mcapi
+from ..api import create_project
 from .functions import _mc_remotes, _print_projects, _proj_config, \
     make_local_project
 
@@ -40,7 +40,7 @@ def init_subcommand(argv=sys.argv):
 
         name = os.path.basename(os.getcwd())
 
-        project = mcapi.create_project(name, args.desc)
+        project = create_project(name, args.desc)
 
         print("Created new project at:", remote.config.mcurl)
         _print_projects([project], project)

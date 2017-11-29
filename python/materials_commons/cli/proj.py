@@ -1,6 +1,6 @@
 import sys
 import json
-from materials_commons.api import get_all_projects
+from ..api import get_all_projects
 from .list_objects import ListObjects
 from .functions import _trunc_name, _proj_path, _format_mtime, _proj_config
 

@@ -1,8 +1,8 @@
 import sys
 import os
 import argparse
-import materials_commons.api as mcapi
 from .functions import make_local_project
+from ..api import File, Directory
 import copy
 import time
 import hashlib
@@ -85,7 +85,7 @@ def _ls_group(proj, paths, files_only=True, checksum=False, json=False, id=False
         obj = proj.get_by_local_path(path)
         if obj is not None:
             data['r_size'] = _humanize(obj.size)
-            if isinstance(obj, mcapi.File):
+            if isinstance(obj, File):
                 if obj.mtime:
                     data['r_mtime'] = obj.mtime.strftime("%b %Y %d %H:%M:%S")
                 data['r_type'] = 'file'
@@ -93,7 +93,7 @@ def _ls_group(proj, paths, files_only=True, checksum=False, json=False, id=False
                     data['eq'] = (obj.checksum == l_checksum)
                 files.add(path)
                 remotes.add(obj)
-            elif isinstance(obj, mcapi.Directory):
+            elif isinstance(obj, Directory):
                 if obj.mtime:
                     data['r_mtime'] = obj.time.strftime("%b %Y %d %H:%M:%S")
                 data['r_type'] = 'dir'

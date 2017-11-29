@@ -1,7 +1,8 @@
 # temporary home before integrating else where
+from __future__ import unicode_literals
 import sys
 import argparse
-import materials_commons.api as mcapi
+from ..api import _Config
 from .remote import remote_subcommand
 from .proj import ProjSubcommand
 from .expt import expt_subcommand
@@ -13,7 +14,6 @@ from .down import down_subcommand
 from .templates import TemplatesSubcommand
 from .proc import ProcSubcommand
 from .samp import SampSubcommand
-from __future__ import unicode_literals
 from io import StringIO
 import imp
 
@@ -45,7 +45,7 @@ class CommonsCLIParser(object):
         standard_interfaces = {d['name']: d for d in CommonsCLIParser.standard_usage}
 
         # read custom interfaces from config file
-        config = mcapi._Config()
+        config = _Config()
         custom_interfaces = {d['name']: d for d in config.interfaces}
         if len(config.interfaces):
             usage_help.write("\nSpecialized commands are:\n")

@@ -2,7 +2,7 @@ import sys
 import os
 import json
 import argparse
-import materials_commons.api as mcapi
+from ..api import _set_remote, get_project_by_id
 from .functions import _proj_path, _proj_config, _print_projects, _mc_remotes
 
 
@@ -29,9 +29,9 @@ def clone_subcommand(argv=sys.argv):
         exit(1)
     remote = remotes[args.remote]
 
-    mcapi._set_remote(remote)
+    _set_remote(remote)
 
-    project = mcapi.get_project_by_id(args.id)
+    project = get_project_by_id(args.id)
 
     dest = os.path.join(os.getcwd(), project.name)
 
