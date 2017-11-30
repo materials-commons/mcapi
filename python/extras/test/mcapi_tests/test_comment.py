@@ -15,7 +15,7 @@ class TestComment(unittest.TestCase):
         cls.test_dir_path = cls.make_test_dir_path()
         if cls.test_dir_path:
             cls.project = cls.build_project(cls.test_dir_path)
-            title = "Test Datase - comments test"
+            title = "Test Dataset - comments test"
             description = "A dataset for testing comments - project: " + cls.project.name
             cls.experiment = cls.project.get_all_experiments()[0]
             cls.dataset = api.create_dataset(cls.project.id, cls.experiment.id, title, description)

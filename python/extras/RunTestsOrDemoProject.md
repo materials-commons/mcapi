@@ -109,7 +109,7 @@ Prior to running the test you will need to set an environment variable TEST_DATA
 to point to the directory python/test/test_data. That is:
 ```bash
   cd to the python top level directory of the python section of the mcapi repo
-  source ./scripts/set_test_dir.sh
+  source ./extras/scripts/set_test_dir.sh
 ```
 
 ```bash

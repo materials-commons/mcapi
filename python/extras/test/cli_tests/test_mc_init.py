@@ -56,7 +56,7 @@ class TestMCInit(unittest.TestCase):
             init_subcommand(testargs)
         # print_stringIO(sout)
         out = sout.getvalue().splitlines()
-        self.assertTrue(re.match("Already in project.  name: CLITest", out[0]))
+        self.assertTrue(re.match('Already in project.  name: CLITest', out[0]))
 
         proj_list = mcapi.get_all_projects()
         proj_dict = {p.name: p for p in proj_list}

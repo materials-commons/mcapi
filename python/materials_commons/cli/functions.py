@@ -43,7 +43,7 @@ def _experiments(project_id, remote=Remote()):
 # mc.py - project object
 def _get_experiments(proj):
     """
-    get List[materails_comnnons_api.Experiment] for project
+    get List[materials_commons_api.Experiment] for project
     NOTE: this is not the way to do this - there is a method in the project that gets all the experiments.
     """
     # TODO: needs to be refactored - there is a method in the Project that gets all the experiments
