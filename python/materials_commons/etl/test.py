@@ -9,7 +9,6 @@ from materials_commons.api import create_project, get_all_projects, get_all_temp
 local_path = 'materials_commons/etl/'
 BASE_DIRECTORY = os.path.abspath(local_path)
 
-
 class WorkflowBuilder:
     def build(self, sheet, data_path):
         self.source = self._read_entire_sheet(sheet)
@@ -18,7 +17,9 @@ class WorkflowBuilder:
         self._make_template_table()
         row = 0
         while row < len(self.source):
-            action = self.source[row][0]
+            action = "skip"
+            if len(self.source[row]) and self.source[row][0]:
+                action = self.source[row][0]
             if action == 'project':
                 row = self.add_project(row)
             elif action == 'experiment':
@@ -29,7 +30,6 @@ class WorkflowBuilder:
                 break;
             else:
                 row += 1
-            print("Current row = ", row, len(self.source))
 
     def add_project(self, row):
         name = self.source[row][1]
@@ -58,7 +58,6 @@ class WorkflowBuilder:
 
         row += 1
         while (row < len(self.source)) and (not self.source[row][0]):
-            print(row, len(self.source), self.source[row][0])
             process = self.add_process(row)
             print("   " + process.name)
             row += 1
@@ -68,9 +67,15 @@ class WorkflowBuilder:
         experiment = self.current_experiment
         name = self.source[row][1]
         template = self.source[row][3]
-        sample_in = self.source[row][4]
-        sample_out = self.source[row][5]
-        file_directory = self.source[row][6]
+        sample_in = ""
+        sample_out = ""
+        file_directory = ""
+        if len(self.source[row]) > 4:
+            sample_in = self.source[row][4]
+        if len(self.source[row]) > 5:
+            sample_out = self.source[row][5]
+        if len(self.source[row]) > 6:
+            file_directory = self.source[row][6]
 
         process = experiment.create_process_from_template(self._get_template_id(template))
         process.rename(name)
@@ -107,7 +112,6 @@ class WorkflowBuilder:
 
     def add_files(self, directory_path, process):
         project = self.current_project
-        print("project local_path = " + project.local_path)
         files = []
         for (dirpath, dirnames, filenames) in walk(directory_path):
             for file in filenames:
@@ -177,10 +181,8 @@ class WorkflowBuilder:
         table = self.template_table
         found_id = None
         for key in table:
-            print (match, key)
             if match in key:
                 found_id = key
-        print(match, found_id)
         return found_id
 
 
