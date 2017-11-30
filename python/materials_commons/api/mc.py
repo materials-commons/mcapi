@@ -1,5 +1,4 @@
 from . import api
-import string
 import hashlib
 import copy
 import sys
