@@ -1,7 +1,7 @@
 import os
 import copy
 import json
-from ..api import _Remote as Remote, make_object
+from ..api import _Remote as Remote, _make_object, get_project_by_id
 # TODO: we should not be using the RAW api interface!
 from ..api import __api as mc_raw_api
 import pandas
@@ -50,7 +50,7 @@ def _get_experiments(proj):
     results = _experiments(proj.id, proj.remote)
     ret = []
     for data in results:
-        expt = mcapi.mc.make_object(data)
+        expt = _make_object(data)
         expt.project = proj
         ret.append(expt)
     return ret
@@ -225,7 +225,7 @@ def make_local_project(path=None):
         print("could not find remote:", j['remote_url'])
 
     # get materials_commons.api.Project by id
-    proj = mcapi.get_project_by_id(j['project_id'])
+    proj = get_project_by_id(j['project_id'])
 
     proj.local_path = _proj_path(path)
     proj.remote = remote

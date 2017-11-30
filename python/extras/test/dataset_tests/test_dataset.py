@@ -1,14 +1,17 @@
 import unittest
+import pytest
 
-from extras.dataset.public_connection import Public
+from ..dataset.public_connection import Public
 
 
 class TestDatasetRaw(unittest.TestCase):
+    @pytest.mark.skip(reason="test immature - requires hard coded id value")
     def test_form_url(self):
         public = Public()
         probe_url = public.make_url(Public.path_for_dataset_id + "testing")
         self.assertEqual(probe_url, Public.default_base_url + Public.path_for_dataset_id + "testing")
 
+    @pytest.mark.skip(reason="test immature - requires hard coded id value")
     def test_get_public_dataset(self):
         id = "57490e70-df32-4592-8a6f-8a6cfbd36174"
         public = Public()
@@ -21,6 +24,7 @@ class TestDatasetRaw(unittest.TestCase):
 
 
 class TestDatasetAttributes(unittest.TestCase):
+    @pytest.mark.skip(reason="test immature - requires hard coded id value")
     def test_attributes(self):
         id = "57490e70-df32-4592-8a6f-8a6cfbd36174"
         public = Public()

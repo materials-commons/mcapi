@@ -21,6 +21,7 @@ from .api import set_remote_config_url, get_remote_config_url
 from .config import Config as _Config
 from .remote import Remote as _Remote
 from .api import set_remote as _set_remote, use_remote as _use_remote
+from .mc import make_object as _make_object
 from .mc import _make_dir_tree_table, _create_new_template, _update_template
 from .mc import _store_in_user_profile, _get_from_user_profile, _clear_from_user_profile
 from . import api as __api
