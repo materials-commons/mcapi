@@ -3,8 +3,8 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='materials-commons',
-    version='0.6.8',
+    name='materials_commons',
+    version='0.6.9',
     description='The Materials Commons tool set',
     long_description="""This package contains two modules:
     (1) materials_commons.api, the Materials Commons Python API, an interface
