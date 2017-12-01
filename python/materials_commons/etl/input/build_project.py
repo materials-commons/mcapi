@@ -51,10 +51,14 @@ class BuildProjectExperiment:
         process_record = None
 
         for row_index in range(self.data_start_row, len(self.source)):
+            row_key = self._row_key(row_index, start_col_index, end_col_index)
+            if not row_key:
+                self.previous_row_key = None
+                print("skipping", row_index, template_id)
+                continue
             process_index = row_index - self.data_start_row
             parent_process_record = self.parent_process_list[process_index]
             print (row_index, "parent_process_record: ", parent_process_record)
-            row_key = self._row_key(row_index, start_col_index, end_col_index)
             parent_process = None
             if parent_process_record:
                 parent_process = parent_process_record['process']
@@ -98,7 +102,10 @@ class BuildProjectExperiment:
                       "Assuming end of data at this location")
                 break
             for cell in row:
-                values.append(cell.value)
+                value = cell.value
+                if value and (str(value).strip() == "" or ("n/a" in str(value).strip())):
+                    value = None
+                values.append(value)
             data.append(values)
         self.source = data
 
