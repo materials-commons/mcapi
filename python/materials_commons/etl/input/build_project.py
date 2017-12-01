@@ -5,6 +5,7 @@ import os.path
 import sys
 from materials_commons.api import create_project, get_all_projects, get_all_templates
 
+
 local_path = '/Users/weymouth/Desktop/etl-input/'
 BASE_DIRECTORY = os.path.abspath(local_path)
 
@@ -13,9 +14,7 @@ class BuildProjectExperiment:
     def __init__(self):
         self._makeTemplateTable()
 
-    def build(self, sheet, data_path):
-        self.sheet = sheet
-        self.source = self._readEntireSheet(sheet)
+    def build(self, data_path):
 
         self.data_path = data_path
 
@@ -80,14 +79,46 @@ class BuildProjectExperiment:
     def sweepProcess(self, proc_data):
         start_col_index = proc_data['start_col']
         end_col_index = proc_data['end_col']
+        start_attribute_row_index = 2
         template_id = proc_data['template']
         name = proc_data['name']
-        print(start_col_index, end_col_index, template_id, name);
-#        process = self.experiment.create_process_from_template(proc_data['template'])
-#        print(proc_data['template'], process.name,proc_data['start_col'],proc_data['end_col'])
+        for row in range(1, self.header_end_row):
+            entry = str(self.source[row][start_col_index])
+            if entry.startswith('DUPLICATES_ARE_IDENTICAL'):
+                print("Encountered 'DUPLICATES_ARE_IDENTICAL' - ignored as this is the default behaivor")
+            if entry.startswith('ATTR_'):
+                print("Encountered '" + entry + "' - ignored, not implemented")
+            if entry.startswith("NOTE") \
+                    or entry.startswith("NO_UPLOAD") \
+                    or entry.startswith("MEAS") \
+                    or entry.startswith("PARAM"):
+                start_attribute_row_index = row
+        print(start_col_index, end_col_index, template_id, name)
+        print(start_attribute_row_index, self.header_end_row);
+
+    #        process = self.experiment.create_process_from_template(proc_data['template'])
+    #        print(proc_data['template'], process.name,proc_data['start_col'],proc_data['end_col'])
+
+    def readEntireSheet(self, sheet):
+        data = []
+        for row in sheet.iter_rows():
+            empty_row = True
+            values = []
+            for cell in row:
+                empty_row = empty_row and cell.value
+            if empty_row:
+                print("encountered empty row at row_index = " + str(len(data)) + ".  " +
+                      "Assuming end of data at this location")
+                break
+            for cell in row:
+                values.append(cell.value)
+            data.append(values)
+        self.source = data
 
     def setDescription(self, description):
         self.description = description
+
+    ## helper methods
 
     def _pruneEntry(self, entry, prefix):
         entry = str(entry)
@@ -131,15 +162,6 @@ class BuildProjectExperiment:
                 break
             index += 1
 
-    def _readEntireSheet(self, sheet):
-        data = []
-        for row in sheet.iter_rows():
-            values = []
-            for cell in row:
-                values.append(cell.value)
-            data.append(values)
-        return data
-
     def _makeTemplateTable(self):
         template_list = get_all_templates()
         table = {}
@@ -156,12 +178,14 @@ class BuildProjectExperiment:
 
 
 def main(args):
-    wb = openpyxl.load_workbook(filename=args.input, read_only=True)
+    wb = openpyxl.load_workbook(filename=args.input)
     ws = wb['EPMA Results (Original)']
     builder = BuildProjectExperiment()
+    builder.readEntireSheet(ws)
+    wb.close()
     builder.setDescription("Project from excel spreadsheet: " + args.input
                            + "; using data from " + args.dir)
-    builder.build(ws, args.dir)
+    builder.build(args.dir)
 
 
 if __name__ == '__main__':
