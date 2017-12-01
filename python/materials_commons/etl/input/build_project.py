@@ -1,9 +1,15 @@
 from materials_commons.api import create_project, get_all_templates
 
+
 class BuildProjectExperiment:
     def __init__(self):
         self._make_template_table()
         self.description = "Project from excel spreadsheet"
+        self.source = self.data_start_row = self.project = self.experiment = None
+        self.data_start_row = self.data_path = None
+        self.process_table = None
+        self.previous_process = None
+        self.privious_row_key = None
 
     def build(self, data_path):
 
@@ -20,35 +26,37 @@ class BuildProjectExperiment:
         print("Created project:", self.project.name)
 
     def sweep(self):
-
         process_list = self._scan_for_process_descriptions()
         if len(process_list) == 0:
             print("No complete processes found in project")
+        self.process_table = []
+        for index in range(self.data_start_row, len(self.source)):
+            self.process_table.append(None)
+        self.previous_process = None
+        self.privious_row_key = None
         for proc_data in process_list:
             self.sweep_process(proc_data)
 
     def sweep_process(self, proc_data):
         start_col_index = proc_data['start_col']
         end_col_index = proc_data['end_col']
-        start_attribute_row_index = 2
         template_id = proc_data['template']
         name = proc_data['name']
-        for row in range(1, self.header_end_row):
-            entry = str(self.source[row][start_col_index])
-            if entry.startswith('DUPLICATES_ARE_IDENTICAL'):
-                print("Encountered 'DUPLICATES_ARE_IDENTICAL' - ignored as this is the default behaivor")
-            if entry.startswith('ATTR_'):
-                print("Encountered '" + entry + "' - ignored, not implemented")
-            if entry.startswith("NOTE") \
-                    or entry.startswith("NO_UPLOAD") \
-                    or entry.startswith("MEAS") \
-                    or entry.startswith("PARAM"):
-                start_attribute_row_index = row
-        print(start_col_index, end_col_index, template_id, name)
-        print(start_attribute_row_index, self.header_end_row);
+        start_attribute_row_index = self._determine_start_attribute_row(start_col_index)
 
-    #        process = self.experiment.create_process_from_template(proc_data['template'])
-    #        print(proc_data['template'], process.name,proc_data['start_col'],proc_data['end_col'])
+        print(start_col_index, end_col_index, template_id, name)
+        print(start_attribute_row_index, self.header_end_row)
+
+        for row_index in range(self.data_start_row, len(self.source)):
+            row_key = self._row_key(row_index, start_col_index, end_col_index)
+            if self._start_new_process(row_key):
+                process = self.experiment.create_process_from_template(template_id)
+                process.rename(process.name + " -- " + row_key)
+                if process.process_type == 'create':
+                    # TODO : here
+                    pass
+                self.privious_row_key = row_key
+                break
 
     def read_entire_sheet(self, sheet):
         data = []
@@ -66,20 +74,20 @@ class BuildProjectExperiment:
             data.append(values)
         self.source = data
 
-    def setDescription(self, description):
+    def set_description(self, description):
         self.description = description
 
-    ## helper methods
+    # helper methods
 
     def _set_project_and_experiment(self):
         self._set_names()
-        if (self.project_name):
+        if self.project_name:
             print("Project name: ", self.project_name)
         else:
             print("No project name found; check format. Quiting.")
             return False
 
-        if (self.experiment_name):
+        if self.experiment_name:
             print("Experiment name:", self.experiment_name)
         else:
             print("No experiment name found; check format. Quiting.")
@@ -96,12 +104,12 @@ class BuildProjectExperiment:
         while col_index < self.end_sweep_col:
             process_entry = self.source[0][col_index]
             if process_entry and str(process_entry).startswith("PROC:"):
-                if (previous_process):
+                if previous_process:
                     previous_process['end_col'] = col_index
                     process_list.append(previous_process)
                     previous_process = None
                 process_entry = self._prune_entry(process_entry, "PROC:")
-                template_id = self._getTemplateIdFor(process_entry)
+                template_id = self._get_template_id_for(process_entry)
                 if template_id:
                     previous_process = {
                         'name': process_entry,
@@ -111,10 +119,28 @@ class BuildProjectExperiment:
                 else:
                     print("process entry has not corresponding template:", process_entry)
             col_index += 1
-        if (previous_process):
+        if previous_process:
             previous_process['end_col'] = col_index
             process_list.append(previous_process)
         return process_list
+
+    def _determine_start_attribute_row(self, start_col_index):
+        start_attribute_row_index = 2
+        for row in range(1, self.header_end_row):
+            entry = str(self.source[row][start_col_index])
+            if entry.startswith('DUPLICATES_ARE_IDENTICAL'):
+                print("Encountered 'DUPLICATES_ARE_IDENTICAL' - ignored as this is the default behaivor")
+            if entry.startswith('ATTR_'):
+                print("Encountered '" + entry + "' - ignored, not implemented")
+            if entry.startswith("NOTE") \
+                    or entry.startswith("NO_UPLOAD") \
+                    or entry.startswith("MEAS") \
+                    or entry.startswith("PARAM"):
+                start_attribute_row_index = row
+        return start_attribute_row_index
+
+    def _start_new_process(self, row_key):
+        return row_key != self.privious_row_key
 
     def _prune_entry(self, entry, prefix):
         entry = str(entry)
@@ -158,6 +184,16 @@ class BuildProjectExperiment:
                 break
             index += 1
 
+    def _row_key(self, row_index, start_col_index, end_col_index):
+        row_key = None
+        for col in range(start_col_index, end_col_index):
+            probe = self.source[row_index][col]
+            if probe and row_key:
+                row_key += " -- " + str(probe)
+            elif probe:
+                row_key = str(probe)
+        return row_key
+
     def _make_template_table(self):
         template_list = get_all_templates()
         table = {}
@@ -165,13 +201,9 @@ class BuildProjectExperiment:
             table[template.id] = template
         self.template_table = table
 
-    def _getTemplateIdFor(self, match):
+    def _get_template_id_for(self, match):
         found_id = None
         for key in self.template_table:
             if match in key:
                 found_id = key
         return found_id
-
-
-
-

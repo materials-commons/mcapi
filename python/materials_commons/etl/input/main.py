@@ -15,8 +15,8 @@ def main(input, data_dir):
     builder = BuildProjectExperiment()
     builder.read_entire_sheet(ws)
     wb.close()
-    builder.setDescription("Project from excel spreadsheet: " + input
-                           + "; using data from " + data_dir)
+    builder.set_description("Project from excel spreadsheet: " + input
+                            + "; using data from " + data_dir)
     builder.build(data_dir)
 
 
