@@ -7,9 +7,9 @@ class BuildProjectExperiment:
         self.description = "Project from excel spreadsheet"
         self.source = self.data_start_row = self.project = self.experiment = None
         self.data_start_row = self.data_path = None
-        self.process_table = None
-        self.previous_process = None
-        self.privious_row_key = None
+        self.parent_process_list = None
+        self.previous_row_key = None
+        self.previous_parent_process = None
 
     def build(self, data_path):
 
@@ -24,16 +24,17 @@ class BuildProjectExperiment:
         self.sweep()
 
         print("Created project:", self.project.name)
+        print("With Experiment", self.experiment.name, self.experiment.id)
 
     def sweep(self):
         process_list = self._scan_for_process_descriptions()
         if len(process_list) == 0:
             print("No complete processes found in project")
-        self.process_table = []
+        self.parent_process_list = []
         for index in range(self.data_start_row, len(self.source)):
-            self.process_table.append(None)
-        self.previous_process = None
-        self.privious_row_key = None
+            self.parent_process_list.append(None)
+        self.previous_row_key = None
+        self.previous_parent_process = None
         for proc_data in process_list:
             self.sweep_process(proc_data)
 
@@ -47,16 +48,43 @@ class BuildProjectExperiment:
         print(start_col_index, end_col_index, template_id, name)
         print(start_attribute_row_index, self.header_end_row)
 
+        process_record = None
+
         for row_index in range(self.data_start_row, len(self.source)):
+            process_index = row_index - self.data_start_row
+            parent_process_record = self.parent_process_list[process_index]
+            print (row_index, "parent_process_record: ", parent_process_record)
             row_key = self._row_key(row_index, start_col_index, end_col_index)
-            if self._start_new_process(row_key):
+            parent_process = None
+            if parent_process_record:
+                parent_process = parent_process_record['process']
+            if self._start_new_process(row_key, parent_process):
+                print ("Start new process:", row_key)
                 process = self.experiment.create_process_from_template(template_id)
-                process.rename(process.name + " -- " + row_key)
+                output_sample = None
                 if process.process_type == 'create':
-                    # TODO : here
-                    pass
-                self.privious_row_key = row_key
-                break
+                    sample_names = [row_key]
+                    samples = process.create_samples(sample_names=sample_names)
+                    output_sample = samples[0]
+                elif process.process_type == 'transform' and parent_process_record:
+                    input_sample = parent_process_record['output_sample']
+                    process = process.add_input_samples_to_process([input_sample])\
+                        .decorate_with_output_samples()
+                    output_sample = process.output_samples[0]
+                elif (process.process_type == 'measurement' or process.process_type == 'measurement') \
+                        and parent_process_record:
+                    input_sample = parent_process_record['output_sample']
+                    process.add_input_samples_to_process([input_sample])
+                process_record = {
+                    'key': row_key,
+                    'process': process,
+                    'output_sample': output_sample
+                }
+            self.previous_row_key = row_key
+            self.previous_parent_process = None
+            if parent_process_record:
+                self.previous_parent_process = parent_process_record['process']
+            self.parent_process_list[process_index] = process_record
 
     def read_entire_sheet(self, sheet):
         data = []
@@ -139,10 +167,14 @@ class BuildProjectExperiment:
                 start_attribute_row_index = row
         return start_attribute_row_index
 
-    def _start_new_process(self, row_key):
-        return row_key != self.privious_row_key
+    def _start_new_process(self, row_key, parent_process):
+        if parent_process and self.previous_parent_process \
+                and parent_process.id != self.previous_parent_process.id:
+            return True
+        return (row_key != self.previous_row_key)
 
-    def _prune_entry(self, entry, prefix):
+    @staticmethod
+    def _prune_entry(entry, prefix):
         entry = str(entry)
         if entry.startswith(prefix):
             entry = entry[len(prefix):].strip(" ").strip("'").strip('"')
