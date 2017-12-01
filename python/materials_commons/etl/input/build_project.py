@@ -10,6 +10,9 @@ BASE_DIRECTORY = os.path.abspath(local_path)
 
 
 class BuildProjectExperiment:
+    def __init__(self):
+        self._makeTemplateTable()
+
     def build(self, sheet, data_path):
         self.sheet = sheet
         self.source = self._readEntireSheet(sheet)
@@ -45,21 +48,43 @@ class BuildProjectExperiment:
         print("Created project:", self.project.name)
 
     def sweep(self):
-        self._makeTemplateTable()
         col_index = self.start_sweep_col
+        process_list = []
+        previous_process = None
         while col_index < self.end_sweep_col:
-            process_name = self.source[0][col_index]
-            if process_name and str(process_name).startswith("PROC:"):
-                process_name = self._pruneEntry(process_name, "PROC:")
-                template_id = self._getTemplateIdFor(process_name)
+            process_entry = self.source[0][col_index]
+            if process_entry and str(process_entry).startswith("PROC:"):
+                if (previous_process):
+                    previous_process['end_col'] = col_index
+                    process_list.append(previous_process)
+                    previous_process = None
+                process_entry = self._pruneEntry(process_entry, "PROC:")
+                template_id = self._getTemplateIdFor(process_entry)
                 if template_id:
-                    col_index = self.sweepProcess(template_id, col_index)
+                    previous_process = {
+                        'name': process_entry,
+                        'start_col': col_index,
+                        'template': template_id
+                    }
+                else:
+                    print("process entry has not corresponding template:", process_entry)
             col_index += 1
+        if (previous_process):
+            previous_process['end_col'] = col_index
+            process_list.append(previous_process)
+        if len(process_list) == 0:
+            print("No complete processes found in project")
+        for proc_data in process_list:
+            self.sweepProcess(proc_data)
 
-    def sweepProcess(self, template_id, col_index):
-        process = self.experiment.create_process_from_template(template_id)
-        print(template_id, process.experiment.project.name)
-        return col_index
+    def sweepProcess(self, proc_data):
+        start_col_index = proc_data['start_col']
+        end_col_index = proc_data['end_col']
+        template_id = proc_data['template']
+        name = proc_data['name']
+        print(start_col_index, end_col_index, template_id, name);
+#        process = self.experiment.create_process_from_template(proc_data['template'])
+#        print(proc_data['template'], process.name,proc_data['start_col'],proc_data['end_col'])
 
     def setDescription(self, description):
         self.description = description
