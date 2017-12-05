@@ -12,6 +12,9 @@ def yes_no(setting):
     return 'No'
 
 
+# worksheet.data_validation('B1', {'validate': 'list',
+#                                   'source': ['temp(c)', 'temp(f)', 'temp(k)']})
+
 def write_template_ws(template, wb, fill_color):
     ws = wb.add_worksheet(template.name[:30])
     setup_params = template.input_data['setup'][0]['properties']
@@ -22,22 +25,24 @@ def write_template_ws(template, wb, fill_color):
     min_width = 8
     for index, p in enumerate(setup_params):
         headers.append('PARAM')
-        param_width = len(p['name']) + 3
+        param_name = compute_name(p)
+        param_width = len(param_name) + 5
         if param_width < min_width:
             max_column_lens.append(min_width)
         else:
             max_column_lens.append(param_width)
-        params.append(p['name'])
+        params.append(param_name)
 
     measurements = template.input_data['measurements']
     for m in measurements:
         headers.append('MEAS')
-        param_width = len(m['name'])+3
+        param_name = compute_name(m)
+        param_width = len(param_name) + 5
         if param_width < min_width:
             max_column_lens.append(min_width)
         else:
             max_column_lens.append(param_width)
-        params.append(m['name'])
+        params.append(param_name)
 
     ws.write_row(1, 0, [' '])
     ws.write_row(2, 0, headers)
@@ -45,11 +50,20 @@ def write_template_ws(template, wb, fill_color):
     ws.set_column(0, len(max_column_lens), None, fill_color)
     for index, ignore in enumerate(max_column_lens):
         if index == 0:
-            ws.set_column(index, index, len(template.name)+9)
+            ws.set_column(index, index, len(template.name) + 9)
         else:
             ws.set_column(index, index, max_column_lens[index])
     if not max_column_lens:
         ws.set_column(0, 0, len(template.name) + 9)
+
+
+def compute_name(p):
+    name = p['name']
+    if p['unit'] != "":
+        name += ' (' + p['unit'] + ')'
+    elif p['units']:
+        name += ' (' + p['units'][0] + ')'
+    return name
 
 
 def write_to_toc_ws(ws, row, template):
@@ -107,6 +121,4 @@ if __name__ == "__main__":
     ws.set_column(3, 3, max_toc_lens[2] + 3)
     ws.set_column(4, 4, len('Transforms Sample') + 3)
     ws.set_column(5, 5, len('Destructive') + 3)
-    # worksheet.data_validation('B1', {'validate': 'list',
-    #                                   'source': ['temp(c)', 'temp(f)', 'temp(k)']})
     workbook.close()
