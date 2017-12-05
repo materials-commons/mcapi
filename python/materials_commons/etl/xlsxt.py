@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from ..api import get_all_templates
+from xlsxwriter.utility import xl_rowcol_to_cell
 import xlsxwriter
 
 colors = []
@@ -11,9 +12,6 @@ def yes_no(setting):
         return 'Yes'
     return 'No'
 
-
-# worksheet.data_validation('B1', {'validate': 'list',
-#                                   'source': ['temp(c)', 'temp(f)', 'temp(k)']})
 
 def write_template_ws(template, wb, fill_color):
     ws = wb.add_worksheet(template.name[:30])
@@ -47,6 +45,7 @@ def write_template_ws(template, wb, fill_color):
     ws.write_row(1, 0, [' '])
     ws.write_row(2, 0, headers)
     ws.write_row(3, 0, params)
+    setup_validations(ws, setup_params, measurements)
     ws.set_column(0, len(max_column_lens), None, fill_color)
     for index, ignore in enumerate(max_column_lens):
         if index == 0:
@@ -64,6 +63,26 @@ def compute_name(p):
     elif p['units']:
         name += ' (' + p['units'][0] + ')'
     return name
+
+
+# worksheet.data_validation('B1', {'validate': 'list',
+#                                   'source': ['temp(c)', 'temp(f)', 'temp(k)']})
+def setup_validations(ws, setup_params, measurements):
+    all_items = []
+    for p in setup_params:
+        all_items.append(p)
+    for m in measurements:
+        all_items.append(m)
+    for index, item in enumerate(all_items):
+        if item['units']:
+            cell = xl_rowcol_to_cell(3, index)
+            choices = build_choices(item)
+            ws.data_validation(cell, {'validate': 'list', 'source': choices})
+
+
+def build_choices(item):
+    choices = [item['name'] + ' (' + unit + ')' for unit in item['units']]
+    return choices
 
 
 def write_to_toc_ws(ws, row, template):
