@@ -1320,11 +1320,11 @@ class Process(MCObject):
 
         :return: a list of :class:`mcapi.Sample` instances
 
-        .. note:: Currently not implemented
-
         """
-        # TODO: Process.get_all_samples()
-        pass
+        input_samples = self.input_samples
+        output_samples = self.output_samples
+        return input_samples + output_samples
+
 
     def add_input_samples_to_process(self, samples):
         """
@@ -1440,15 +1440,10 @@ class Process(MCObject):
         :param samples: list of :class:`mcapi.Sample` instances
         :return: list of :class:`mcapi.Sample` instances with their property_set id values set
 
-        .. note:: samples must be output samples of the process (e.g. this)
-
         '''
         results = []
-        if not self.output_samples:
-            return results
-
         checked_sample_list = []
-        for sample in self.output_samples:
+        for sample in self.get_all_samples():
             check_sample = None
             for s in samples:
                 if s.id == sample.id:
@@ -1513,7 +1508,7 @@ class Process(MCObject):
 
         """
         return self._set_measurement_for_process_samples(
-            self.make_list_of_samples_with_property_set_ids(self.output_samples),
+            self.make_list_of_samples_with_property_set_ids(self.get_all_samples()),
             measurement_property,
             measurements
         )
@@ -1779,6 +1774,8 @@ class Process(MCObject):
                 'unit': measurement.unit,
                 'is_best_measure': measurement.is_best_measure
             })
+        print ("call to api set_measurement_for_process_samples",
+               samples_parameter, measurement_property, measurement_parameter)
         success_flag = api.set_measurement_for_process_samples(
             project_id, experiment_id, process_id,
             samples_parameter, measurement_property, measurement_parameter)

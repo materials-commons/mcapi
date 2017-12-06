@@ -1,5 +1,5 @@
 from materials_commons.api import create_project, get_all_templates
-
+import pprint
 
 class BuildProjectExperiment:
     def __init__(self):
@@ -23,6 +23,7 @@ class BuildProjectExperiment:
 
         self.sweep()
 
+        print("==============================================================")
         print("Created project:", self.project.name)
         print("With Experiment", self.experiment.name, self.experiment.id)
 
@@ -80,6 +81,8 @@ class BuildProjectExperiment:
                         and parent_process_record:
                     input_sample = parent_process_record['output_sample']
                     process.add_input_samples_to_process([input_sample])
+                process = process.decorate_with_input_samples()
+                process = process.decorate_with_output_samples()
                 process_record = {
                     'key': row_key,
                     'process': process,
@@ -104,7 +107,10 @@ class BuildProjectExperiment:
             if type == 'PARAM' or type == 'MEAS':
                 value = self.source[data_row][col]
                 self.collect_params_and_measurement(type, value, process, signature)
-        self.set_params_and_measurement()
+        self.set_params_and_measurement(process)
+        print("====> for process", process.name, "(", process.id,") - json of process from db <====" )
+        pp = pprint.PrettyPrinter(indent=2, width=120)
+        pp.pprint(self.experiment.get_process_by_id(process.id).input_data)
 
     def clear_params_and_measurement(self):
         self.process_values = {
@@ -126,16 +132,67 @@ class BuildProjectExperiment:
         entry = self.process_values[type]
         attribute = parts[0]
         if not attribute in entry:
-            entry[attribute] = {}
-        print(self.process_values)
+            entry[attribute] = {"value": None, "unit": unit}
+        if attribute == "composition":
+            if not entry[attribute]["value"]:
+                entry[attribute]["value"] = []
+            value_entry = entry[attribute]["value"]
+            element = parts[1]
+            target = None
+            for el_entry in value_entry:
+                if el_entry["element"] == element:
+                    target = el_entry
+            if not target:
+                target = {"element": element, "value": None}
+                value_entry.append(target)
+            target["value"] = self.value_or_stats(target["value"], parts[2:], value)
+        else:
+            entry[attribute]["value"] = self.value_or_stats(entry[attribute]["value"], parts[1:], value)
 
-    def set_params_and_measurement(self):
+    def value_or_stats(self, current_entry, header_parts, value):
+        if not header_parts:
+            return value
+        else:  # case = collecting stats entry - header_parts[0] == stats or mean or stddev
+            stats_label = header_parts[0]
+            if stats_label == 'stats':
+                stats_label = header_parts[1]
+            if not current_entry:
+                current_entry = {}
+            current_entry[stats_label] = value
+            return current_entry
+
+    def set_params_and_measurement(self, process):
+        print("--- set_params_and_measurement ---", len(process.get_all_samples()))
         # parameters
-        for entry in self.process_values["PARAM"]:
-            print("Set parameters for entry: ", entry)
+        keys = []
+        for key in self.process_values["PARAM"]:
+            entry = self.process_values["PARAM"][key]
+            print("Set parameters for entry: ", key, entry)
+            process.set_value_of_setup_property(key, entry['value'])
+            if entry['unit']:
+                process.set_unit_of_setup_property(key, entry['unit'])
+            keys.append(key)
+        process.update_setup_properties(keys)
         # measurements
-        for entry in self.process_values["MEAS"]:
-            print("Set measurements for entry: ", entry)
+        for key in self.process_values["MEAS"]:
+            entry = self.process_values["MEAS"][key]
+            print("Set measurements for entry: ", key, entry)
+            measurement_data = {
+                "name": _name_for_attribute(key),
+                "attribute": key,
+                "otype": _otype_for_attribute(key),
+                "value": entry['value'],
+                "is_best_measure": True
+            }
+            if entry['unit']:
+                measurement_data['unit'] = entry['unit']
+            measurement = process.create_measurement(data=measurement_data)
+            measurement_property = {
+                "name": _name_for_attribute(key),
+                "attribute": key
+            }
+            print("in set measurement: ", len(process.get_all_samples()))
+            process.set_measurements_for_process_samples(measurement_property, [measurement])
 
     def read_entire_sheet(self, sheet):
         data = []
@@ -211,9 +268,11 @@ class BuildProjectExperiment:
         for row in range(1, self.header_end_row):
             entry = str(self.source[row][start_col_index])
             if entry.startswith('DUPLICATES_ARE_IDENTICAL'):
-                print("Encountered 'DUPLICATES_ARE_IDENTICAL' - ignored as this is the default behaivor")
+                pass
+            #     print("Encountered 'DUPLICATES_ARE_IDENTICAL' - ignored as this is the default behaivor")
             if entry.startswith('ATTR_'):
-                print("Encountered '" + entry + "' - ignored, not implemented")
+                pass
+            #     print("Encountered '" + entry + "' - ignored, not implemented")
             if entry.startswith("NOTE") \
                     or entry.startswith("NO_UPLOAD") \
                     or entry.startswith("MEAS") \
@@ -293,3 +352,19 @@ class BuildProjectExperiment:
             if match in key:
                 found_id = key
         return found_id
+
+
+def _name_for_attribute(attribute):
+    if attribute == "composition":
+        return "Composition"
+    if attribute == "thickness":
+        return "Thickness"
+    print("XXXXX __name_for_attribute", attribute)
+
+
+def _otype_for_attribute(attribute):
+    if attribute == "composition":
+        return "composition"
+    if attribute == "thickness":
+        return "number"
+    print("XXXXX __otype_for_attribute", attribute)
