@@ -5,7 +5,7 @@ import argparse
 import openpyxl
 from .build_project import BuildProjectExperiment
 
-local_path = '/Users/weymouth/Desktop/etl-input/'
+local_path = '/Users/weymouth/Dropbox/MaterialCommons/Tracy_Jake_ETL/etl-input'
 BASE_DIRECTORY = os.path.abspath(local_path)
 
 

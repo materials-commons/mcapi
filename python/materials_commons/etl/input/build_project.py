@@ -45,8 +45,8 @@ class BuildProjectExperiment:
         name = proc_data['name']
         start_attribute_row_index = self._determine_start_attribute_row(start_col_index)
 
-        print(start_col_index, end_col_index, template_id, name)
-        print(start_attribute_row_index, self.header_end_row)
+        # print(start_col_index, end_col_index, template_id, name)
+        # print(start_attribute_row_index, self.header_end_row)
 
         process_record = None
 
@@ -58,12 +58,13 @@ class BuildProjectExperiment:
                 continue
             process_index = row_index - self.data_start_row
             parent_process_record = self.parent_process_list[process_index]
-            print (row_index, "parent_process_record: ", parent_process_record)
+            # print (row_index, "parent_process_record: ", parent_process_record)
             parent_process = None
             if parent_process_record:
                 parent_process = parent_process_record['process']
             if self._start_new_process(row_key, parent_process):
-                print ("Start new process:", row_key)
+                print("==============================================================")
+                print("Start new process:", name)
                 process = self.experiment.create_process_from_template(template_id)
                 output_sample = None
                 if process.process_type == 'create':
@@ -72,7 +73,7 @@ class BuildProjectExperiment:
                     output_sample = samples[0]
                 elif process.process_type == 'transform' and parent_process_record:
                     input_sample = parent_process_record['output_sample']
-                    process = process.add_input_samples_to_process([input_sample])\
+                    process = process.add_input_samples_to_process([input_sample]) \
                         .decorate_with_output_samples()
                     output_sample = process.output_samples[0]
                 elif (process.process_type == 'measurement' or process.process_type == 'measurement') \
@@ -84,11 +85,57 @@ class BuildProjectExperiment:
                     'process': process,
                     'output_sample': output_sample
                 }
+                self.sweep_for_process_value(
+                    row_index, process,
+                    start_col_index, end_col_index,
+                    start_attribute_row_index, self.header_end_row)
+
             self.previous_row_key = row_key
             self.previous_parent_process = None
             if parent_process_record:
                 self.previous_parent_process = parent_process_record['process']
             self.parent_process_list[process_index] = process_record
+
+    def sweep_for_process_value(self, data_row, process, start_col, end_col, start_attr_row, end_attr_row):
+        self.clear_params_and_measurement()
+        for col in range(start_col, end_col):
+            type = self.source[start_attr_row][col]
+            signature = self.source[start_attr_row + 1][col]
+            if type == 'PARAM' or type == 'MEAS':
+                value = self.source[data_row][col]
+                self.collect_params_and_measurement(type, value, process, signature)
+        self.set_params_and_measurement()
+
+    def clear_params_and_measurement(self):
+        self.process_values = {
+            "PARAM": {},
+            "MEAS": {}
+        }
+
+    def collect_params_and_measurement(self, type, value, process, signature):
+        unit = None
+        index = signature.find('(')
+        if index > -1:
+            end = signature.find(')')
+            if end > -1 and end > index:
+                unit = signature[index + 1:end]
+            signature = signature[:index]
+        signature = signature.strip()
+        parts = signature.split('.')
+        print("collect: ", type, parts, value, unit, process.name)
+        entry = self.process_values[type]
+        attribute = parts[0]
+        if not attribute in entry:
+            entry[attribute] = {}
+        print(self.process_values)
+
+    def set_params_and_measurement(self):
+        # parameters
+        for entry in self.process_values["PARAM"]:
+            print("Set parameters for entry: ", entry)
+        # measurements
+        for entry in self.process_values["MEAS"]:
+            print("Set measurements for entry: ", entry)
 
     def read_entire_sheet(self, sheet):
         data = []
