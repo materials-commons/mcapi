@@ -81,7 +81,7 @@ def setup_validations(ws, setup_params, measurements):
 
 
 def build_choices(item):
-    choices = [item['name'] + ' (' + unit + ')' for unit in item['units']]
+    choices = [item['name'] + ' ( ' + unit + ' )' for unit in item['units']]
     return choices
 
 
@@ -114,7 +114,7 @@ def setup_colors(wb):
 if __name__ == "__main__":
     workbook = xlsxwriter.Workbook('/tmp/mc/T.xlsx')
     setup_colors(workbook)
-    templates = get_all_templates()
+    templates = sorted(get_all_templates(), key=lambda template: template.name)
     ws = workbook.add_worksheet('Templates')
     ws.write_row(0, 0, ['Index', 'Template Name', 'Type', 'Description', 'Transforms Sample', 'Destructive'])
 
