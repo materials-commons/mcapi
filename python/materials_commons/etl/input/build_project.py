@@ -45,10 +45,6 @@ class BuildProjectExperiment:
         template_id = proc_data['template']
         name = proc_data['name']
         start_attribute_row_index = self._determine_start_attribute_row(start_col_index)
-
-        # print(start_col_index, end_col_index, template_id, name)
-        # print(start_attribute_row_index, self.header_end_row)
-
         process_record = None
 
         for row_index in range(self.data_start_row, len(self.source)):
@@ -59,7 +55,6 @@ class BuildProjectExperiment:
                 continue
             process_index = row_index - self.data_start_row
             parent_process_record = self.parent_process_list[process_index]
-            # print (row_index, "parent_process_record: ", parent_process_record)
             parent_process = None
             if parent_process_record:
                 parent_process = parent_process_record['process']
@@ -108,9 +103,6 @@ class BuildProjectExperiment:
                 value = self.source[data_row][col]
                 self.collect_params_and_measurement(type, value, process, signature)
         self.set_params_and_measurement(process)
-        print("====> for process", process.name, "(", process.id,") - json of process from db <====" )
-        pp = pprint.PrettyPrinter(indent=2, width=120)
-        pp.pprint(self.experiment.get_process_by_id(process.id).input_data)
 
     def clear_params_and_measurement(self):
         self.process_values = {
@@ -128,7 +120,6 @@ class BuildProjectExperiment:
             signature = signature[:index]
         signature = signature.strip()
         parts = signature.split('.')
-        print("collect: ", type, parts, value, unit, process.name)
         entry = self.process_values[type]
         attribute = parts[0]
         if not attribute in entry:
@@ -162,12 +153,10 @@ class BuildProjectExperiment:
             return current_entry
 
     def set_params_and_measurement(self, process):
-        print("--- set_params_and_measurement ---", len(process.get_all_samples()))
         # parameters
         keys = []
         for key in self.process_values["PARAM"]:
             entry = self.process_values["PARAM"][key]
-            print("Set parameters for entry: ", key, entry)
             process.set_value_of_setup_property(key, entry['value'])
             if entry['unit']:
                 process.set_unit_of_setup_property(key, entry['unit'])
@@ -176,7 +165,6 @@ class BuildProjectExperiment:
         # measurements
         for key in self.process_values["MEAS"]:
             entry = self.process_values["MEAS"][key]
-            print("Set measurements for entry: ", key, entry)
             measurement_data = {
                 "name": _name_for_attribute(key),
                 "attribute": key,
@@ -191,7 +179,6 @@ class BuildProjectExperiment:
                 "name": _name_for_attribute(key),
                 "attribute": key
             }
-            print("in set measurement: ", len(process.get_all_samples()))
             process.set_measurements_for_process_samples(measurement_property, [measurement])
 
     def read_entire_sheet(self, sheet):

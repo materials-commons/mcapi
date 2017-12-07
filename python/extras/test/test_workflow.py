@@ -1,7 +1,8 @@
 import unittest
-from random import randint
 from os import environ
 from os import path as os_path
+from random import randint
+
 from materials_commons.api import create_project, Template
 
 
@@ -11,7 +12,6 @@ def fake_name(prefix):
 
 
 class TestWorkflow(unittest.TestCase):
-
     def test_workflow(self):
         # #-# the workflow #-#
         project_name = fake_name("Workflow Test Project - ")
