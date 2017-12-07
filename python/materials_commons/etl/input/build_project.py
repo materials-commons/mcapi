@@ -23,7 +23,6 @@ class BuildProjectExperiment:
 
         self.sweep()
 
-        print("==============================================================")
         print("Created project:", self.project.name)
         print("With Experiment", self.experiment.name, self.experiment.id)
 
@@ -59,8 +58,7 @@ class BuildProjectExperiment:
             if parent_process_record:
                 parent_process = parent_process_record['process']
             if self._start_new_process(row_key, parent_process):
-                print("==============================================================")
-                print("Start new process:", name)
+                print ("Start new process:", row_key)
                 process = self.experiment.create_process_from_template(template_id)
                 output_sample = None
                 if process.process_type == 'create':
