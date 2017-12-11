@@ -85,7 +85,7 @@ def build_choices(item):
     return choices
 
 
-def write_to_toc_ws(ws, row, template):
+def write_to_toc_ws(ws, row, index, template):
     transforms = yes_no(template.input_data['does_transform'])
     destructive = yes_no(template.input_data['destructive'])
     ws.write_row(row, 0, [index, template.name, template.input_data['process_type'],
@@ -124,7 +124,7 @@ if __name__ == "__main__":
     for index, template in enumerate(templates):
         if fill_color_index == len(colors):
             fill_color_index = 0
-        toc_lens = write_to_toc_ws(ws, ws_row, template)
+        toc_lens = write_to_toc_ws(ws, ws_row, index, template)
         if toc_lens[0] > max_toc_lens[0]:
             max_toc_lens[0] = toc_lens[0]
         if toc_lens[1] > max_toc_lens[1]:
