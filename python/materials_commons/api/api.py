@@ -255,6 +255,7 @@ def fetch_experiment_processes(project_id, experiment_id, remote=None):
     if not remote:
         remote = use_remote()
     api_url = "/projects/" + project_id + "/experiments/" + experiment_id + "/processes"
+    print("GET api_url: ", remote.make_url_v2(api_url))
     return get(remote.make_url_v2(api_url))
 
 
@@ -461,9 +462,11 @@ def set_measurement_for_process_samples(project_id, experiment_id, process_id,
         'process_id': process_id,
         'properties': [request_properties]
     }
+    print("set_measurement_for_process_samples",data)
     api_url = "projects/" + project_id + \
               "/experiments/" + experiment_id + \
               "/samples/measurements"
+    print(api_url)
     return post(remote.make_url_v2(api_url), data)
 
 

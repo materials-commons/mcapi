@@ -1,5 +1,5 @@
 from materials_commons.api import create_project, get_all_templates
-import pprint
+# import pprint
 
 class BuildProjectExperiment:
     def __init__(self):
@@ -155,6 +155,7 @@ class BuildProjectExperiment:
         keys = []
         for key in self.process_values["PARAM"]:
             entry = self.process_values["PARAM"][key]
+            print(key, entry)
             process.set_value_of_setup_property(key, entry['value'])
             if entry['unit']:
                 process.set_unit_of_setup_property(key, entry['unit'])
