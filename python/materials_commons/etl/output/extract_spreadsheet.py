@@ -2,6 +2,7 @@ import argparse
 import datetime
 import os
 import sys
+
 import openpyxl
 
 from materials_commons.api import get_all_projects
