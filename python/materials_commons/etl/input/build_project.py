@@ -21,6 +21,8 @@ class BuildProjectExperiment:
         self._set_row_positions()
         self._set_col_positions()
 
+        self.set_metadata_header()
+
         self.sweep()
 
         print("Created project:", self.project.name)
@@ -58,7 +60,7 @@ class BuildProjectExperiment:
             if parent_process_record:
                 parent_process = parent_process_record['process']
             if self._start_new_process(row_key, parent_process):
-                print ("Start new process:", row_key)
+                # print ("Start new process:", row_key)
                 process = self.experiment.create_process_from_template(template_id)
                 output_sample = None
                 if process.process_type == 'create':
@@ -155,7 +157,6 @@ class BuildProjectExperiment:
         keys = []
         for key in self.process_values["PARAM"]:
             entry = self.process_values["PARAM"][key]
-            print(key, entry)
             process.set_value_of_setup_property(key, entry['value'])
             if entry['unit']:
                 process.set_unit_of_setup_property(key, entry['unit'])
@@ -199,7 +200,7 @@ class BuildProjectExperiment:
             data.append(values)
         self.source = data
 
-    def set_description(self, description):
+    def set_project_description(self, description):
         self.description = description
 
     # helper methods
