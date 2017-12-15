@@ -1774,8 +1774,6 @@ class Process(MCObject):
                 'unit': measurement.unit,
                 'is_best_measure': measurement.is_best_measure
             })
-        print ("call to api set_measurement_for_process_samples",
-               samples_parameter, measurement_property, measurement_parameter)
         success_flag = api.set_measurement_for_process_samples(
             project_id, experiment_id, process_id,
             samples_parameter, measurement_property, measurement_parameter)
