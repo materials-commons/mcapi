@@ -50,6 +50,7 @@ class BuildProjectExperiment:
         process_record = None
 
         for row_index in range(self.data_start_row, len(self.source)):
+            print("Processing row: ", row_index)
             row_key = self._row_key(row_index, start_col_index, end_col_index)
             if not row_key:
                 self.previous_row_key = None

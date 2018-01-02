@@ -163,6 +163,6 @@ def main(project_name, experiment_name):
 
 
 if __name__ == '__main__':
-    project = "Tracy's Project"
-    experiment = "EPMA Experiment"
+    project = "Test Project"
+    experiment = "Test Experiment"
     main(project, experiment)
