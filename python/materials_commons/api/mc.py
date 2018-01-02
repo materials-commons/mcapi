@@ -253,6 +253,8 @@ class Project(MCObject):
 
         """
         # TODO: Project.put()
+        raise NotImplementedError("Project.put() is not implemented")
+
         pass
 
     def delete(self):
@@ -297,6 +299,7 @@ class Project(MCObject):
 
         """
         # TODO: Project.get_experiment_by_id(id)
+        raise NotImplementedError("Project.get_experiment_by_id(id) not implemented")
         pass
 
     def get_all_experiments(self):
@@ -324,6 +327,7 @@ class Project(MCObject):
 
         """
         # TODO: Project.create_directory(name, path)
+        raise NotImplementedError("Project.create_directory(name, path) not implemented")
         pass
 
     def get_directory_by_id(self, directory_id):
@@ -892,6 +896,7 @@ class Experiment(MCObject):
 
         """
         # TODO: Experiment.rename(name)
+        raise NotImplementedError("Experiment.rename(name) is not implemented")
         pass
 
     def put(self):
@@ -904,6 +909,7 @@ class Experiment(MCObject):
 
         """
         # TODO: Experiment.put()
+        raise NotImplementedError("Experiment.put() is not implemented")
         pass
 
     def delete(self):
@@ -1249,6 +1255,7 @@ class Process(MCObject):
 
         """
         # TODO Process.put()
+        raise NotImplementedError("Process.put() is not implemented")
         pass
 
     # Process - additional basic methods
@@ -1312,6 +1319,7 @@ class Process(MCObject):
 
         """
         # TODO: Process.get_sample_by_id(id)
+        raise NotImplementedError("Process.get_sample_by_id(id) is not implemented")
         pass
 
     def get_all_samples(self):
@@ -1943,7 +1951,16 @@ class Sample(MCObject):
 
     # Sample - basic methods: rename, put, delete
     def rename(self, name):
+        """
+        Rename sample.
+
+        :return: this
+
+        .. note:: Currently not implemented
+
+        """
         # TODO: Sample.rename(name)
+        raise NotImplementedError("Sample.rename(name) is not implemented")
         pass
 
     def put(self):
@@ -1956,6 +1973,7 @@ class Sample(MCObject):
 
         """
         # TODO: Sample.put()
+        raise NotImplementedError("Sample.put() is not implemented")
         pass
 
     def delete(self):
@@ -2111,6 +2129,7 @@ class Directory(MCObject):
 
         """
         # TODO Directory.delete() ?? only when empty
+        raise NotImplementedError("Directory.delete() is not implemented")
         pass
 
     def get_children(self):
@@ -2337,6 +2356,7 @@ class File(MCObject):
 
         """
         # TODO File.put()
+        raise NotImplementedError("File.put() is not implemented")
         pass
 
     def delete(self):
@@ -2349,6 +2369,7 @@ class File(MCObject):
 
         """
         # TODO File.delete()
+        raise NotImplementedError("File.delete() is not implemented")
         pass
 
     # File - additional methods
