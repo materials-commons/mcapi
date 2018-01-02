@@ -255,7 +255,6 @@ def fetch_experiment_processes(project_id, experiment_id, remote=None):
     if not remote:
         remote = use_remote()
     api_url = "/projects/" + project_id + "/experiments/" + experiment_id + "/processes"
-    print("GET api_url: ", remote.make_url_v2(api_url))
     return get(remote.make_url_v2(api_url))
 
 
