@@ -1,4 +1,5 @@
 from materials_commons.api import create_project, get_all_templates
+from .input_metadata import Metadata
 # import pprint
 
 class BuildProjectExperiment:
@@ -10,6 +11,7 @@ class BuildProjectExperiment:
         self.parent_process_list = None
         self.previous_row_key = None
         self.previous_parent_process = None
+        self.metadata = Metadata()
 
     def build(self, data_path):
 
@@ -20,8 +22,6 @@ class BuildProjectExperiment:
 
         self._set_row_positions()
         self._set_col_positions()
-
-        self.set_metadata_header()
 
         self.sweep()
 
@@ -46,6 +46,7 @@ class BuildProjectExperiment:
         template_id = proc_data['template']
         name = proc_data['name']
         start_attribute_row_index = self._determine_start_attribute_row(start_col_index)
+        self._record_header_rows()
         process_record = None
 
         for row_index in range(self.data_start_row, len(self.source)):
@@ -62,6 +63,7 @@ class BuildProjectExperiment:
             if self._start_new_process(row_key, parent_process):
                 # print ("Start new process:", row_key)
                 process = self.experiment.create_process_from_template(template_id)
+                self.metadata.set_process_metadata(row_index, start_col_index, template_id, process)
                 output_sample = None
                 if process.process_type == 'create':
                     sample_names = [row_key]
@@ -221,6 +223,8 @@ class BuildProjectExperiment:
 
         self.project = create_project(self.project_name, self.description)
         self.experiment = self.project.create_experiment(self.experiment_name, "")
+        self.metadata.set_project_id(self.project.id)
+        self.metadata.set_experiment_id(self.experiment.id)
         return True
 
     def _scan_for_process_descriptions(self):
@@ -243,7 +247,7 @@ class BuildProjectExperiment:
                         'template': template_id
                     }
                 else:
-                    print("process entry has not corresponding template:", process_entry)
+                    print("process entry has no corresponding template:", process_entry)
             col_index += 1
         if previous_process:
             previous_process['end_col'] = col_index
@@ -265,6 +269,7 @@ class BuildProjectExperiment:
                     or entry.startswith("MEAS") \
                     or entry.startswith("PARAM"):
                 start_attribute_row_index = row
+        self.metadata.set_start_attribute_row(start_attribute_row_index)
         return start_attribute_row_index
 
     def _start_new_process(self, row_key, parent_process):
@@ -304,6 +309,8 @@ class BuildProjectExperiment:
                 self.header_end_row = index
                 break
             index += 1
+        self.metadata.set_header_row_end(self.header_end_row)
+        self.metadata.set_data_row_start(self.data_start_row)
 
     def _set_col_positions(self):
         self.start_sweep_col = 1
@@ -315,6 +322,17 @@ class BuildProjectExperiment:
                 self.end_sweep_col = index
                 break
             index += 1
+        self.metadata.set_data_col_start(self.start_sweep_col)
+        self.metadata.set_data_col_end(self.end_sweep_col)
+
+    def _record_header_rows(self):
+        header = []
+        for row in range(0, self.data_start_row):
+            header_row = []
+            for col in range(0, self.end_sweep_col):
+                header_row.append(self.source[row][col])
+            header.append(header_row)
+        self.metadata.record_header(header)
 
     def _row_key(self, row_index, start_col_index, end_col_index):
         row_key = None

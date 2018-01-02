@@ -19,7 +19,8 @@ def main(input, data_dir, json_path):
     builder.set_project_description("Project from excel spreadsheet: " + input
                             + "; using data from " + data_dir)
     builder.build(data_dir)
-    builder.write_json_metadata_file(json_path)
+    builder.metadata.set_input_information(input, data_dir, json_path)
+    builder.metadata.write(json_path)
 
 
 if __name__ == '__main__':
