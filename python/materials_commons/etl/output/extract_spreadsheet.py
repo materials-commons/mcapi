@@ -24,8 +24,6 @@ class ExtractExperimentSpreadsheet:
         self.worksheet = None
         self.workbook = None
         self.data_row_list = []
-        self.number_of_rows = 0
-        self.number_of_cols = 0
 
     def set_data_from_metadata(self):
         metadata = self.metadata
@@ -47,8 +45,14 @@ class ExtractExperimentSpreadsheet:
             self.data_row_list.append(row)
 
     def write_spreadsheet(self):
-        print("Writing spreadsheet")
-        print("    " + self.output_path)
+        dir_path = os.path.abspath(self.dir)
+        if not os.path.isdir(dir_path):
+            print("The given path, " + self.dir + ", is not a directory")
+            print("Resolved to: " + dir_path)
+            return None
+        self.output_path = os.path.join(dir_path, self.file)
+
+        print("Writing spreadsheet", self.output_path)
         if self.verify_worksheet_creation():
             self.write_data_to_sheet()
             self.workbook.save(filename=self.output_path)
@@ -63,19 +67,12 @@ class ExtractExperimentSpreadsheet:
                 self.worksheet.cell(column=col+1, row=row+1, value=data_item)
 
     def verify_worksheet_creation(self):
-        dir_path = os.path.abspath(self.dir)
-        if not os.path.isdir(dir_path):
-            print("The given path, " + self.dir + ", is not a directory")
-            print("Resolved to: " + dir_path)
-            return None
         try:
-            dir_path = os.path.join(dir_path, self.file)
             wb = openpyxl.Workbook()
             ws = wb.worksheets[0]
             ws['A1'] = "PROJ: " + self.project.name
             ws['A2'] = "EXP: " + self.experiment.name
-            wb.save(filename=dir_path)
-            self.output_path = dir_path
+            wb.save(filename=self.output_path)
             self.worksheet = ws
             self.workbook = wb
             return wb
