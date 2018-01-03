@@ -1,5 +1,5 @@
 from materials_commons.api import get_project_by_id
-from ..input import input_metadata
+from ..input import metadata
 
 class MetadataVerification:
     def __init__(self):
@@ -12,13 +12,15 @@ class MetadataVerification:
             print("Could not find project:", metadata.project_id)
             verified = False
         else:
-            print("Found project:", metadata.project_id)
+            metadata.project = project
+            print("Found project:", project.name)
         experiment = self.get_experiment(project, metadata.experiment_id)
         if not experiment:
             print("Could not find experiment:", metadata.experiment_id)
             verified = False
         else:
-            print("Found experiment:", metadata.experiment_id)
+            metadata.experiment = experiment
+            print("Found experiment:", experiment.name)
         processes = experiment.get_all_processes()
         process_table = self.make_process_table(processes)
         missing = []
@@ -31,7 +33,10 @@ class MetadataVerification:
                 print("Could not find process: ", id)
         else:
             print("Found all processes.")
-        return verified
+            metadata.process_table = process_table
+        if verified:
+            return metadata
+        return None
 
     def get_experiment(self, project, experiment_id):
         experiment_list = project.get_all_experiments()
@@ -48,7 +53,7 @@ class MetadataVerification:
         return table
 
 if __name__ == '__main__':
-    metadata = input_metadata.Metadata()
+    metadata = metadata.Metadata()
     metadata.read("/Users/weymouth/Desktop/junk.json")
     verify = MetadataVerification()
     verify.verify(metadata)

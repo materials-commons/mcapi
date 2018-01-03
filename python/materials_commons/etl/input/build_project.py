@@ -1,6 +1,5 @@
 from materials_commons.api import create_project, get_all_templates
-from .input_metadata import Metadata
-# import pprint
+from .metadata import Metadata
 
 class BuildProjectExperiment:
     def __init__(self):

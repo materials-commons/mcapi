@@ -12,6 +12,9 @@ class Metadata:
         self.output_json_file_path = None
         self.project_id = None
         self.experiment_id = None
+        self.project = None
+        self.experiment = None
+        self.process_table = None
         self.header_row_end = None
         self.data_row_start = None
         self.data_col_start = None

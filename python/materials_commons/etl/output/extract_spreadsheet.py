@@ -5,47 +5,54 @@ import sys
 
 import openpyxl
 
-from materials_commons.api import get_all_projects
+from materials_commons.etl.input.metadata import Metadata
+from .meta_data_verify import MetadataVerification
 
-local_path = '/Users/weymouth/Desktop/etl-output'
+local_path = '/Users/weymouth/Desktop/test-output'
 BASE_DIRECTORY = os.path.abspath(local_path)
 
 
 class ExtractExperimentSpreadsheet:
-    def __init__(self, setup_args):
+    def __init__(self, setup_args, metadata):
         self.dir = setup_args.dir
         self.file = setup_args.file
+        self.metadata = metadata
         self.output_path = None
-        self.project_name = setup_args.project
         self.project = None
-        self.experiment_name = setup_args.experiment
         self.experiment = None
+        self.process_table = None
         self.worksheet = None
         self.workbook = None
         self.data_row_list = []
         self.number_of_rows = 0
         self.number_of_cols = 0
 
+    def set_data_from_metadata(self):
+        metadata = self.metadata
+        self.project = metadata.project
+        self.experiment = metadata.experiment
+        self.process_table = metadata.process_table
+        print(self.experiment.name)
+        print(self.project.name)
+
     def build_experiment_array(self):
         print("Building data array")
         print("    " + self.project.name)
         print("    " + self.experiment.name)
-        self.make_initial_left_col()
+        self.data_row_list = []
+        self.set_headers_from_metadata()
 
-    def make_initial_left_col(self):
-        self.data_row_list = [
-            ["PROJ: " + self.project.name],
-            ["EXP: " + self.experiment.name],
-            [""],
-            ["BEGIN_DATA"]
-        ]
+    def set_headers_from_metadata(self):
+        for row in self.metadata.sheet_headers:
+            self.data_row_list.append(row)
 
     def write_spreadsheet(self):
         print("Writing spreadsheet")
         print("    " + self.output_path)
-        self.write_data_to_sheet()
-        self.workbook.save(filename=self.output_path)
-        self.workbook.close()
+        if self.verify_worksheet_creation():
+            self.write_data_to_sheet()
+            self.workbook.save(filename=self.output_path)
+            self.workbook.close()
 
     def write_data_to_sheet(self):
         for row in range(0, len(self.data_row_list)):
@@ -61,7 +68,6 @@ class ExtractExperimentSpreadsheet:
             print("The given path, " + self.dir + ", is not a directory")
             print("Resolved to: " + dir_path)
             return None
-        ws = None
         try:
             dir_path = os.path.join(dir_path, self.file)
             wb = openpyxl.Workbook()
@@ -70,61 +76,33 @@ class ExtractExperimentSpreadsheet:
             ws['A2'] = "EXP: " + self.experiment.name
             wb.save(filename=dir_path)
             self.output_path = dir_path
+            self.worksheet = ws
+            self.workbook = wb
+            return wb
         except:
             print("Unexpected error:", sys.exc_info()[0])
-            ws = None
-        self.worksheet = ws
-        self.workbook = wb
-        return ws
-
-    def verify_experiment_exists(self):
-        self._get_project_if_exits()
-        if not self.project:
-            print("Project not found in database: " + self.project_name)
             return None
-        self._get_experiment_if_exits()
-        if not self.experiment:
-            print("Experiment not found in database: " + self.experiment_name)
-            return None
-        return self.experiment
-
-    def _get_project_if_exits(self):
-        projects = get_all_projects()
-        probe = None
-        for project in projects:
-            if project.name == self.project_name:
-                probe = project
-        if not probe:
-            return
-        self.project = probe
-
-    def _get_experiment_if_exits(self):
-        if not self.project:
-            return
-        experiments = self.project.get_all_experiments()
-        probe = None
-        count = 0
-        for experiment in experiments:
-            if experiment.name == self.experiment_name:
-                probe = experiment
-        if not probe:
-            return
-        if count > 1:
-            print("Exit! Found more the one experiment with name = ", self.experiment_name)
-            return
-        self.experiment = probe
 
 
 def main(main_args):
-    builder = ExtractExperimentSpreadsheet(main_args)
-    if not builder.verify_experiment_exists():
-        print("Unable to locate project and/or experiment: '"
-              + main_args.project + "', '" + main_args.experiment + "'")
+
+    metadata = Metadata()
+    metadata.read(main_args.metadata)
+    verify = MetadataVerification()
+    updated_metadata = verify.verify(metadata)
+
+    if not updated_metadata:
+        print("The verification of the metadata file failed.")
         exit(-1)
-    if not builder.verify_worksheet_creation():
-        print("Unable to open spreadsheet and/or worksheet, "
-              + main_args.file + ", in directory " + main_args.dir)
-        exit(-1)
+
+    builder = ExtractExperimentSpreadsheet(main_args, updated_metadata)
+    builder.set_data_from_metadata()
+
+    print("Set up: writing spreadsheet, " + main_args.file)
+    print("        to directory " + main_args.dir)
+    print("Data from experiment '" + builder.experiment.name
+          + "' in project '" + builder.project.name + "'")
+
     builder.build_experiment_array()
     builder.write_spreadsheet()
 
@@ -133,34 +111,33 @@ if __name__ == '__main__':
     time_stamp = '%s' % datetime.datetime.now()
     default_output_dir_path = os.path.join(BASE_DIRECTORY)
     default_file_name = "workflow.xlsx"
+    default_metadata_file_path = "metadata.json"
 
     argv = sys.argv
     parser = argparse.ArgumentParser(
-        description='Dump a project-experiment to a spreadsheer')
-    parser.add_argument('--project', type=str, help="Project name")
-    parser.add_argument('--experiment', type=str, help="Experiment name")
+        description='Dump a project-experiment to a spreadsheet')
+    parser.add_argument('--metadata', type=str, default=default_metadata_file_path,
+                        help="Metadata file path")
     parser.add_argument('--dir', type=str, default=default_output_dir_path,
                         help='Path to output directory')
-    parser.add_argument('--file', type=str, default=default_file_name)
+    parser.add_argument('--file', type=str, default=default_file_name,
+                        help="Path to output file")
     args = parser.parse_args(argv[1:])
 
-    if not args.project:
-        print("Project name (--project) is required")
-        exit(-1)
-    if not args.experiment:
-        print("Experiment name (--experiment) is required")
-        exit(-1)
+    print(args)
+
     args.dir = os.path.abspath(args.dir)
 
     if not os.path.isdir(args.dir):
         print("The given output file path, " + args.dir + ", is not a directory. Please fix.")
         exit(-1)
 
+    args.metadata = os.path.abspath(args.metadata)
+    if not os.path.isfile(args.metadata):
+        print("The given metadata file path, " + args.metadata + ", is not a file. Please fix.")
+        exit(-1)
+
     if not args.file.endswith(".xlsx"):
         file = args.file + ".xlsx"
-
-    print("Set up: writing spreadsheet, " + args.file)
-    print("        to directory " + args.dir)
-    print("Data from experiment '" + args.experiment + "' in project '" + args.project + "'")
 
     main(args)
