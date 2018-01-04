@@ -18,20 +18,17 @@ class ExtractExperimentSpreadsheet:
         self.file = setup_args.file
         self.metadata = metadata
         self.output_path = None
-        self.project = None
-        self.experiment = None
-        self.process_table = None
+        self.project = metadata.project
+        self.experiment = metadata.experiment
+        self.process_table = metadata.process_table
         self.worksheet = None
         self.workbook = None
         self.data_row_list = []
 
     def set_data_from_metadata(self):
         metadata = self.metadata
-        self.project = metadata.project
-        self.experiment = metadata.experiment
-        self.process_table = metadata.process_table
-        print(self.experiment.name)
-        print(self.project.name)
+        print("set_data_from_metadata",self.experiment.name)
+        print("set_data_from_metadata",self.project.name)
 
     def build_experiment_array(self):
         print("Building data array")
@@ -39,6 +36,7 @@ class ExtractExperimentSpreadsheet:
         print("    " + self.experiment.name)
         self.data_row_list = []
         self.set_headers_from_metadata()
+        self.set_data_from_metadata()
 
     def set_headers_from_metadata(self):
         for row in self.metadata.sheet_headers:
@@ -62,7 +60,7 @@ class ExtractExperimentSpreadsheet:
         for row in range(0, len(self.data_row_list)):
             data_row = self.data_row_list[row]
             for col in range(0, len(data_row)):
-                print("data: ", row, col, data_row[col])
+                # print("data: ", row, col, data_row[col])
                 data_item = data_row[col]
                 self.worksheet.cell(column=col+1, row=row+1, value=data_item)
 
