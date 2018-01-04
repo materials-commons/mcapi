@@ -74,11 +74,16 @@ class Metadata:
     def record_header(self, header):
         self.sheet_headers = header
 
-    def set_process_metadata(self, row, col, template_id, process):
+    def set_process_metadata(self, row, start_col, end_col, template_id, process):
         self.process_metadata.append(
             {'id': process.id,
              'template': template_id,
-             'row': row,
-             'col': col,
+             'start_row': row,
+             'end_row': row + 1,
+             'start_col': start_col,
+             'end_col': end_col
              }
         )
+
+    def update_process_metadata_end_row(self, row):
+        self.process_metadata[-1]['end_row'] = row

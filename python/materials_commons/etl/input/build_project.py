@@ -63,7 +63,8 @@ class BuildProjectExperiment:
             if self._start_new_process(row_key, parent_process):
                 # print ("Start new process:", row_key)
                 process = self.experiment.create_process_from_template(template_id)
-                self.metadata.set_process_metadata(row_index, start_col_index, template_id, process)
+                self.metadata.set_process_metadata(
+                    row_index, start_col_index, end_col_index, template_id, process)
                 output_sample = None
                 if process.process_type == 'create':
                     sample_names = [row_key]
@@ -90,6 +91,7 @@ class BuildProjectExperiment:
                     start_col_index, end_col_index,
                     start_attribute_row_index, self.header_end_row)
 
+            self.metadata.update_process_metadata_end_row(row_index + 1)
             self.previous_row_key = row_key
             self.previous_parent_process = None
             if parent_process_record:
