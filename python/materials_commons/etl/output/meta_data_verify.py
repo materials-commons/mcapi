@@ -32,7 +32,7 @@ class MetadataVerification:
             for id in missing:
                 print("Could not find process: ", id)
         else:
-            print("Found all processes (" + len(process_table) + ").")
+            print("Found all processes (" + str(len(process_table)) + ").")
             metadata.process_table = process_table
         if verified:
             return metadata

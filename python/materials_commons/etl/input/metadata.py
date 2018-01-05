@@ -14,6 +14,7 @@ class Metadata:
         self.experiment_id = None
         self.header_row_end = None
         self.data_row_start = None
+        self.data_row_end = None
         self.data_col_start = None
         self.data_col_end = None
         self.start_attribute_row = None
@@ -34,7 +35,9 @@ class Metadata:
             d = json.load(json_data)
             json_data.close()
         attr = ["time_stamp", "process_metadata", "project_id", "experiment_id",
-                "header_row_end", "data_row_start", "data_col_start", "data_col_end",
+                "input_excel_file_path", "input_data_dir_path", "output_json_file_path",
+                "header_row_end", "data_row_start", "data_row_end",
+                "data_col_start", "data_col_end",
                 "start_attribute_row", "sheet_headers"]
         for a in attr:
             setattr(self, a, d.get(a, None))
@@ -62,6 +65,9 @@ class Metadata:
 
     def set_data_row_start(self, row):
         self.data_row_start = row
+
+    def set_data_row_end(self, row):
+        self.data_row_end = row
 
     def set_data_col_start(self, col):
         self.data_col_start = col

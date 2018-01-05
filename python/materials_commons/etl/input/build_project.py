@@ -313,6 +313,7 @@ class BuildProjectExperiment:
             index += 1
         self.metadata.set_header_row_end(self.header_end_row)
         self.metadata.set_data_row_start(self.data_start_row)
+        self.metadata.set_data_row_end(len(self.source))
 
     def _set_col_positions(self):
         self.start_sweep_col = 1
