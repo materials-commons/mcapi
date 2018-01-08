@@ -113,16 +113,19 @@ class Walker:
         return get_project_by_id(project_id)
 
     def find_experiment(self, project, experiment_id):
-        return project.get_experiment_by_id(experiment_id)
-
+        experiments = project.get_all_experiments()
+        for experiment in experiments:
+            if experiment_id == experiment.id:
+                return experiment
+        return None
 
 def main(pid, eid):
     walker = Walker()
-    project = walker.get_project(pid)
+    project = walker.find_project(pid)
     if not project:
         print("No project:", pid)
         exit(-1)
-    experiment = walker.get_experiment(project, eid)
+    experiment = walker.find_experiment(project, eid)
     if not experiment:
         print("No experiment:", eid)
         exit(-1)
@@ -132,14 +135,9 @@ def main(pid, eid):
     print("---------------------------")
     for proc in roots:
         walker.print_path(0, proc)
-    header_proc = walker.unify_roots(roots)
-    print("---------------------------")
-    print("|         header          |")
-    print("---------------------------")
-    walker.print_path(0, header_proc)
 
 
 if __name__ == '__main__':
-    project_id = 12345
-    experiment_id = 12345
+    project_id = "12345"
+    experiment_id = "12345"
     main(project_id, experiment_id)
