@@ -36,14 +36,14 @@ class Compare:
             empty_row = True
             values = []
             for cell in row:
-                empty_row = empty_row and cell.value
+                empty_row = empty_row and (not cell.value)
             if empty_row:
                 print("encountered empty row at row_index = " + str(len(data)) + ".  " +
                       "Assuming end of data at this location")
                 break
             for cell in row:
                 value = cell.value
-                if value and (str(value).strip() == "" or ("n/a" in str(value).strip())):
+                if str(value).strip() == "" or ("n/a" in str(value).strip()):
                     value = None
                 values.append(value)
             data.append(values)

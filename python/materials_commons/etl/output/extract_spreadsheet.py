@@ -101,7 +101,7 @@ class ExtractExperimentSpreadsheet:
         value = None
         for s in setup_list:
             for prop in s.properties:
-                if prop.value and attribute.startswith(prop.attribute):
+                if attribute.startswith(prop.attribute):
                     value = prop.value
         return value
 

@@ -14,4 +14,4 @@ Materials Commons server, for a given user, using the API
 In addition there is a distribution package (which includes 
 the demo_project and mcapi modules): **mcapi_dist**.
 
-For testing: see **test/RunTests.md**
+For testing: see **extres/test/RunTests.md**
