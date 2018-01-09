@@ -1414,12 +1414,19 @@ class Process(MCObject):
         :return: None
         """
         prop = self.get_setup_properties_as_dictionary()[name]
-        if prop and (unit in prop.units):
-            prop.unit = unit
-        elif prop:
-            message = "' there is no unit selection '" + unit + "'"
-            message += ", acceptable units are: " + ",".join(prop.units)
-            raise MCPropertyException("For property '" + name + "' there is no unit selection '" + unit + "'")
+        if prop:
+            if unit in prop.units:
+                prop.unit = unit
+            elif not prop.unit: # Note prop.unit may be preloaded
+                message = "' there is no unit selection '" + unit + "'"
+                message += ", acceptable units are: " + ",".join(prop.units)
+                raise MCPropertyException("For property '" + name + message)
+            elif unit != prop.unit:
+                # Note prop.unit may be preloaded
+                message = "' the unit value '" + unit + "'"
+                message += " does not match the expected value " + prop.unit
+                raise MCPropertyException("For property '" + name + message)
+
         else:
             raise MCPropertyException("Property '" + name + "' is not defined for this process template")
 

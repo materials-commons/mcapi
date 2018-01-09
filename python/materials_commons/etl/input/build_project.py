@@ -168,6 +168,10 @@ class BuildProjectExperiment:
             entry = self.process_values["PARAM"][key]
             process.set_value_of_setup_property(key, entry['value'])
             if entry['unit']:
+                table = process.get_setup_properties_as_dictionary()
+                print("unit chech",entry['unit'],table[key].name, table[key].unit)
+                if entry['unit'] == 'MPa':
+                    print(process.input_data)
                 process.set_unit_of_setup_property(key, entry['unit'])
             keys.append(key)
         process.update_setup_properties(keys)
@@ -399,7 +403,7 @@ def _otype_for_attribute(attribute):
 
 
 re1 = re.compile(r"\s+")
-re2 = re.compile(r"/*")
+re2 = re.compile(r"/{1,}")
 
 
 def _normalise_property_name(name):
