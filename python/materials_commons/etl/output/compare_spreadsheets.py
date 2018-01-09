@@ -136,8 +136,8 @@ class Compare:
                     data_type = type2
             types.append(data_type)
 
+        identical = True
         for row in range(metadata.data_row_start, end_row):
-            identical = True
             row_data1 = data1[row]
             row_data2 = data2[row]
             row_len1 = min(len(row_data1), metadata.data_col_end)
@@ -164,6 +164,9 @@ class Compare:
                 if not match:
                     print("Data mismatch at row = " + str(row) + ", col = " + str(col) + ": "
                           + str(row_data1[col]) + ", " + str(row_data2[col]))
+
+        if identical:
+            print ("Data values match")
 
     @staticmethod
     def type_expect_data(data_type):

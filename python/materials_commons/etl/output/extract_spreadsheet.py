@@ -41,6 +41,7 @@ class ExtractExperimentSpreadsheet:
     def set_data_from_metadata(self):
         self.initialize_empty_data()
         metadata = self.metadata
+        self.data_row_list[metadata.data_row_start][0] = "BEGIN_DATA"
         print("    ... setting data...")
         process_record_list = metadata.process_metadata
         table = metadata.process_table
@@ -183,8 +184,6 @@ if __name__ == '__main__':
     parser.add_argument('--file', type=str, default=default_file_name,
                         help="Path to output file")
     args = parser.parse_args(argv[1:])
-
-    print(args)
 
     args.dir = os.path.abspath(args.dir)
 
