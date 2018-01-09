@@ -44,16 +44,15 @@ class BuildProjectExperiment:
         end_col_index = proc_data['end_col']
         template_id = proc_data['template']
         name = proc_data['name']
+        print("Processing data for process = " + name)
         start_attribute_row_index = self._determine_start_attribute_row(start_col_index)
         self._record_header_rows()
         process_record = None
 
         for row_index in range(self.data_start_row, len(self.source)):
-            print("Processing row: ", row_index)
             row_key = self._row_key(row_index, start_col_index, end_col_index)
             if not row_key:
                 self.previous_row_key = None
-                print("skipping", row_index, template_id)
                 continue
             process_index = row_index - self.data_start_row
             parent_process_record = self.parent_process_list[process_index]
