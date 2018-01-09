@@ -24,7 +24,7 @@ class BuildProjectExperiment:
 
         self.sweep()
 
-        print("Created project:", self.project.name)
+        print("Created project:", self.project.name, self.project.id)
         print("With Experiment", self.experiment.name, self.experiment.id)
 
     def sweep(self):
