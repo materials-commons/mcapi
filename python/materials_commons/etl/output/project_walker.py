@@ -61,7 +61,7 @@ class Walker:
         padding = ""
         for i in range(0, indent):
             padding += "  "
-        print(padding, proc.name, len(proc.measurements), proc.id)
+        print(padding, proc.name, len(proc.measurements), len (proc.setup[0].properties) , proc.id)
         measurements = proc.measurements
         for m in measurements:
             header = "|- MEAS" + str("(*)" if m.is_best_measure else "")
@@ -73,6 +73,7 @@ class Walker:
         setup_list = proc.setup
         for s in setup_list:
             for prop in s.properties:
+                print(prop.attribute, prop.value)
                 if prop.value:
                     print(padding, "|- PARAM", prop.attribute, prop.value, prop.unit)
         for child in proc.children:
@@ -138,6 +139,6 @@ def main(pid, eid):
 
 
 if __name__ == '__main__':
-    project_id = "12345"
-    experiment_id = "12345"
+    project_id = "0842d48a-f194-4ba3-b9e8-9a98c12ee4b3"
+    experiment_id = "d6cf836d-4686-45e7-8339-4c24d7d17e0f"
     main(project_id, experiment_id)

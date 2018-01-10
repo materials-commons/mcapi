@@ -3,8 +3,8 @@ import openpyxl
 from materials_commons.etl.input.metadata import Metadata
 
 path1 = "/Users/weymouth/Desktop/input.xlsx"
-path2 = "/Users/weymouth/Desktop/test-output/workflow.xlsx"
-sheet1 = 'EPMA Results (Original)'
+path2 = "/Users/weymouth/Desktop/workflow.xlsx"
+sheet1 = 'Initiation Data'
 sheet2 = 'Sheet'
 metadata_path = "/Users/weymouth/Desktop/metadata.json"
 

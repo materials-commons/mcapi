@@ -8,7 +8,7 @@ import openpyxl
 from materials_commons.etl.input.metadata import Metadata
 from .meta_data_verify import MetadataVerification
 
-local_path = '/Users/weymouth/Desktop/test-output'
+local_path = '/Users/weymouth/Desktop/'
 BASE_DIRECTORY = os.path.abspath(local_path)
 
 

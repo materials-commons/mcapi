@@ -50,6 +50,7 @@ class BuildProjectExperiment:
         name = proc_data['name']
         print("Processing data for process = " + name)
         start_attribute_row_index = self._determine_start_attribute_row(start_col_index)
+        print("start_attribute_row_index", start_attribute_row_index)
         self._record_header_rows()
         process_record = None
 
@@ -78,8 +79,7 @@ class BuildProjectExperiment:
                     process = process.add_input_samples_to_process([input_sample]) \
                         .decorate_with_output_samples()
                     output_sample = process.output_samples[0]
-                elif (process.process_type == 'measurement' or process.process_type == 'measurement') \
-                        and parent_process_record:
+                elif parent_process_record and parent_process_record['output_sample']:
                     input_sample = parent_process_record['output_sample']
                     process.add_input_samples_to_process([input_sample])
                 process = process.decorate_with_input_samples()
@@ -103,13 +103,16 @@ class BuildProjectExperiment:
 
     def sweep_for_process_value(self, data_row, process, start_col, end_col, start_attr_row):
         self.clear_params_and_measurement()
+        print(process.name, start_col, end_col)
         for col in range(start_col, end_col):
             process_value_type = self.source[start_attr_row][col]
             signature = self.source[start_attr_row + 1][col]
+            print(process.name, col, process_value_type, signature)
             if process_value_type == 'PARAM' or process_value_type == 'MEAS':
                 value = self.source[data_row][col]
                 self.collect_params_and_measurement(process_value_type, value, signature)
         self.set_params_and_measurement(process)
+        print(process.name, self.process_values)
 
     def clear_params_and_measurement(self):
         self.process_values = {
@@ -165,18 +168,18 @@ class BuildProjectExperiment:
         # parameters
         keys = []
         for key in self.process_values["PARAM"]:
+            print("PARMA", process.name, key)
             entry = self.process_values["PARAM"][key]
             process.set_value_of_setup_property(key, entry['value'])
             if entry['unit']:
                 table = process.get_setup_properties_as_dictionary()
-                print("unit chech",entry['unit'],table[key].name, table[key].unit)
-                if entry['unit'] == 'MPa':
-                    print(process.input_data)
+                print("unit check", entry['unit'], table[key].name, table[key].unit)
                 process.set_unit_of_setup_property(key, entry['unit'])
             keys.append(key)
         process.update_setup_properties(keys)
         # measurements
         for key in self.process_values["MEAS"]:
+            print("MEAS", process.name, key)
             entry = self.process_values["MEAS"][key]
             measurement_data = {
                 "name": _name_for_attribute(key),
@@ -248,7 +251,6 @@ class BuildProjectExperiment:
         previous_process = None
         while col_index < self.end_sweep_col:
             process_entry = self.source[0][col_index]
-            print("Scan process", process_entry)
             if process_entry and str(process_entry).startswith("PROC:"):
                 if previous_process:
                     previous_process['end_col'] = col_index
@@ -283,7 +285,9 @@ class BuildProjectExperiment:
             if entry.startswith("NOTE") \
                     or entry.startswith("NO_UPLOAD") \
                     or entry.startswith("MEAS") \
-                    or entry.startswith("PARAM"):
+                    or entry.startswith("PARAM") \
+                    or entry.startswith("PROBLEM") \
+                    or entry.startswith("SAMPLES"):
                 start_attribute_row_index = row
         self.metadata.set_start_attribute_row(start_attribute_row_index)
         return start_attribute_row_index
@@ -387,7 +391,7 @@ def _name_for_attribute(attribute):
         return "Composition"
     if attribute == "thickness":
         return "Thickness"
-    print("XXXXX __name_for_attribute", attribute, "defaults to", attribute)
+    # print("XXXXX __name_for_attribute", attribute, "defaults to", attribute)
     return attribute
 
 
@@ -398,12 +402,12 @@ def _otype_for_attribute(attribute):
         return "number"
     if attribute == "Condition Name":
         return "string"
-    print("XXXXX __otype_for_attribute", attribute, "defaluts to string")
+    # print("XXXXX __otype_for_attribute", attribute, "defaluts to string")
     return "string"
 
 
 re1 = re.compile(r"\s+")
-re2 = re.compile(r"/{1,}")
+re2 = re.compile(r"/+")
 
 
 def _normalise_property_name(name):
