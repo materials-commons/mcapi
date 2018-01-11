@@ -1464,11 +1464,6 @@ class Process(MCObject):
         if not process_measurement_samples:
             return []
 
-        for sample in process_measurement_samples:
-            print("----")
-            print(sample.input_data)
-            print("----")
-
         results = []
         checked_sample_list = []
         for sample in process_measurement_samples:
@@ -1483,21 +1478,10 @@ class Process(MCObject):
             return results
 
         for sample in checked_sample_list:
-            print("---- checked list")
-            print(sample.input_data)
-            print("----")
-
-        project = self.project
-        for sample in checked_sample_list:
             results.append({
                 'property_set_id': sample.property_set_id,
                 'sample': sample
             })
-
-        for r in results:
-            print("---- results")
-            print(r)
-            print("----")
 
         return results
 

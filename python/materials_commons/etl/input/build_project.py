@@ -63,7 +63,7 @@ class BuildProjectExperiment:
             if parent_process_record:
                 parent_process = parent_process_record['process']
             if self._start_new_process(row_key, parent_process):
-                print ("Start new process:", template_id, row_key)
+                # print ("Start new process:", template_id, row_key)
                 process = self.experiment.create_process_from_template(template_id)
                 self.metadata.set_process_metadata(
                     row_index, start_col_index, end_col_index, template_id, process)
@@ -101,16 +101,16 @@ class BuildProjectExperiment:
 
     def sweep_for_process_value(self, data_row, process, start_col, end_col, start_attr_row):
         self.clear_params_and_measurement()
-        print(process.name, start_col, end_col)
+        # print(process.name, start_col, end_col)
         for col in range(start_col, end_col):
             process_value_type = self.source[start_attr_row][col]
             signature = self.source[start_attr_row + 1][col]
-            print(process.name, col, process_value_type, signature)
+            # print(process.name, col, process_value_type, signature)
             if process_value_type == 'PARAM' or process_value_type == 'MEAS':
                 value = self.source[data_row][col]
                 self.collect_params_and_measurement(process_value_type, value, signature)
         self.set_params_and_measurement(process)
-        print(process.name, self.process_values)
+        # print(process.name, self.process_values)
 
     def clear_params_and_measurement(self):
         self.process_values = {
@@ -166,18 +166,18 @@ class BuildProjectExperiment:
         # parameters
         keys = []
         for key in self.process_values["PARAM"]:
-            print("PARMA", process.name, key)
+            # print("PARMA", process.name, key)
             entry = self.process_values["PARAM"][key]
             process.set_value_of_setup_property(key, entry['value'])
             if entry['unit']:
                 table = process.get_setup_properties_as_dictionary()
-                print("unit check", entry['unit'], table[key].name, table[key].unit)
+                # print("unit check", entry['unit'], table[key].name, table[key].unit)
                 process.set_unit_of_setup_property(key, entry['unit'])
             keys.append(key)
         process.update_setup_properties(keys)
         # measurements
         for key in self.process_values["MEAS"]:
-            print("MEAS", process.name, key)
+            # print("MEAS", process.name, key)
             entry = self.process_values["MEAS"][key]
             measurement_data = {
                 "name": _name_for_attribute(key),
@@ -191,7 +191,7 @@ class BuildProjectExperiment:
             else:
                 measurement_data['unit'] = ""
             measurement = process.create_measurement(data=measurement_data)
-            print(" ++ measurement", measurement.id, measurement.attribute, measurement.value, measurement.unit)
+            # print(" ++ measurement", measurement.id, measurement.attribute, measurement.value, measurement.unit)
             measurement_property = {
                 "name": _name_for_attribute(key),
                 "attribute": key
@@ -243,7 +243,7 @@ class BuildProjectExperiment:
         return True
 
     def _scan_for_process_descriptions(self):
-        print("_scan_for_process_descriptions", self.start_sweep_col, self.end_sweep_col)
+        # print("_scan_for_process_descriptions", self.start_sweep_col, self.end_sweep_col)
         col_index = self.start_sweep_col
         process_list = []
         previous_process = None
