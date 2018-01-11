@@ -38,8 +38,6 @@ class TestProjectDelete(unittest.TestCase):
         with pytest.raises(Exception):
             project.get_all_experiments()
 
-        self.assertIsNone(project.get_experiment_by_id(experiment.id))
-
     @pytest.mark.skip(reason="failing - need to review")
     def test_delete_all_projects(self):
         self.helper = AssertHelper(self)
@@ -80,7 +78,8 @@ class TestProjectDelete(unittest.TestCase):
 
         self._set_up_remote_for(self.mcapikey)
 
-    def _set_up_remote_for(self, key):
+    @staticmethod
+    def _set_up_remote_for(key):
         remote = use_remote()
         remote.config.mcapikey = key
         remote.config.params = {'apikey': key}

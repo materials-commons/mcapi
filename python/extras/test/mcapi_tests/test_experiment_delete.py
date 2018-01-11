@@ -2,6 +2,7 @@ import unittest
 from os import environ
 from os import path as os_path
 from random import randint
+
 import extras.demo_project.demo_project as demo
 import extras.test.mcapi_tests.assert_helper as aid
 
@@ -42,7 +43,7 @@ class TestExperimentDelete(unittest.TestCase):
         self.assertIsNotNone(deleted_experiment_id)
         self.assertEqual(deleted_experiment_id, experiment.id)
 
-        results = project.get_experiment_by_id(deleted_experiment_id)
+        results = _replace_project_get_experiment_by_id(project, deleted_experiment_id)
         self.assertIsNone(results)
 
         experiments = project.get_all_experiments()
@@ -105,3 +106,14 @@ class TestExperimentDelete(unittest.TestCase):
         self.assertIsNotNone(test_path)
         self.assertTrue(os_path.isdir(test_path))
         return test_path
+
+
+def _replace_project_get_experiment_by_id(project, experiment_id):
+    # Note project.get_experiment_by_id is not implemented at this time
+    results = None
+    experiments = project.get_all_experiments()
+    for experiment in experiments:
+        if experiment.id == experiment_id:
+            results = experiment
+            break
+    return results

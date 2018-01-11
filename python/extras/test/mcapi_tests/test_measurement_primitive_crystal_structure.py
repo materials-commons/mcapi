@@ -40,7 +40,7 @@ class TestMeasurementPrimitiveCrystalStructure(unittest.TestCase):
         self.assertEqual(self.process.process_type, 'create')
         self.assertTrue(self.process.does_transform)
 
-        list = self.process.make_list_of_samples_with_property_set_ids(self.samples)
+        list = self.process.make_list_of_samples_for_measurement(self.samples)
         self.assertTrue(len(list), 1)
         self.assertIsNotNone(list[0]['property_set_id'])
         self.assertIsNotNone(list[0]['sample'])

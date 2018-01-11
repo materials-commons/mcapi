@@ -62,7 +62,7 @@ class TestMeasurementSetup(unittest.TestCase):
         self.assertEqual(len(process.output_samples), 1)
         self.assertEqual(process.output_samples[0].id, self.sample.id)
         samples = process.output_samples
-        list = process.make_list_of_samples_with_property_set_ids(samples)
+        list = process.make_list_of_samples_for_measurement(samples)
         self.assertTrue(len(list), 1)
         self.assertIsNotNone(list[0]['property_set_id'])
         self.assertIsNotNone(list[0]['sample'])
