@@ -2,29 +2,31 @@
 # NOTE: this code may be incomplete and in superseded by use of metadata file.
 # ----
 from materials_commons.api import get_project_by_id
+from materials_commons.etl.input.metadata import Metadata
 
+metadata_path = "/Users/weymouth/Desktop/metadata.json"
 
 class Walker:
     def walk(self, experiment):
-        print("Walking", experiment.name)
+        print("Walking", experiment.name, "of", experiment.project.name)
         processes = experiment.get_all_processes()
         process_table = self.make_process_dic(processes)
         roots = []
-        print(len(process_table))
+        # print(len(process_table))
         for process in processes:
             if not process.input_samples:
-                print(process.name, len(process.input_samples), len(process.output_samples))
+                # print(process.name, len(process.input_samples), len(process.output_samples))
                 roots.append(process)
                 process_table.pop(process.id)
         front = []
         for proc in roots:
             self.push_on(front, proc)
         while front:
-            print("process remaining: ", len(front))
+            # print("process remaining: ", len(front))
             proc = self.pop_from(front)
-            print("for proc", proc.name)
+            # print("for proc", proc.name)
             children = self.all_child_nodes(proc, process_table)
-            print("children count:", len(children))
+            # print("children count:", len(children))
             proc.children = children
             for child in children:
                 child.parent = proc
@@ -73,7 +75,6 @@ class Walker:
         setup_list = proc.setup
         for s in setup_list:
             for prop in s.properties:
-                print(prop.attribute, prop.value)
                 if prop.value:
                     print(padding, "|- PARAM", prop.attribute, prop.value, prop.unit)
         for child in proc.children:
@@ -120,7 +121,13 @@ class Walker:
                 return experiment
         return None
 
-def main(pid, eid):
+def main():
+
+    metadata = Metadata()
+    metadata.read(metadata_path)
+    pid = metadata.project_id
+    eid = metadata.experiment_id
+
     walker = Walker()
     project = walker.find_project(pid)
     if not project:
@@ -139,6 +146,4 @@ def main(pid, eid):
 
 
 if __name__ == '__main__':
-    project_id = "28cd9bc9-68d7-4cf4-8fae-71cddeb63a2f"
-    experiment_id = "804f2ba1-a266-442c-8f9d-e64f0da691d3"
-    main(project_id, experiment_id)
+    main()
