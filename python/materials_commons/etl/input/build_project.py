@@ -47,10 +47,8 @@ class BuildProjectExperiment:
         start_col_index = proc_data['start_col']
         end_col_index = proc_data['end_col']
         template_id = proc_data['template']
-        name = proc_data['name']
-        print("Processing data for process = " + name)
+        print("Sweep for process", proc_data['name'])
         start_attribute_row_index = self._determine_start_attribute_row(start_col_index)
-        print("start_attribute_row_index", start_attribute_row_index)
         self._record_header_rows()
         process_record = None
 
@@ -65,7 +63,7 @@ class BuildProjectExperiment:
             if parent_process_record:
                 parent_process = parent_process_record['process']
             if self._start_new_process(row_key, parent_process):
-                # print ("Start new process:", row_key)
+                print ("Start new process:", template_id, row_key)
                 process = self.experiment.create_process_from_template(template_id)
                 self.metadata.set_process_metadata(
                     row_index, start_col_index, end_col_index, template_id, process)
@@ -193,7 +191,7 @@ class BuildProjectExperiment:
             else:
                 measurement_data['unit'] = ""
             measurement = process.create_measurement(data=measurement_data)
-            print(measurement)
+            print(" ++ measurement", measurement.id, measurement.attribute, measurement.value, measurement.unit)
             measurement_property = {
                 "name": _name_for_attribute(key),
                 "attribute": key

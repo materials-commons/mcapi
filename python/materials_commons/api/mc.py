@@ -1447,7 +1447,7 @@ class Process(MCObject):
                 prop_list.append(prop)
         return self._update_process_setup_properties(prop_list)
 
-    def make_list_of_samples_with_property_set_ids(self, samples):
+    def make_list_of_samples_for_measurement(self, samples):
         '''
         Augment samples with setup properties from this process; the samples must have been created by the process;
         see :func:`mcapi.Process.create_sample`
@@ -1456,9 +1456,22 @@ class Process(MCObject):
         :return: list of :class:`mcapi.Sample` instances with their property_set id values set
 
         '''
+        process_measurement_samples = self.get_all_samples()
+        filter = "in"
+        if self.process_type == 'transform' or self.process_type == 'create':
+            filter = "out"
+        process_measurement_samples = [s for s in process_measurement_samples if s.direction == filter]
+        if not process_measurement_samples:
+            return []
+
+        for sample in process_measurement_samples:
+            print("----")
+            print(sample.input_data)
+            print("----")
+
         results = []
         checked_sample_list = []
-        for sample in self.get_all_samples():
+        for sample in process_measurement_samples:
             check_sample = None
             for s in samples:
                 if s.id == sample.id:
@@ -1469,17 +1482,23 @@ class Process(MCObject):
         if not checked_sample_list:
             return results
 
+        for sample in checked_sample_list:
+            print("---- checked list")
+            print(sample.input_data)
+            print("----")
+
         project = self.project
         for sample in checked_sample_list:
-            s = project.fetch_sample_by_id(sample.id)
-            processes = s.processes
-            for process in processes:
-                if process.id == self.id:
-                    property_set_id = process.input_data['property_set_id']
-                    results.append({
-                        'property_set_id': property_set_id,
-                        'sample': sample
-                    })
+            results.append({
+                'property_set_id': sample.property_set_id,
+                'sample': sample
+            })
+
+        for r in results:
+            print("---- results")
+            print(r)
+            print("----")
+
         return results
 
     # Process - Measurement-related methods - special treatment
@@ -1523,7 +1542,7 @@ class Process(MCObject):
 
         """
         return self._set_measurement_for_process_samples(
-            self.make_list_of_samples_with_property_set_ids(self.get_all_samples()),
+            self.make_list_of_samples_for_measurement(self.get_all_samples()),
             measurement_property,
             measurements
         )

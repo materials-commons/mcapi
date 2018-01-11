@@ -139,6 +139,6 @@ def main(pid, eid):
 
 
 if __name__ == '__main__':
-    project_id = "0842d48a-f194-4ba3-b9e8-9a98c12ee4b3"
-    experiment_id = "d6cf836d-4686-45e7-8339-4c24d7d17e0f"
+    project_id = "28cd9bc9-68d7-4cf4-8fae-71cddeb63a2f"
+    experiment_id = "804f2ba1-a266-442c-8f9d-e64f0da691d3"
     main(project_id, experiment_id)

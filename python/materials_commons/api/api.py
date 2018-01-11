@@ -464,6 +464,8 @@ def set_measurement_for_process_samples(project_id, experiment_id, process_id,
     api_url = "projects/" + project_id + \
               "/experiments/" + experiment_id + \
               "/samples/measurements"
+    print(" -- API: ", api_url)
+    print("         ", data)
     return post(remote.make_url_v2(api_url), data)
 
 
