@@ -344,7 +344,7 @@ class BuildProjectExperiment:
                 break
             index += 1
         if missing_end:
-            self.end_sweep_col = index - 1
+            self.end_sweep_col = index
         self.metadata.set_data_col_start(self.start_sweep_col)
         self.metadata.set_data_col_end(self.end_sweep_col)
 

@@ -4,6 +4,7 @@ from materials_commons.etl.input.metadata import Metadata
 
 path1 = "/Users/weymouth/Desktop/input.xlsx"
 path2 = "/Users/weymouth/Desktop/workflow.xlsx"
+# sheet1 = 'EPMA Results (Original)'
 sheet1 = 'Initiation Data'
 sheet2 = 'Sheet'
 metadata_path = "/Users/weymouth/Desktop/metadata.json"
@@ -12,19 +13,26 @@ metadata_path = "/Users/weymouth/Desktop/metadata.json"
 class Compare:
 
     def compare(self):
+        print('---',path1)
         wb1 = openpyxl.load_workbook(filename=path1)
-        # print(wb1.get_sheet_names())
-        ws1 = wb1[sheet1]
+        sheets = wb1.get_sheet_names()
+        print("Selecting: ", sheets[0], "(from", sheets, ")")
+        ws1 = wb1[sheets[0]]
         data1 = self.read_entire_sheet(ws1)
+        print("data1 size:", len(data1), len(data1[0]))
 
+        print('---',path2)
         wb2 = openpyxl.load_workbook(filename=path2)
-        # print(wb2.get_sheet_names())
-        ws2 = wb2[sheet2]
+        sheets = wb2.get_sheet_names()
+        print("Selecting: ", sheets[0], "(from", sheets, ")")
+        ws2 = wb2[sheets[0]]
         data2 = self.read_entire_sheet(ws2)
+        print("data2 size:", len(data2), len(data2[0]))
 
         metadata = Metadata()
         metadata.read(metadata_path)
 
+        print('---')
         self.compare_headers(metadata, data1, data2)
         self.compare_first_col(metadata, data1, data2)
         self.compare_data_area(metadata, data1, data2)

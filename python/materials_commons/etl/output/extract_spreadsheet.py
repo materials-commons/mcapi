@@ -1,6 +1,7 @@
 import argparse
 import datetime
 import os
+import re
 import sys
 
 import openpyxl
@@ -53,8 +54,14 @@ class ExtractExperimentSpreadsheet:
             start_col = process_record["start_col"]
             end_col = process_record["end_col"]
             process = table[process_record['id']]
+            print('rows', start_row, end_row, "cols", start_col, end_col)
+            print('process:', process_record['template'], "==", process.name)
+            print("measurements", process.measurements)
+            if process.measurements:
+                print("measurements 0", process.measurements[0].input_data)
+            print("setup", process.setup)
             self.write_first_data_row_for_process(
-                start_row, start_col, end_col , type_list, attribute_list, process)
+                start_row, start_col, end_col, type_list, attribute_list, process)
             if (end_row - start_row) > 1:
                 self.copy_duplicate_rows_for_process(
                     start_row, end_row, start_col, end_col)
@@ -64,20 +71,25 @@ class ExtractExperimentSpreadsheet:
             self.data_row_list.append([None] * self.metadata.data_col_end)
 
     def write_first_data_row_for_process(self, row, start, end, types, attributes, process):
-            measurements = process.measurements
-            setup_list = process.setup
-            for col in range (start, end):
-                type = types[col]
-                attribute = attributes[col]
-                if type == "MEAS":
-                    value = self.extract_measurement_for(attribute, measurements)
-                elif type == "PARAM":
-                    value = self.extract_parameter_for(attribute, setup_list)
-                else:
-                    value = None
-                self.data_row_list[row][col] = value
+        print("write_first_data_row_for_process")
+        measurements = process.measurements
+        setup_parameter_list = process.setup
+        for col in range(start, end):
+            value_type = types[col]
+            attribute = _normalise_property_name(attributes[col])
+            if value_type == "MEAS":
+                value = self.extract_measurement_for(attribute, measurements)
+                print("MEAS", col, value)
+            elif value_type == "PARAM":
+                value = self.extract_parameter_for(attribute, setup_parameter_list)
+                print("PARAM", col, value)
+            else:
+                print("None", col)
+                value = None
+            self.data_row_list[row][col] = value
 
-    def extract_measurement_for(self, attribute, measurements):
+    @staticmethod
+    def extract_measurement_for(attribute, measurements):
         value = None
         for m in measurements:
             if isinstance(m.value, list):
@@ -98,7 +110,8 @@ class ExtractExperimentSpreadsheet:
                     value = m.value
         return value
 
-    def extract_parameter_for(self, attribute, setup_list):
+    @staticmethod
+    def extract_parameter_for(attribute, setup_list):
         value = None
         for s in setup_list:
             for prop in s.properties:
@@ -120,7 +133,7 @@ class ExtractExperimentSpreadsheet:
         self.output_path = os.path.join(dir_path, self.file)
 
         print("Writing spreadsheet", self.output_path)
-        if self.verify_worksheet_creation():
+        if self.create_worksheet():
             self.write_data_to_sheet()
             self.workbook.save(filename=self.output_path)
             self.workbook.close()
@@ -131,25 +144,33 @@ class ExtractExperimentSpreadsheet:
             for col in range(0, len(data_row)):
                 # print("data: ", row, col, data_row[col])
                 data_item = data_row[col]
-                self.worksheet.cell(column=col+1, row=row+1, value=data_item)
+                self.worksheet.cell(column=col + 1, row=row + 1, value=data_item)
 
-    def verify_worksheet_creation(self):
-        try:
-            wb = openpyxl.Workbook()
-            ws = wb.worksheets[0]
-            ws['A1'] = "PROJ: " + self.project.name
-            ws['A2'] = "EXP: " + self.experiment.name
-            wb.save(filename=self.output_path)
-            self.worksheet = ws
-            self.workbook = wb
-            return wb
-        except:
-            print("Unexpected error:", sys.exc_info()[0])
-            return None
+    def create_worksheet(self):
+        wb = openpyxl.Workbook()
+        ws = wb.worksheets[0]
+        ws['A1'] = "PROJ: " + self.project.name
+        ws['A2'] = "EXP: " + self.experiment.name
+        wb.save(filename=self.output_path)
+        self.worksheet = ws
+        self.workbook = wb
+        return wb
+
+
+re1 = re.compile(r"\s+")
+re2 = re.compile(r"/+")
+
+
+def _normalise_property_name(name):
+    if name:
+        name = name.replace('-', '_')
+        name = re1.sub("_", name)
+        name = re2.sub("_", name)
+        name = name.lower()
+    return name
 
 
 def main(main_args):
-
     metadata = Metadata()
     metadata.read(main_args.metadata)
     verify = MetadataVerification()
