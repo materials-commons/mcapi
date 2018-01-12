@@ -5,8 +5,8 @@ import sys
 
 import openpyxl
 
-from materials_commons.etl.input.metadata import Metadata
 from materials_commons.etl.common.util import _normalise_property_name
+from materials_commons.etl.input.metadata import Metadata
 from .meta_data_verify import MetadataVerification
 
 local_path = '/Users/weymouth/Desktop/'
@@ -54,12 +54,6 @@ class ExtractExperimentSpreadsheet:
             start_col = process_record["start_col"]
             end_col = process_record["end_col"]
             process = table[process_record['id']]
-            print('rows', start_row, end_row, "cols", start_col, end_col)
-            print('process:', process_record['template'], "==", process.name)
-            print("measurements", process.measurements)
-            if process.measurements:
-                print("measurements 0", process.measurements[0].input_data)
-            print("setup", process.setup)
             self.write_first_data_row_for_process(
                 start_row, start_col, end_col, type_list, attribute_list, process)
             if (end_row - start_row) > 1:
@@ -71,7 +65,6 @@ class ExtractExperimentSpreadsheet:
             self.data_row_list.append([None] * self.metadata.data_col_end)
 
     def write_first_data_row_for_process(self, row, start, end, types, attributes, process):
-        print("write_first_data_row_for_process")
         measurements = process.measurements
         setup_parameter_list = process.setup
         for col in range(start, end):
@@ -79,12 +72,9 @@ class ExtractExperimentSpreadsheet:
             attribute = _normalise_property_name(attributes[col])
             if value_type == "MEAS":
                 value = self.extract_measurement_for(attribute, measurements)
-                print("MEAS", col, value)
             elif value_type == "PARAM":
                 value = self.extract_parameter_for(attribute, setup_parameter_list)
-                print("PARAM", col, value)
             else:
-                print("None", col)
                 value = None
             self.data_row_list[row][col] = value
 
@@ -142,7 +132,6 @@ class ExtractExperimentSpreadsheet:
         for row in range(0, len(self.data_row_list)):
             data_row = self.data_row_list[row]
             for col in range(0, len(data_row)):
-                # print("data: ", row, col, data_row[col])
                 data_item = data_row[col]
                 self.worksheet.cell(column=col + 1, row=row + 1, value=data_item)
 
@@ -155,6 +144,7 @@ class ExtractExperimentSpreadsheet:
         self.worksheet = ws
         self.workbook = wb
         return wb
+
 
 def main(main_args):
     metadata = Metadata()
