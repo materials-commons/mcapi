@@ -5,6 +5,7 @@ import argparse
 import openpyxl
 from pathlib import Path
 from .build_project import BuildProjectExperiment
+from materials_commons.etl.common.worksheet_data import read_entire_sheet
 
 local_path = '/Users/weymouth/Dropbox/MaterialCommons/Tracy_Jake_ETL/etl-input'
 BASE_DIRECTORY = os.path.abspath(local_path)
@@ -16,7 +17,7 @@ def main(input, data_dir, json_path):
     ws = wb[sheet_name]
     print(wb.get_sheet_names(),sheet_name)
     builder = BuildProjectExperiment()
-    builder.read_entire_sheet(ws)
+    builder.set_data(read_entire_sheet(ws))
     wb.close()
     builder.set_project_description("Project from excel spreadsheet: " + input
                             + "; using data from " + data_dir)

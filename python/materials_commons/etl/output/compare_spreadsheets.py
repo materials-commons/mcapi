@@ -1,6 +1,8 @@
 import openpyxl
 
 from materials_commons.etl.input.metadata import Metadata
+from materials_commons.etl.common.worksheet_data import read_entire_sheet
+
 
 path1 = "/Users/weymouth/Desktop/input.xlsx"
 path2 = "/Users/weymouth/Desktop/workflow.xlsx"
@@ -13,49 +15,51 @@ metadata_path = "/Users/weymouth/Desktop/metadata.json"
 class Compare:
 
     def compare(self):
-        print('---',path1)
+        print('---', path1)
         wb1 = openpyxl.load_workbook(filename=path1)
         sheets = wb1.get_sheet_names()
         print("Selecting: ", sheets[0], "(from", sheets, ")")
         ws1 = wb1[sheets[0]]
-        data1 = self.read_entire_sheet(ws1)
+        data1 = read_entire_sheet(ws1)
         print("data1 size:", len(data1), len(data1[0]))
 
-        print('---',path2)
+        print('---', path2)
         wb2 = openpyxl.load_workbook(filename=path2)
         sheets = wb2.get_sheet_names()
         print("Selecting: ", sheets[0], "(from", sheets, ")")
         ws2 = wb2[sheets[0]]
-        data2 = self.read_entire_sheet(ws2)
+        data2 = read_entire_sheet(ws2)
         print("data2 size:", len(data2), len(data2[0]))
 
         metadata = Metadata()
         metadata.read(metadata_path)
 
         print('---')
-        self.compare_headers(metadata, data1, data2)
-        self.compare_first_col(metadata, data1, data2)
-        self.compare_data_area(metadata, data1, data2)
+        if self.comare_data_shape(data1, data2):
+            self.compare_headers(metadata, data1, data2)
+            self.compare_first_col(metadata, data1, data2)
+            self.compare_data_area(metadata, data1, data2)
 
     @staticmethod
-    def read_entire_sheet(sheet):
-        data = []
-        for row in sheet.iter_rows():
-            empty_row = True
-            values = []
-            for cell in row:
-                empty_row = empty_row and (not cell.value)
-            if empty_row:
-                print("encountered empty row at row_index = " + str(len(data)) + ".  " +
-                      "Assuming end of data at this location")
-                break
-            for cell in row:
-                value = cell.value
-                if str(value).strip() == "" or ("n/a" in str(value).strip()):
-                    value = None
-                values.append(value)
-            data.append(values)
-        return data
+    def comare_data_shape(data1, data2):
+        if len(data1) == 0 or len(data1) == 0:
+            if len(data1) == 0 and len(data1):
+                print("No data in either spreadsheet (zero length)")
+            if len(data1) == 0:
+                print("No data in spreadsheet 1 (zero length)")
+            print("No data in spreadsheet 2 (zero length)")
+            return False
+        else:
+            mismatch = False
+            if not len(data1) == len(data2):
+                print("Number of data rows differ: ", len(data1), len(data2))
+                mismatch = False
+            if not len(data1[0]) == len(data2[0]):
+                print("Number of data cols differ: ", len(data1[0]), len(data2[0]))
+                mismatch = False
+            if not mismatch:
+                print("Data number of rows and cols match")
+        return True
 
     @staticmethod
     def compare_headers(metadata, data1, data2):
@@ -174,7 +178,7 @@ class Compare:
                           + str(row_data1[col]) + ", " + str(row_data2[col]))
 
         if identical:
-            print ("Data values match")
+            print("Data values match")
 
     @staticmethod
     def type_expect_data(data_type):

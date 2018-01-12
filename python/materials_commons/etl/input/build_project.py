@@ -1,8 +1,6 @@
-import re
-
 from materials_commons.api import create_project, get_all_templates
+from materials_commons.etl.common.util import _normalise_property_name
 from .metadata import Metadata
-
 
 class BuildProjectExperiment:
     def __init__(self):
@@ -15,6 +13,9 @@ class BuildProjectExperiment:
         self.previous_parent_process = None
         self.metadata = Metadata()
         self.process_values = {}
+
+    def set_data(self, data):
+        self.source = data
 
     def build(self, data_path):
 
@@ -197,25 +198,6 @@ class BuildProjectExperiment:
                 "attribute": key
             }
             process.set_measurements_for_process_samples(measurement_property, [measurement])
-
-    def read_entire_sheet(self, sheet):
-        data = []
-        for row in sheet.iter_rows():
-            empty_row = True
-            values = []
-            for cell in row:
-                empty_row = empty_row and (not cell.value)
-            if empty_row:
-                print("encountered empty row at row_index = " + str(len(data)) + ".  " +
-                      "Assuming end of data at this location")
-                break
-            for cell in row:
-                value = cell.value
-                if str(value).strip() == "" or ("n/a" in str(value).strip()):
-                    value = None
-                values.append(value)
-            data.append(values)
-        self.source = data
 
     def set_project_description(self, description):
         self.description = description
@@ -402,15 +384,3 @@ def _otype_for_attribute(attribute):
         return "string"
     # print("XXXXX __otype_for_attribute", attribute, "defaluts to string")
     return "string"
-
-
-re1 = re.compile(r"\s+")
-re2 = re.compile(r"/+")
-
-
-def _normalise_property_name(name):
-    name = name.replace('-', '_')
-    name = re1.sub("_", name)
-    name = re2.sub("_", name)
-    name = name.lower()
-    return name

@@ -1,12 +1,12 @@
 import argparse
 import datetime
 import os
-import re
 import sys
 
 import openpyxl
 
 from materials_commons.etl.input.metadata import Metadata
+from materials_commons.etl.common.util import _normalise_property_name
 from .meta_data_verify import MetadataVerification
 
 local_path = '/Users/weymouth/Desktop/'
@@ -155,20 +155,6 @@ class ExtractExperimentSpreadsheet:
         self.worksheet = ws
         self.workbook = wb
         return wb
-
-
-re1 = re.compile(r"\s+")
-re2 = re.compile(r"/+")
-
-
-def _normalise_property_name(name):
-    if name:
-        name = name.replace('-', '_')
-        name = re1.sub("_", name)
-        name = re2.sub("_", name)
-        name = name.lower()
-    return name
-
 
 def main(main_args):
     metadata = Metadata()
