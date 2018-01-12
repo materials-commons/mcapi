@@ -74,6 +74,8 @@ class ExtractExperimentSpreadsheet:
                 value = self.extract_measurement_for(attribute, measurements)
             elif value_type == "PARAM":
                 value = self.extract_parameter_for(attribute, setup_parameter_list)
+            elif value_type == "SAMPLES" and process.output_samples:
+                value = process.output_samples[0].name
             else:
                 value = None
             self.data_row_list[row][col] = value
