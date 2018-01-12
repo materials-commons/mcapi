@@ -182,7 +182,7 @@ class Compare:
 
     @staticmethod
     def type_expect_data(data_type):
-        return data_type == "MEAS" or data_type == "PARAM"
+        return data_type == "MEAS" or data_type == "PARAM" or data_type == "SAMPLES"
 
 
 if __name__ == '__main__':

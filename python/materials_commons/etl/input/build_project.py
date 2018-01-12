@@ -70,7 +70,11 @@ class BuildProjectExperiment:
                     row_index, start_col_index, end_col_index, template_id, process)
                 output_sample = None
                 if process.process_type == 'create':
-                    sample_names = [row_key]
+                    sample_name = self.sweep_for_sample_name(
+                        row_index, start_attribute_row_index , start_col_index, end_col_index)
+                    if not sample_name:
+                        sample_name = row_key
+                    sample_names = [sample_name]
                     samples = process.create_samples(sample_names=sample_names)
                     output_sample = samples[0]
                 elif process.process_type == 'transform' and parent_process_record:
@@ -162,6 +166,15 @@ class BuildProjectExperiment:
                 current_entry = {}
             current_entry[stats_label] = value
             return current_entry
+
+    def sweep_for_sample_name(self, row_index, start_attr_row, start_col, end_col):
+        sample_name = None
+        for col in range(start_col, end_col):
+            process_value_type = self.source[start_attr_row][col]
+            if process_value_type == 'SAMPLES':
+                sample_name = self.source[row_index][col]
+                # print("Sample name", sample_name)
+        return sample_name
 
     def set_params_and_measurement(self, process):
         # parameters
