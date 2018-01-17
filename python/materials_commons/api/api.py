@@ -501,6 +501,18 @@ def update_process_setup_properties_make_data(setup_property):
     return data
 
 
+def update_additional_properties_in_process(project_id, experiment_id, process_id, properties, remote=None):
+    if not remote:
+        remote = use_remote()
+    data = {
+        'properties': properties
+    }
+    api_url = "projects/" + project_id + \
+              "/experiments/" + experiment_id + \
+              "/processes/" + process_id + \
+              "/addparameters"
+    return post(remote.make_url_v2(api_url), data)
+
 # templates
 
 def get_all_templates(remote=None):

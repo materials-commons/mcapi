@@ -1,18 +1,22 @@
-from . import api
-import hashlib
 import copy
-import sys
+import hashlib
 import json
-from os import path as os_path
-from os import listdir
+import sys
+from io import StringIO
 from os import getcwd
+from os import listdir
+from os import path as os_path
+
+from pandas import DataFrame
+from tabulate import tabulate
+
+from . import api
 from .base import MCObject, PrettyPrint
 from .base import _decorate_object_with, _is_object, _is_list, _has_key, _data_has_type
 from .base import _is_datetime, _make_datetime
 from .measurement import make_measurement_object
-from pandas import DataFrame
-from tabulate import tabulate
-from io import StringIO
+from .property_util import _normalise_property_name, _convert_for_json_if_datetime
+
 
 
 # -- top level project functions --
@@ -1332,7 +1336,6 @@ class Process(MCObject):
         output_samples = self.output_samples
         return input_samples + output_samples
 
-
     def add_input_samples_to_process(self, samples):
         """
         Add input samples to this process.
@@ -1389,9 +1392,18 @@ class Process(MCObject):
         self.properties_dictionary = ret
         return ret
 
+    def is_known_setup_property(self, attribute):
+        """
+        Determine if the attribute is a, template-supported, known property of this process.
+
+        :param attribute: A string, the attribute key
+        :return: True, False
+        """
+        return attribute in self.get_setup_properties_as_dictionary()
+
     def set_value_of_setup_property(self, name, value):
         """
-        Populate, locally, the set-up property indicated by *name*, with a value for that property.
+        Populate, locally, the template-supported set-up property indicated by *name*, with a value for that property.
 
         :param name: string
         :param value: any
@@ -1406,7 +1418,7 @@ class Process(MCObject):
 
     def set_unit_of_setup_property(self, name, unit):
         """
-        Populate, locally, the set-up property indicated by *name*, with a unit type for that property.
+        Augment, locally, the template-supported set-up property indicated by *name*, with a unit type for that property.
 
         :param name: - string
         :param unit: - unit type - string
@@ -1416,7 +1428,7 @@ class Process(MCObject):
         if prop:
             if unit in prop.units:
                 prop.unit = unit
-            elif not prop.unit: # Note prop.unit may be preloaded
+            elif not prop.unit:  # Note prop.unit may be preloaded
                 message = "' there is no unit selection '" + unit + "'"
                 message += ", acceptable units are: " + ",".join(prop.units)
                 raise MCPropertyException("For property '" + name + message)
@@ -1431,8 +1443,9 @@ class Process(MCObject):
 
     def update_setup_properties(self, name_list):
         """
-        For local properties indicated by *name_list*, push (to the database) those
-        properties as set-up properties for this process.
+        For local template-supported set-up properties indicated by *name_list*,
+        push (to the database) those properties as set-up properties,
+        ppreciously augmented locally for this process.
 
         :param name_list: list of string
         :return: the updated process
@@ -1445,6 +1458,54 @@ class Process(MCObject):
             if prop:
                 prop_list.append(prop)
         return self._update_process_setup_properties(prop_list)
+
+    def update_additional_setup_properties(self, entry_list):
+        """
+        Use parameters in entry_list to add parameter values to this process (in the database).
+        Intended for parameter values that are not in the template for this process.
+        (Currently, the object types supported are: 'string' and 'number'. The 'otype' is not
+        required, The default will be based on the type of value.)
+
+        :param entry_list: a list of objects: [{name: name, attribute: attribute, value: value, unit: unit, otype: object-type}, ...]
+        :return: the updated process
+        """
+        args = []
+        for e in entry_list:
+            if not "name" in e and not 'attribute' in e:
+                print(
+                    "This additional parameter is missing both 'name' and 'attribute' at least one of which is required, skipping",
+                    e)
+                continue
+            if not "value" in e:
+                print("This additional parameter is missing both 'value' specified, skipping", e)
+                continue
+            if 'name' in e and not 'attribute' in e:
+                e['attribute'] = _normalise_property_name(e['name'])
+            if 'attribute' in e and not 'name' in e:
+                e['name'] = e['attribute']
+            e['attribute'] = _normalise_property_name(e['attribute'])
+            probe = _convert_for_json_if_datetime(e['value'])
+            if probe:
+                e['otype'] = 'date'
+                e['value'] = probe
+            if 'otype' not in e:
+                try:
+                    value = float(str(e['value']))
+                    e['otype'] = 'number'
+                    e['value'] = value
+                except ValueError:
+                    e['otype'] = 'string'
+            if e['otype'] == 'string':
+                e['value'] = str(e['value'])
+            args.append(e)
+        updated = None
+        if args:
+            for arg in args:
+                print("Extra parameter: ", arg)
+            ret = api.update_additional_properties_in_process(self.project.id, self.experiment.id, self.id, args)
+            print(ret)
+            updated = make_object(ret)
+        return updated or self
 
     def make_list_of_samples_for_measurement(self, samples):
         '''

@@ -178,17 +178,23 @@ class BuildProjectExperiment:
 
     def set_params_and_measurement(self, process):
         # parameters
-        keys = []
+        known_param_keys = []
+        unknown_param_entries = []
         for key in self.process_values["PARAM"]:
-            # print("PARMA", process.name, key)
             entry = self.process_values["PARAM"][key]
-            process.set_value_of_setup_property(key, entry['value'])
-            if entry['unit']:
-                table = process.get_setup_properties_as_dictionary()
-                # print("unit check", entry['unit'], table[key].name, table[key].unit)
-                process.set_unit_of_setup_property(key, entry['unit'])
-            keys.append(key)
-        process.update_setup_properties(keys)
+            if process.is_known_setup_property(key):
+                print("PARMA", process.name, key, entry, process.is_known_setup_property(key))
+                process.set_value_of_setup_property(key, entry['value'])
+                if entry['unit']:
+                    table = process.get_setup_properties_as_dictionary()
+                    # print("unit check", entry['unit'], table[key].name, table[key].unit)
+                    process.set_unit_of_setup_property(key, entry['unit'])
+                known_param_keys.append(key)
+            else:
+                entry['attribute'] = key
+                unknown_param_entries.append(entry)
+        process.update_setup_properties(known_param_keys)
+        process.update_additional_setup_properties(unknown_param_entries)
         # measurements
         for key in self.process_values["MEAS"]:
             # print("MEAS", process.name, key)

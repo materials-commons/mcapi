@@ -9,7 +9,7 @@ Commands that I used to build project/experiment from spreadsheet and test resul
 * To create from an excel spreadsheet, a project/experiment or add an experiment to an existing project
     Note, also creates a metadata file.
     ```bash
-    python -m materials_commons.etl.input.main --input ~/Desktop/input.xlsx --json /Users/weymouth/Desktop/junk.json
+    python -m materials_commons.etl.input.main --input ~/Desktop/input.xlsx --json ~/Desktop/metadata.json
     ```
 
 * To create an excel spreadsheet from a project/experiment and a metadata file 
