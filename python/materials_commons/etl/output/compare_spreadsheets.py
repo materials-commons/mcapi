@@ -1,5 +1,6 @@
 import openpyxl
-
+import datetime
+from dateutil import parser as date_parser
 from materials_commons.etl.input.metadata import Metadata
 from materials_commons.etl.common.worksheet_data import read_entire_sheet
 
@@ -33,33 +34,33 @@ class Compare:
 
         metadata = Metadata()
         metadata.read(metadata_path)
-
         print('---')
-        if self.comare_data_shape(data1, data2):
+        if self.compare_data_shape(data1, data2):
             self.compare_headers(metadata, data1, data2)
             self.compare_first_col(metadata, data1, data2)
             self.compare_data_area(metadata, data1, data2)
 
     @staticmethod
-    def comare_data_shape(data1, data2):
+    def compare_data_shape(data1, data2):
+        mismatch = False
         if len(data1) == 0 or len(data1) == 0:
             if len(data1) == 0 and len(data1):
                 print("No data in either spreadsheet (zero length)")
             if len(data1) == 0:
                 print("No data in spreadsheet 1 (zero length)")
-            print("No data in spreadsheet 2 (zero length)")
+            else:
+                print("No data in spreadsheet 2 (zero length)")
             return False
         else:
-            mismatch = False
             if not len(data1) == len(data2):
                 print("Number of data rows differ: ", len(data1), len(data2))
-                mismatch = False
+                mismatch = True
             if not len(data1[0]) == len(data2[0]):
                 print("Number of data cols differ: ", len(data1[0]), len(data2[0]))
-                mismatch = False
+                mismatch = True
             if not mismatch:
                 print("Data number of rows and cols match")
-        return True
+        return not mismatch
 
     @staticmethod
     def compare_headers(metadata, data1, data2):
@@ -160,22 +161,32 @@ class Compare:
             end_col = row_len1
             if end_col < metadata.data_col_end:
                 if row_len1 < metadata.data_col_end:
-                    print("Missing data row " + str(row) + " is short, data1, expected "
-                          + str(metadata.data_col_end) + ", found" + str(row_len1))
+                    print("Missing data - row " + str(row) + " is short, data1, expected "
+                          + str(metadata.data_col_end) + ", found " + str(row_len1))
+                    print(row_data1)
                 if row_len2 < metadata.data_col_end:
-                    print("Missing data row " + str(row) + " is short, data1, expected "
-                          + str(metadata.data_col_end) + ", found" + str(row_len2))
+                    print("Missing data - row " + str(row) + " is short, data2, expected "
+                          + str(metadata.data_col_end) + ", found " + str(row_len2))
+                    print(row_data2)
             if row_len2 < row_len1:
                 end_col = row_len2
 
             for col in range(1, end_col):
                 if not self.type_expect_data(types[col]):
                     continue
-                match = (row_data1[col] == row_data2[col])
+                probe1 = row_data1[col]
+                probe2 = row_data2[col]
+                if isinstance(probe1, datetime.datetime):
+                    if isinstance(probe2, str):
+                        probe2 = date_parser.parse(probe2)
+                    match = probe1.isoformat() == probe2.isoformat()
+                else:
+                    match = (probe1 == probe2)
                 identical = identical and match
                 if not match:
+                    obj_type = type(probe1)
                     print("Data mismatch at row = " + str(row) + ", col = " + str(col) + ": "
-                          + str(row_data1[col]) + ", " + str(row_data2[col]))
+                          + str(probe1) + ", " + str(probe2) + ", " + str(obj_type))
 
         if identical:
             print("Data values match")
