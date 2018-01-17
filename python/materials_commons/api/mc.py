@@ -18,7 +18,6 @@ from .measurement import make_measurement_object
 from .property_util import _normalise_property_name, _convert_for_json_if_datetime
 
 
-
 # -- top level project functions --
 def create_project(name, description):
     """
@@ -1471,17 +1470,16 @@ class Process(MCObject):
         """
         args = []
         for e in entry_list:
-            if not "name" in e and not 'attribute' in e:
-                print(
-                    "This additional parameter is missing both 'name' and 'attribute' at least one of which is required, skipping",
-                    e)
+            if "name" not in e and 'attribute' not in e:
+                print("This additional parameter is missing both 'name' and 'attribute' "
+                      "at least one of which is required, skipping", e)
                 continue
-            if not "value" in e:
-                print("This additional parameter is missing both 'value' specified, skipping", e)
+            if "value" not in e:
+                print("This additional parameter does not have 'value' specified, skipping", e)
                 continue
-            if 'name' in e and not 'attribute' in e:
+            if 'name' in e and 'attribute' not in e:
                 e['attribute'] = _normalise_property_name(e['name'])
-            if 'attribute' in e and not 'name' in e:
+            if 'attribute' in e and 'name' not in e:
                 e['name'] = e['attribute']
             e['attribute'] = _normalise_property_name(e['attribute'])
             probe = _convert_for_json_if_datetime(e['value'])
@@ -1498,14 +1496,11 @@ class Process(MCObject):
             if e['otype'] == 'string':
                 e['value'] = str(e['value'])
             args.append(e)
-        updated = None
         if args:
-            for arg in args:
-                print("Extra parameter: ", arg)
             ret = api.update_additional_properties_in_process(self.project.id, self.experiment.id, self.id, args)
-            print(ret)
-            updated = make_object(ret)
-        return updated or self
+            updated = make_object(ret['val'])
+            self.setup = updated.setup
+        return self
 
     def make_list_of_samples_for_measurement(self, samples):
         '''

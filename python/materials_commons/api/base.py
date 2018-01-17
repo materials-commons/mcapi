@@ -46,6 +46,8 @@ class MCObject(object):
             return
         if _has_key('attribute', data) and data['attribute'] == 'instrument':
             return
+        if _has_key('attribute', data) and data['attribute'] == 'process':
+            return
         if _has_key('starred', data):
             return
         if _has_key('mime', data):

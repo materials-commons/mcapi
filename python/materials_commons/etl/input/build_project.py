@@ -192,9 +192,15 @@ class BuildProjectExperiment:
                 known_param_keys.append(key)
             else:
                 entry['attribute'] = key
+                print("Additional setup parameter:", entry)
                 unknown_param_entries.append(entry)
         process.update_setup_properties(known_param_keys)
         process.update_additional_setup_properties(unknown_param_entries)
+        for elem in process.setup:
+            attribute = elem.input_data['attribute']
+            for prop in elem.properties:
+                if prop.value:
+                    print("Setup Results: ", attribute, prop.name, prop.value, prop.unit)
         # measurements
         for key in self.process_values["MEAS"]:
             # print("MEAS", process.name, key)
