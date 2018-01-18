@@ -22,6 +22,7 @@ class Compare:
         print("Selecting: ", sheets[0], "(from", sheets, ")")
         ws1 = wb1[sheets[0]]
         data1 = read_entire_sheet(ws1)
+        data1 = self.check_for_END(data1)
         print("data1 size:", len(data1), len(data1[0]))
 
         print('---', path2)
@@ -30,6 +31,7 @@ class Compare:
         print("Selecting: ", sheets[0], "(from", sheets, ")")
         ws2 = wb2[sheets[0]]
         data2 = read_entire_sheet(ws2)
+        data2 = self.check_for_END(data2)
         print("data2 size:", len(data2), len(data2[0]))
 
         metadata = Metadata()
@@ -114,6 +116,32 @@ class Compare:
                           + str(row_data1[0]) + ", " + str(row_data2[0]))
             if identical:
                 print("First cols match")
+
+    @staticmethod
+    def check_for_END(data):
+        first_row = data[0]
+        index = 0
+        missing_end = True
+        end_col = len(first_row)
+        for col in first_row:
+            if str(col).startswith("END"):
+                print ("Found END marker at column " + str(index)
+                       + ", updating data end to this location")
+                end_col = index
+                missing_end = False
+                break
+            index += 1
+        if missing_end:
+            return data
+        # else
+        update = []
+        for data_row in data:
+            update_row = []
+            for index in range(0, end_col):
+                update_row.append(data_row[index])
+            update.append(update_row)
+        return update
+
 
     def compare_data_area(self, metadata, data1, data2):
         len1 = min(len(data1), metadata.data_row_end)

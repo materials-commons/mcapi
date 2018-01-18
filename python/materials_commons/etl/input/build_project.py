@@ -183,7 +183,7 @@ class BuildProjectExperiment:
         for key in self.process_values["PARAM"]:
             entry = self.process_values["PARAM"][key]
             if process.is_known_setup_property(key):
-                print("PARMA", process.name, key, entry, process.is_known_setup_property(key))
+                # print("PARMA", process.name, key, entry, process.is_known_setup_property(key))
                 process.set_value_of_setup_property(key, entry['value'])
                 if entry['unit']:
                     table = process.get_setup_properties_as_dictionary()
@@ -192,15 +192,15 @@ class BuildProjectExperiment:
                 known_param_keys.append(key)
             else:
                 entry['attribute'] = key
-                print("Additional setup parameter:", entry)
+                # print("Additional setup parameter:", entry)
                 unknown_param_entries.append(entry)
         process.update_setup_properties(known_param_keys)
         process.update_additional_setup_properties(unknown_param_entries)
-        for elem in process.setup:
-            attribute = elem.input_data['attribute']
-            for prop in elem.properties:
-                if prop.value:
-                    print("Setup Results: ", attribute, prop.name, prop.value, prop.unit)
+        # for elem in process.setup:
+        #     attribute = elem.input_data['attribute']
+        #     for prop in elem.properties:
+        #         if prop.value:
+        #             print("Setup Results: ", attribute, prop.name, prop.value, prop.unit)
         # measurements
         for key in self.process_values["MEAS"]:
             # print("MEAS", process.name, key)
@@ -346,6 +346,8 @@ class BuildProjectExperiment:
         missing_end = True
         for col in first_row:
             if str(col).startswith("END"):
+                print ("Found END marker at column " + str(index)
+                       + ", updating data end to this location")
                 self.end_sweep_col = index
                 missing_end = False
                 break

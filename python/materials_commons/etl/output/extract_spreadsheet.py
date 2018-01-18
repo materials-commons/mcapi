@@ -48,6 +48,9 @@ class ExtractExperimentSpreadsheet:
         table = metadata.process_table
         type_list = metadata.sheet_headers[metadata.header_row_end - 2]
         attribute_list = metadata.sheet_headers[metadata.header_row_end - 1]
+        attribute_list = self.remove_units_spec_from_attributes(attribute_list)
+        attribute_list = self.parse_dotted_attributes(attribute_list)
+        attribute_list = self.make_normalized_attribute_names(attribute_list)
         for process_record in process_record_list:
             start_row = process_record["start_row"]
             end_row = process_record["end_row"]
@@ -69,7 +72,7 @@ class ExtractExperimentSpreadsheet:
         setup_parameter_list = process.setup
         for col in range(start, end):
             value_type = types[col]
-            attribute = _normalise_property_name(attributes[col])
+            attribute = attributes[col]
             if value_type == "MEAS":
                 value = self.extract_measurement_for(attribute, measurements)
             elif value_type == "PARAM":
@@ -80,27 +83,57 @@ class ExtractExperimentSpreadsheet:
                 value = None
             self.data_row_list[row][col] = value
 
-    @staticmethod
-    def extract_measurement_for(attribute, measurements):
+    def extract_measurement_for(self, attribute, measurements):
         value = None
-        for m in measurements:
-            if isinstance(m.value, list):
-                for el in m.value:
-                    probe = el['value']
-                    probe_attribute = m.attribute + "." + el['element']
-                    if isinstance(probe, dict):
-                        for key in probe:
-                            probe_attr = probe_attribute + "." + key
-                            dict_value = probe[key]
-                            if attribute.startswith(probe_attr):
-                                value = dict_value
-                    else:
-                        if attribute.startswith(probe_attribute):
-                            value = probe
-            else:
-                if attribute.startswith(m.attribute):
-                    value = m.value
+        measurement = self.find_measurement_for_attribute(attribute, measurements)
+        if measurement:
+            value = self.get_measurement_value_for_attribute(attribute, measurement)
         return value
+
+    def find_measurement_for_attribute(self, attribute, measurements):
+        found_measurement = None
+        base = attribute
+        if not isinstance(attribute, str):
+            base = attribute[0]
+        for m in measurements:
+            if base == m.attribute:
+                found_measurement = m
+        return found_measurement
+
+    def get_measurement_value_for_attribute(self, attribute, measurement):
+        # print('get_measurement_value_for_attribute', attribute, measurement.value)
+        if not isinstance(attribute, list):
+            if not isinstance(measurement.value, list):
+                return measurement.value
+            else:
+                return None
+        return self.recursive_value_extraction(attribute[0], attribute[1:],measurement.value)
+
+    def recursive_value_extraction(self, name, name_list, probe):
+        key = self.key_for_category(name, name_list)
+        # print('recursive_value_extraction', name, name_list, key, probe)
+        value = None
+        if isinstance(probe, dict):
+            if key in probe:
+                value = probe[key]
+        elif len(name_list) > 0:
+            part_name = name_list[0]
+            for m in probe:
+                if key in m and m[key] == part_name:
+                    value = m['value']
+                    if isinstance(value, dict):
+                        value = self.recursive_value_extraction(name_list[1], name_list[2:], value)
+        # print('recursive_value_extraction - value', value)
+        return value
+
+    @staticmethod
+    def key_for_category(name, name_list):
+        key = name
+        if name == 'composition':
+            key = 'element'
+        if name == 'stats':
+            key = name_list[0]
+        return key
 
     @staticmethod
     def extract_parameter_for(attribute, setup_list):
@@ -146,6 +179,44 @@ class ExtractExperimentSpreadsheet:
         self.worksheet = ws
         self.workbook = wb
         return wb
+
+    @staticmethod
+    def remove_units_spec_from_attributes(attributes):
+        update = []
+        for attr in attributes:
+            if attr and '(' in attr:
+                pos = attr.find('(')
+                if pos > 2:
+                    attr = attr[0:pos-1]
+            update.append(attr)
+        return update
+
+    @staticmethod
+    def parse_dotted_attributes(attributes):
+        update = []
+        for attr in attributes:
+            if attr and '.' in attr:
+                attr = attr.split('.')
+            update.append(attr)
+        return update
+
+    @staticmethod
+    def make_normalized_attribute_names(attributes):
+        update = []
+        for attr in attributes:
+            if attr:
+                if isinstance(attr,str):
+                    attr = _normalise_property_name(attr)
+                else:
+                    parts = []
+                    for part in attr:
+                        if not parts:
+                            # only normalize the leading term
+                            part = _normalise_property_name(part)
+                        parts.append(part)
+                    attr = parts
+            update.append(attr)
+        return update
 
 
 def main(main_args):
