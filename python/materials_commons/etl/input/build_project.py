@@ -114,6 +114,7 @@ class BuildProjectExperiment:
             if process_value_type == 'PARAM' or process_value_type == 'MEAS':
                 value = self.source[data_row][col]
                 self.collect_params_and_measurement(process_value_type, value, signature)
+        print(data_row, process.name)
         self.set_params_and_measurement(process)
         # print(process.name, self.process_values)
 
@@ -184,18 +185,21 @@ class BuildProjectExperiment:
             entry = self.process_values["PARAM"][key]
             if process.is_known_setup_property(key):
                 # print("PARMA", process.name, key, entry, process.is_known_setup_property(key))
-                process.set_value_of_setup_property(key, entry['value'])
-                if entry['unit']:
-                    table = process.get_setup_properties_as_dictionary()
-                    # print("unit check", entry['unit'], table[key].name, table[key].unit)
-                    process.set_unit_of_setup_property(key, entry['unit'])
-                known_param_keys.append(key)
+                if entry['value']:
+                    process.set_value_of_setup_property(key, entry['value'])
+                    if entry['unit']:
+                        table = process.get_setup_properties_as_dictionary()
+                        # print("unit check", entry['unit'], table[key].name, table[key].unit)
+                        process.set_unit_of_setup_property(key, entry['unit'])
+                    known_param_keys.append(key)
             else:
                 entry['attribute'] = key
                 # print("Additional setup parameter:", entry)
                 unknown_param_entries.append(entry)
-        process.update_setup_properties(known_param_keys)
-        process.update_additional_setup_properties(unknown_param_entries)
+        if known_param_keys:
+            process.update_setup_properties(known_param_keys)
+        if unknown_param_entries:
+            process.update_additional_setup_properties(unknown_param_entries)
         # for elem in process.setup:
         #     attribute = elem.input_data['attribute']
         #     for prop in elem.properties:
