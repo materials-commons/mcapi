@@ -114,7 +114,6 @@ class BuildProjectExperiment:
             if process_value_type == 'PARAM' or process_value_type == 'MEAS':
                 value = self.source[data_row][col]
                 self.collect_params_and_measurement(process_value_type, value, signature)
-        print(data_row, process.name)
         self.set_params_and_measurement(process)
         # print(process.name, self.process_values)
 
@@ -209,24 +208,25 @@ class BuildProjectExperiment:
         for key in self.process_values["MEAS"]:
             # print("MEAS", process.name, key)
             entry = self.process_values["MEAS"][key]
-            measurement_data = {
-                "name": _name_for_attribute(key),
-                "attribute": key,
-                "otype": _otype_for_attribute(key),
-                "value": entry['value'],
-                "is_best_measure": True
-            }
-            if entry['unit']:
-                measurement_data['unit'] = entry['unit']
-            else:
-                measurement_data['unit'] = ""
-            measurement = process.create_measurement(data=measurement_data)
-            # print(" ++ measurement", measurement.id, measurement.attribute, measurement.value, measurement.unit)
-            measurement_property = {
-                "name": _name_for_attribute(key),
-                "attribute": key
-            }
-            process.set_measurements_for_process_samples(measurement_property, [measurement])
+            if entry['value']:
+                measurement_data = {
+                    "name": _name_for_attribute(key),
+                    "attribute": key,
+                    "otype": _otype_for_attribute(key),
+                    "value": entry['value'],
+                    "is_best_measure": True
+                }
+                if entry['unit']:
+                    measurement_data['unit'] = entry['unit']
+                else:
+                    measurement_data['unit'] = ""
+                measurement = process.create_measurement(data=measurement_data)
+                # print(" ++ measurement", measurement.id, measurement.attribute, measurement.value, measurement.unit)
+                measurement_property = {
+                    "name": _name_for_attribute(key),
+                    "attribute": key
+                }
+                process.set_measurements_for_process_samples(measurement_property, [measurement])
 
     def set_project_description(self, description):
         self.description = description

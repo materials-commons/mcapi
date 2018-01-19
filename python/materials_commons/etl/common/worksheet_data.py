@@ -26,7 +26,10 @@ def read_entire_sheet(sheet):
             values = []
             data_row = data[row]
             for col in range(0, max_last_data_col):
-                values.append(data_row[col])
+                data = data_row[col]
+                if data == 'n/a':
+                    data = None
+                values.append(data)
             remake_data.append(values)
         data = remake_data
     return data

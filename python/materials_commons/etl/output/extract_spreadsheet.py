@@ -46,8 +46,8 @@ class ExtractExperimentSpreadsheet:
         print("    ... setting data...")
         process_record_list = metadata.process_metadata
         table = metadata.process_table
-        type_list = metadata.sheet_headers[metadata.header_row_end - 2]
-        attribute_list = metadata.sheet_headers[metadata.header_row_end - 1]
+        type_list = metadata.sheet_headers[metadata.start_attribute_row]
+        attribute_list = metadata.sheet_headers[metadata.start_attribute_row + 1]
         attribute_list = self.remove_units_spec_from_attributes(attribute_list)
         attribute_list = self.parse_dotted_attributes(attribute_list)
         attribute_list = self.make_normalized_attribute_names(attribute_list)

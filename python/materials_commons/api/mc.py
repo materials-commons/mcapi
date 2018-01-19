@@ -1890,8 +1890,6 @@ class Process(MCObject):
         project = self.project
         experiment = self.experiment
         process = self
-        for prop in prop_list:
-            print (prop.attribute, prop.value)
         results = api.update_process_setup_properties(
             project.id, experiment.id, process, prop_list)
         process = make_object(results)
