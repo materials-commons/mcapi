@@ -184,7 +184,7 @@ class BuildProjectExperiment:
             entry = self.process_values["PARAM"][key]
             if process.is_known_setup_property(key):
                 # print("PARMA", process.name, key, entry, process.is_known_setup_property(key))
-                if entry['value']:
+                if not entry['value'] == None:
                     process.set_value_of_setup_property(key, entry['value'])
                     if entry['unit']:
                         table = process.get_setup_properties_as_dictionary()
@@ -208,7 +208,7 @@ class BuildProjectExperiment:
         for key in self.process_values["MEAS"]:
             # print("MEAS", process.name, key)
             entry = self.process_values["MEAS"][key]
-            if entry['value']:
+            if not entry['value'] == None:
                 measurement_data = {
                     "name": _name_for_attribute(key),
                     "attribute": key,

@@ -1,28 +1,30 @@
-import openpyxl
+import argparse
 import datetime
+import sys
+
+import openpyxl
 from dateutil import parser as date_parser
-from materials_commons.etl.input.metadata import Metadata
+
 from materials_commons.etl.common.worksheet_data import read_entire_sheet
+from materials_commons.etl.input.metadata import Metadata
 
-
-path1 = "/Users/weymouth/Desktop/input.xlsx"
-path2 = "/Users/weymouth/Desktop/workflow.xlsx"
-# sheet1 = 'EPMA Results (Original)'
-sheet1 = 'Initiation Data'
-sheet2 = 'Sheet'
-metadata_path = "/Users/weymouth/Desktop/metadata.json"
+default_base = "/Users/weymouth/Desktop"
 
 
 class Compare:
 
-    def compare(self):
+    def compare(self, base_path):
+        path1 = base_path + "/input.xlsx"
+        path2 = base_path + "/workflow.xlsx"
+        metadata_path = base_path + "/metadata.json"
+
         print('---', path1)
         wb1 = openpyxl.load_workbook(filename=path1)
         sheets = wb1.get_sheet_names()
         print("Selecting: ", sheets[0], "(from", sheets, ")")
         ws1 = wb1[sheets[0]]
         data1 = read_entire_sheet(ws1)
-        data1 = self.check_for_END(data1)
+        data1 = self.check_for_end_tag(data1)
         print("data1 size:", len(data1), len(data1[0]))
 
         print('---', path2)
@@ -31,7 +33,7 @@ class Compare:
         print("Selecting: ", sheets[0], "(from", sheets, ")")
         ws2 = wb2[sheets[0]]
         data2 = read_entire_sheet(ws2)
-        data2 = self.check_for_END(data2)
+        data2 = self.check_for_end_tag(data2)
         print("data2 size:", len(data2), len(data2[0]))
 
         metadata = Metadata()
@@ -118,15 +120,15 @@ class Compare:
                 print("First cols match")
 
     @staticmethod
-    def check_for_END(data):
+    def check_for_end_tag(data):
         first_row = data[0]
         index = 0
         missing_end = True
         end_col = len(first_row)
         for col in first_row:
             if str(col).startswith("END"):
-                print ("Found END marker at column " + str(index)
-                       + ", updating data end to this location")
+                print("Found END marker at column " + str(index)
+                      + ", updating data end to this location")
                 end_col = index
                 missing_end = False
                 break
@@ -141,7 +143,6 @@ class Compare:
                 update_row.append(data_row[index])
             update.append(update_row)
         return update
-
 
     def compare_data_area(self, metadata, data1, data2):
         len1 = min(len(data1), metadata.data_row_end)
@@ -225,5 +226,17 @@ class Compare:
 
 
 if __name__ == '__main__':
+
+    argv = sys.argv
+    parser = argparse.ArgumentParser(
+        description='Compare input and output of from excel spreadsheet processing')
+    parser.add_argument('--base', type=str, default=default_base,
+                        help="Location of file: input.xlsx, workflow.xlsx, metadata.json")
+    args = parser.parse_args(argv[1:])
+
+    base = default_base
+    if args.base:
+        base = args.base
+
     c = Compare()
-    c.compare()
+    c.compare(base)
