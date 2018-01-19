@@ -84,6 +84,7 @@ class Metadata:
     def set_process_metadata(self, row, start_col, end_col, template_id, process):
         self.process_metadata.append(
             {'id': process.id,
+             'name': process.name,
              'template': template_id,
              'start_row': row,
              'end_row': row + 1,

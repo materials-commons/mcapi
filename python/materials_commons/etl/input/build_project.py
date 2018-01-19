@@ -48,7 +48,8 @@ class BuildProjectExperiment:
         start_col_index = proc_data['start_col']
         end_col_index = proc_data['end_col']
         template_id = proc_data['template']
-        print("Sweep for process", proc_data['name'])
+        process_name = proc_data['name']
+        print("Sweep for process: " + process_name + " (" + template_id + ")")
         start_attribute_row_index = self._determine_start_attribute_row(start_col_index)
         self._record_header_rows()
         process_record = None
@@ -66,6 +67,8 @@ class BuildProjectExperiment:
             if self._start_new_process(row_key, parent_process):
                 # print ("Start new process:", template_id, row_key)
                 process = self.experiment.create_process_from_template(template_id)
+                if not process.name == process_name:
+                    process = process.rename(process_name)
                 self.metadata.set_process_metadata(
                     row_index, start_col_index, end_col_index, template_id, process)
                 output_sample = None
@@ -255,6 +258,13 @@ class BuildProjectExperiment:
 
     def _scan_for_process_descriptions(self):
         # print("_scan_for_process_descriptions", self.start_sweep_col, self.end_sweep_col)
+        name_row = None
+        row_index = 0
+        while row_index < len(self.source) and not self.source[row_index][0] == "BEING_DATA":
+            if self.source[row_index][0] == "NAME":
+                name_row = row_index
+                break
+            row_index += 1
         col_index = self.start_sweep_col
         process_list = []
         previous_process = None
@@ -266,10 +276,13 @@ class BuildProjectExperiment:
                     process_list.append(previous_process)
                     previous_process = None
                 process_entry = self._prune_entry(process_entry, "PROC:")
+                process_name = process_entry
+                if name_row and self.source[name_row][col_index]:
+                    process_name = self.source[name_row][col_index]
                 template_id = self._get_template_id_for(process_entry)
                 if template_id:
                     previous_process = {
-                        'name': process_entry,
+                        'name': process_name,
                         'start_col': col_index,
                         'template': template_id
                     }
