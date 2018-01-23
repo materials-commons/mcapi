@@ -35,7 +35,7 @@ cp "$filename" ${input}
 echo "-- input"
 python -m materials_commons.etl.input.main --input ${input} --metadata ${metadata}
 echo "-- output"
-python -m materials_commons.etl.output.extract_spreadsheet --metadata ${metadata} --file ${output}
+python -m materials_commons.etl.output.extract_spreadsheet --metadata ${metadata} --dir ${SCRIPTS}
 echo "-- compare"
 python -m materials_commons.etl.output.compare_spreadsheets --base ${SCRIPTS}
 echo "-- done"

@@ -258,7 +258,7 @@ if __name__ == '__main__':
     args.dir = os.path.abspath(args.dir)
 
     if not os.path.isdir(args.dir):
-        print("The given output file path, " + args.dir + ", is not a directory. Please fix.")
+        print("The given output directory path, " + args.dir + ", is not a directory. Please fix.")
         exit(-1)
 
     args.metadata = os.path.abspath(args.metadata)
