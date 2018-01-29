@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -e
+
 # no-output on pushd and popd
 pushd () {
     command pushd "$@" > /dev/null
