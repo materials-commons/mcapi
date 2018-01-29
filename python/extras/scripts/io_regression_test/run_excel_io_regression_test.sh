@@ -26,20 +26,24 @@ echo "BASE = $BASE"
 
 pushd ${BASE}
 
-input=${SCRIPTS}/input.xlsx
-output=${SCRIPTS}/workflow.xlsx
-metadata=${SCRIPTS}/metadata.json
+SCRAP=/tmp/mc-test
+mkdir -p ${SCRAP}/data
+
+input=${SCRAP}/input.xlsx
+output=${SCRAP}/workflow.xlsx
+metadata=${SCRAP}/metadata.json
+data=${SCRAP}/data
 
 filename=${SCRIPTS}/Generic\ ETL\ Test\ 1.xlsx
 echo "-------------- input file = $filename"
 cp "$filename" ${input}
 
 echo "-- input"
-python -m materials_commons.etl.input.main --input ${input} --metadata ${metadata}
+python -m materials_commons.etl.input.main --input ${input} --metadata ${metadata} --dir ${data}
 echo "-- output"
-python -m materials_commons.etl.output.extract_spreadsheet --metadata ${metadata} --dir ${SCRIPTS}
+python -m materials_commons.etl.output.extract_spreadsheet --metadata ${metadata} --dir ${SCRAP}
 echo "-- compare"
-python -m materials_commons.etl.output.compare_spreadsheets --base ${SCRIPTS}
+python -m materials_commons.etl.output.compare_spreadsheets --base ${SCRAP}
 echo "-- done"
 
 popd
