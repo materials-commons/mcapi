@@ -77,4 +77,7 @@ cp conf.py index.rst source/
 mkdir source/_static
 mkdir source/_templates
 make html
+
+--- copy docs to postion in materials-commons.github.io
+
 ```
