@@ -11,6 +11,7 @@ tabulate
 sortedcontainers
 mock
 openpyxl
+xlsxwriter
 urllib3
 pypif
 pip
