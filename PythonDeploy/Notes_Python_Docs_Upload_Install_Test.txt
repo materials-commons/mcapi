@@ -1,0 +1,75 @@
+Notes on testing/upload/install
+
+https://packaging.python.org/tutorials/distributing-packages/
+https://packaging.python.org/guides/using-testpypi/
+https://packaging.python.org/guides/migrating-to-pypi-org/#uploading
+
+----- set for your system
+PYTHON3=/Library/Frameworks/Python.framework/Versions/3.6/bin/python3
+MCAPI_BASE=
+
+----- set up env with python3 for upload (only needs to be done once) ----
+(Starting NOT in virtual env)
+virtualenv --version
+cd ~/PythonEnvs
+virtualenv -p ${PYTHON3} forPyPiUpload
+source forPyPiUpload/bin/activate
+python --version
+pip --version
+pip install twine
+
+cd ~/PythonEnvs
+virtualenv -p ${PYTHON3} forDocs
+source forDocs/bin/activate
+python --version
+pip --version
+pip install sphinx
+pip install config
+
+----- upload: in env with python3 ---
+cd mcapi
+cd python
+source ~/PythonEnvs/forPyPiUpload/bin/activate
+python --version
+pip --version
+
+rm -r build dist
+python setup.py sdist bdist_wheel
+
+twine upload dist/* -r pypitest
+
+Finally:
+twine upload dist/*
+
+---- download from test: in any python3 env ---
+cd /Users/weymouth/Desktop/test-python-load
+
+pip install -r test_requirements.txt 
+
+source set_test_dir.sh 
+pytest test_workflow.py 
+
+---- download from prod: in any env ---
+
+cd /Users/weymouth/Desktop/test-python-load
+
+pip install -r requirements.txt 
+
+source set_test_dir.sh 
+pytest test_workflow.py 
+
+---- set up doc files ---
+source ~/PythonEnvs/forDocs/bin/activate
+cd /Users/weymouth/working/MaterialsCommons/sphinx/mc-sphinx/docs
+rm -rf source
+cp -r /Users/weymouth/working/MaterialsCommons/workspace/src/github.com/materials-commons/mcapi/python source
+pushd source
+pip install -r requirements.txt
+popd
+sphinx-apidoc -o source -e source/extras
+sphinx-apidoc -o source -e source/materials_commons
+rm source/modules.rst
+cp conf.py index.rst source/
+mkdir source/_static
+mkdir source/_templates
+make html

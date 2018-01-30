@@ -1,0 +1,7 @@
+#! /bin/bash
+
+export TEST_DATA_DIR=test_data
+echo "TEST_DATA_DIR=$TEST_DATA_DIR"
+
+export BUILD_DEMO_PROJECT_DATA=${TEST_DATA_DIR}/demo_project_data
+echo "BUILD_DEMO_PROJECT_DATA=$BUILD_DEMO_PROJECT_DATA"
