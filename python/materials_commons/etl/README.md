@@ -34,7 +34,7 @@ Then, use the following to set up and install the materials commons environment
         ```python
         from materials_commons.api import get_all_projects
 
-        for project in get_all_projects:
+        for project in get_all_projects():
             print(project.name)
 
         ```
