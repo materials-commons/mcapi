@@ -58,11 +58,5 @@ Commands that I used to build project/experiment from spreadsheet and test resul
 
 * To create an excel spreadsheet from a project/experiment and a metadata file 
     ```bash
-    python -m materials_commons.etl.output.extract_spreadsheet --metadata ~/Desktop/metadata.json
-    ```
-
-* To compare input and output excel spreadsheets using metadata.
-    Note: arguments to script are hard coded, in early lines of file, at this time.
-    ```bash
-    python -m materials_commons.etl.output.compare_spreadsheets
+    python -m materials_commons.etl.output.extract_spreadsheet --metadata ~/Desktop/test/metadata.json --file ~/Desktop/test/output.xlsx 
     ```
