@@ -1,20 +1,78 @@
+Package materials_commons.api - main classes
+============================================
 
-Material Commons Python API
-===========================
+.. contents::
 
-.. toctree::
-   :maxdepth: 4
-   :caption: Contents:
-   :glob:
+Project
+-------
 
-   materials_commons
-   materials_commons.*
-   extras
-   extras.*
+.. autoclass:: materials_commons.api.Project
+    :members:
+    :undoc-members:
+    :show-inheritance:
 
-Indices and tables
-==================
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+Experiment
+----------
+
+.. autoclass:: materials_commons.api.Experiment
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Sample
+------
+
+.. autoclass:: materials_commons.api.Sample
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Process
+-------
+
+.. autoclass:: materials_commons.api.Process
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Template
+--------
+
+.. autoclass:: materials_commons.api.Template
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Directory
+---------
+
+.. autoclass:: materials_commons.api.Directory
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+File
+----
+
+.. autoclass:: materials_commons.api.File
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+User
+----
+
+.. autoclass:: materials_commons.api.User
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+BulkFileUploader
+----------------
+
+.. autoclass:: materials_commons.api.BulkFileUploader
+    :members:
+    :undoc-members:
+    :show-inheritance:
+

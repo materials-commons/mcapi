@@ -10,10 +10,16 @@ PYTHON3=/Library/Frameworks/Python.framework/Versions/3.6/bin/python3
 PYTHON_ENVS=~/PythonEnvs
 MCAPI_BASE=/Users/weymouth/working/MaterialsCommons/workspace/src/github.com/materials-commons/mcapi
 SCRAP_TEST_DIR=/Users/weymouth/Desktop/test-python-load
-THIS_DIR=${MCAPI_BASE}/PythonDeploy
+MCAPI_SOURCE=${MCAPI_BASE}/python
+SCRAP_DOCS_DIR=/Users/weymouth/Desktop/sphinx_docs
+DEPLOY_DIR=${MCAPI_BASE}/PythonDeploy
+DOCS_GITHUB_BASE=/Users/weymouth/working/MaterialsCommons/workspace/src/github.com/materials-commons/materials-commons.github.io/python-api/sphinx/
+
+mkdir -p ${SCRAP_TEST_DIR}
+mkdir -p ${SCRAP_DOCS_DIR}
 
 ----- set up env with python3 for upload (only needs to be done once) ----
-(Starting NOT in virtual env)
+---- Starting NOT in virtual env ----
 virtualenv --version
 cd ${PYTHON_ENVS}
 virtualenv -p ${PYTHON3} forPyPiUpload
@@ -45,16 +51,19 @@ twine upload dist/* -r pypitest
 Finally:
 twine upload dist/*
 
----- download from test: in any python3 env ---
-cd /Users/weymouth/Desktop/test-python-load
+---- download/test from test PyPI: in any python3 env ---
+rm -rf ${SCRAP_TEST_DIR}/*
+cp -r ${DEPLOY_DIR}/install_test/* ${SCRAP_TEST_DIR}/
+cd ${SCRAP_TEST_DIR}
 
 pip install -r test_requirements.txt 
 
 source set_test_dir.sh 
 pytest test_workflow.py 
 
----- download from prod: in any env ---
-cp -r ${THIS_DIR} ${SCRAP_TEST_DIR}
+---- download/test from prod PyPI: in any env ---
+rm -rf ${SCRAP_TEST_DIR}/*
+cp -r ${DEPLOY_DIR}/install_test ${SCRAP_TEST_DIR}/
 cd ${SCRAP_TEST_DIR}
 
 pip install -r requirements.txt 
@@ -64,20 +73,50 @@ pytest test_workflow.py
 
 ---- set up doc files ---
 source ${PYTHON_ENVS}/forDocs/bin/activate
-cd /Users/weymouth/working/MaterialsCommons/sphinx/mc-sphinx/docs
-rm -rf source build
-cp -r /Users/weymouth/working/MaterialsCommons/workspace/src/github.com/materials-commons/mcapi/python source
+cd ${SCRAP_DOCS_DIR}
+rm -rf *
+cp -r ${MCAPI_SOURCE} source
 pushd source
 pip install -r requirements.txt
 popd
-sphinx-apidoc -o source -e source/extras
-sphinx-apidoc -o source -e source/materials_commons
+pip uninstall -y materials_commons
+pip install materials_commons
+sphinx-apidoc -o source -e source/materials_commons/
 rm source/modules.rst
+rm source/materials_commons.rst
+rm source/materials_commons.api.rst
+rm source/materials_commons.api.api.rst
+rm source/materials_commons.api.base.rst
+rm source/materials_commons.api.bulk_file_uploader.rst
+rm source/materials_commons.api.config.rst
+rm source/materials_commons.api.mc.rst
+rm source/materials_commons.api.mc_object_utility.rst
+rm source/materials_commons.api.measurement.rst
+rm source/materials_commons.api.property_util.rst
+rm source/materials_commons.api.remote.rst
+rm source/materials_commons.api.version.rst
+rm source/materials_commons.cli.*
+rm source/materials_commons.etl.*
+cp ${DEPLOY_DIR}/docs_started_dir/* ./
 cp conf.py index.rst source/
-mkdir source/_static
-mkdir source/_templates
 make html
+pushd build/html
+ls *.html | xargs sed -i '' 's/_sources/site_sources/g'
+ls *.html | xargs sed -i '' 's/_static/site_static/g'
+ls *.html | xargs sed -i '' 's/_modules/site_modules/g'
 
---- copy docs to postion in materials-commons.github.io
+ls *.js | xargs sed -i '' 's/_sources/site_sources/g'
+ls *.js | xargs sed -i '' 's/_static/site_static/g'
+ls *.js | xargs sed -i '' 's/_modules/site_modules/g'
 
+mv _sources site_sources
+mv _static site_static
+mv _modules site_modules
+popd
+cp -r build/html ${DOCS_GITHUB_BASE}/
+pushd ${DOCS_GITHUB_BASE}
+git commit -m "Update Python API Docs"
+git push
+git status
+popd
 ```
