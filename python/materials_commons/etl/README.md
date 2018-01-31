@@ -38,6 +38,10 @@ Then, use the following to set up and install the materials commons environment
             print(project.name)
 
         ```
+    * test it with the command:
+        ```bash
+        python test.py
+        ```
     * if that code works you are ready to go
     
 An example input file can be obtained from this location:
