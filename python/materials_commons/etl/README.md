@@ -1,10 +1,8 @@
 Using ETL scripts.
 ==================
 
-Getting started (rough draft)
------------------------------
-
 Prerequisites
+-------------
 
 First, install python3. https://wiki.python.org/moin/BeginnersGuide/Download
 
@@ -43,7 +41,10 @@ Then, use the following to set up and install the materials commons environment
         python test.py
         ```
     * if that code works you are ready to go
-    
+
+Running Input and Output Processes
+----------------------------------
+
 An example input file can be obtained from this location:
 https://github.com/materials-commons/mcapi/blob/master/python/materials_commons/etl/input.xlsx
 
