@@ -1,8 +1,8 @@
+import sys
+import os
+import argparse
 from materials_commons.api import get_project_by_id
 from materials_commons.etl.input.metadata import Metadata
-
-metadata_path = "/Users/weymouth/Desktop/metadata.json"
-
 
 class Walker:
     def walk(self, experiment):
@@ -148,9 +148,9 @@ class Walker:
         return None
 
 
-def main():
+def main(args):
     metadata = Metadata()
-    metadata.read(metadata_path)
+    metadata.read(args.metadata)
     pid = metadata.project_id
     eid = metadata.experiment_id
 
@@ -164,12 +164,26 @@ def main():
         print("No experiment:", eid)
         exit(-1)
     roots = walker.walk(experiment)
-    print("---------------------------")
-    print("|         roots           |")
-    print("---------------------------")
+    print("-----------------------------------------")
+    print("|  Process-Workflow  trees (with data)  |")
+    print("-----------------------------------------")
     for proc in roots:
         walker.print_path(0, proc)
 
 
 if __name__ == '__main__':
-    main()
+    default_metadata_file_path = "metadata.json"
+
+    argv = sys.argv
+    parser = argparse.ArgumentParser(
+        description='Print out process-workflow, with data, for the Project/Experiment indicated by a metadata file')
+    parser.add_argument('--metadata', type=str, default=default_metadata_file_path,
+                        help="Metadata file path")
+    args = parser.parse_args(argv[1:])
+
+    args.metadata = os.path.abspath(args.metadata)
+    if not os.path.isfile(args.metadata):
+        print("The given metadata file path, " + args.metadata + ", is not a file. Please fix.")
+        exit(-1)
+
+    main(args)

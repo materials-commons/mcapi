@@ -9,16 +9,10 @@ from materials_commons.etl.common.util import _normalise_property_name
 from materials_commons.etl.input.metadata import Metadata
 from .meta_data_verify import MetadataVerification
 
-local_path = '/Users/weymouth/Desktop/'
-BASE_DIRECTORY = os.path.abspath(local_path)
-
-
 class ExtractExperimentSpreadsheet:
-    def __init__(self, setup_args, metadata):
-        self.dir = setup_args.dir
-        self.file = setup_args.file
+    def __init__(self, output_file_path, metadata):
         self.metadata = metadata
-        self.output_path = None
+        self.output_path = output_file_path
         self.project = metadata.project
         self.experiment = metadata.experiment
         self.process_table = metadata.process_table
@@ -150,13 +144,6 @@ class ExtractExperimentSpreadsheet:
                 self.data_row_list[row][col] = self.data_row_list[start_row][col]
 
     def write_spreadsheet(self):
-        dir_path = os.path.abspath(self.dir)
-        if not os.path.isdir(dir_path):
-            print("The given path, " + self.dir + ", is not a directory")
-            print("Resolved to: " + dir_path)
-            return None
-        self.output_path = os.path.join(dir_path, self.file)
-
         print("Writing spreadsheet", self.output_path)
         if self.create_worksheet():
             self.write_data_to_sheet()
@@ -229,9 +216,8 @@ def main(main_args):
         print("The verification of the metadata file failed.")
         exit(-1)
 
-    builder = ExtractExperimentSpreadsheet(main_args, updated_metadata)
-    print("Set up: writing spreadsheet, " + main_args.file)
-    print("        to directory " + main_args.dir)
+    builder = ExtractExperimentSpreadsheet(main_args.output, updated_metadata)
+    print("Set up: writing spreadsheet to " + main_args.output)
     print("Data from experiment '" + builder.experiment.name
           + "' in project '" + builder.project.name + "'")
     builder.build_experiment_array()
@@ -240,8 +226,7 @@ def main(main_args):
 
 if __name__ == '__main__':
     time_stamp = '%s' % datetime.datetime.now()
-    default_output_dir_path = os.path.join(BASE_DIRECTORY)
-    default_file_name = "workflow.xlsx"
+    default_output_file_path = "output.xlsx"
     default_metadata_file_path = "metadata.json"
 
     argv = sys.argv
@@ -249,24 +234,16 @@ if __name__ == '__main__':
         description='Dump a project-experiment to a spreadsheet')
     parser.add_argument('--metadata', type=str, default=default_metadata_file_path,
                         help="Metadata file path")
-    parser.add_argument('--dir', type=str, default=default_output_dir_path,
+    parser.add_argument('--output', type=str, default=default_output_file_path,
                         help='Path to output directory')
-    parser.add_argument('--file', type=str, default=default_file_name,
-                        help="Path to output file")
     args = parser.parse_args(argv[1:])
-
-    args.dir = os.path.abspath(args.dir)
-
-    if not os.path.isdir(args.dir):
-        print("The given output directory path, " + args.dir + ", is not a directory. Please fix.")
-        exit(-1)
 
     args.metadata = os.path.abspath(args.metadata)
     if not os.path.isfile(args.metadata):
         print("The given metadata file path, " + args.metadata + ", is not a file. Please fix.")
         exit(-1)
 
-    if not args.file.endswith(".xlsx"):
-        file = args.file + ".xlsx"
+    if not args.output.endswith(".xlsx"):
+        file = args.output + ".xlsx"
 
     main(args)

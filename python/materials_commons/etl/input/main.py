@@ -13,9 +13,9 @@ HOME = str(Path.home())
 
 def main(input, data_dir, json_path):
     wb = openpyxl.load_workbook(filename=input)
-    sheet_name = wb.get_sheet_names()[0]
+    sheet_name = wb.sheetnames[0]
     ws = wb[sheet_name]
-    print(wb.get_sheet_names(),sheet_name)
+    print(wb.sheetnames,sheet_name)
     builder = BuildProjectExperiment()
     builder.set_data(read_entire_sheet(ws))
     wb.close()

@@ -1,6 +1,7 @@
 import argparse
 import datetime
 import sys
+import os
 
 import openpyxl
 from dateutil import parser as date_parser
@@ -13,32 +14,28 @@ default_base = "/Users/weymouth/Desktop"
 
 class Compare:
 
-    def compare(self, base_path):
-        path1 = base_path + "/input.xlsx"
-        path2 = base_path + "/workflow.xlsx"
-        metadata_path = base_path + "/metadata.json"
-
-        print('---', path1)
-        wb1 = openpyxl.load_workbook(filename=path1)
-        sheets = wb1.get_sheet_names()
-        print("Selecting: ", sheets[0], "(from", sheets, ")")
+    def compare(self, input_file_path, output_file_path, metadata_path):
+        print('Input --', input_file_path)
+        wb1 = openpyxl.load_workbook(filename=input_file_path)
+        sheets = wb1.sheetnames
+        print("Input -- Selecting: ", sheets[0], "(from", sheets, ")")
         ws1 = wb1[sheets[0]]
         data1 = read_entire_sheet(ws1)
         data1 = self.check_for_end_tag(data1)
-        print("data1 size:", len(data1), len(data1[0]))
+        print("Input data size:", len(data1), len(data1[0]))
 
-        print('---', path2)
-        wb2 = openpyxl.load_workbook(filename=path2)
-        sheets = wb2.get_sheet_names()
-        print("Selecting: ", sheets[0], "(from", sheets, ")")
+        print('Output --', output_file_path)
+        wb2 = openpyxl.load_workbook(filename=output_file_path)
+        sheets = wb2.sheetnames
+        print("Output -- Selecting: ", sheets[0], "(from", sheets, ")")
         ws2 = wb2[sheets[0]]
         data2 = read_entire_sheet(ws2)
         data2 = self.check_for_end_tag(data2)
-        print("data2 size:", len(data2), len(data2[0]))
+        print("Output data size:", len(data2), len(data2[0]))
 
         metadata = Metadata()
         metadata.read(metadata_path)
-        print('---')
+        print('----')
         if self.compare_data_shape(data1, data2):
             self.compare_headers(metadata, data1, data2)
             self.compare_first_col(metadata, data1, data2)
@@ -51,9 +48,9 @@ class Compare:
             if len(data1) == 0 and len(data1):
                 print("No data in either spreadsheet (zero length)")
             if len(data1) == 0:
-                print("No data in spreadsheet 1 (zero length)")
+                print("No data in input spreadsheet (zero length)")
             else:
-                print("No data in spreadsheet 2 (zero length)")
+                print("No data in output spreadsheet (zero length)")
             return False
         else:
             if not len(data1) == len(data2):
@@ -71,18 +68,18 @@ class Compare:
         len1 = len(data1)
         len2 = len(data2)
         if len1 < metadata.header_row_end:
-            print("Missing header data (length), data1")
+            print("Missing header data (length), input")
         if len2 < metadata.header_row_end:
-            print("Missing header data (length), data2")
+            print("Missing header data (length), output")
         if len1 >= metadata.header_row_end and len2 >= metadata.header_row_end:
             row_length_check = True
             for row in range(0, metadata.header_row_end):
                 check1 = len(data1[row]) >= metadata.data_col_end
                 check2 = len(data2[row]) >= metadata.data_col_end
                 if not check1:
-                    print("Header row shorter then expected, data1, row " + str(row))
+                    print("Header row shorter then expected, input, row " + str(row))
                 if not check2:
-                    print("Header row shorter then expected, data2, row " + str(row))
+                    print("Header row shorter then expected, output, row " + str(row))
                 row_length_check = row_length_check and check1 and check2
             identical = True
             if row_length_check:
@@ -103,9 +100,9 @@ class Compare:
         len1 = len(data1)
         len2 = len(data2)
         if len1 < metadata.data_row_end:
-            print("Missing rows (first col), data1 " + str(len1))
+            print("Missing rows (first col matching), input " + str(len1))
         if len2 < metadata.data_row_end:
-            print("Missing rows (first col), data2 " + str(len2))
+            print("Missing rows (first col matching), input " + str(len2))
         if len1 >= metadata.data_row_end and len2 >= metadata.data_row_end:
             identical = True
             for row in range(0, metadata.data_row_end):
@@ -156,10 +153,10 @@ class Compare:
 
         if end_row < metadata.data_row_end:
             if len1 < metadata.data_row_end:
-                print("Missing data rows, data1, expected "
+                print("Missing data rows, input, expected "
                       + str(metadata.data_row_end) + ", found" + str(len1))
             if len2 < metadata.data_row_end:
-                print("Missing data rows, data2, expected "
+                print("Missing data rows, output, expected "
                       + str(metadata.data_row_end) + ", found" + str(len2))
         types1 = data1[metadata.header_row_end - 2]
         types2 = data2[metadata.header_row_end - 2]
@@ -227,16 +224,28 @@ class Compare:
 
 if __name__ == '__main__':
 
+    default_input_file_path = "input.xlsx"
+    default_output_file_path = "input.xlsx"
+    default_metadata_file_path = "input.xlsx"
+
     argv = sys.argv
     parser = argparse.ArgumentParser(
-        description='Compare input and output of from excel spreadsheet processing')
-    parser.add_argument('--base', type=str, default=default_base,
-                        help="Location of file: input.xlsx, workflow.xlsx, metadata.json")
+        description='Build a workflow from given (well formatted) Excel spreadsheet')
+    parser.add_argument('--input', type=str, default=default_input_file_path,
+                        help='Path to input EXCEL file - defaults to ' + default_input_file_path)
+    parser.add_argument('--output', type=str, default=default_output_file_path,
+                        help='Path to directory of data files - defaults to ' + default_output_file_path)
+    parser.add_argument('--metadata', type=str, default=default_metadata_file_path,
+                        help='Path to metadata JSON file - defaults to' + default_metadata_file_path)
     args = parser.parse_args(argv[1:])
 
-    base = default_base
-    if args.base:
-        base = args.base
+    args.input = os.path.abspath(args.input)
+    args.output = os.path.abspath(args.output)
+    args.metadata = os.path.abspath(args.metadata)
+
+    print("Path to input EXCEL file: " + args.input)
+    print("Path to data file directory: " + args.output)
+    print("Path to metadata JSON file: " + args.metadata)
 
     c = Compare()
-    c.compare(base)
+    c.compare(args.input, args.output, args.metadata)
