@@ -66,9 +66,9 @@ Commands to build project/experiment from a spreadsheet and produce a spreadshee
 * To create an output excel spreadsheet from a project/experiment and a metadata file. Note: the metadata file 
     contains the database identity of the project and the experiment.
     * input: metadata file (e.g. `--metadata ~/Desktop/test/metadata.json`)
-    * output: an excel spreadsheet (e.g. `--file ~/Desktop/test/output.xlsx`)
+    * output: an excel spreadsheet (e.g. `--output ~/Desktop/test/output.xlsx`)
     ```bash
-    python -m materials_commons.etl.output.extract_spreadsheet --metadata ~/Desktop/test/metadata.json --file ~/Desktop/test/output.xlsx 
+    python -m materials_commons.etl.output.extract_spreadsheet --metadata ~/Desktop/test/metadata.json --output ~/Desktop/test/output.xlsx 
     ```
     
 Running Verification Scripts
@@ -83,10 +83,19 @@ Two scripts are available that can help you verify the status of your input and 
     
 Example of the commands that run these scripts, continuing to use the above example 
 directory, `~/Desktop/test`, are these:
-```bash
 
-``` 
-
-```bash
-
-```
+* To print a "tree-like" description of an the experment's process-workflow, after input from of the spreadsheet 
+    has been read into a project's experiment, using the matadata file...
+    * input: metadata file (e.g. `--metadata ~/Desktop/test/metadata.json`)
+    ```bash
+    python -m materials_commons.etl.output.project_walker --metadata ~/Desktop/test/metadata.json
+    ``` 
+* To compare the input and output excel files 
+    * inputs:
+        * input excel file (e.g. `--input ~/Desktop/test/input.xlsx`)
+        * output excel file (e.g. `--output ~/Desktop/test/output.xlsx`)
+        * metadata json file (e.g. `--metadata ~/Desktop/test/metadata.json`)
+    * thus:
+    ```bash
+    python -m materials_commons.etl.output.compare_spreadsheets --input ~/Desktop/test/input.xlsx --output ~/Desktop/test/output.xlsx --metadata ~/Desktop/test/metadata.json
+    ```

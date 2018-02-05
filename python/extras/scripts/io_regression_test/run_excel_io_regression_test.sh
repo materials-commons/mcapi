@@ -30,7 +30,7 @@ SCRAP=/tmp/mc-test
 mkdir -p ${SCRAP}/data
 
 input=${SCRAP}/input.xlsx
-output=${SCRAP}/workflow.xlsx
+output=${SCRAP}/output.xlsx
 metadata=${SCRAP}/metadata.json
 data=${SCRAP}/data
 
@@ -41,9 +41,9 @@ cp "$filename" ${input}
 echo "-- input"
 python -m materials_commons.etl.input.main --input ${input} --metadata ${metadata} --dir ${data}
 echo "-- output"
-python -m materials_commons.etl.output.extract_spreadsheet --metadata ${metadata} --dir ${SCRAP}
+python -m materials_commons.etl.output.extract_spreadsheet --metadata ${metadata} --output ${output}
 echo "-- compare"
-python -m materials_commons.etl.output.compare_spreadsheets --base ${SCRAP}
+python -m materials_commons.etl.output.compare_spreadsheets --input ${input} --output ${output} --metadata ${metadata}
 echo "-- done"
 
 popd
