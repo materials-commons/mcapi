@@ -14,6 +14,7 @@ from .down import down_subcommand
 from .templates import TemplatesSubcommand
 from .proc import ProcSubcommand
 from .samp import SampSubcommand
+from .excel_etl import excel_etl_subcommand
 from io import StringIO
 import imp
 
@@ -31,7 +32,8 @@ class CommonsCLIParser(object):
         {'name': 'down', 'desc': 'Download files', 'subcommand': down_subcommand},
         {'name': 'templates', 'desc': 'List process templates', 'subcommand': TemplatesSubcommand()},
         {'name': 'proc', 'desc': 'List processes', 'subcommand': ProcSubcommand()},
-        {'name': 'samp', 'desc': 'List samples', 'subcommand': SampSubcommand()}
+        {'name': 'samp', 'desc': 'List samples', 'subcommand': SampSubcommand()},
+        {'name': 'etl', 'desc': 'Experiments <-> Excel Spreadshees', 'subcommand': excel_etl_subcommand()}
     ]
 
     def __init__(self, argv):
