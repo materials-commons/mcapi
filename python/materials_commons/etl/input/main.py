@@ -11,7 +11,17 @@ local_path = '/Users/weymouth/Dropbox/MaterialCommons/Tracy_Jake_ETL/etl-input'
 BASE_DIRECTORY = os.path.abspath(local_path)
 HOME = str(Path.home())
 
+def _verify_data_dir(dir_path):
+    path = Path(dir_path)
+    ok = path.exists() and path.is_dir()
+    return ok
+
+
 def main(input, data_dir, json_path):
+    path = Path(data_dir)
+    if not (path.exists() and path.is_dir()):
+        print("The Path to data file directory does not point to a user directory; exiting.")
+        exit(-1)
     wb = openpyxl.load_workbook(filename=input)
     sheet_name = wb.sheetnames[0]
     ws = wb[sheet_name]
@@ -58,3 +68,5 @@ if __name__ == '__main__':
     print("Path to metadata JSON file: " + args.metadata)
 
     main(args.input, args.dir, args.metadata)
+
+

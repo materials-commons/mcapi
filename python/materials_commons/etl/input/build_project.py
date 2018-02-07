@@ -1,5 +1,6 @@
 from materials_commons.api import create_project, get_all_templates
 from materials_commons.etl.common.util import _normalise_property_name
+from materials_commons.api.bulk_file_uploader import BulkFileUploader
 from .metadata import Metadata
 
 class BuildProjectExperiment:
@@ -24,6 +25,8 @@ class BuildProjectExperiment:
 
         if not self._set_project_and_experiment():
             return
+
+        self.project.local_path = data_path;
 
         self._set_row_positions()
         self._set_col_positions()
