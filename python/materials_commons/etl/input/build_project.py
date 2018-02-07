@@ -13,6 +13,7 @@ class BuildProjectExperiment:
         self.previous_parent_process = None
         self.metadata = Metadata()
         self.process_values = {}
+        self.process_files = {}
 
     def set_data(self, data):
         self.source = data
@@ -117,6 +118,9 @@ class BuildProjectExperiment:
             if process_value_type == 'PARAM' or process_value_type == 'MEAS':
                 value = self.source[data_row][col]
                 self.collect_params_and_measurement(process_value_type, value, signature)
+            if process_value_type == 'FILES':
+                files = self.source[data_row][col]
+                self.add_files(process, files)
         self.set_params_and_measurement(process)
         # print(process.name, self.process_values)
 
@@ -230,6 +234,10 @@ class BuildProjectExperiment:
                     "attribute": key
                 }
                 process.set_measurements_for_process_samples(measurement_property, [measurement])
+
+    def add_files(self, files, process):
+        print("add_files ", files, process)
+        process.upload_files
 
     def set_project_description(self, description):
         self.description = description
