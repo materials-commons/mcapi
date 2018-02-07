@@ -1,6 +1,7 @@
+from pathlib import Path
 from materials_commons.api import create_project, get_all_templates
 from materials_commons.etl.common.util import _normalise_property_name
-from materials_commons.api.bulk_file_uploader import BulkFileUploader
+from materials_commons.api.mc import File as mc_file
 from .metadata import Metadata
 
 class BuildProjectExperiment:
@@ -26,7 +27,7 @@ class BuildProjectExperiment:
         if not self._set_project_and_experiment():
             return
 
-        self.project.local_path = data_path;
+        self.project.local_path = data_path
 
         self._set_row_positions()
         self._set_col_positions()
@@ -238,9 +239,27 @@ class BuildProjectExperiment:
                 }
                 process.set_measurements_for_process_samples(measurement_property, [measurement])
 
-    def add_files(self, files, process):
-        print("add_files ", files, process)
-        process.upload_files
+    def add_files(self, process, files_from_sheet):
+        file_or_dir_list = [x.strip() for x in files_from_sheet.split(',')]
+        file_list = []
+        dir_list = []
+        process_files = []
+        for entry in file_or_dir_list:
+            path = Path(self.project.local_path) / entry
+            if path.is_dir():
+                dir_list.append(str(path.absolute()))
+            elif path.is_file():
+                file_list.append(str(path.absolute()))
+            else:
+                print("  Requested path for data not in user data directory, ignoring:", path)
+        for entry in file_list:
+            process_files.append(self.project.add_file_by_local_path(entry))
+        for entry in dir_list:
+            self.project.add_directory_tree_by_local_path(entry)
+            directory = self.project.get_by_local_path(entry)
+            file_list = self._get_all_files_in_directory(directory)
+            process_files += file_list
+        process.add_files(process_files)
 
     def set_project_description(self, description):
         self.description = description
@@ -330,6 +349,16 @@ class BuildProjectExperiment:
                 and parent_process.id != self.previous_parent_process.id:
             return True
         return row_key != self.previous_row_key
+
+    def _get_all_files_in_directory(self, directory):
+        file_list = []
+        child_list = directory.get_children()
+        for child in child_list:
+            if type(child) is mc_file:
+                file_list.append(child)
+            else:
+                file_list += self._get_all_files_in_directory(child)
+        return file_list
 
     @staticmethod
     def _prune_entry(entry, prefix):
