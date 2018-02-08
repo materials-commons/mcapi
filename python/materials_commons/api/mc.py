@@ -105,6 +105,28 @@ def get_all_templates():
     return templates
 
 
+# -- top level functions for experiment etl metadata
+def create_experiment_metadata(experiment_id, metadata):
+    """
+    Create a metadata record for Excel-based experiment workflow ETL.
+
+    :param experiment_id: the id of an existing experiment
+    :param metadata: the metadata for the experiment; see :class:`materials_commons.etl.input.build_project.BuildProjectExperiment`
+    :return: a object of :class:`materials_commons.api.EtlMetadata`
+    """
+    return None
+
+
+def get_experiment_metadata(experiment_id):
+    """
+    Fetch an existing metadata record for Excel-based experiment workflow ETL.
+
+    :param experiment_id: the id of an existing experiment
+    :return: a object of :class:`materials_commons.api.EtlMetadata`
+    """
+    return None
+
+
 # -- supporting classes
 
 # These print() statements for debugging cases where special processing case is missed
@@ -2538,6 +2560,27 @@ class Template(MCObject):
                 strout.write(tabulate(df, showindex=False, headers=['name', 'attribute', 'otype', 'units']))
                 for line in strout.getvalue().splitlines():
                     pp.write(line)
+
+
+class EtlMetadata(MCObject):
+    """
+    Materials commons Excel-based ELT metadata.
+    Normally created by a call to :func:`materials_commons.api.create_experiment_metadata`
+    and retrieved by a call to :func:`materials_commons.api.get_experiment_metadata`
+    """
+
+    def __init__(self, data=None):
+        self.id = ''
+        self.experiment_id = ''
+        self.owner = ''
+        self.json = ''
+
+        # attr = ['id', 'name', 'description', 'birthtime', 'mtime', 'otype', 'owner']
+        super(Property, self).__init__(data)
+
+        attr = ['experiment_id', 'json']
+        for a in attr:
+            setattr(self, a, data.get(a, None))
 
 
 class Property(MCObject):
