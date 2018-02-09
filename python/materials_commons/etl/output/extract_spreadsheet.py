@@ -54,6 +54,10 @@ class ExtractExperimentSpreadsheet:
             print("This experiment does not appear to have been created using ETL input.")
             print("Quiting.")
             return False
+        metadata = MetadataVerification().verify(self.metadata)
+        if not metadata:
+            return False
+        self.metadata = metadata
         return True
 
     def build_experiment_array(self):
