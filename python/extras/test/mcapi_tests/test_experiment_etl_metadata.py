@@ -1,12 +1,16 @@
 import unittest
 from random import randint
-from materials_commons.api import create_experiment_metadata
+from materials_commons.api import create_experiment_metadata, get_experiment_metadata_by_id
+from materials_commons.api import get_experiment_metadata_by_experiment_id
 from materials_commons.api import create_project
 
 
 def fake_name(prefix):
     number = "%05d" % randint(0, 99999)
     return prefix + number
+
+
+testUserId = "test@test.mc"
 
 
 class TestExperimentEtlMetadata(unittest.TestCase):
@@ -38,7 +42,88 @@ class TestExperimentEtlMetadata(unittest.TestCase):
         experiment_id = self.base_experiment_id
         json = fake_metadata
         metadata_record = create_experiment_metadata(experiment_id, json)
+        self.assertIsNotNone(metadata_record)
+        self.assertIsNotNone(metadata_record.experiment_id)
+        self.assertEqual(metadata_record.experiment_id, experiment_id)
+        self.assertEqual(metadata_record.owner, testUserId)
 
+    def test_get_metadata_by_id(self):
+        fake_metadata = _make_reasonable_metadata()
+        self.assertIsNotNone(fake_metadata)
+        experiment_id = self.base_experiment_id
+        json = fake_metadata
+        metadata_record = create_experiment_metadata(experiment_id, json)
+        self.assertIsNotNone(metadata_record)
+        self.assertIsNotNone(metadata_record.experiment_id)
+        self.assertEqual(metadata_record.experiment_id, experiment_id)
+        metadata_id = metadata_record.id
+        self.assertIsNotNone(metadata_id)
+        metadata_record = get_experiment_metadata_by_id(metadata_id)
+        self.assertIsNotNone(metadata_record)
+        self.assertIsNotNone(metadata_record.experiment_id)
+        self.assertEqual(metadata_record.experiment_id, experiment_id)
+        self.assertEqual(metadata_record.id, metadata_id)
+
+    def test_get_metadata_by_id_fails(self):
+        metadata_id = "This is not a valid id"
+        metadata_record = get_experiment_metadata_by_id(metadata_id)
+
+    def test_get_metadata_by_id(self):
+        fake_metadata = _make_reasonable_metadata()
+        self.assertIsNotNone(fake_metadata)
+        experiment_id = self.base_experiment_id
+        json = fake_metadata
+        metadata_record = create_experiment_metadata(experiment_id, json)
+        self.assertIsNotNone(metadata_record)
+        self.assertIsNotNone(metadata_record.experiment_id)
+        self.assertEqual(metadata_record.experiment_id, experiment_id)
+        metadata_id = metadata_record.id
+        self.assertIsNotNone(metadata_id)
+        metadata_record = get_experiment_metadata_by_experiment_id(experiment_id)
+        self.assertIsNotNone(metadata_record)
+        self.assertIsNotNone(metadata_record.experiment_id)
+        self.assertEqual(metadata_record.experiment_id, experiment_id)
+        self.assertEqual(metadata_record.id, metadata_id)
+
+    def test_update_metadata(self):
+        fake_metadata = _make_reasonable_metadata()
+        self.assertIsNotNone(fake_metadata)
+        experiment_id = self.base_experiment_id
+        json = fake_metadata
+        metadata_record = create_experiment_metadata(experiment_id, json)
+        self.assertIsNotNone(metadata_record)
+        self.assertIsNotNone(metadata_record.experiment_id)
+        self.assertEqual(metadata_record.experiment_id, experiment_id)
+        metadata_id = metadata_record.id
+        self.assertIsNotNone(metadata_id)
+        original_path = "/Users/weymouth/Desktop/test/data"
+        altered_path = "/Users/weymouth/Desktop/test/alternate_data"
+        self.assertEqual(metadata_record.json["input_data_dir_path"],original_path)
+        altered_metadata = _make_reasonable_metadata()
+        altered_metadata["input_data_dir_path"] = altered_path
+        updated_record = metadata_record.update(altered_metadata)
+        self.assertIsNotNone(updated_record)
+        self.assertIsNotNone(updated_record.experiment_id)
+        self.assertEqual(updated_record.experiment_id, experiment_id)
+        self.assertEqual(updated_record.id, metadata_id)
+        self.assertEqual(updated_record, metadata_record)
+        self.assertEqual(metadata_record.json["input_data_dir_path"],altered_path)
+
+    def test_delete_metadata(self):
+        fake_metadata = _make_reasonable_metadata()
+        self.assertIsNotNone(fake_metadata)
+        experiment_id = self.base_experiment_id
+        json = fake_metadata
+        metadata_record = create_experiment_metadata(experiment_id, json)
+        self.assertIsNotNone(metadata_record)
+        self.assertIsNotNone(metadata_record.experiment_id)
+        self.assertEqual(metadata_record.experiment_id, experiment_id)
+        metadata_id = metadata_record.id
+        self.assertIsNotNone(metadata_id)
+        success = metadata_record.delete()
+        self.assertTrue(success)
+        metadata_record = get_experiment_metadata_by_id(metadata_id)
+        self.assertIsNone(metadata_record)
 
 def _make_reasonable_metadata():
     return {

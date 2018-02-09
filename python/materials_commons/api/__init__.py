@@ -1,6 +1,7 @@
 from .mc import Project, Experiment, Process, Sample, Template, Directory, File
 from .mc import get_all_projects, create_project, get_project_by_id
-from .mc import create_experiment_metadata, get_experiment_metadata
+from .mc import create_experiment_metadata, get_experiment_metadata_by_id
+from .mc import get_experiment_metadata_by_experiment_id
 from .mc import get_all_users, User
 from .mc import get_all_templates
 

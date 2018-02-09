@@ -114,17 +114,42 @@ def create_experiment_metadata(experiment_id, metadata):
     :param metadata: the metadata for the experiment; see :class:`materials_commons.etl.input.build_project.BuildProjectExperiment`
     :return: a object of :class:`materials_commons.api.EtlMetadata`
     """
-    return None
+    results = api.create_experiment_metadata(experiment_id, metadata)
+    if _has_key('error',results):
+        print("Error: ", results['error'])
+        return None
+    data = results['data']
+    return make_object(data=data)
 
 
-def get_experiment_metadata(experiment_id):
+def get_experiment_metadata_by_experiment_id(experiment_id):
     """
     Fetch an existing metadata record for Excel-based experiment workflow ETL.
 
     :param experiment_id: the id of an existing experiment
     :return: a object of :class:`materials_commons.api.EtlMetadata`
     """
-    return None
+    results = api.get_experiment_metadata_by_experiment_id(experiment_id)
+    if _has_key('error',results):
+        print("Error: ", results['error'])
+        return None
+    data = results['data']
+    return make_object(data=data)
+
+def get_experiment_metadata_by_id(metadata_id):
+    """
+    Fetch an existing metadata record for Excel-based experiment workflow ETL.
+
+    :param experiment_id: the id of the metadata record
+    :return: a object of :class:`materials_commons.api.EtlMetadata`
+    """
+    results = api.get_experiment_metadata(metadata_id)
+    if _has_key('error',results):
+        print("Error: ", results['error'])
+        return None
+    data = results['data']
+    return make_object(data=data)
+
 
 
 # -- supporting classes
@@ -2570,17 +2595,32 @@ class EtlMetadata(MCObject):
     """
 
     def __init__(self, data=None):
-        self.id = ''
         self.experiment_id = ''
-        self.owner = ''
         self.json = ''
 
         # attr = ['id', 'name', 'description', 'birthtime', 'mtime', 'otype', 'owner']
-        super(Property, self).__init__(data)
+        super(EtlMetadata, self).__init__(data)
 
         attr = ['experiment_id', 'json']
         for a in attr:
             setattr(self, a, data.get(a, None))
+
+    def _process_special_objects(self):
+        # undo the effect of general object processing on the json data
+        self.json = self.input_data['json']
+
+    def update(self, new_metadata):
+        results = api.update_experiment_metadata(self.id, new_metadata)
+        if _has_key('error', results):
+            print("Error: ", results['error'])
+            return None
+        data = results['data']
+        updated_metadata_record = make_object(data=data)
+        self.json = updated_metadata_record.json
+        return self
+
+    def delete(self):
+        return api.delete_experiment_metadata(self.id)
 
 
 class Property(MCObject):
@@ -2882,6 +2922,8 @@ def make_base_object_for_type(data):
             return File(data=data)
         if object_type == 'template':
             return Template(data=data)
+        if object_type == 'experiment_etl_metadata':
+            return EtlMetadata(data=data)
         if object_type == 'experiment_task':
             # Experiment task not implemented
             return MCObject(data=data)
