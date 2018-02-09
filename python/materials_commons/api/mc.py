@@ -947,7 +947,6 @@ class Experiment(MCObject):
         if not description:
             description = self.description
         results = api.rename_experiment(project.id, experiment.id, name, description)
-        print(results['otype'])
         if results:
             self.name = results['name']
             self.description = results['description']

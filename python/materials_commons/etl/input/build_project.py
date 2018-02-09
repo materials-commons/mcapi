@@ -33,7 +33,7 @@ class BuildProjectExperiment:
         self.data_path = data_dir
         self.metadata.set_input_information(spread_sheet_path, data_dir)
 
-    def set_rename_is_ok(self,flag):
+    def set_rename_is_ok(self, flag):
         self.rename_duplicates = flag
 
     def build(self, spread_sheet_path, data_path):
@@ -60,11 +60,14 @@ class BuildProjectExperiment:
 
         self.sweep()
 
+        self.write_metadata()
+
         print("Created project:", self.project.name, self.project.id)
         print("With Experiment", self.experiment.name, self.experiment.id)
 
     def write_metadata(self):
-        self.metadata.write(self.experiment_id)
+        print("Writeing metadata for experiment '" + self.experiment.name + "'")
+        self.metadata.write(self.experiment.id)
 
     def sweep(self):
         process_list = self._scan_for_process_descriptions()

@@ -30,7 +30,6 @@ class Metadata:
     def read(self, experiment_id):
         metadata_record = get_experiment_metadata_by_experiment_id(experiment_id)
         if not metadata_record:
-            print("There is no ETL metadata for this experiment,", experiment_id)
             return None
         data = metadata_record.json
         attr = ["time_stamp", "process_metadata", "project_id", "experiment_id",
@@ -40,6 +39,7 @@ class Metadata:
                 "start_attribute_row", "sheet_headers"]
         for a in attr:
             setattr(self, a, data.get(a, None))
+        return self
 
     def format(self):
         return dict(

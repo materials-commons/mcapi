@@ -5,25 +5,58 @@ import sys
 
 import openpyxl
 
+from materials_commons.api import get_all_projects
 from materials_commons.etl.common.util import _normalise_property_name
 from materials_commons.etl.input.metadata import Metadata
 from .meta_data_verify import MetadataVerification
 
 class ExtractExperimentSpreadsheet:
-    def __init__(self, output_file_path, metadata):
-        self.metadata = metadata
+    def __init__(self, output_file_path):
+        self.metadata = Metadata()
         self.output_path = output_file_path
-        self.project = metadata.project
-        self.experiment = metadata.experiment
-        self.process_table = metadata.process_table
         self.worksheet = None
         self.workbook = None
+        self.project = None
+        self.experiment = None
         self.data_row_list = []
 
+    def get_project(self):
+        return self.project
+
+    def get_experiment(self):
+        return self.experiment
+
+    def set_up_project_experiment_metadata(self, project_name, experiment_name):
+        project_list = get_all_projects()
+        for proj in project_list:
+            if proj.name == project_name:
+                self.project = proj
+        if not self.project:
+            print("Can not find project with name = " + str(project_name) + ". Quiting.")
+            return False
+        experiment_list = self.project.get_all_experiments()
+        found = []
+        for exp in experiment_list:
+            if exp.name == experiment_name:
+                found.append(exp)
+        if not found:
+            print("Can not find Experiment with name = " + str(experiment_name) + ". Quiting.")
+            return False
+        if len(found) > 1:
+            print("Found more the one Experiment with name = " + str(experiment_name) + ";")
+            print("Rename experiment so that '" + str(experiment_name) + "' is unique.")
+            print("Quiting.")
+            return False
+        self.experiment = found[0]
+        ok = self.metadata.read(self.experiment.id)
+        if not ok:
+            print("There was no ETL metadata for the experiment '" +  str(experiment_name) + "';")
+            print("This experiment does not appear to have been created using ETL input.")
+            print("Quiting.")
+            return False
+        return True
+
     def build_experiment_array(self):
-        print("Building data array")
-        print("    " + self.project.name)
-        print("    " + self.experiment.name)
         self.data_row_list = []
         self.set_headers_from_metadata()
         self.set_data_from_metadata()
@@ -207,41 +240,30 @@ class ExtractExperimentSpreadsheet:
 
 
 def main(main_args):
-    metadata = Metadata()
-    metadata.read(main_args.metadata)
-    verify = MetadataVerification()
-    updated_metadata = verify.verify(metadata)
-
-    if not updated_metadata:
-        print("The verification of the metadata file failed.")
-        exit(-1)
-
-    builder = ExtractExperimentSpreadsheet(main_args.output, updated_metadata)
-    print("Set up: writing spreadsheet to " + main_args.output)
-    print("Data from experiment '" + builder.experiment.name
-          + "' in project '" + builder.project.name + "'")
-    builder.build_experiment_array()
-    builder.write_spreadsheet()
+    builder = ExtractExperimentSpreadsheet(main_args.output)
+    ok = builder.set_up_project_experiment_metadata(main_args.proj, main_args.exp)
+    if ok:
+        print("Writing experiment '" + builder.experiment.name
+              + "' in project, '" + builder.project.name + ", to")
+        print("spreadsheet at " + builder.output_path)
+        builder.build_experiment_array()
+        builder.write_spreadsheet()
 
 
 if __name__ == '__main__':
     time_stamp = '%s' % datetime.datetime.now()
-    default_output_file_path = "output.xlsx"
-    default_metadata_file_path = "metadata.json"
+    default_output_file_path = os.path.abspath("output.xlsx")
 
     argv = sys.argv
     parser = argparse.ArgumentParser(
         description='Dump a project-experiment to a spreadsheet')
-    parser.add_argument('--metadata', type=str, default=default_metadata_file_path,
-                        help="Metadata file path")
+    parser.add_argument('proj', type=str, help="Project Name")
+    parser.add_argument('exp', type=str, help="Experiment Name")
     parser.add_argument('--output', type=str, default=default_output_file_path,
-                        help='Path to output directory')
+                        help='Path to output file, defaults to ' + default_output_file_path)
     args = parser.parse_args(argv[1:])
 
-    args.metadata = os.path.abspath(args.metadata)
-    if not os.path.isfile(args.metadata):
-        print("The given metadata file path, " + args.metadata + ", is not a file. Please fix.")
-        exit(-1)
+    args.output = os.path.abspath(args.output)
 
     if not args.output.endswith(".xlsx"):
         file = args.output + ".xlsx"
