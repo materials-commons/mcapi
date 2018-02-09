@@ -31,7 +31,6 @@ mkdir -p ${SCRAP}/data
 
 input=${SCRAP}/input.xlsx
 output=${SCRAP}/output.xlsx
-metadata=${SCRAP}/metadata.json
 data=${SCRAP}/data
 
 filename=${SCRIPTS}/Generic\ ETL\ Test\ 1.xlsx
@@ -39,11 +38,11 @@ echo "-------------- input file = $filename"
 cp "$filename" ${input}
 
 echo "-- input"
-python -m materials_commons.etl.input.main --input ${input} --metadata ${metadata} --dir ${data}
+python -m materials_commons.etl.input.main --input ${input} --dir ${data} --rename
 echo "-- output"
-python -m materials_commons.etl.output.extract_spreadsheet --metadata ${metadata} --output ${output}
+python -m materials_commons.etl.output.extract_spreadsheet --output ${output}
 echo "-- compare"
-python -m materials_commons.etl.output.compare_spreadsheets --input ${input} --output ${output} --metadata ${metadata}
+python -m materials_commons.etl.output.compare_spreadsheets --input ${input} --output ${output}
 echo "-- done"
 
 popd

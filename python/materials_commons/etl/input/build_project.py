@@ -1,12 +1,16 @@
 from pathlib import Path
+
+import openpyxl
+
 from materials_commons.api import create_project, get_all_templates
+from materials_commons.api.mc import File as FileRecord
 from materials_commons.etl.common.util import _normalise_property_name
-from materials_commons.api.mc import File as mc_file
+from materials_commons.etl.common.worksheet_data import read_entire_sheet
 from .metadata import Metadata
+
 
 class BuildProjectExperiment:
     def __init__(self):
-        self._make_template_table()
         self.description = "Project from excel spreadsheet"
         self.source = self.data_start_row = self.project = self.experiment = None
         self.data_start_row = self.data_path = None
@@ -16,13 +20,35 @@ class BuildProjectExperiment:
         self.metadata = Metadata()
         self.process_values = {}
         self.process_files = {}
+        self.rename_duplicates = False
+        self.data_path = None
+        self.experiment_id = None
+
+        self._make_template_table()
 
     def set_data(self, data):
         self.source = data
 
-    def build(self, data_path):
+    def set_input_information(self, spread_sheet_path, data_dir):
+        self.data_path = data_dir
+        self.metadata.set_input_information(spread_sheet_path, data_dir)
 
-        self.data_path = data_path
+    def set_rename_is_ok(self,flag):
+        self.rename_duplicates = flag
+
+    def build(self, spread_sheet_path, data_path):
+
+        wb = openpyxl.load_workbook(filename=spread_sheet_path)
+        sheet_name = wb.sheetnames[0]
+        ws = wb[sheet_name]
+        print("In Excel file, using sheet", sheet_name, "from sheets", wb.sheetnames)
+        self.set_data(read_entire_sheet(ws))
+        wb.close()
+
+        self.set_project_description("Project from excel spreadsheet: " + spread_sheet_path
+                                     + "; using data from " + data_path)
+
+        self.set_input_information(spread_sheet_path, data_path)
 
         if not self._set_project_and_experiment():
             return
@@ -36,6 +62,9 @@ class BuildProjectExperiment:
 
         print("Created project:", self.project.name, self.project.id)
         print("With Experiment", self.experiment.name, self.experiment.id)
+
+    def write_metadata(self):
+        self.metadata.write(self.experiment_id)
 
     def sweep(self):
         process_list = self._scan_for_process_descriptions()
@@ -79,7 +108,7 @@ class BuildProjectExperiment:
                 output_sample = None
                 if process.process_type == 'create':
                     sample_name = self.sweep_for_sample_name(
-                        row_index, start_attribute_row_index , start_col_index, end_col_index)
+                        row_index, start_attribute_row_index, start_col_index, end_col_index)
                     if not sample_name:
                         sample_name = row_key
                     sample_names = [sample_name]
@@ -195,10 +224,11 @@ class BuildProjectExperiment:
             entry = self.process_values["PARAM"][key]
             if process.is_known_setup_property(key):
                 # print("PARMA", process.name, key, entry, process.is_known_setup_property(key))
-                if not entry['value'] == None:
+                if entry['value'] is not None:
                     process.set_value_of_setup_property(key, entry['value'])
                     if entry['unit']:
-                        table = process.get_setup_properties_as_dictionary()
+                        # table =
+                        process.get_setup_properties_as_dictionary()
                         # print("unit check", entry['unit'], table[key].name, table[key].unit)
                         process.set_unit_of_setup_property(key, entry['unit'])
                     known_param_keys.append(key)
@@ -219,7 +249,7 @@ class BuildProjectExperiment:
         for key in self.process_values["MEAS"]:
             # print("MEAS", process.name, key)
             entry = self.process_values["MEAS"][key]
-            if not entry['value'] == None:
+            if entry['value'] is not None:
                 measurement_data = {
                     "name": _name_for_attribute(key),
                     "attribute": key,
@@ -281,6 +311,25 @@ class BuildProjectExperiment:
             return False
 
         self.project = create_project(self.project_name, self.description)
+
+        experiment_list = self.project.get_all_experiments()
+        existing_experiment = None
+        for exp in experiment_list:
+            if exp.name == self.experiment_name:
+                existing_experiment = exp
+        if existing_experiment:
+            if self.rename_duplicates:
+                name = _unique_shadow_name(self.experiment_name, experiment_list)
+                print("Existing experiment with duplicate name. Renamed:",
+                      existing_experiment.name, "-->", name)
+                existing_experiment.rename(name)
+            else:
+                print("An experiment already exists with this name, " + self.experiment_name)
+                print("And the --rename flag was not specified.")
+                print("You can delete or rename the existing experiment.")
+                print("Or specify the --rename flag in the command line arguments.")
+                print("Quiting.")
+                return False
         self.experiment = self.project.create_experiment(self.experiment_name, "")
         self.metadata.set_project_id(self.project.id)
         self.metadata.set_experiment_id(self.experiment.id)
@@ -354,7 +403,7 @@ class BuildProjectExperiment:
         file_list = []
         child_list = directory.get_children()
         for child in child_list:
-            if type(child) is mc_file:
+            if type(child) is FileRecord:
                 file_list.append(child)
             else:
                 file_list += self._get_all_files_in_directory(child)
@@ -403,8 +452,8 @@ class BuildProjectExperiment:
         missing_end = True
         for col in first_row:
             if str(col).startswith("END"):
-                print ("Found END marker at column " + str(index)
-                       + ", updating data end to this location")
+                print("Found END marker at column " + str(index)
+                      + ", updating data end to this location")
                 self.end_sweep_col = index
                 missing_end = False
                 break
@@ -448,6 +497,18 @@ class BuildProjectExperiment:
             if match in key:
                 found_id = key
         return found_id
+
+
+def _unique_shadow_name(original_name, experiment_list):
+    count = 1
+    trial_name = None
+    while not trial_name:
+        trial_name = original_name + " - " + str(count)
+        count += 1
+        for exp in experiment_list:
+            if trial_name == exp.name:
+                trial_name = None
+    return trial_name
 
 
 def _name_for_attribute(attribute):

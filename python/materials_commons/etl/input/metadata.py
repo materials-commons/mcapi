@@ -1,5 +1,7 @@
 import json
 import time
+from materials_commons.api import create_experiment_metadata
+from materials_commons.api import get_experiment_metadata_by_experiment_id
 
 
 class Metadata:
@@ -9,7 +11,6 @@ class Metadata:
         self.process_metadata = []
         self.input_excel_file_path = None
         self.input_data_dir_path = None
-        self.output_json_file_path = None
         self.project_id = None
         self.experiment_id = None
         self.header_row_end = None
@@ -19,28 +20,26 @@ class Metadata:
         self.data_col_end = None
         self.start_attribute_row = None
         self.sheet_headers = None
-        # these fields populated by metadata verifier
-        self.project = None
-        self.experiment = None
-        self.process_table = None
 
-    def write(self, path):
+    def write(self, experiment_id):
         metadata_dict = self.format()
-        with open(path, 'w') as out:
-            out.write(json.dumps(metadata_dict, indent=2))
-            out.close()
+        metadata = json.dumps(metadata_dict, indent=2)
+        metadata_record = create_experiment_metadata(experiment_id, metadata)
+        return metadata_record
 
-    def read(self, path):
-        with open(path) as json_data:
-            d = json.load(json_data)
-            json_data.close()
+    def read(self, experiment_id):
+        metadata_record = get_experiment_metadata_by_experiment_id(experiment_id)
+        if not metadata_record:
+            print("There is no ETL metadata for this experiment,", experiment_id)
+            return None
+        data = metadata_record.json
         attr = ["time_stamp", "process_metadata", "project_id", "experiment_id",
-                "input_excel_file_path", "input_data_dir_path", "output_json_file_path",
+                "input_excel_file_path", "input_data_dir_path",
                 "header_row_end", "data_row_start", "data_row_end",
                 "data_col_start", "data_col_end",
                 "start_attribute_row", "sheet_headers"]
         for a in attr:
-            setattr(self, a, d.get(a, None))
+            setattr(self, a, data.get(a, None))
 
     def format(self):
         return dict(
@@ -49,10 +48,9 @@ class Metadata:
             if key not in self.excluded_keys
         )
 
-    def set_input_information(self, input_path, data_dir, json_path):
+    def set_input_information(self, input_path, data_dir):
         self.input_excel_file_path = input_path
         self.input_data_dir_path = data_dir
-        self.output_json_file_path = json_path
 
     def set_project_id(self, project_id):
         self.project_id = project_id
