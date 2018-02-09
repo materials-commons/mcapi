@@ -5,16 +5,25 @@ import os
 
 import openpyxl
 from dateutil import parser as date_parser
-
+from materials_commons.api import get_all_projects
 from materials_commons.etl.common.worksheet_data import read_entire_sheet
 from materials_commons.etl.input.metadata import Metadata
-
-default_base = "/Users/weymouth/Desktop"
+from .meta_data_verify import MetadataVerification
 
 
 class Compare:
 
-    def compare(self, input_file_path, output_file_path, metadata_path):
+    def __init__(self):
+        self.project = None
+        self.experiment = None
+        self.metadata = Metadata()
+
+    def compare(self, project_name, experiment_name, input_file_path, output_file_path):
+
+        ok = self.set_up_project_experiment_metadata(project_name, experiment_name)
+        if not ok:
+            return
+
         print('Input --', input_file_path)
         wb1 = openpyxl.load_workbook(filename=input_file_path)
         sheets = wb1.sheetnames
@@ -33,13 +42,46 @@ class Compare:
         data2 = self.check_for_end_tag(data2)
         print("Output data size:", len(data2), len(data2[0]))
 
-        metadata = Metadata()
-        metadata.read(metadata_path)
+        metadata = self.metadata
         print('----')
         if self.compare_data_shape(data1, data2):
             self.compare_headers(metadata, data1, data2)
             self.compare_first_col(metadata, data1, data2)
             self.compare_data_area(metadata, data1, data2)
+
+    def set_up_project_experiment_metadata(self, project_name, experiment_name):
+        project_list = get_all_projects()
+        for proj in project_list:
+            if proj.name == project_name:
+                self.project = proj
+        if not self.project:
+            print("Can not find project with name = " + str(project_name) + ". Quiting.")
+            return False
+        experiment_list = self.project.get_all_experiments()
+        found = []
+        for exp in experiment_list:
+            if exp.name == experiment_name:
+                found.append(exp)
+        if not found:
+            print("Can not find Experiment with name = " + str(experiment_name) + ". Quiting.")
+            return False
+        if len(found) > 1:
+            print("Found more the one Experiment with name = " + str(experiment_name) + ";")
+            print("Rename experiment so that '" + str(experiment_name) + "' is unique.")
+            print("Quiting.")
+            return False
+        self.experiment = found[0]
+        ok = self.metadata.read(self.experiment.id)
+        if not ok:
+            print("There was no ETL metadata for the experiment '" +  str(experiment_name) + "';")
+            print("This experiment does not appear to have been created using ETL input.")
+            print("Quiting.")
+            return False
+        metadata = MetadataVerification().verify(self.metadata)
+        if not metadata:
+            return False
+        self.metadata = metadata
+        return True
 
     @staticmethod
     def compare_data_shape(data1, data2):
@@ -224,28 +266,22 @@ class Compare:
 
 if __name__ == '__main__':
 
-    default_input_file_path = "input.xlsx"
-    default_output_file_path = "input.xlsx"
-    default_metadata_file_path = "input.xlsx"
-
     argv = sys.argv
     parser = argparse.ArgumentParser(
         description='Build a workflow from given (well formatted) Excel spreadsheet')
-    parser.add_argument('--input', type=str, default=default_input_file_path,
-                        help='Path to input EXCEL file - defaults to ' + default_input_file_path)
-    parser.add_argument('--output', type=str, default=default_output_file_path,
-                        help='Path to directory of data files - defaults to ' + default_output_file_path)
-    parser.add_argument('--metadata', type=str, default=default_metadata_file_path,
-                        help='Path to metadata JSON file - defaults to' + default_metadata_file_path)
+    parser.add_argument('proj', type=str, help="Project Name")
+    parser.add_argument('exp', type=str, help="Experiment Name")
+    parser.add_argument('input', type=str,
+                        help='Path to input EXCEL file')
+    parser.add_argument('output', type=str,
+                        help='Path to output EXCEL file')
     args = parser.parse_args(argv[1:])
 
     args.input = os.path.abspath(args.input)
     args.output = os.path.abspath(args.output)
-    args.metadata = os.path.abspath(args.metadata)
 
     print("Path to input EXCEL file: " + args.input)
     print("Path to data file directory: " + args.output)
-    print("Path to metadata JSON file: " + args.metadata)
 
     c = Compare()
-    c.compare(args.input, args.output, args.metadata)
+    c.compare(args.proj, args.exp, args.input, args.output)
