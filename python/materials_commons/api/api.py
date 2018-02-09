@@ -246,6 +246,17 @@ def create_experiment(project_id, name, description, remote=None):
     return post(remote.make_url_v2("projects/" + project_id + "/experiments"), data)
 
 
+def rename_experiment(project_id, experiment_id, name, description, remote=None):
+    if not remote:
+        remote = use_remote()
+    data = {
+        "name": name,
+        "description": description
+    }
+    api_url = remote.make_url_v2("projects/" + project_id + "/experiments/" + experiment_id)
+    return put(api_url, data)
+
+
 def fetch_experiments(project_id, remote=None):
     if not remote:
         remote = use_remote()

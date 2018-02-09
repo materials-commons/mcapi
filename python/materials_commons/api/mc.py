@@ -941,12 +941,17 @@ class Experiment(MCObject):
         :param description:
         :return: this
 
-        .. note:: Currently not implemented
-
         """
-        # TODO: Experiment.rename(name)
-        raise NotImplementedError("Experiment.rename(name) is not implemented")
-        pass
+        project = self.project
+        experiment = self
+        if not description:
+            description = self.description
+        results = api.rename_experiment(project.id, experiment.id, name, description)
+        print(results['otype'])
+        if results:
+            self.name = results['name']
+            self.description = results['description']
+        return self
 
     def put(self):
         """
