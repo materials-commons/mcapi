@@ -40,9 +40,9 @@ cp "$filename" ${input}
 echo "-- input"
 python -m materials_commons.etl.input.main --input ${input} --dir ${data} --rename
 echo "-- output"
-python -m materials_commons.etl.output.extract_spreadsheet --output ${output}
+python -m materials_commons.etl.output.extract_spreadsheet "Generic Testing" "Test1" --output ${output}
 echo "-- compare"
-python -m materials_commons.etl.output.compare_spreadsheets --input ${input} --output ${output}
+python -m materials_commons.etl.output.compare_spreadsheets "Generic Testing" "Test1" ${input} ${output}
 echo "-- done"
 
 popd
