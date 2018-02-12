@@ -7,9 +7,12 @@ from pathlib import Path
 import openpyxl
 
 from materials_commons.api import get_all_projects
+from materials_commons.api import File as MC_File
 from materials_commons.etl.common.util import _normalise_property_name
 from materials_commons.etl.input.metadata import Metadata
+from materials_commons.etl.common.process_file_util import make_project_file_id_path_table
 from .meta_data_verify import MetadataVerification
+
 
 class ExtractExperimentSpreadsheet:
     def __init__(self, output_file_path):
@@ -51,7 +54,7 @@ class ExtractExperimentSpreadsheet:
         self.experiment = found[0]
         ok = self.metadata.read(self.experiment.id)
         if not ok:
-            print("There was no ETL metadata for the experiment '" +  str(experiment_name) + "';")
+            print("There was no ETL metadata for the experiment '" + str(experiment_name) + "';")
             print("This experiment does not appear to have been created using ETL input.")
             print("Quiting.")
             return False
@@ -122,7 +125,6 @@ class ExtractExperimentSpreadsheet:
         for col in range(start, end):
             value_type = types[col]
             if value_type == "FILES":
-                print("set FILES entry ", row, col, entry)
                 self.data_row_list[row][col] = entry
                 break
 
@@ -150,7 +152,7 @@ class ExtractExperimentSpreadsheet:
                 return measurement.value
             else:
                 return None
-        return self.recursive_value_extraction(attribute[0], attribute[1:],measurement.value)
+        return self.recursive_value_extraction(attribute[0], attribute[1:], measurement.value)
 
     def recursive_value_extraction(self, name, name_list, probe):
         key = self.key_for_category(name, name_list)
@@ -171,14 +173,61 @@ class ExtractExperimentSpreadsheet:
 
     def download_process_files(self, download_dir_path):
         metadata = self.metadata
+        project = self.get_project()
+        top_dir = project.get_top_directory()
+        top_directory_name = top_dir.name
+        file_id_path_table = make_project_file_id_path_table(project)
+        path_table = {}
+        for key in file_id_path_table:
+            item = file_id_path_table[key]
+            path = item['path']
+            path_table[item['path']] = item
+        project.local_path = download_dir_path
         process_record_list = metadata.process_metadata
-        table = metadata.process_table  # Note: added by metadata verify
         type_list = metadata.sheet_headers[metadata.start_attribute_row]
         for process_record in process_record_list:
             start_row = process_record["start_row"]
             start_col = process_record["start_col"]
             end_col = process_record["end_col"]
             files_entry = None
+            for col in range(start_col, end_col):
+                if type_list[col] == "FILES":
+                    files_entry = self.data_row_list[start_row][col]
+            if files_entry:
+                file_or_dir_path_list = files_entry.split(",")
+                for entry in file_or_dir_path_list:
+                    entry = entry.strip()
+                    path = Path(self.project.local_path) / entry
+                    local_path = str(path)
+                    remote_path = "/" + str(Path(top_directory_name) / entry)
+                    print("  : ", remote_path, "-->", local_path)
+                    if not remote_path in path_table:
+                        print("  :     file from spreadsheet not in project, skipping", entry)
+                        continue
+                    record = path_table[str(remote_path)]
+                    if record['is_file']:
+                        self.downloadLocalFileContent(record['file'], path)
+                    else:
+                        self.downloadLocalDirContent(record['dir'], path)
+
+    def downloadLocalFileContent(self, file, path):
+        if path.exists():
+            print("  :     skipping dublicate: ", path)
+        else:
+            dir = Path(*list(path.parts)[:-1])
+            os.makedirs(dir, exist_ok=True)
+            file.download_file_content(str(path))
+
+    def downloadLocalDirContent(self, dir, path):
+#        print("download dir", dir.name, path)
+        os.makedirs(path, exist_ok=True)
+        for child in dir.get_children():
+            child_path = Path(path, child.name)
+#            print("child_path", str(child_path))
+            if (type(child) == MC_File):
+                self.downloadLocalFileContent(child, child_path)
+            else:
+                self.downloadLocalDirContent(child, child_path)
 
     @staticmethod
     def key_for_category(name, name_list):
@@ -234,7 +283,7 @@ class ExtractExperimentSpreadsheet:
             if attr and '(' in attr:
                 pos = attr.find('(')
                 if pos > 2:
-                    attr = attr[0:pos-1]
+                    attr = attr[0:pos - 1]
             update.append(attr)
         return update
 
@@ -252,7 +301,7 @@ class ExtractExperimentSpreadsheet:
         update = []
         for attr in attributes:
             if attr:
-                if isinstance(attr,str):
+                if isinstance(attr, str):
                     attr = _normalise_property_name(attr)
                 else:
                     parts = []
@@ -276,38 +325,37 @@ class ExtractExperimentSpreadsheet:
         return ", ".join(names)
 
 
-def main(main_args):
-    builder = ExtractExperimentSpreadsheet(main_args.output)
-    ok = builder.set_up_project_experiment_metadata(main_args.proj, main_args.exp)
-    if ok:
-        print("Writing experiment '" + builder.experiment.name
-              + "' in project, '" + builder.project.name + ", to")
-        print("spreadsheet at " + builder.output_path)
-        builder.build_experiment_array()
-        builder.write_spreadsheet()
-        if (main_args.files):
-            print("Downloading process files to " + main_args.files)
-            builder.download_process_files(main_args.files)
-
-
 def _verify_data_dir(dir_path):
     path = Path(dir_path)
     ok = path.exists() and path.is_dir()
     return ok
 
 
+def main(project_name, experiment_name, output, download):
+    builder = ExtractExperimentSpreadsheet(output)
+    ok = builder.set_up_project_experiment_metadata(project_name, experiment_name)
+    if ok:
+        print("Writing experiment '" + builder.experiment.name
+              + "' in project, '" + builder.project.name + ", to")
+        print("spreadsheet at " + builder.output_path)
+        builder.build_experiment_array()
+        builder.write_spreadsheet()
+        if download:
+            print("Downloading process files to " + download)
+            builder.download_process_files(download)
+
+
 if __name__ == '__main__':
     time_stamp = '%s' % datetime.datetime.now()
-    default_output_file_path = os.path.abspath("output.xlsx")
 
     argv = sys.argv
     parser = argparse.ArgumentParser(
         description='Dump a project-experiment to a spreadsheet')
     parser.add_argument('proj', type=str, help="Project Name")
     parser.add_argument('exp', type=str, help="Experiment Name")
-    parser.add_argument('--output', type=str, default=default_output_file_path,
-                        help='Path to output file, defaults to ' + default_output_file_path)
-    parser.add_argument('--files', type=str,
+    parser.add_argument('output', type=str,
+                        help='Path to output file')
+    parser.add_argument('--download', type=str,
                         help="Path to dir for downloading files; if none, files are not downloaded")
     args = parser.parse_args(argv[1:])
 
@@ -316,10 +364,10 @@ if __name__ == '__main__':
     if not args.output.endswith(".xlsx"):
         file = args.output + ".xlsx"
 
-    if args.files:
-        args.files = os.path.abspath(args.files)
-        if not _verify_data_dir(args.files):
-            print("Path for file download directory does not exist, ignoring: ", args.files)
+    if args.download:
+        args.download = os.path.abspath(args.download)
+        if not _verify_data_dir(args.download):
+            print("Path for file download directory does not exist, ignoring: ", args.download)
             args.files = None
 
-    main(args)
+    main(args.proj, args.exp, args.output, args.download)

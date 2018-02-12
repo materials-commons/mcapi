@@ -66,7 +66,7 @@ class BuildProjectExperiment:
         print("With Experiment", self.experiment.name, self.experiment.id)
 
     def write_metadata(self):
-        print("Writeing metadata for experiment '" + self.experiment.name + "'")
+        print("Writing metadata for experiment '" + self.experiment.name + "'")
         self.metadata.write(self.experiment.id)
 
     def sweep(self):

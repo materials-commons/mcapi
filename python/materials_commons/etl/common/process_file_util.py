@@ -6,7 +6,6 @@ from materials_commons.api import get_all_projects, File, Directory
 def make_project_file_id_path_table(project):
     path_table = {}
     top_dir = project.get_top_directory()
-    print("Top dir: ", top_dir.name, top_dir.path)
     path = ""
     walk_dir_for_path_table(path_table, path, top_dir)
     return path_table
@@ -14,15 +13,19 @@ def make_project_file_id_path_table(project):
 
 def walk_dir_for_path_table(path_table, path, file_or_dir):
     if type(file_or_dir) == File:
-        print("File: " + file_or_dir.name)
-        file_path = path + file_or_dir.name
+        file_path = path + "/" + file_or_dir.name
         path_table[file_or_dir.id] = {
             'path': file_path,
-            'file': file_or_dir
+            'file': file_or_dir,
+            'is_file': True
         }
     elif type(file_or_dir) == Directory:
-        print("Directory: " + file_or_dir.name)
-        dir_path = path + file_or_dir.name + "/"
+        dir_path = path + "/" + file_or_dir.name
+        path_table[file_or_dir.id] = {
+            'path': dir_path,
+            'dir': file_or_dir,
+            'is_file': False
+        }
         for child in file_or_dir.get_children():
             walk_dir_for_path_table(path_table, dir_path, child)
     return path_table

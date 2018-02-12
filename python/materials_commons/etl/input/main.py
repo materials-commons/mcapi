@@ -45,19 +45,19 @@ if __name__ == '__main__':
         description='Build a workflow from given (well formatted) Excel spreadsheet')
     parser.add_argument('--input', type=str, default=default_input_path,
                         help='Path to input EXCEL file - defaults to ' + default_input_path)
-    parser.add_argument('--dir', type=str, default=default_data_path,
-                        help='Path to directory of data files - defaults to ' + default_data_path)
+    parser.add_argument('--upload', type=str, default=default_data_path,
+                        help='Path to directory of data files to upload - defaults to ' + default_data_path)
     parser.add_argument('--rename', action='store_true',
                         help='A flag that indicates that the experiment should be renamed when a name collision occurs')
     args = parser.parse_args(argv[1:])
 
     args.input = os.path.abspath(args.input)
-    args.dir = os.path.abspath(args.dir)
+    args.upload = os.path.abspath(args.upload)
 
     print("Path to input EXCEL file: " + args.input)
-    print("Path to data file directory: " + args.dir)
+    print("Path to data file directory: " + args.upload)
     print("Flag indicating that previous experiments given name sould be renamed: " + str(args.rename))
 
-    main(args.input, args.dir, args.rename)
+    main(args.input, args.upload, args.rename)
 
 
