@@ -1,6 +1,7 @@
 from materials_commons.api import get_project_by_id
 from ..input import metadata
 
+
 class MetadataVerification:
     def __init__(self):
         pass
@@ -51,6 +52,7 @@ class MetadataVerification:
         for process in processes:
             table[process.id] = process
         return table
+
 
 if __name__ == '__main__':
     metadata = metadata.Metadata()

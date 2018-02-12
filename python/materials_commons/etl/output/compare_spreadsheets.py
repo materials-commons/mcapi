@@ -73,7 +73,7 @@ class Compare:
         self.experiment = found[0]
         ok = self.metadata.read(self.experiment.id)
         if not ok:
-            print("There was no ETL metadata for the experiment '" +  str(experiment_name) + "';")
+            print("There was no ETL metadata for the experiment '" + str(experiment_name) + "';")
             print("This experiment does not appear to have been created using ETL input.")
             print("Quiting.")
             return False
