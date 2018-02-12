@@ -91,6 +91,7 @@ class Walker:
             padding += "  "
         print(padding, proc.name, proc.id)
         print(padding, self.processSamplesText(proc))
+        print(padding, self.filenameListText(proc))
         measurements = proc.measurements
         for m in measurements:
             header = "|- MEAS" + str("(*)" if m.is_best_measure else "")
@@ -137,6 +138,18 @@ class Walker:
             text += '(' + ','.join(names) + ')'
         else:
             text += '()'
+        return text
+
+    @staticmethod
+    def filenameListText(process):
+        text = "Files: "
+        files = process.get_all_files()
+        if not files:
+            return text + "(none)"
+        names = []
+        for file in files:
+            names.append(file.name)
+        text += ', '.join(names)
         return text
 
     @staticmethod
