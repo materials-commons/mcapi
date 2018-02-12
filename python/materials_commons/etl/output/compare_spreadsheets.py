@@ -2,6 +2,7 @@ import argparse
 import datetime
 import sys
 import os
+from pathlib import Path
 
 import openpyxl
 from dateutil import parser as date_parser
@@ -261,8 +262,14 @@ class Compare:
 
     @staticmethod
     def type_expect_data(data_type):
-        return data_type == "MEAS" or data_type == "PARAM" or data_type == "SAMPLES"
+        return data_type == "MEAS" or data_type == "PARAM" or \
+               data_type == "SAMPLES" or data_type == "FILES"
 
+
+def _verify_data_dir(dir_path):
+    path = Path(dir_path)
+    ok = path.exists() and path.is_dir()
+    return ok
 
 if __name__ == '__main__':
 
@@ -275,6 +282,13 @@ if __name__ == '__main__':
                         help='Path to input EXCEL file')
     parser.add_argument('output', type=str,
                         help='Path to output EXCEL file')
+    parser.add_argument('--upload', type=str,
+                        help="Path to dir for uploading files; if none, files are not compared")
+    parser.add_argument('--download', type=str,
+                        help="Path to dir for downloaded files; if none, files are not compared")
+    parser.add_argument('--checksum', action='store_true',
+                        help="In comparing upload/download files, also compare checksun; optional")
+
     args = parser.parse_args(argv[1:])
 
     args.input = os.path.abspath(args.input)
@@ -282,7 +296,40 @@ if __name__ == '__main__':
 
     print("Path to input EXCEL file: " + args.input)
     print("Path to output EXCEL file: " + args.output)
-    print("Path to data file directory: " + args.output)
+
+    if args.upload:
+        args.upload = os.path.abspath(args.upload)
+        print("Path to uploaded files: " + args.upload)
+    if args.download:
+        args.download = os.path.abspath(args.download)
+        print("Path to download files: " + args.download)
+
+    if (args.upload or args.download):
+        if not _verify_data_dir(args.upload):
+            print("Path to upload directory is not valid; ignoring.")
+            args.upload = ""
+        if not _verify_data_dir(args.download):
+            print("Path to download directory is not valid; ignoring.")
+            args.download = ""
+        ok = True
+        if not (args.upload or args.download):
+            missing = "both upload and download"
+            ok = False
+        elif not args.upload:
+            args.upload = ""
+            missing = "upload"
+            ok = False
+        elif not args.download:
+            args.download = ""
+            missing = "upload"
+            ok = False
+        if not ok:
+            print("To compare files, you must specify both optional arguments upload and download; missing", missing)
+            print("Files compare will be skipped!")
+        else:
+            print("Files and directories on upload and download path will be compared")
+            if (args.checksum):
+                print("In addition, file checksums will be computed and compared")
 
     c = Compare()
     c.compare(args.proj, args.exp, args.input, args.output)

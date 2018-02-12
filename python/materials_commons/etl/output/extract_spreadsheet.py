@@ -2,6 +2,7 @@ import argparse
 import datetime
 import os
 import sys
+from pathlib import Path
 
 import openpyxl
 
@@ -54,7 +55,7 @@ class ExtractExperimentSpreadsheet:
             print("This experiment does not appear to have been created using ETL input.")
             print("Quiting.")
             return False
-        metadata = MetadataVerification().verify(self.metadata)
+        metadata = MetadataVerification().verify(self.metadata)  # Adds metadata.process_table !
         if not metadata:
             return False
         self.metadata = metadata
@@ -76,7 +77,7 @@ class ExtractExperimentSpreadsheet:
         self.data_row_list[metadata.data_row_start][0] = "BEGIN_DATA"
         print("    ... setting data...")
         process_record_list = metadata.process_metadata
-        table = metadata.process_table
+        table = metadata.process_table  # Note: added by metadata verify
         type_list = metadata.sheet_headers[metadata.start_attribute_row]
         attribute_list = metadata.sheet_headers[metadata.start_attribute_row + 1]
         attribute_list = self.remove_units_spec_from_attributes(attribute_list)
@@ -90,6 +91,9 @@ class ExtractExperimentSpreadsheet:
             process = table[process_record['id']]
             self.write_first_data_row_for_process(
                 start_row, start_col, end_col, type_list, attribute_list, process)
+            self.set_file_entry_for_process(
+                start_row, start_col, end_col, type_list, process_record['files']
+            )
             if (end_row - start_row) > 1:
                 self.copy_duplicate_rows_for_process(
                     start_row, end_row, start_col, end_col)
@@ -110,11 +114,17 @@ class ExtractExperimentSpreadsheet:
                 value = self.extract_parameter_for(attribute, setup_parameter_list)
             elif value_type == "SAMPLES" and process.output_samples:
                 value = process.output_samples[0].name
-            elif value_type == "FILES":
-                value = self.make_process_filenames(process)
             else:
                 value = None
             self.data_row_list[row][col] = value
+
+    def set_file_entry_for_process(self, row, start, end, types, entry):
+        for col in range(start, end):
+            value_type = types[col]
+            if value_type == "FILES":
+                print("set FILES entry ", row, col, entry)
+                self.data_row_list[row][col] = entry
+                break
 
     def extract_measurement_for(self, attribute, measurements):
         value = None
@@ -158,6 +168,17 @@ class ExtractExperimentSpreadsheet:
                         value = self.recursive_value_extraction(name_list[1], name_list[2:], value)
         # print('recursive_value_extraction - value', value)
         return value
+
+    def download_process_files(self, download_dir_path):
+        metadata = self.metadata
+        process_record_list = metadata.process_metadata
+        table = metadata.process_table  # Note: added by metadata verify
+        type_list = metadata.sheet_headers[metadata.start_attribute_row]
+        for process_record in process_record_list:
+            start_row = process_record["start_row"]
+            start_col = process_record["start_col"]
+            end_col = process_record["end_col"]
+            files_entry = None
 
     @staticmethod
     def key_for_category(name, name_list):
@@ -264,6 +285,15 @@ def main(main_args):
         print("spreadsheet at " + builder.output_path)
         builder.build_experiment_array()
         builder.write_spreadsheet()
+        if (main_args.files):
+            print("Downloading process files to " + main_args.files)
+            builder.download_process_files(main_args.files)
+
+
+def _verify_data_dir(dir_path):
+    path = Path(dir_path)
+    ok = path.exists() and path.is_dir()
+    return ok
 
 
 if __name__ == '__main__':
@@ -277,11 +307,19 @@ if __name__ == '__main__':
     parser.add_argument('exp', type=str, help="Experiment Name")
     parser.add_argument('--output', type=str, default=default_output_file_path,
                         help='Path to output file, defaults to ' + default_output_file_path)
+    parser.add_argument('--files', type=str,
+                        help="Path to dir for downloading files; if none, files are not downloaded")
     args = parser.parse_args(argv[1:])
 
     args.output = os.path.abspath(args.output)
 
     if not args.output.endswith(".xlsx"):
         file = args.output + ".xlsx"
+
+    if args.files:
+        args.files = os.path.abspath(args.files)
+        if not _verify_data_dir(args.files):
+            print("Path for file download directory does not exist, ignoring: ", args.files)
+            args.files = None
 
     main(args)

@@ -136,6 +136,10 @@ class BuildProjectExperiment:
                     row_index, process,
                     start_col_index, end_col_index,
                     start_attribute_row_index)
+                self.sweep_for_process_files(
+                    row_index, process,
+                    start_col_index, end_col_index,
+                    start_attribute_row_index)
 
             self.metadata.update_process_metadata_end_row(row_index + 1)
             self.previous_row_key = row_key
@@ -154,11 +158,18 @@ class BuildProjectExperiment:
             if process_value_type == 'PARAM' or process_value_type == 'MEAS':
                 value = self.source[data_row][col]
                 self.collect_params_and_measurement(process_value_type, value, signature)
+        self.set_params_and_measurement(process)
+        # print(process.name, self.process_values)
+
+    def sweep_for_process_files(self, data_row, process, start_col, end_col, start_attr_row):
+        # NOTE: only one FILES entry, per process, first one will dominate
+        for col in range(start_col, end_col):
+            process_value_type = self.source[start_attr_row][col]
             if process_value_type == 'FILES':
                 files = self.source[data_row][col]
                 self.add_files(process, files)
-        self.set_params_and_measurement(process)
-        # print(process.name, self.process_values)
+                self.metadata.update_process_files_list(files)
+                break
 
     def clear_params_and_measurement(self):
         self.process_values = {
@@ -391,7 +402,8 @@ class BuildProjectExperiment:
                     or entry.startswith("MEAS") \
                     or entry.startswith("PARAM") \
                     or entry.startswith("PROBLEM") \
-                    or entry.startswith("SAMPLES"):
+                    or entry.startswith("SAMPLES") \
+                    or entry.startswith("FILES"):
                 start_attribute_row_index = row
         self.metadata.set_start_attribute_row(start_attribute_row_index)
         return start_attribute_row_index
