@@ -84,6 +84,7 @@ class Metadata:
             {'id': process.id,
              'name': process.name,
              'template': template_id,
+             'files_list': [],
              'start_row': row,
              'end_row': row + 1,
              'start_col': start_col,
@@ -93,3 +94,7 @@ class Metadata:
 
     def update_process_metadata_end_row(self, row):
         self.process_metadata[-1]['end_row'] = row
+
+    def update_process_files_list(self, list_to_add):
+        for item in list_to_add:
+            self.process_metadata[-1]['files_list'].append(item)

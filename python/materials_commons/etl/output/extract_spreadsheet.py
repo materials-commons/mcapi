@@ -110,6 +110,8 @@ class ExtractExperimentSpreadsheet:
                 value = self.extract_parameter_for(attribute, setup_parameter_list)
             elif value_type == "SAMPLES" and process.output_samples:
                 value = process.output_samples[0].name
+            elif value_type == "FILES":
+                value = self.make_process_filenames(process)
             else:
                 value = None
             self.data_row_list[row][col] = value
@@ -241,6 +243,16 @@ class ExtractExperimentSpreadsheet:
                     attr = parts
             update.append(attr)
         return update
+
+    @staticmethod
+    def make_process_filenames(process):
+        files = process.get_all_files()
+        if not files:
+            return ""
+        names = []
+        for file in files:
+            names.append(file.name)
+        return ", ".join(names)
 
 
 def main(main_args):
