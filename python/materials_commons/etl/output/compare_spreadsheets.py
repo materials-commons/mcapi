@@ -281,6 +281,7 @@ if __name__ == '__main__':
     args.output = os.path.abspath(args.output)
 
     print("Path to input EXCEL file: " + args.input)
+    print("Path to output EXCEL file: " + args.output)
     print("Path to data file directory: " + args.output)
 
     c = Compare()
