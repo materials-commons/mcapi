@@ -175,6 +175,8 @@ def main(project_name, experiment_name):
     print("-----------------------------------------")
     print("|  Process-Workflow  trees (with data)  |")
     print("-----------------------------------------")
+    print("Project: ", walker.project.name, "(" + walker.project.id + ")")
+    print("Experiment: ", walker.experiment.name, "(" + walker.experiment.id + ")")
     for proc in roots:
         walker.print_path(0, proc)
 
