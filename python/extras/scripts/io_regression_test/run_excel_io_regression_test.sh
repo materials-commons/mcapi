@@ -31,18 +31,30 @@ mkdir -p ${SCRAP}/data
 
 input=${SCRAP}/input.xlsx
 output=${SCRAP}/output.xlsx
-data=${SCRAP}/data
+upload=${SCRAP}/data
+download=${SCRAP}/download
+
+cp -r ${SCRIPTS}/test_data/* ${upload}
 
 filename=${SCRIPTS}/Generic\ ETL\ Test\ 1.xlsx
-echo "-------------- input file = $filename"
-cp "$filename" ${input}
+cp "${filename}" ${input}
 
-echo "-- input"
-python -m materials_commons.etl.input.main --input ${input} --dir ${data} --rename
-echo "-- output"
-python -m materials_commons.etl.output.extract_spreadsheet "Generic Testing" "Test1" --output ${output}
-echo "-- compare"
-python -m materials_commons.etl.output.compare_spreadsheets "Generic Testing" "Test1" ${input} ${output}
+echo "--------------"
+echo "  starting file = ${filename}"
+echo "  input file = ${input}"
+echo "  output file = ${output}"
+echo "  upload directory = ${upload}"
+echo "  download directory = ${download}"
+echo "--------------"
+echo ""
+echo "-- input script"
+python -m materials_commons.etl.input.main ${input} --upload ${upload} --rename
+echo "-- output script"
+python -m materials_commons.etl.output.extract_spreadsheet "Generic Testing" "Test1" ${output} --download $(download)
+echo "-- compare script"
+python -m materials_commons.etl.output.compare_spreadsheets "Generic Testing" "Test1" ${input} ${output} --upload ${upload} --download $(download)
+echo "-- project walker script"
+python -m materials_commons.etl.output.project_walker "Generic Testing" "Test1"
 echo "-- done"
 
 popd
