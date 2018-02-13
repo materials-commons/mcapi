@@ -146,11 +146,9 @@ class Walker:
         files = process.get_all_files()
         if not files:
             return text + "(none)"
-        ids = []
         names = []
         for file in files:
             names.append(file.name)
-            ids.appens(id)
         text += ', '.join(names)
         return text
 

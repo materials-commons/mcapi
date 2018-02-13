@@ -28,13 +28,14 @@ pushd ${BASE}
 
 SCRAP=/tmp/mc-test
 mkdir -p ${SCRAP}/data
+rm -rf {SCRAP}/data/*
 
 input=${SCRAP}/input.xlsx
 output=${SCRAP}/output.xlsx
 upload=${SCRAP}/data
 download=${SCRAP}/download
 
-cp -r ${SCRIPTS}/test_data/* ${upload}
+cp -r ${SCRIPTS}/test_data/data/* ${upload}
 
 filename=${SCRIPTS}/Generic\ ETL\ Test\ 1.xlsx
 cp "${filename}" ${input}
