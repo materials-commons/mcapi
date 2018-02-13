@@ -23,6 +23,7 @@ class BuildProjectExperiment:
         self.rename_duplicates = False
         self.data_path = None
         self.experiment_id = None
+        self.suppress_data_upload = False
 
         self._make_template_table()
 
@@ -45,15 +46,23 @@ class BuildProjectExperiment:
         self.set_data(read_entire_sheet(ws))
         wb.close()
 
-        self.set_project_description("Project from excel spreadsheet: " + spread_sheet_path
-                                     + "; using data from " + data_path)
+        self.suppress_data_upload = not data_path
+
+        description = "Project from excel spreadsheet: " + spread_sheet_path + \
+                      "; data upload suppressed"
+        if data_path:
+            description = "Project from excel spreadsheet: " + spread_sheet_path + \
+                "; using data from " + data_path
+
+        self.set_project_description(description)
 
         self.set_input_information(spread_sheet_path, data_path)
 
         if not self._set_project_and_experiment():
             return
 
-        self.project.local_path = data_path
+        if data_path:
+            self.project.local_path = data_path
 
         self._set_row_positions()
         self._set_col_positions()
@@ -167,6 +176,9 @@ class BuildProjectExperiment:
             process_value_type = self.source[start_attr_row][col]
             if process_value_type == 'FILES':
                 files = self.source[data_row][col]
+                if self.suppress_data_upload:
+                    print("data file upload supressed: ", process.name, " - ", files)
+                    break
                 self.add_files(process, files)
                 self.metadata.update_process_files_list(files)
                 break

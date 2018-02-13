@@ -20,7 +20,7 @@ def _verify_input_path(input_path):
 
 
 def main(spread_sheet_path, data_dir, rename_flag):
-    if not _verify_data_dir(data_dir):
+    if data_dir and (not _verify_data_dir(data_dir)):
         print("The Path to data file directory does not point to a user directory; exiting.")
         exit(-1)
     if not _verify_input_path(spread_sheet_path):
