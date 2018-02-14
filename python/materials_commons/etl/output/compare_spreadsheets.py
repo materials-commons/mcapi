@@ -311,10 +311,12 @@ class Compare:
         if not compare_list:
             print("No matching files were found.")
             return
-        matching = []
-        for record in compare_list:
-            matching.append(record['path'])
-        print("Matching files/directories (by " + matching_by + "): " + ", ".join(matching))
+
+        print("All compared files match (by " + matching_by + ").")
+#        matching = []
+#        for record in compare_list:
+#            matching.append(record['path'])
+#        print("Matching files/directories (by " + matching_by + "): " + ", ".join(matching))
 
     def get_compare_list(self, metadata, data1, data2):
         types1 = data1[1]
