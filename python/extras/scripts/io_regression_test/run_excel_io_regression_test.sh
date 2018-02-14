@@ -27,13 +27,15 @@ echo "BASE = $BASE"
 pushd ${BASE}
 
 SCRAP=/tmp/mc-test
-mkdir -p ${SCRAP}/data
-rm -rf {SCRAP}/data/*
 
 input=${SCRAP}/input.xlsx
 output=${SCRAP}/output.xlsx
 upload=${SCRAP}/data
 download=${SCRAP}/download
+
+mkdir -p ${upload}
+rm -rf ${upload}/*
+mkdir -p ${download}
 
 cp -r ${SCRIPTS}/test_data/data/* ${upload}
 
@@ -51,9 +53,9 @@ echo ""
 echo "-- input script"
 python -m materials_commons.etl.input.main ${input} --upload ${upload} --rename
 echo "-- output script"
-python -m materials_commons.etl.output.extract_spreadsheet "Generic Testing" "Test1" ${output} --download $(download)
+python -m materials_commons.etl.output.extract_spreadsheet "Generic Testing" "Test1" ${output} --download ${download}
 echo "-- compare script"
-python -m materials_commons.etl.output.compare_spreadsheets "Generic Testing" "Test1" ${input} ${output} --upload ${upload} --download $(download)
+python -m materials_commons.etl.output.compare_spreadsheets "Generic Testing" "Test1" ${input} ${output} --upload ${upload} --download ${download}
 echo "-- project walker script"
 python -m materials_commons.etl.output.project_walker "Generic Testing" "Test1"
 echo "-- done"
