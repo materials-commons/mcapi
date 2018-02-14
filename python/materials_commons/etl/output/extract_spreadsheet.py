@@ -60,6 +60,7 @@ class ExtractExperimentSpreadsheet:
             return False
         metadata = MetadataVerification().verify(self.metadata)  # Adds metadata.process_table !
         if not metadata:
+            print("Metadata verification failed.")
             return False
         self.metadata = metadata
         return True
@@ -334,7 +335,9 @@ def _verify_data_dir(dir_path):
 def main(project_name, experiment_name, output, download):
     builder = ExtractExperimentSpreadsheet(output)
     ok = builder.set_up_project_experiment_metadata(project_name, experiment_name)
-    if ok:
+    if not ok:
+        print("Invalid configuration of metadata or experiment/metadata mismatch. Quiting")
+    else:
         print("Writing experiment '" + builder.experiment.name
               + "' in project, '" + builder.project.name + ", to")
         print("spreadsheet at " + builder.output_path)
@@ -369,5 +372,9 @@ if __name__ == '__main__':
         if not _verify_data_dir(args.download):
             print("Path for file download directory does not exist, ignoring: ", args.download)
             args.files = None
+    print("Output excel spreadsheet for experiment '" + args.exp + "' of project '" + args.proj + "'...")
+    print("  to spreadsheet at " + args.output)
+    if args.download:
+        print("  with downloaded data going to " + args.download)
 
     main(args.proj, args.exp, args.output, args.download)
