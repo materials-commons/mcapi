@@ -516,7 +516,7 @@ class Project(MCObject):
         """
 
         # TODO: Project.add_directory(path) - refactor this should check for and fail if path does not exist
-        # TODO: Project.add_directory(path) - refactor add optional flag to create parent path if it does note exist
+        # TODO: Project.add_directory(path) - refactor add optional flag to create parent path if it does not exist
         directory = self.create_or_get_all_directories_on_path(path)[-1]
         directory._project = self
         return directory
