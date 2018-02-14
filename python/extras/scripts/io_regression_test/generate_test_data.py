@@ -27,9 +27,9 @@ for p in range(0, len(sets)):
     set = sets[p]
     for n in range(0, len(set)):
         name = names[set[n]]
-        print("Writing: " + path + name)
         with open(path + name, 'w') as file:
-            file.write("This is a test data file, " + name)
+            file.write("This is a test data file, " + name + "\n")
+#            file.write("This is a test data file, " + name)
             file.close()
 
 for i in range(1,20):
@@ -38,5 +38,8 @@ for i in range(1,20):
         tag = "0" + tag
     name = "DataFile" + tag + ".txt"
     with open(paths[3] + name,'w') as file:
-        file.write("This is a test data file, " + name);
+        file.write("This is a test data file, " + name + "\n")
+#        file.write("This is a test data file, " + name)
         file.close()
+
+print("done.")

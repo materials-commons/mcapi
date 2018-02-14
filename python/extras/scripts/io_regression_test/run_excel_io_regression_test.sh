@@ -37,6 +37,11 @@ mkdir -p ${upload}
 rm -rf ${upload}/*
 mkdir -p ${download}
 
+pushd ${SCRIPTS}
+rm -rf test_data
+python generate_test_data.py
+popd
+
 cp -r ${SCRIPTS}/test_data/data/* ${upload}
 
 filename=${SCRIPTS}/Generic\ ETL\ Test\ 1.xlsx

@@ -3,6 +3,7 @@ import datetime
 import hashlib
 import os
 import sys
+import math
 from pathlib import Path
 
 import openpyxl
@@ -266,13 +267,28 @@ class Compare:
                     if isinstance(probe2, str):
                         probe2 = date_parser.parse(probe2)
                     match = probe1.isoformat() == probe2.isoformat()
+                elif isinstance(probe1, float) or isinstance(probe2,float):
+                    if isinstance(probe1, str):
+                        probe1 = float(probe1)
+                    if isinstance(probe2, str):
+                        probe2 = float(probe2)
+                    match = math.isclose(probe1,probe2)
+                elif (probe1 is None) or (probe2 is None):
+                    if isinstance(probe1, str) and probe1 == "None":
+                        probe1 = None
+                    if isinstance(probe2, str) and probe2 == "None":
+                        probe2 = None
+                    match = (probe1 is None) and (probe2 is None)
                 else:
                     match = (probe1 == probe2)
                 identical = identical and match
                 if not match:
-                    obj_type = type(probe1)
+                    obj_type1 = type(probe1)
+                    obj_type2 = type(probe2)
                     print("Data mismatch at row = " + str(row) + ", col = " + str(col) + ": "
-                          + str(probe1) + ", " + str(probe2) + ", " + str(obj_type))
+                          + str(probe1) + ", " + str(probe2) + ", "
+                          + str(obj_type1) + ", " + str(obj_type2))
+
 
         if identical:
             print("Data values match")
@@ -285,7 +301,7 @@ class Compare:
     def compare_files(self, metadata, data1, data2):
         compare_list = self.get_compare_list(metadata, data1, data2)
         if not compare_list:
-            print("Skipping check on file content.")
+            print("Skipping check on file content (no files found to compare).")
             return
         compare_list = self.compare_file_paths(compare_list)
         matching_by = "names"
@@ -334,15 +350,17 @@ class Compare:
             for col in range(1, col_end):
                 if types[col] == 'FILES':
                     elem1 = row_data1[col]
-                    for p_string in elem1.split(","):
-                        p_string = p_string.strip()
-                        if p_string not in path_strings1:
-                            path_strings1.append(p_string)
+                    if elem1:
+                        for p_string in elem1.split(","):
+                            p_string = p_string.strip()
+                            if p_string not in path_strings1:
+                                path_strings1.append(p_string)
                     elem2 = row_data2[col]
-                    for p_string in elem2.split(","):
-                        p_string = p_string.strip()
-                        if p_string not in path_strings2:
-                            path_strings2.append(p_string)
+                    if elem2:
+                        for p_string in elem2.split(","):
+                            p_string = p_string.strip()
+                            if p_string not in path_strings2:
+                                path_strings2.append(p_string)
         path_strings = []
         for p in path_strings2:
             if p not in path_strings1:

@@ -296,6 +296,8 @@ class BuildProjectExperiment:
                 process.set_measurements_for_process_samples(measurement_property, [measurement])
 
     def add_files(self, process, files_from_sheet):
+        if not files_from_sheet:
+            return
         file_or_dir_list = [x.strip() for x in files_from_sheet.split(',')]
         file_list = []
         dir_list = []

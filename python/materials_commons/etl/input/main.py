@@ -54,6 +54,6 @@ if __name__ == '__main__':
         print("Path to directory as sources of file upload: " + args.upload)
     else:
         print("Path to directory as sources of file upload, not specified. File upload suppressed")
-    print("Flag indicating that previous experiments given name sould be renamed: " + str(args.rename))
+    print("Flag indicating if there is a previous experiment with same name, it should be renamed: " + str(args.rename))
 
     main(args.input, args.upload, args.rename)
