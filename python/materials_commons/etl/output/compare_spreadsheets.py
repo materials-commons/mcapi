@@ -439,7 +439,7 @@ class Compare:
                 if not upload.exists():
                     print("File in spredsheet not found in upload directory, ignoring: " + path)
                 if not download.exists():
-                    print("File in spredsheet found in download directory, ignoring: " + path)
+                    print("File in spredsheet not found in download directory, ignoring: " + path)
             else:
                 update_compare_list.append(record)
         return update_compare_list

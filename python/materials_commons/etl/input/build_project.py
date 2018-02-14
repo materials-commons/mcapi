@@ -176,11 +176,11 @@ class BuildProjectExperiment:
             process_value_type = self.source[start_attr_row][col]
             if process_value_type == 'FILES':
                 files = self.source[data_row][col]
+                self.metadata.update_process_files_list(files)
                 if self.suppress_data_upload:
                     print("data file upload supressed: ", process.name, " - ", files)
                     break
                 self.add_files(process, files)
-                self.metadata.update_process_files_list(files)
                 break
 
     def clear_params_and_measurement(self):
