@@ -10,6 +10,7 @@ class Metadata:
         self.excluded_keys = ["excluded_keys"]
         self.process_metadata = []
         self.input_excel_file_path = None
+        self.input_excel_file_id = None
         self.input_data_dir_path = None
         self.project_id = None
         self.experiment_id = None
@@ -33,7 +34,7 @@ class Metadata:
             return None
         metadata = json.loads(metadata_record.json)
         attr = ["time_stamp", "process_metadata", "project_id", "experiment_id",
-                "input_excel_file_path", "input_data_dir_path",
+                "input_excel_file_path", "input_excel_file_id", "input_data_dir_path",
                 "header_row_end", "data_row_start", "data_row_end",
                 "data_col_start", "data_col_end",
                 "start_attribute_row", "sheet_headers"]

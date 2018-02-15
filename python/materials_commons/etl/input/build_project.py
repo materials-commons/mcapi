@@ -64,6 +64,8 @@ class BuildProjectExperiment:
         if data_path:
             self.project.local_path = data_path
 
+        self.upload_excel_spreadsheet(spread_sheet_path)
+
         self._set_row_positions()
         self._set_col_positions()
 
@@ -318,6 +320,15 @@ class BuildProjectExperiment:
             file_list = self._get_all_files_in_directory(directory)
             process_files += file_list
         process.add_files(process_files)
+
+    def upload_excel_spreadsheet(self, spread_sheet_path):
+        name = Path(spread_sheet_path).name
+        directory = self.project.add_directory("/Input Excel Spreadsheets")
+        file = self.project.add_file_using_directory(directory, name, spread_sheet_path)
+        print("Upload excel spreadsheet '" +
+              name + "' to project directory '"
+              + directory.name + "'")
+        self.metadata.input_excel_file_id = file.id
 
     def set_project_description(self, description):
         self.description = description
