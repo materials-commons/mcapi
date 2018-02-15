@@ -2440,7 +2440,7 @@ class File(MCObject):
     # File - additional methods
     def download_file_content(self, local_download_file_path):
         """
-        Down a copy of the file from the database into a local file on a local path.
+        Download a copy of the file from the database into a local file on a local path.
         Will overwrite any existing file.
 
         :param local_download_file_path: the local path ending in the intended file name.
