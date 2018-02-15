@@ -2753,6 +2753,7 @@ class SelectionProperty(Property):
                 break
         if not found:
             self.verify_value_type(value)
+            found = value
         self._value = found
 
 
