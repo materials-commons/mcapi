@@ -3,12 +3,13 @@ import datetime
 import sys
 import tempfile
 from pathlib import Path
+
 import openpyxl
 
 from materials_commons.api import get_all_projects
+from materials_commons.etl.common.worksheet_data import read_entire_sheet
 from materials_commons.etl.input.metadata import Metadata
 from .meta_data_verify import MetadataVerification
-from materials_commons.etl.common.worksheet_data import read_entire_sheet
 
 
 class Differ:
@@ -17,30 +18,32 @@ class Differ:
         self.project = None
         self.experiment = None
         self.input_data = []
+        self.missing_process_list = []
+        self.added_process_list = []
 
     def compute_deltas(self):
         metadata = self.metadata
         process_table = metadata.process_table
         data = self.input_data
         delta_list = []
-        print ("Computing deltas for experiment:", self.experiment.name)
-        print ("excel spreadsheet...")
-        print ("  number of rows:", len(data))
-        print ("  length of first row", len(data[0]))
-        print ("metadata...")
-        print ("  data rows, start and end:", metadata.data_row_start, metadata.data_row_end)
-        print ("  data cols, start and end:", metadata.data_col_start, metadata.data_col_end)
-        print ("  number of process records:", len(metadata.process_metadata))
-        print ("experiment...")
-        print ("  number of processes",len(process_table))
+        print("Computing deltas for experiment:", self.experiment.name)
+        print("excel spreadsheet...")
+        print("  number of rows:", len(data))
+        print("  length of first row", len(data[0]))
+        print("metadata...")
+        print("  data rows, start and end:", metadata.data_row_start, metadata.data_row_end)
+        print("  data cols, start and end:", metadata.data_col_start, metadata.data_col_end)
+        print("  number of process records:", len(metadata.process_metadata))
+        print("experiment...")
+        print("  number of processes", len(process_table))
         delta_list += self._process_deltas()
         delta_list += self._attribute_deltas()
         delta_list += self._value_deltas()
         return delta_list
 
     def report_deltas(self, deltas):
-        print ("Reporting deltas for experiment:", self.experiment.name)
-        print ("Number of deltas:", len(deltas))
+        print("Reporting deltas for experiment:", self.experiment.name)
+        print("Number of deltas:", len(deltas))
 
     def set_up_project_experiment_metadata(self, project_name, experiment_name):
         project_list = get_all_projects()
@@ -70,10 +73,23 @@ class Differ:
             print("This experiment does not appear to have been created using ETL input.")
             print("Quiting.")
             return False
-        metadata = MetadataVerification().verify(self.metadata)  # Adds metadata.process_table !
+        verify = MetadataVerification()
+        metadata = verify.verify(self.metadata)  # Adds metadata.process_table !
         if not metadata:
-            print("Metadata verification failed.")
-            return False
+            if verify.failure == "Project":
+                print("Failed to find project for compare. Quiting")
+                return False
+            if verify.failure == "Experiment":
+                print("Failed to find experiment for compare. Quiting")
+                return False
+            print("Differences detected by metadata verification")
+            metadata = verify.metadata
+            if verify.missing_process_list:
+                print("  number of missing processes: ", len(verify.missing_process_list))
+                self.missing_process_list = verify.missing_process_list
+            if verify.added_process_list:
+                print("  number of added processes:", len(verify.added_process_list))
+                self.added_process_list = verify.missing_process_list
         self.metadata = metadata
         return True
 
@@ -118,6 +134,7 @@ class Differ:
     def _value_deltas(self):
         return []
 
+
 def main(project_name, experiment_name):
     differ = Differ()
     ok = differ.set_up_project_experiment_metadata(project_name, experiment_name)
@@ -134,6 +151,7 @@ def main(project_name, experiment_name):
     else:
         differ.report_deltas(deltas)
 
+
 if __name__ == '__main__':
     time_stamp = '%s' % datetime.datetime.now()
 
@@ -145,6 +163,7 @@ if __name__ == '__main__':
     args = parser.parse_args(argv[1:])
 
     print(
-        "Computer differences in web site and excel spreadsheet data for experiment '" + args.exp + "' of project '" + args.proj)
+        "Computer differences in web site and excel spreadsheet data for experiment '"
+        + args.exp + "' of project '" + args.proj)
 
     main(args.proj, args.exp)
