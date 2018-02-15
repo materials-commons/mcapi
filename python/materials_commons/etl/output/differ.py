@@ -44,6 +44,8 @@ class Differ:
     def report_deltas(self, deltas):
         print("Reporting deltas for experiment:", self.experiment.name)
         print("Number of deltas:", len(deltas))
+        for delta in deltas:
+            print("  ", delta['type'], delta['data'])
 
     def set_up_project_experiment_metadata(self, project_name, experiment_name):
         project_list = get_all_projects()
@@ -85,11 +87,9 @@ class Differ:
             print("Differences detected by metadata verification")
             metadata = verify.metadata
             if verify.missing_process_list:
-                print("  number of missing processes: ", len(verify.missing_process_list))
                 self.missing_process_list = verify.missing_process_list
             if verify.added_process_list:
-                print("  number of added processes:", len(verify.added_process_list))
-                self.added_process_list = verify.missing_process_list
+                self.added_process_list = verify.added_process_list
         self.metadata = metadata
         return True
 
@@ -126,7 +126,26 @@ class Differ:
         return True
 
     def _process_deltas(self):
-        return []
+        deltas = []
+        if self.missing_process_list:
+            print("Processes that are in original input that are not in the experiment")
+            for process_id in self.missing_process_list:
+                deltas.append({
+                    "type": "missing_process",
+                    "data": {
+                        "process_id": process_id
+                    }
+                })
+        if self.added_process_list:
+            print("Processes that are not in original input that are in the experiment")
+            for process_id in self.added_process_list:
+                deltas.append({
+                    "type": "added_process",
+                    "data": {
+                        "process_id": process_id
+                    }
+                })
+        return deltas
 
     def _attribute_deltas(self):
         return []

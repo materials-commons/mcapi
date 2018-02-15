@@ -12,42 +12,59 @@ class MetadataVerification:
 
     def verify(self, metadata):
         self.metadata = metadata
-        verified = True
-        failure = None
+        self.verified = True
+        self.failure = None
         missing = []
         self.missing_process_list = missing
+        added = []
+        self.added_process_list = added
         project = get_project_by_id(metadata.project_id)
         if not project:
             print("Could not find project:", metadata.project_id)
-            verified = False
-            failure = "Project"
+            self.verified = False
+            self.failure = "Project"
+            return None
         else:
             metadata.project = project
             print("Found project:", project.name, "(" + project.id + ")")
         experiment = self.get_experiment(project, metadata.experiment_id)
         if not experiment:
             print("Could not find experiment:", metadata.experiment_id)
-            verified = False
-            failure = "Experiment"
+            self.verified = False
+            self.failure = "Experiment"
+            return None
         else:
             metadata.experiment = experiment
             print("Found experiment: ", experiment.name, "(" + experiment.id + ")")
         processes = experiment.get_all_processes()
         process_table = self.make_process_table(processes)
+        metadata.process_table = process_table
         for process_record in metadata.process_metadata:
             if not process_record['id'] in process_table:
                 missing.append(process_record['id'])
+        for process_id in process_table:
+            found = False
+            for process_record in metadata.process_metadata:
+                if process_record['id'] == process_id:
+                    found = True
+                    break
+            if not found:
+                added.append(process_id)
         if missing:
-            verified = False
-            failure = "Process"
+            self.verified = False
+            self.failure = "Process"
             for id in missing:
-                print("Could not find process: ", id)
-        else:
+                print("Could not find spreadsheet process in experiment:", id)
+        if added:
+            self.verified = False
+            self.failure = "Process"
+            for id in added:
+                print("Could not find experiment process in spreadsheet:", id)
+        if self.verified:
             print("Found all processes (" + str(len(process_table)) + ").")
-            metadata.process_table = process_table
-        self.verified = verified
-        self.failure = failure
-        return verified and metadata
+        if not self.verified:
+            return None
+        return metadata
 
     def get_experiment(self, project, experiment_id):
         experiment_list = project.get_all_experiments()
