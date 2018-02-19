@@ -68,7 +68,22 @@ class Modifier:
         pass
 
     def add_a_measurement(self):
-        pass
+        process = self._pick_ramdom_process()
+        measurement_data = {
+            "name": 'fake',
+            "attribute": 'fake',
+            "otype": 'number',
+            "value": 9999,
+            "is_best_measure": True
+            "unit": ''
+        }
+        measurement = process.create_measurement(data=measurement_data)
+        # print(" ++ measurement", measurement.id, measurement.attribute, measurement.value, measurement.unit)
+        measurement_property = {
+            "name": measurement_data['name'],
+            "attribute": measurement_data['attribute']
+        }
+        process.set_measurements_for_process_samples(measurement_property, [measurement])
 
     def holder(self):
         process = self.first_process_with_set_up(self.experiment)
