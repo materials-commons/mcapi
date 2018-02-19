@@ -24,13 +24,6 @@ class Differ:
     def compute_deltas(self):
         metadata = self.metadata
         process_table = metadata.process_table
-        print("--------------------")
-        process = process_table['36eef9fc-c07f-4180-943e-4935e3109a60']
-        print(process.input_data)
-        print("--------------------")
-        print(process.setup[0].properties[1].input_data)
-        print(process.setup[0].properties[1].value)
-        print("--------------------")
         data = self.input_data
         delta_list = []
         print("Computing deltas for experiment:", self.experiment.name)

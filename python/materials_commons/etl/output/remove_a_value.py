@@ -37,20 +37,37 @@ def first_process_with_set_up(experiment):
 
 
 def remote_first_param(process):
-    pass
+    found = None
+    for s in process.setup:
+        for prop in s.properties:
+            if (prop.value is not None) and (str(prop.value).strip() != ""):
+                found = prop
+                break
+    if found:
+        pass
+    return False
 
 
 def first_process_with_measurements(experiment):
     process_list = experiment.get_all_processes()
     found = None
     for process in process_list:
-        pass
+        measurements = process.measurements
+        if measurements:
+            found = process
+            break
     return found
 
 
 def remove_first_measurement(process):
-    pass
-
+    measurements = process.measurements
+    found = None
+    for measure in measurements:
+        found = measure
+        break
+    if found:
+        pass
+    return False
 
 def main(project_name, experiment_name):
     project = get_project(project_name)
