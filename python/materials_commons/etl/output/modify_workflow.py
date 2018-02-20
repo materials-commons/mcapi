@@ -1,5 +1,7 @@
-import sys
 import argparse
+import random
+import sys
+
 from materials_commons.api import get_all_projects, get_all_templates
 
 
@@ -9,6 +11,14 @@ class Modifier:
         self.experiment = None
         self.process_table = None
         self.template_table = None
+
+    def modify(self):
+        self.remove_a_process()
+        #    self.remove_a_parameter()
+        #    self.remove_a_measurement()
+        # self.add_a_measurement()
+        #    work.add_a_parameter()
+        # self.add_a_process()
 
     def get_project(self, project_name):
         project = None
@@ -37,11 +47,11 @@ class Modifier:
         return experiment
 
     def remove_a_process(self):
-        process = self.find_first_leaf_process()
+        process = self._pick_random_leaf_process()
         if not process:
             print("Remove process, no leaf process(!?)")
         else:
-            print("Remove process:",process.name, process.id)
+            print("Remove process:", process.name, process.id)
             del self.process_table[process.id]
             process.delete()
 
@@ -68,13 +78,13 @@ class Modifier:
         pass
 
     def add_a_measurement(self):
-        process = self._pick_ramdom_process()
+        process = self._pick_random_process()
         measurement_data = {
             "name": 'fake',
             "attribute": 'fake',
             "otype": 'number',
             "value": 9999,
-            "is_best_measure": True
+            "is_best_measure": True,
             "unit": ''
         }
         measurement = process.create_measurement(data=measurement_data)
@@ -144,15 +154,6 @@ class Modifier:
             pass
         return False
 
-    def find_first_leaf_process(self):
-        for process_id in self.process_table:
-            process = self.process_table[process_id]
-            if not process.output_samples:
-                print("found leaf process", process.name)
-                return process
-        print("leaf process not found")
-        return None
-
     def find_a_process_with_output_samples(self):
         for process_id in self.process_table:
             process = self.process_table[process_id]
@@ -161,6 +162,39 @@ class Modifier:
                 return process
         print("Process with output samples not found")
         return None
+
+    def _pick_random_process(self):
+        table = self.process_table
+        process = random.choice(list(table.items()))[1]
+        return process
+
+    def _pick_random_leaf_process(self):
+        process_list = []
+        for process_id in self.process_table:
+            process = self.process_table[process_id]
+            if not process.output_samples:
+                process_list.append(process)
+            elif self._no_input_for_process_output(process):
+                process_list.append(process)
+        if not process_list:
+            return None
+        if process_list:
+            process = random.choice(process_list)
+        return process
+
+    def _no_input_for_process_output(self, process):
+        outputs = process.output_samples
+        for sample in outputs:
+            if self._is_input_sample(sample):
+                return False
+        return True
+
+    def _is_input_sample(self, sample):
+        all_processes = [item[1] for item in list(self.process_table.items())]
+        for process in all_processes:
+            if sample in process.input_samples:
+                return True
+        return False
 
     def _make_template_table(self):
         template_list = get_all_templates()
@@ -202,12 +236,7 @@ def main(project_name, experiment_name):
         exit(-1)
     print("Experiment", experiment.name, experiment.id)
 
-    work.remove_a_process()
-    work.add_a_process()
-    work.remove_a_parameter()
-    work.add_a_parameter()
-    work.remove_a_measurement()
-    work.add_a_measurement()
+    work.modify()
 
 
 if __name__ == '__main__':

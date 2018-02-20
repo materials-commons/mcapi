@@ -182,7 +182,7 @@ class Differ:
             for col in range(start_col, end_col):
                 if self._is_attribute(types_row[col]):
                     attribute_list.append(attributes_row[col])
-        print("  for process id", process_id, "metadata attributes are", attribute_list)
+        # print("  for process id", process_id, "metadata attributes are", attribute_list)
         return attribute_list
 
     def _getProcess_attributes(self, process_id):
@@ -190,12 +190,11 @@ class Differ:
         process = self.metadata.process_table[process_id]
         for s in process.setup:
             for prop in s.properties:
-                print(process_id, prop.attribute, prop.value)
                 if (prop.value is not None) and (str(prop.value).strip() != ""):
                     attribute_list.append(prop.attribute)
         for m in process.measurements:
             attribute_list.append(m.attribute)
-        print("  for process id", process_id, "process attributes are", attribute_list)
+        # print("  for process id", process_id, "process attributes are", attribute_list)
         return attribute_list
 
     def _get_metadata_process_record(self, process_id):
