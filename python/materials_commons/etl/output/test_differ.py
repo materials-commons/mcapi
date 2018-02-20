@@ -25,19 +25,21 @@ class Tester:
         builder.build(self.spread_sheet_path, self.data_dir)
         self.project = builder.project
         self.experiment = builder.experiment
+        project_name = "Generic Testing"
+        experiment_name = "Test1"
 
         print("================== modify ==========================")
         print("================== modify ==========================")
         print("================== modify ==========================")
         modifier = Modifier()
-        project = modifier.get_project(self.project.name)
+        project = modifier.get_project(project_name)
         if not project:
-            print("Could not find project", self.project.name)
+            print("Could not find project", project_name)
             exit(-1)
         print("Project", project.name, project.id)
-        experiment = modifier.get_experiment(self.experiment.name)
+        experiment = modifier.get_experiment(experiment_name)
         if not experiment:
-            print("Count not find experiment:", self.experiment.name)
+            print("Count not find experiment:", experiment_name)
             exit(-1)
         print("Experiment", experiment.name, experiment.id)
         modifier.modify()

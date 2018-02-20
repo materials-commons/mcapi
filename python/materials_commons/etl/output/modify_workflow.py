@@ -16,9 +16,9 @@ class Modifier:
         self.remove_a_process()
         #    self.remove_a_parameter()
         #    self.remove_a_measurement()
-        # self.add_a_measurement()
+        self.add_a_measurement()
         #    work.add_a_parameter()
-        # self.add_a_process()
+        self.add_a_process()
 
     def get_project(self, project_name):
         project = None
@@ -47,9 +47,9 @@ class Modifier:
         return experiment
 
     def remove_a_process(self):
-        process = self._pick_random_leaf_process()
+        process = self._pick_random_noncreate_leaf_process()
         if not process:
-            print("Remove process, no leaf process(!?)")
+            print("Remove process, no non-create leaf process(!?)")
         else:
             print("Remove process:", process.name, process.id)
             del self.process_table[process.id]
@@ -168,13 +168,15 @@ class Modifier:
         process = random.choice(list(table.items()))[1]
         return process
 
-    def _pick_random_leaf_process(self):
+    def _pick_random_noncreate_leaf_process(self):
         process_list = []
         for process_id in self.process_table:
             process = self.process_table[process_id]
+            if process.category == 'create_sample':
+                continue
             if not process.output_samples:
                 process_list.append(process)
-            elif self._no_input_for_process_output(process):
+            elif not self._has_a_child_process(process):
                 process_list.append(process)
         if not process_list:
             return None
@@ -182,18 +184,15 @@ class Modifier:
             process = random.choice(process_list)
         return process
 
-    def _no_input_for_process_output(self, process):
-        outputs = process.output_samples
-        for sample in outputs:
-            if self._is_input_sample(sample):
-                return False
-        return True
-
-    def _is_input_sample(self, sample):
+    def _has_a_child_process(self, probe_process):
+        outputs = probe_process.output_samples
         all_processes = [item[1] for item in list(self.process_table.items())]
-        for process in all_processes:
-            if sample in process.input_samples:
-                return True
+        for sample in outputs:
+            for process in all_processes:
+                if process.id == probe_process.id:
+                    continue
+                if sample.id in [x.id for x in process.input_samples]:
+                    return True
         return False
 
     def _make_template_table(self):
