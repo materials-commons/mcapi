@@ -21,7 +21,6 @@ class Tester:
         print("================== input ==========================")
         builder = BuildProjectExperiment()
         builder.set_rename_is_ok(True)
-        print("calling build")
         builder.build(self.spread_sheet_path, self.data_dir)
         self.project = builder.project
         self.experiment = builder.experiment
