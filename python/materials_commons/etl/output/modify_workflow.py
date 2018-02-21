@@ -14,8 +14,10 @@ class Modifier:
 
     def modify(self):
         self.remove_a_process()
-        #    self.remove_a_parameter()
-        #    self.remove_a_measurement()
+        #    self.remove_a_parameter()    # currently there no way to remove a parameter
+        #    self.remove_a_measurement()  # currently there no way to remove a measurement
+        self.change_a_parameter_value()
+        # self.change_a_measurement_value()
         self.add_a_measurement()
         self.add_a_parameter()
         self.add_a_process()
@@ -68,9 +70,6 @@ class Modifier:
             print("Added as child", process.name)
             process.add_input_samples_to_process([input_sample])
 
-    def remove_a_parameter(self):
-        pass
-
     def add_a_parameter(self):
         process = self._pick_random_process()
         additional_parameter = {
@@ -84,7 +83,16 @@ class Modifier:
         print("Add a parameter", additional_parameter['attribute'],
               additional_parameter['value'], additional_parameter['unit'])
 
-    def remove_a_measurement(self):
+    # def remove_a_measurement(self):
+    #     process = self._pick_random_process_with_a_measurement()
+    #     if not process:
+    #         print("No processes with measurements")
+    #     else:
+    #         print("Remove a measurement - Process", process.name, process.id, len(process.measurements))
+    #         if not self.remove_first_measurement(process):
+    #             print("Could not remove measurement from process")
+
+    def change_a_parameter_value(self):
         pass
 
     def add_a_measurement(self):
@@ -113,14 +121,6 @@ class Modifier:
             print("Param - Process", process.name, process.id)
             if not self.remove_first_param(process):
                 print("Could not remove paramter from process")
-
-        process = self.first_process_with_measurements(self.experiment)
-        if not process:
-            print("No processes with measurments in experiment:", self.experiment.name)
-        else:
-            print("Param - Process", process.name, process.id)
-            if not self.remove_first_measurement(process):
-                print("Could not remove measurement from process")
 
     @staticmethod
     def first_process_with_set_up(experiment):
@@ -160,12 +160,10 @@ class Modifier:
     @staticmethod
     def remove_first_measurement(process):
         measurements = process.measurements
-        found = None
-        for measure in measurements:
-            found = measure
-            break
-        if found:
-            pass
+        if len(measurements) < 1:
+            return False
+        measurement = measurements[0]
+        # process.remove_measurement(measurement)
         return False
 
     def find_a_process_with_output_samples(self):
@@ -180,6 +178,17 @@ class Modifier:
     def _pick_random_process(self):
         table = self.process_table
         process = random.choice(list(table.items()))[1]
+        return process
+
+    def _pick_random_process_with_a_measurement(self):
+        process = None
+        processes_with_measurements = []
+        for process_id in self.process_table:
+            process = self.process_table[process_id]
+            if (process.measurements):
+                processes_with_measurements.append(process)
+        if processes_with_measurements:
+            process = random.choice(processes_with_measurements)
         return process
 
     def _pick_random_noncreate_leaf_process(self):
