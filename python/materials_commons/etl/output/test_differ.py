@@ -38,7 +38,7 @@ class Tester:
         print("Project", project.name, project.id)
         experiment = modifier.get_experiment(experiment_name)
         if not experiment:
-            print("Count not find experiment:", experiment_name)
+            print("Could not find experiment:", experiment_name)
             exit(-1)
         print("Experiment", experiment.name, experiment.id)
         modifier.modify()

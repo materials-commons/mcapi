@@ -7,10 +7,11 @@ from pathlib import Path
 import openpyxl
 
 from materials_commons.api import get_all_projects
+from materials_commons.etl.common.util import _normalise_property_name
 from materials_commons.etl.common.worksheet_data import read_entire_sheet
 from materials_commons.etl.input.metadata import Metadata
-from materials_commons.etl.common.util import _normalise_property_name
 from .meta_data_verify import MetadataVerification
+
 
 class Differ:
     def __init__(self):
@@ -144,33 +145,154 @@ class Differ:
         for process_id in self.metadata.process_table:
             if process_id in self.missing_process_list:
                 continue
-            metadata_attribute_list = self._get_metadata_attributes(process_id)
-            process_attribute_list = self._getProcess_attributes(process_id)
+            metadata_attribute_table = self._get_metadata_attributes(process_id)
+            metadata_attribute_list = list(metadata_attribute_table.keys())
+            process_attribute_and_type_list = self._get_process_attributes_and_type(process_id)
+            process_attribute_type_table = {}
+            for entry in process_attribute_and_type_list:
+                process_attribute_type_table[entry['attribute']] = entry['type']
+            process_attribute_list = list(process_attribute_type_table.keys())
             for attribute in metadata_attribute_list:
-                if not attribute in process_attribute_list:
+                if attribute not in process_attribute_list:
                     deltas.append({
                         "type": "missing_attribute",
                         "data": {
                             'process_id': process_id,
-                            'attribute': attribute
+                            'attribute': attribute,
                         }
                     })
+            print("process_attribute_list", process_attribute_list)
+            print("metadata_attribute_list", metadata_attribute_list)
             for attribute in process_attribute_list:
-                if not attribute in metadata_attribute_list:
+                if attribute not in metadata_attribute_list:
                     deltas.append({
                         "type": "added_attribute",
                         "data": {
                             'process_id': process_id,
-                            'attribute': attribute
+                            'attribute': attribute,
+                            'type': process_attribute_type_table[attribute]
                         }
                     })
         return deltas
 
     def _value_deltas(self):
-        return []
+        deltas = []
+        for process_id in self.metadata.process_table:
+            if process_id in self.missing_process_list:
+                continue
+            process_record = self._get_metadata_process_record(process_id)
+            types_row = self.input_data[self.metadata.start_attribute_row]
+            if process_record:
+                process = self.metadata.process_table[process_id]
+                metadata_attribute_table = self._get_metadata_attributes(process_id)
+                metadata_attribute_list = list(metadata_attribute_table.keys())
+                attributes_row = self._remove_units_spec_from_attributes(
+                    self.input_data[self.metadata.start_attribute_row + 1])
+                attributes_row = self._make_normalized_attribute_names(attributes_row)
+                start_col = process_record['start_col']
+                end_col = process_record['end_col']
+                measurements = self._select_best_measures(process.measurements)
+                setup_parameter_list = process.setup
+                for col in range(start_col, end_col):
+                    value_type = types_row[col]
+                    attribute = attributes_row[col]
+                    if value_type not in ["MEAS", "PARAM", "SAMPLES"]:
+                        continue
+                    if attribute in metadata_attribute_list:
+                        process_value = None
+                        if value_type == "MEAS":
+                            process_value = self.extract_measurement_for(attribute, measurements)
+                        elif value_type == "PARAM":
+                            process_value = self.extract_parameter_for(attribute, setup_parameter_list)
+                        elif value_type == "SAMPLES" and process.output_samples:
+                            process_value = process.output_samples[0].name
+                        start_row = process_record['start_row']
+                        end_row = process_record['end_row']
+                        for row in range(start_row, end_row):
+                            input_value = self.input_data[row][col]
+                            if process_value == 'None':  # how did that happen;
+                                #  TODO: track down where process_value is set to 'None'
+                                process_value = None
+                            if process_value == '':
+                                process_value = None # another one!
+                            if process_value != input_value:
+                                deltas.append({
+                                    "type": "changed_value",
+                                    "data": {
+                                        'process_id': process_id,
+                                        'attribute': attribute,
+                                        'type': value_type,
+                                        'old_value': input_value,
+                                        'new_value': process_value,
+                                        'location': {'row': row, 'col': col}
+                                    }
+                                })
+        return deltas
+
+    @staticmethod
+    def extract_parameter_for(attribute, setup_list):
+        value = None
+        for s in setup_list:
+            for prop in s.properties:
+                if attribute.startswith(prop.attribute):
+                    value = prop.value
+        return value
+
+    def extract_measurement_for(self, attribute, measurements):
+        value = None
+        measurement = self.find_measurement_for_attribute(attribute, measurements)
+        if measurement:
+            value = self.get_measurement_value_for_attribute(attribute, measurement)
+        return value
+
+    @staticmethod
+    def find_measurement_for_attribute(attribute, measurements):
+        found_measurement = None
+        base = attribute
+        if not isinstance(attribute, str):
+            base = attribute[0]
+        for m in measurements:
+            if base == m.attribute:
+                found_measurement = m
+        return found_measurement
+
+    def get_measurement_value_for_attribute(self, attribute, measurement):
+        # print('get_measurement_value_for_attribute', attribute, measurement.value)
+        if not isinstance(attribute, list):
+            if not isinstance(measurement.value, list):
+                return measurement.value
+            else:
+                return None
+        return self.recursive_value_extraction(attribute[0], attribute[1:], measurement.value)
+
+    def recursive_value_extraction(self, name, name_list, probe):
+        key = self.key_for_category(name, name_list)
+        # print('recursive_value_extraction', name, name_list, key, probe)
+        value = None
+        if isinstance(probe, dict):
+            if key in probe:
+                value = probe[key]
+        elif len(name_list) > 0:
+            part_name = name_list[0]
+            for m in probe:
+                if key in m and m[key] == part_name:
+                    value = m['value']
+                    if isinstance(value, dict):
+                        value = self.recursive_value_extraction(name_list[1], name_list[2:], value)
+        # print('recursive_value_extraction - value', value)
+        return value
+
+    @staticmethod
+    def key_for_category(name, name_list):
+        key = name
+        if name == 'composition':
+            key = 'element'
+        if name == 'stats':
+            key = name_list[0]
+        return key
 
     def _get_metadata_attributes(self, process_id):
-        attribute_list = []
+        attribute_table = {}
         process_record = self._get_metadata_process_record(process_id)
         types_row = self.input_data[self.metadata.start_attribute_row]
         attributes_row = self._remove_units_spec_from_attributes(
@@ -179,23 +301,23 @@ class Differ:
         if process_record:
             start_col = process_record['start_col']
             end_col = process_record['end_col']
+            row = process_record['start_row']
             for col in range(start_col, end_col):
                 if self._is_attribute(types_row[col]):
-                    attribute_list.append(attributes_row[col])
+                    attribute_table[attributes_row[col]] = {"with_data": self._is_data(row, col)}
         # print("  for process id", process_id, "metadata attributes are", attribute_list)
-        return attribute_list
+        return attribute_table
 
-    def _getProcess_attributes(self, process_id):
-        attribute_list = []
+    def _get_process_attributes_and_type(self, process_id):
+        attribute_and_type_list = []
         process = self.metadata.process_table[process_id]
         for s in process.setup:
             for prop in s.properties:
                 if (prop.value is not None) and (str(prop.value).strip() != ""):
-                    attribute_list.append(prop.attribute)
+                    attribute_and_type_list.append({'attribute': prop.attribute, 'type': 'PARAM'})
         for m in process.measurements:
-            attribute_list.append(m.attribute)
-        # print("  for process id", process_id, "process attributes are", attribute_list)
-        return attribute_list
+            attribute_and_type_list.append({'attribute': m.attribute, 'type': 'MEAS'})
+        return attribute_and_type_list
 
     def _get_metadata_process_record(self, process_id):
         found = None
@@ -205,8 +327,29 @@ class Differ:
                 break
         return found
 
-    def _is_attribute(self, attribute_type):
-        return attribute_type in ['PARAM','MEAS']
+    def _is_data(self, row, col):
+        value = self.input_data[row][col]
+        results = not (value is None or value == '')
+        return results
+
+    @staticmethod
+    def _select_best_measures(measurements):
+        selected_measurements = {}
+        for m in measurements:
+            if m.attribute in selected_measurements:
+                sm = selected_measurements[m.attribute]
+                if sm.is_best_measure:
+                    continue
+            else:
+                selected_measurements[m.attribute] = m
+        results = []
+        for key in selected_measurements:
+            results.append(selected_measurements[key])
+        return results
+
+    @staticmethod
+    def _is_attribute(attribute_type):
+        return attribute_type in ['PARAM', 'MEAS']
 
     @staticmethod
     def _remove_units_spec_from_attributes(attributes):

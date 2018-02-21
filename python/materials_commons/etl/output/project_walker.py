@@ -3,6 +3,7 @@ import os
 import argparse
 from materials_commons.api import get_all_projects
 
+
 class Walker:
 
     def __init__(self):

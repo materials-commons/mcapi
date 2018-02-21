@@ -21,6 +21,7 @@ class Metadata:
         self.data_col_end = None
         self.start_attribute_row = None
         self.sheet_headers = None
+        self.process_table = None
 
     def write(self, experiment_id):
         metadata_dict = self.format()

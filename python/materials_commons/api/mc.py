@@ -1435,10 +1435,11 @@ class Process(MCObject):
             return self.properties_dictionary
         ret = {}
         for s in self.setup:
-            props = s.properties
-            for prop in props:
-                prop.setup_attribute = s.attribute
-                ret[prop.attribute] = prop
+            if s.attribute == 'instrument':
+                props = s.properties
+                for prop in props:
+                    prop.setup_attribute = s.attribute
+                    ret[prop.attribute] = prop
         self.properties_dictionary = ret
         return ret
 

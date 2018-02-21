@@ -13,14 +13,23 @@ class Modifier:
         self.template_table = None
 
     def modify(self):
-        self.remove_a_process()
+        n_processes = len(self.process_table)
+        n_processes = max(1, int(n_processes/20))
+
+        for i in range(0,n_processes):
+            self.remove_a_process()
         #    self.remove_a_parameter()    # currently there no way to remove a parameter
         #    self.remove_a_measurement()  # currently there no way to remove a measurement
-        self.change_a_parameter_value()
-        # self.change_a_measurement_value()
-        self.add_a_measurement()
-        self.add_a_parameter()
-        self.add_a_process()
+        for i in range(0, n_processes):
+            self.change_a_parameter_value()
+        for i in range(0, n_processes):
+            self.change_a_measurement_value()
+        for i in range(0, n_processes):
+            self.add_a_measurement()
+        for i in range(0, n_processes):
+            self.add_a_parameter()
+        for i in range(0, n_processes):
+            self.add_a_process()
 
     def get_project(self, project_name):
         project = None
@@ -77,10 +86,10 @@ class Modifier:
             "attribute": 'fakeparam',
             "otype": 'number',
             "value": 9999,
-            "unit": ''
+            "unit": 'X'
         }
         process.update_additional_setup_properties([additional_parameter])
-        print("Add a parameter", additional_parameter['attribute'],
+        print("Add a parameter", process.id, additional_parameter['attribute'],
               additional_parameter['value'], additional_parameter['unit'])
 
     # def remove_a_measurement(self):
@@ -93,7 +102,62 @@ class Modifier:
     #             print("Could not remove measurement from process")
 
     def change_a_parameter_value(self):
-        pass
+        process = self._random_process_with_set_up()
+        print(process.input_data)
+        table = process.get_setup_properties_as_dictionary()
+        for key in list(table.keys()):
+            prop = table[key]
+            if (prop.value is not None) and (str(prop.value).strip() != "") \
+                    and (prop.otype == 'number'):
+                old_val = prop.value
+                new_val = old_val + 1
+                print("Change Property value:", process.id, prop.name, prop.otype, prop.attribute,
+                      old_val, "-->", new_val, prop.unit)
+                if process.is_known_setup_property(prop.attribute):
+                    print("Process setup param")
+                    process.set_value_of_setup_property(prop.attribute, prop.value + 1)
+                    if prop.unit:
+                        process.set_unit_of_setup_property(prop.attribute, prop.unit)
+                    process.update_setup_properties([prop.attribute])
+                else:
+                    print("Process extra param")
+                    entry = {
+                        'value': new_val,
+                        'name': prop.name,
+                        'attribute': prop.attribute,
+                        'unit': prop.unit
+                    }
+                    process.update_additional_setup_properties([entry])
+                break
+
+    def change_a_measurement_value(self):
+        process = self._pick_random_process_with_a_measurement()
+        if not process:
+            print("No processes with measurements (change_a_measurement_value)")
+            return
+        measurements = process.measurements
+        measurement = random.choice(measurements)
+        old_value = measurement.value
+        new_value = measurement.value + 1
+        measurement_data = {
+            "name": measurement.name,
+            "attribute": measurement.attribute,
+            "otype": measurement.otype,
+            "value": new_value,
+            "is_best_measure": True
+        }
+        if measurement.unit:
+            measurement_data['unit'] = measurement.unit
+        else:
+            measurement_data['unit'] = ""
+        measurement = process.create_measurement(data=measurement_data)
+        measurement_property = {
+            "name": measurement.name,
+            "attribute": measurement.attribute
+        }
+        process.set_measurements_for_process_samples(measurement_property, [measurement])
+        print("Change Measurement value: ", process.id, measurement.attribute,
+              old_value, "-->", new_value, measurement.unit)
 
     def add_a_measurement(self):
         process = self._pick_random_process()
@@ -111,28 +175,29 @@ class Modifier:
             "attribute": measurement_data['attribute']
         }
         process.set_measurements_for_process_samples(measurement_property, [measurement])
-        print("Add a measurement", measurement.attribute, measurement.value, measurement.unit)
+        print("Add a measurement:", process.id, measurement.attribute, measurement.value, measurement.unit)
 
-    def holder(self):
-        process = self.first_process_with_set_up(self.experiment)
-        if not process:
-            print("No processes with setup parameters in experiment:", self.experiment.name)
-        else:
-            print("Param - Process", process.name, process.id)
-            if not self.remove_first_param(process):
-                print("Could not remove paramter from process")
+    # def remove_a_parameter(self):
+    #     process = self._random_process_with_set_up()
+    #     if not process:
+    #         print("No processes with setup parameters in experiment:", self.experiment.name)
+    #     else:
+    #         print("Param - Process", process.name, process.id)
+    #         if not self.remove_first_param(process):
+    #             print("Could not remove paramter from process")
 
-    @staticmethod
-    def first_process_with_set_up(experiment):
-        process_list = experiment.get_all_processes()
-        found = None
-        for process in process_list:
+    def _random_process_with_set_up(self):
+        process = None
+        processes_with_set_up = []
+        for process_id in self.process_table:
+            process = self.process_table[process_id]
             for s in process.setup:
                 for prop in s.properties:
                     if (prop.value is not None) and (str(prop.value).strip() != ""):
-                        print(process.id, prop.attribute, prop.value)
-                        found = process
-        return found
+                        processes_with_set_up.append(process)
+        if processes_with_set_up:
+            process = random.choice(processes_with_set_up)
+        return process
 
     @staticmethod
     def remove_first_param(process):
@@ -146,25 +211,14 @@ class Modifier:
             pass
         return False
 
-    @staticmethod
-    def first_process_with_measurements(experiment):
-        process_list = experiment.get_all_processes()
-        found = None
-        for process in process_list:
-            measurements = process.measurements
-            if measurements:
-                found = process
-                break
-        return found
-
-    @staticmethod
-    def remove_first_measurement(process):
-        measurements = process.measurements
-        if len(measurements) < 1:
-            return False
-        measurement = measurements[0]
-        # process.remove_measurement(measurement)
-        return False
+    # @staticmethod
+    # def remove_first_measurement(process):
+    #     measurements = process.measurements
+    #     if len(measurements) < 1:
+    #         return False
+    #     measurement = measurements[0]
+    #     process.remove_measurement(measurement)
+    #     return False
 
     def find_a_process_with_output_samples(self):
         for process_id in self.process_table:
@@ -181,15 +235,15 @@ class Modifier:
         return process
 
     def _pick_random_process_with_a_measurement(self):
-        process = None
+        selected = None
         processes_with_measurements = []
         for process_id in self.process_table:
             process = self.process_table[process_id]
-            if (process.measurements):
+            if process.measurements:
                 processes_with_measurements.append(process)
         if processes_with_measurements:
-            process = random.choice(processes_with_measurements)
-        return process
+            selected = random.choice(processes_with_measurements)
+        return selected
 
     def _pick_random_noncreate_leaf_process(self):
         process_list = []
