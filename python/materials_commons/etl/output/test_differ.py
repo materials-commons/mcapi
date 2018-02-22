@@ -1,6 +1,7 @@
 import argparse
 import os
 import sys
+import json
 from pathlib import Path
 
 from materials_commons.etl.input.build_project import BuildProjectExperiment
@@ -63,12 +64,17 @@ class Tester:
             print("No differences were detected. Done")
         else:
             differ.report_deltas(deltas)
+            file_path = "/Users/weymouth/Desktop/test/deltaList.json"
+            with open(file_path, 'w') as f:
+                json.dump(deltas, f)
+
+        exit(0)
         print("================== output ==========================")
         print("================== output ==========================")
         print("================== output ==========================")
         output = self.output_file_path
         builder = ExtractExperimentSpreadsheetWithChanges(output)
-        builder = register_deltas(deltas)
+        builder.register_deltas(deltas)
         ok = builder.set_up_project_experiment_metadata(project_name, experiment_name)
         download = self.download_data_dir
         if not ok:
