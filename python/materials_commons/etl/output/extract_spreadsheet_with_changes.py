@@ -25,6 +25,7 @@ class ExtractExperimentSpreadsheetWithChanges:
         self.project = None
         self.experiment = None
         self.delta_list = None
+        self.data_built = False
         self.data_row_list = []
 
     def get_project(self):
@@ -81,6 +82,19 @@ class ExtractExperimentSpreadsheetWithChanges:
         self.set_headers_from_metadata()
         self.set_data_from_metadata()
 
+    def apply_deltas(self):
+        if not self.delta_list:
+            print("Attempted to apply deltas, but no delta list, call register_deltas() first")
+            return
+        if not self.data_built:
+            print("Attempt to apply delta list, but data not build, call build_experiment_array() first")
+            return
+        # NOTE: missing processes already handled
+        # NOTE: missing attributes can be, and are, ignored
+        self.apply_changed_values()
+        self.apply_added_attributes()
+        self.apply_added_processes()
+
     def set_headers_from_metadata(self):
         print("    ... setting headers...")
         for row in self.metadata.sheet_headers:
@@ -116,6 +130,7 @@ class ExtractExperimentSpreadsheetWithChanges:
             if (end_row - start_row) > 1:
                 self.copy_duplicate_rows_for_process(
                     start_row, end_row, start_col, end_col)
+        self.data_built = True
 
     def initialize_empty_data(self):
         for row_index in range(len(self.data_row_list), self.metadata.data_row_end):
@@ -136,6 +151,69 @@ class ExtractExperimentSpreadsheetWithChanges:
             else:
                 value = None
             self.data_row_list[row][col] = value
+
+    def apply_changed_values(self):
+        # Note, this must be applied before other deltas, as other update may shift data locations!
+        for item in self.delta_list:
+            if not item['type'] == 'changed_value':
+                continue
+            row = item['data']['location']['row']
+            col = item['data']['location']['col']
+            value = item['data']['new_value']
+            self.data_row_list[row][col] = value
+
+    def apply_added_attributes(self):
+        for item in self.delta_list:
+            if not item['type'] == 'added_attribute':
+                continue
+            process_id = item['data']['process_id']
+            attribute = item['data']['attribute']
+            attribute_type = item['data']['type']
+            process = self.metadata.process_table[process_id]
+            measurements = process.measurements
+            setup_parameter_list = process.setup
+            if attribute_type == "MEAS":
+                value = self.extract_measurement_for(attribute, measurements)
+            elif attribute_type == "PARAM":
+                value = self.extract_parameter_for(attribute, setup_parameter_list)
+            else:
+                value = None
+            print("apply_added_attributes", process_id, attribute_type, attribute, value)
+            self._insert_new_attribute_in_data(process_id, attribute_type, attribute, value)
+
+    def apply_added_processes(self):
+        for item in self.delta_list:
+            if not item['type'] == 'added_process':
+                continue
+            process_id = item['data']['process_id']
+            process = self.metadata.process_table[process_id]
+            attribute_list = []
+            measurements = process.measurements
+            setup_parameter_list = process.setup
+            for m in measurements:
+                attribute = m.attribute
+                value = self.get_measurement_value_for_attribute(attribute, m)
+                attribute_list.append({'type': 'MEAS', 'attribute': attribute, 'value': value})
+            for p in setup_parameter_list:
+                for prop in p.properties:
+                    attribute = prop.attribute
+                    value = prop.value
+                    if (value is None) or (value == ""):
+                        continue
+                    attribute_list.append({'type': 'PARAM', 'attribute': attribute, 'value': value})
+            print("apply_added_processes", process.id, process.name, attribute_list)
+            parent = None
+            sample = process.input_samples[0]
+            for probe_id in self.metadata.process_table:
+                probe = self.metadata.process_table[probe_id]
+                if probe.output_samples:
+                    probe_sample = probe.output_samples[0]
+                    if probe_sample.id == sample.id and probe_sample.property_set_id == sample.property_set_id:
+                        parent = probe
+            parent_id = None
+            if parent:
+                parent_id = parent.id
+            print("parent",parent_id)
 
     def set_file_entry_for_process(self, row, start, end, types, entry):
         for col in range(start, end):
@@ -365,6 +443,44 @@ class ExtractExperimentSpreadsheetWithChanges:
             if item['type'] == 'added_process' and process_id == item['data']['process_id']:
                 return True
         return False
+
+    def _insert_new_attribute_in_data(self, process_id, attribute_type, attribute, value):
+        self.metadata.data_col_end = self.metadata.data_col_end + 1
+        process_in_metadata = None
+        for process_entry in self.metadata.process_metadata:
+            if process_entry['id'] == process_id:
+                process_in_metadata = process_entry
+        start_col = process_in_metadata['start_col']
+        end_col = process_in_metadata['end_col']
+        start_row = process_in_metadata['start_row']
+        end_row = process_in_metadata['end_row']
+        for process_entry in self.metadata.process_metadata:
+            probe_start_col = process_entry['start_col']
+            if probe_start_col >= start_col:
+                process_entry['end_col'] = process_entry['end_col'] + 1
+                if probe_start_col > start_col:
+                    process_entry['start_col'] = process_entry['start_col'] + 1
+        new_sheet_headers = []
+        for header in self.metadata.sheet_headers:
+            pre = header[:end_col]
+            post = header[end_col:]
+            new_header = pre + ['null'] + post
+            new_sheet_headers.append(new_header)
+        attribute_row = self.metadata.start_attribute_row
+        new_sheet_headers[attribute_row][end_col] = attribute_type
+        new_sheet_headers[attribute_row + 1][end_col] = attribute
+        self.metadata.sheet_headers = new_sheet_headers
+        new_data_row_list = []
+        for data_row in self.data_row_list:
+            pre = data_row[:end_col]
+            post = data_row[end_col:]
+            new_data_row = pre + [''] + post
+            new_data_row_list.append(new_data_row)
+        self.data_row_list = new_data_row_list
+        self.data_row_list[attribute_row][end_col] = attribute_type
+        self.data_row_list[attribute_row+1][end_col] = attribute
+        for row in range(start_row, end_row):
+            self.data_row_list[row][end_col] = value
 
 def _verify_data_dir(dir_path):
     path = Path(dir_path)

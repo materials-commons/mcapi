@@ -33,6 +33,7 @@ class TestExtract:
                   + "' in project, '" + builder.project.name + ", to")
         print("spreadsheet at " + output)
         builder.build_experiment_array()
+        builder.apply_deltas()
         builder.write_spreadsheet()
         if download:
             print("Downloading process files to " + download)
