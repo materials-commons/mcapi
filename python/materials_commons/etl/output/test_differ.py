@@ -7,8 +7,6 @@ from pathlib import Path
 from materials_commons.etl.input.build_project import BuildProjectExperiment
 from .differ import Differ
 from .modify_workflow import Modifier
-from .extract_spreadsheet_with_changes import ExtractExperimentSpreadsheetWithChanges
-
 
 class Tester:
     def __init__(self, spread_sheet_path, output_file_path, upload_data_dir, download_data_dir):
@@ -67,27 +65,6 @@ class Tester:
             file_path = "/Users/weymouth/Desktop/test/deltaList.json"
             with open(file_path, 'w') as f:
                 json.dump(deltas, f)
-
-        exit(0)
-        print("================== output ==========================")
-        print("================== output ==========================")
-        print("================== output ==========================")
-        output = self.output_file_path
-        builder = ExtractExperimentSpreadsheetWithChanges(output)
-        builder.register_deltas(deltas)
-        ok = builder.set_up_project_experiment_metadata(project_name, experiment_name)
-        download = self.download_data_dir
-        if not ok:
-            print("Invalid configuration of metadata or experiment/metadata mismatch. Quiting")
-        else:
-            print("Writing experiment '" + builder.experiment.name
-                  + "' in project, '" + builder.project.name + ", to")
-            print("spreadsheet at " + builder.output_path)
-            builder.build_experiment_array()
-            builder.write_spreadsheet()
-            if download:
-                print("Downloading process files to " + download)
-                builder.download_process_files(download)
 
     def verify_data_dir(self):
         path = Path(self.data_dir)

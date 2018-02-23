@@ -24,7 +24,7 @@ class ExtractExperimentSpreadsheetWithChanges:
         self.workbook = None
         self.project = None
         self.experiment = None
-        self.deltas = None
+        self.delta_list = None
         self.data_row_list = []
 
     def get_project(self):
@@ -61,7 +61,12 @@ class ExtractExperimentSpreadsheetWithChanges:
             print("This experiment does not appear to have been created using ETL input.")
             print("Quiting.")
             return False
-        metadata = MetadataVerification().verify(self.metadata)  # Adds metadata.process_table !
+        verifier = MetadataVerification(self.metadata)
+        verifier.add_process_table_to_metadata(self.experiment)
+        if self.delta_list:
+            metadata = verifier.verify_with_delta_list(self.delta_list)
+        else:
+            metadata = verifier.verify()
         if not metadata:
             print("Metadata verification failed.")
             return False
@@ -69,7 +74,7 @@ class ExtractExperimentSpreadsheetWithChanges:
         return True
 
     def register_deltas(self, deltas):
-        self.deltas = deltas
+        self.delta_list = deltas
 
     def build_experiment_array(self):
         self.data_row_list = []
@@ -98,6 +103,10 @@ class ExtractExperimentSpreadsheetWithChanges:
             end_row = process_record["end_row"]
             start_col = process_record["start_col"]
             end_col = process_record["end_col"]
+            process_id = process_record['id']
+            if self.check_delta_list_for_missing_process(process_id):
+                print("Accepting missing process (in delta list)", process_id)
+                continue
             process = table[process_record['id']]
             self.write_first_data_row_for_process(
                 start_row, start_col, end_col, type_list, attribute_list, process)
@@ -345,6 +354,17 @@ class ExtractExperimentSpreadsheetWithChanges:
             names.append(f.name)
         return ", ".join(names)
 
+    def check_delta_list_for_missing_process(self, process_id):
+        for item in self.delta_list:
+            if item['type'] == 'missing_process' and process_id == item['data']['process_id']:
+                return True
+        return False
+
+    def check_delta_list_for_added_process(self, process_id):
+        for item in self.delta_list:
+            if item['type'] == 'added_process' and process_id == item['data']['process_id']:
+                return True
+        return False
 
 def _verify_data_dir(dir_path):
     path = Path(dir_path)

@@ -77,8 +77,8 @@ class Differ:
             print("This experiment does not appear to have been created using ETL input.")
             print("Quiting.")
             return False
-        verify = MetadataVerification()
-        metadata = verify.verify(self.metadata)  # Adds metadata.process_table !
+        verify = MetadataVerification(self.metadata)
+        metadata = verify.verify()  # Adds metadata.process_table !
         if not metadata:
             if verify.failure == "Project":
                 print("Failed to find project for compare. Quiting")
