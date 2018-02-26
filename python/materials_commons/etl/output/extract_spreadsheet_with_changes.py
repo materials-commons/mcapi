@@ -187,6 +187,8 @@ class ExtractExperimentSpreadsheetWithChanges:
                 continue
             process_id = item['data']['process_id']
             process = self.metadata.process_table[process_id]
+            proc_name = process.template_name.replace("Template","").strip()
+            print(process.input_data)
             attribute_list = []
             measurements = process.measurements
             setup_parameter_list = process.setup
@@ -213,7 +215,65 @@ class ExtractExperimentSpreadsheetWithChanges:
             parent_id = None
             if parent:
                 parent_id = parent.id
-            print("parent",parent_id)
+            print("parent", parent_id)
+            new_col = self.metadata.data_col_start
+            row = self.metadata.data_row_start
+            if parent_id:
+                for probe in self.metadata.process_metadata:
+                    if probe['id'] == parent_id:
+                        new_col = probe['end_col']
+                        row = probe['start_row']
+            print("location", row, new_col)
+            for process_entry in self.metadata.process_metadata:
+                probe_start_col = process_entry['start_col']
+                if probe_start_col >= new_col:
+                    process_entry['end_col'] = process_entry['end_col'] + 1
+                    if probe_start_col > new_col:
+                        process_entry['start_col'] = process_entry['start_col'] + 1
+            new_process_entry = {
+                'id': process.id,
+                'name': process.name,
+                'template': process.template_name,
+                'files': "",
+                'start_row': row,
+                'end_row': row+1,
+                'start_col': new_col,
+                'end_col': new_col+1
+            }
+            placed = False,
+            new_process_metadata = []
+            for process_entry in self.metadata.process_metadata:
+                probe_start_col = process_entry['start_col']
+                probe_start_row = process_entry['start_row']
+                if (not placed) and (new_col >= probe_start_col) and (row > probe_start_row):
+                    new_process_metadata.append(new_process_entry)
+                    placed = True
+                new_process_metadata.append(process_entry)
+            if not placed:
+                new_process_metadata.append(new_process_entry)
+            self.metadata.process_metadata = new_process_metadata
+
+            new_sheet_headers = []
+            for header in self.metadata.sheet_headers:
+                pre = header[:new_col]
+                post = header[new_col:]
+                new_header = pre + ['null'] + post
+                new_sheet_headers.append(new_header)
+            new_sheet_headers[0][new_col] = proc_name
+            new_sheet_headers[self.metadata.start_attribute_row][new_col] = "IGNORE"
+            self.metadata.sheet_headers = new_sheet_headers
+            print(self.metadata.sheet_headers)
+            new_data_row_list = []
+            for data_row in self.data_row_list:
+                pre = data_row[:new_col]
+                post = data_row[new_col:]
+                new_data_row = pre + [''] + post
+                new_data_row_list.append(new_data_row)
+            self.data_row_list = new_data_row_list
+            self.data_row_list[0][new_col] = proc_name
+            self.data_row_list[self.metadata.start_attribute_row][new_col] = "IGNORE"
+            self.data_row_list[row][new_col] = "Mark"
+            print(self.data_row_list)
 
     def set_file_entry_for_process(self, row, start, end, types, entry):
         for col in range(start, end):
