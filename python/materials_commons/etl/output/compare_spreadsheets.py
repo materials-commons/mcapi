@@ -1,20 +1,46 @@
 import argparse
 import datetime
-import sys
+import hashlib
 import os
+import sys
+import math
+from pathlib import Path
 
 import openpyxl
 from dateutil import parser as date_parser
 
+from materials_commons.api import get_all_projects
 from materials_commons.etl.common.worksheet_data import read_entire_sheet
 from materials_commons.etl.input.metadata import Metadata
-
-default_base = "/Users/weymouth/Desktop"
+from .meta_data_verify import MetadataVerification
 
 
 class Compare:
 
-    def compare(self, input_file_path, output_file_path, metadata_path):
+    def __init__(self):
+        self.project = None
+        self.experiment = None
+        self.metadata = Metadata()
+        self.upload = None
+        self.download = None
+        self.do_files = False
+        self.checksum = False
+
+    def set_options(self, do_files=False, upload=None, download=None, checksum=False):
+        if do_files and not (upload and download):
+            do_files = False
+            print("Both upload and download must be set to compare files")
+        self.do_files = do_files
+        self.upload = upload
+        self.download = download
+        self.checksum = checksum
+
+    def compare(self, project_name, experiment_name, input_file_path, output_file_path):
+
+        ok = self.set_up_project_experiment_metadata(project_name, experiment_name)
+        if not ok:
+            return
+
         print('Input --', input_file_path)
         wb1 = openpyxl.load_workbook(filename=input_file_path)
         sheets = wb1.sheetnames
@@ -33,13 +59,48 @@ class Compare:
         data2 = self.check_for_end_tag(data2)
         print("Output data size:", len(data2), len(data2[0]))
 
-        metadata = Metadata()
-        metadata.read(metadata_path)
+        metadata = self.metadata
         print('----')
         if self.compare_data_shape(data1, data2):
             self.compare_headers(metadata, data1, data2)
             self.compare_first_col(metadata, data1, data2)
             self.compare_data_area(metadata, data1, data2)
+            if self.do_files:
+                self.compare_files(metadata, data1, data2)
+
+    def set_up_project_experiment_metadata(self, project_name, experiment_name):
+        project_list = get_all_projects()
+        for proj in project_list:
+            if proj.name == project_name:
+                self.project = proj
+        if not self.project:
+            print("Can not find project with name = " + str(project_name) + ". Quiting.")
+            return False
+        experiment_list = self.project.get_all_experiments()
+        found = []
+        for exp in experiment_list:
+            if exp.name == experiment_name:
+                found.append(exp)
+        if not found:
+            print("Can not find Experiment with name = " + str(experiment_name) + ". Quiting.")
+            return False
+        if len(found) > 1:
+            print("Found more the one Experiment with name = " + str(experiment_name) + ";")
+            print("Rename experiment so that '" + str(experiment_name) + "' is unique.")
+            print("Quiting.")
+            return False
+        self.experiment = found[0]
+        ok = self.metadata.read(self.experiment.id)
+        if not ok:
+            print("There was no ETL metadata for the experiment '" + str(experiment_name) + "';")
+            print("This experiment does not appear to have been created using ETL input.")
+            print("Quiting.")
+            return False
+        metadata = MetadataVerification().verify(self.metadata)
+        if not metadata:
+            return False
+        self.metadata = metadata
+        return True
 
     @staticmethod
     def compare_data_shape(data1, data2):
@@ -158,8 +219,8 @@ class Compare:
             if len2 < metadata.data_row_end:
                 print("Missing data rows, output, expected "
                       + str(metadata.data_row_end) + ", found" + str(len2))
-        types1 = data1[metadata.header_row_end - 2]
-        types2 = data2[metadata.header_row_end - 2]
+        types1 = data1[1]
+        types2 = data2[1]
 
         types = [""]  # element at index zero is ignored
 
@@ -206,46 +267,277 @@ class Compare:
                     if isinstance(probe2, str):
                         probe2 = date_parser.parse(probe2)
                     match = probe1.isoformat() == probe2.isoformat()
+                elif isinstance(probe1, float) or isinstance(probe2,float):
+                    if isinstance(probe1, str):
+                        probe1 = float(probe1)
+                    if isinstance(probe2, str):
+                        probe2 = float(probe2)
+                    match = math.isclose(probe1,probe2)
+                elif (probe1 is None) or (probe2 is None):
+                    if isinstance(probe1, str) and probe1 == "None":
+                        probe1 = None
+                    if isinstance(probe2, str) and probe2 == "None":
+                        probe2 = None
+                    match = (probe1 is None) and (probe2 is None)
                 else:
                     match = (probe1 == probe2)
                 identical = identical and match
                 if not match:
-                    obj_type = type(probe1)
+                    obj_type1 = type(probe1)
+                    obj_type2 = type(probe2)
                     print("Data mismatch at row = " + str(row) + ", col = " + str(col) + ": "
-                          + str(probe1) + ", " + str(probe2) + ", " + str(obj_type))
+                          + str(probe1) + ", " + str(probe2) + ", "
+                          + str(obj_type1) + ", " + str(obj_type2))
+
 
         if identical:
             print("Data values match")
 
     @staticmethod
     def type_expect_data(data_type):
-        return data_type == "MEAS" or data_type == "PARAM" or data_type == "SAMPLES"
+        return data_type == "MEAS" or data_type == "PARAM" or \
+               data_type == "SAMPLES" or data_type == "FILES"
+
+    def compare_files(self, metadata, data1, data2):
+        compare_list = self.get_compare_list(metadata, data1, data2)
+        if not compare_list:
+            print("Skipping check on file content (no files found to compare).")
+            return
+        compare_list = self.compare_file_paths(compare_list)
+        matching_by = "names"
+        if self.checksum:
+            matching_by += " and checksums"
+            compare_list = self.compare_file_checksum(compare_list)
+        if not compare_list:
+            print("No matching files were found.")
+            return
+
+        print("All compared files match (by " + matching_by + ").")
+#        matching = []
+#        for record in compare_list:
+#            matching.append(record['path'])
+#        print("Matching files/directories (by " + matching_by + "): " + ", ".join(matching))
+
+    def get_compare_list(self, metadata, data1, data2):
+        types1 = data1[1]
+        types2 = data2[1]
+
+        types = [""]  # element at index zero is ignored
+
+        for col in range(1, metadata.data_col_end):
+            type1 = types1[col]
+            type2 = types2[col]
+            if (not type1 == "FILES") and (not type2 == "FILES"):
+                types.append(None)
+                continue
+            data_type = type1
+            if not type1 == type2:
+                print("Data FILES headers mismatch, ignoring col " + str(col) + ":", type1, type2)
+                data_type = None
+            types.append(data_type)
+
+        path_strings1 = []
+        path_strings2 = []
+        len1 = min(len(data1), metadata.data_row_end)
+        len2 = min(len(data2), metadata.data_row_end)
+
+        end_row = min(len1, len2)
+
+        for row in range(metadata.data_row_start, end_row):
+            row_data1 = data1[row]
+            row_data2 = data2[row]
+            row_len1 = min(len(row_data1), metadata.data_col_end)
+            row_len2 = min(len(row_data2), metadata.data_col_end)
+            col_end = min(row_len1, row_len2)
+            for col in range(1, col_end):
+                if types[col] == 'FILES':
+                    elem1 = row_data1[col]
+                    if elem1:
+                        for p_string in elem1.split(","):
+                            p_string = p_string.strip()
+                            if p_string not in path_strings1:
+                                path_strings1.append(p_string)
+                    elem2 = row_data2[col]
+                    if elem2:
+                        for p_string in elem2.split(","):
+                            p_string = p_string.strip()
+                            if p_string not in path_strings2:
+                                path_strings2.append(p_string)
+        path_strings = []
+        for p in path_strings2:
+            if p not in path_strings1:
+                print("File upload spec from output not in input, ignoring: " + p)
+            elif p not in path_strings:
+                path_strings.append(p)
+        for p in path_strings1:
+            if p not in path_strings2:
+                print("File upload spec from input not in output, ignoring: " + p)
+
+        check_records = []
+        base_download = Path(os.path.abspath(self.download))
+        base_upload = Path(os.path.abspath(self.upload))
+        for p in path_strings:
+            record = {
+                'path': p,
+                'upload': Path(base_upload, p),
+                'download': Path(base_download, p)
+            }
+            check_records.append(record)
+        more_records = []
+        for r in check_records:
+            path = r['path']
+            upload = r['upload']
+            download = r['download']
+            if upload.is_dir() and download.is_dir():
+                more_records += self.compare_expand_dir(path, upload, download)
+            if download.is_dir() and (not upload.is_dir()):
+                print("Expected upload path to be directory, it is not, ignoring: ", path)
+            if upload.is_dir() and (not download.is_dir()):
+                print("Expected download path to be directory, it is not, ignoring: ", path)
+        return check_records + more_records
+
+    def compare_expand_dir(self, path, upload, download):
+        more_records = []
+        upload_children = os.listdir(upload)
+        download_children = os.listdir(download)
+        names = []
+        for name in upload_children:
+            if name not in download_children:
+                print("In upload directory, file/directory not in download directory, ignoring: " + path + '/' + name)
+            else:
+                names.append(name)
+        for name in download_children:
+            if name not in upload_children:
+                print("In download directory, file/directory not in upload directory, ignoring: " + path + '/' + name)
+        for name in names:
+            n_path = path + "/" + name
+            n_upload = Path(upload, name)
+            n_download = Path(download, name)
+            if n_upload.is_dir() and n_download.is_dir():
+                more_records += self.compare_expand_dir(n_path, n_upload, n_download)
+            elif n_download.is_dir() and (not n_upload.is_dir()):
+                print("Expected upload path to be directory, it is not, ignoring: ", n_path)
+            elif n_upload.is_dir() and (not n_download.is_dir()):
+                print("Expected download path to be directory, it is not, ignoring: ", n_path)
+            else:
+                record = {
+                    'path': n_path,
+                    'upload': n_upload,
+                    'download': n_download
+                }
+                more_records.append(record)
+        return more_records
+
+    @staticmethod
+    def compare_file_paths(compare_list):
+        update_compare_list = []
+        for record in compare_list:
+            path = record['path']
+            upload = record['upload']
+            download = record['download']
+            if not (upload.exists() and download.exists()):
+                if not upload.exists():
+                    print("File in spredsheet not found in upload directory, ignoring: " + path)
+                if not download.exists():
+                    print("File in spredsheet not found in download directory, ignoring: " + path)
+            else:
+                update_compare_list.append(record)
+        return update_compare_list
+
+    def compare_file_checksum(self, compare_list):
+        update_compare_list = []
+        for record in compare_list:
+            path = record['path']
+            upload = record['upload']
+            download = record['download']
+            if upload.is_dir():
+                continue
+            check_upload = self.md5(upload)
+            check_download = self.md5(download)
+            if not check_upload == check_download:
+                print("Checksum mismatch for path: " + path)
+            else:
+                update_compare_list.append(record)
+        return update_compare_list
+
+    @staticmethod
+    def md5(fname):
+        hash_md5 = hashlib.md5()
+        with open(fname, "rb") as f:
+            for chunk in iter(lambda: f.read(4096), b""):
+                hash_md5.update(chunk)
+        return hash_md5.hexdigest()
+
+
+def _verify_data_dir(dir_path):
+    path = Path(dir_path)
+    ok = path.exists() and path.is_dir()
+    return ok
 
 
 if __name__ == '__main__':
 
-    default_input_file_path = "input.xlsx"
-    default_output_file_path = "input.xlsx"
-    default_metadata_file_path = "input.xlsx"
-
     argv = sys.argv
     parser = argparse.ArgumentParser(
         description='Build a workflow from given (well formatted) Excel spreadsheet')
-    parser.add_argument('--input', type=str, default=default_input_file_path,
-                        help='Path to input EXCEL file - defaults to ' + default_input_file_path)
-    parser.add_argument('--output', type=str, default=default_output_file_path,
-                        help='Path to directory of data files - defaults to ' + default_output_file_path)
-    parser.add_argument('--metadata', type=str, default=default_metadata_file_path,
-                        help='Path to metadata JSON file - defaults to' + default_metadata_file_path)
+    parser.add_argument('proj', type=str, help="Project Name")
+    parser.add_argument('exp', type=str, help="Experiment Name")
+    parser.add_argument('input', type=str,
+                        help='Path to input EXCEL file')
+    parser.add_argument('output', type=str,
+                        help='Path to output EXCEL file')
+    parser.add_argument('--upload', type=str,
+                        help="Path to dir for uploading files; if none, files are not compared")
+    parser.add_argument('--download', type=str,
+                        help="Path to dir for downloaded files; if none, files are not compared")
+    parser.add_argument('--checksum', action='store_true',
+                        help="In comparing upload/download files, also compare checksun; optional")
+
     args = parser.parse_args(argv[1:])
 
     args.input = os.path.abspath(args.input)
     args.output = os.path.abspath(args.output)
-    args.metadata = os.path.abspath(args.metadata)
 
     print("Path to input EXCEL file: " + args.input)
-    print("Path to data file directory: " + args.output)
-    print("Path to metadata JSON file: " + args.metadata)
+    print("Path to output EXCEL file: " + args.output)
+
+    if args.upload:
+        args.upload = os.path.abspath(args.upload)
+        print("Path to uploaded files: " + args.upload)
+    if args.download:
+        args.download = os.path.abspath(args.download)
+        print("Path to download files: " + args.download)
+
+    if args.upload or args.download:
+        if not _verify_data_dir(args.upload):
+            print("Path to upload directory is not valid; ignoring.")
+            args.upload = ""
+        if not _verify_data_dir(args.download):
+            print("Path to download directory is not valid; ignoring.")
+            args.download = ""
+        ok = True
+        missing = ""
+        if not (args.upload or args.download):
+            missing = "both upload and download"
+            ok = False
+        elif not args.upload:
+            args.upload = ""
+            missing = "upload"
+            ok = False
+        elif not args.download:
+            args.download = ""
+            missing = "upload"
+            ok = False
+        if not ok:
+            print("To compare files, you must specify both optional arguments upload and download; missing", missing)
+            print("Files compare will be skipped!")
+        else:
+            print("Files and directories on upload and download path will be compared")
+            if args.checksum:
+                print("In addition, file checksums will be computed and compared")
+
+    do_files = (args.upload is not None) and (args.download is not None)
 
     c = Compare()
-    c.compare(args.input, args.output, args.metadata)
+    c.set_options(do_files=do_files, upload=args.upload, download=args.download, checksum=args.checksum)
+    c.compare(args.proj, args.exp, args.input, args.output)

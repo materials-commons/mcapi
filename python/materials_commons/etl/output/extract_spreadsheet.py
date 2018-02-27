@@ -2,28 +2,70 @@ import argparse
 import datetime
 import os
 import sys
+from pathlib import Path
 
 import openpyxl
 
+from materials_commons.api import get_all_projects
+from materials_commons.api import File as MC_File
 from materials_commons.etl.common.util import _normalise_property_name
 from materials_commons.etl.input.metadata import Metadata
+from materials_commons.etl.common.process_file_util import make_project_file_id_path_table
 from .meta_data_verify import MetadataVerification
 
+
 class ExtractExperimentSpreadsheet:
-    def __init__(self, output_file_path, metadata):
-        self.metadata = metadata
+    def __init__(self, output_file_path):
+        self.metadata = Metadata()
         self.output_path = output_file_path
-        self.project = metadata.project
-        self.experiment = metadata.experiment
-        self.process_table = metadata.process_table
         self.worksheet = None
         self.workbook = None
+        self.project = None
+        self.experiment = None
         self.data_row_list = []
 
+    def get_project(self):
+        return self.project
+
+    def get_experiment(self):
+        return self.experiment
+
+    def set_up_project_experiment_metadata(self, project_name, experiment_name):
+        project_list = get_all_projects()
+        for proj in project_list:
+            if proj.name == project_name:
+                self.project = proj
+        if not self.project:
+            print("Can not find project with name = " + str(project_name) + ". Quiting.")
+            return False
+        experiment_list = self.project.get_all_experiments()
+        found = []
+        for exp in experiment_list:
+            if exp.name == experiment_name:
+                found.append(exp)
+        if not found:
+            print("Can not find Experiment with name = " + str(experiment_name) + ". Quiting.")
+            return False
+        if len(found) > 1:
+            print("Found more the one Experiment with name = " + str(experiment_name) + ";")
+            print("Rename experiment so that '" + str(experiment_name) + "' is unique.")
+            print("Quiting.")
+            return False
+        self.experiment = found[0]
+        ok = self.metadata.read(self.experiment.id)
+        if not ok:
+            print("There was no ETL metadata for the experiment '" + str(experiment_name) + "';")
+            print("This experiment does not appear to have been created using ETL input.")
+            print("Quiting.")
+            return False
+        metadata = MetadataVerification().verify(self.metadata)  # Adds metadata.process_table !
+        if not metadata:
+            print("Metadata verification failed.")
+            return False
+        self.metadata = metadata
+        return True
+
     def build_experiment_array(self):
-        print("Building data array")
-        print("    " + self.project.name)
-        print("    " + self.experiment.name)
         self.data_row_list = []
         self.set_headers_from_metadata()
         self.set_data_from_metadata()
@@ -39,7 +81,7 @@ class ExtractExperimentSpreadsheet:
         self.data_row_list[metadata.data_row_start][0] = "BEGIN_DATA"
         print("    ... setting data...")
         process_record_list = metadata.process_metadata
-        table = metadata.process_table
+        table = metadata.process_table  # Note: added by metadata verify
         type_list = metadata.sheet_headers[metadata.start_attribute_row]
         attribute_list = metadata.sheet_headers[metadata.start_attribute_row + 1]
         attribute_list = self.remove_units_spec_from_attributes(attribute_list)
@@ -53,6 +95,9 @@ class ExtractExperimentSpreadsheet:
             process = table[process_record['id']]
             self.write_first_data_row_for_process(
                 start_row, start_col, end_col, type_list, attribute_list, process)
+            self.set_file_entry_for_process(
+                start_row, start_col, end_col, type_list, process_record['files']
+            )
             if (end_row - start_row) > 1:
                 self.copy_duplicate_rows_for_process(
                     start_row, end_row, start_col, end_col)
@@ -76,6 +121,13 @@ class ExtractExperimentSpreadsheet:
             else:
                 value = None
             self.data_row_list[row][col] = value
+
+    def set_file_entry_for_process(self, row, start, end, types, entry):
+        for col in range(start, end):
+            value_type = types[col]
+            if value_type == "FILES":
+                self.data_row_list[row][col] = entry
+                break
 
     def extract_measurement_for(self, attribute, measurements):
         value = None
@@ -101,7 +153,7 @@ class ExtractExperimentSpreadsheet:
                 return measurement.value
             else:
                 return None
-        return self.recursive_value_extraction(attribute[0], attribute[1:],measurement.value)
+        return self.recursive_value_extraction(attribute[0], attribute[1:], measurement.value)
 
     def recursive_value_extraction(self, name, name_list, probe):
         key = self.key_for_category(name, name_list)
@@ -119,6 +171,64 @@ class ExtractExperimentSpreadsheet:
                         value = self.recursive_value_extraction(name_list[1], name_list[2:], value)
         # print('recursive_value_extraction - value', value)
         return value
+
+    def download_process_files(self, download_dir_path):
+        metadata = self.metadata
+        project = self.get_project()
+        top_dir = project.get_top_directory()
+        top_directory_name = top_dir.name
+        file_id_path_table = make_project_file_id_path_table(project)
+        path_table = {}
+        for key in file_id_path_table:
+            item = file_id_path_table[key]
+            path = item['path']
+            path_table[item['path']] = item
+        project.local_path = download_dir_path
+        process_record_list = metadata.process_metadata
+        type_list = metadata.sheet_headers[metadata.start_attribute_row]
+        for process_record in process_record_list:
+            start_row = process_record["start_row"]
+            start_col = process_record["start_col"]
+            end_col = process_record["end_col"]
+            files_entry = None
+            for col in range(start_col, end_col):
+                if type_list[col] == "FILES":
+                    files_entry = self.data_row_list[start_row][col]
+            if files_entry:
+                file_or_dir_path_list = files_entry.split(",")
+                for entry in file_or_dir_path_list:
+                    entry = entry.strip()
+                    path = Path(self.project.local_path) / entry
+                    local_path = str(path)
+                    remote_path = "/" + str(Path(top_directory_name) / entry)
+                    print("  : ", remote_path, "-->", local_path)
+                    if not remote_path in path_table:
+                        print("  :     file from spreadsheet not in project, skipping", entry)
+                        continue
+                    record = path_table[str(remote_path)]
+                    if record['is_file']:
+                        self.downloadLocalFileContent(record['file'], path)
+                    else:
+                        self.downloadLocalDirContent(record['dir'], path)
+
+    def downloadLocalFileContent(self, file, path):
+        if path.exists():
+            print("  :     skipping dublicate: ", path)
+        else:
+            dir = Path(*list(path.parts)[:-1])
+            os.makedirs(dir, exist_ok=True)
+            file.download_file_content(str(path))
+
+    def downloadLocalDirContent(self, dir, path):
+#        print("download dir", dir.name, path)
+        os.makedirs(path, exist_ok=True)
+        for child in dir.get_children():
+            child_path = Path(path, child.name)
+#            print("child_path", str(child_path))
+            if (type(child) == MC_File):
+                self.downloadLocalFileContent(child, child_path)
+            else:
+                self.downloadLocalDirContent(child, child_path)
 
     @staticmethod
     def key_for_category(name, name_list):
@@ -174,7 +284,7 @@ class ExtractExperimentSpreadsheet:
             if attr and '(' in attr:
                 pos = attr.find('(')
                 if pos > 2:
-                    attr = attr[0:pos-1]
+                    attr = attr[0:pos - 1]
             update.append(attr)
         return update
 
@@ -192,7 +302,7 @@ class ExtractExperimentSpreadsheet:
         update = []
         for attr in attributes:
             if attr:
-                if isinstance(attr,str):
+                if isinstance(attr, str):
                     attr = _normalise_property_name(attr)
                 else:
                     parts = []
@@ -205,45 +315,66 @@ class ExtractExperimentSpreadsheet:
             update.append(attr)
         return update
 
+    @staticmethod
+    def make_process_filenames(process):
+        files = process.get_all_files()
+        if not files:
+            return ""
+        names = []
+        for file in files:
+            names.append(file.name)
+        return ", ".join(names)
 
-def main(main_args):
-    metadata = Metadata()
-    metadata.read(main_args.metadata)
-    verify = MetadataVerification()
-    updated_metadata = verify.verify(metadata)
 
-    if not updated_metadata:
-        print("The verification of the metadata file failed.")
-        exit(-1)
+def _verify_data_dir(dir_path):
+    path = Path(dir_path)
+    ok = path.exists() and path.is_dir()
+    return ok
 
-    builder = ExtractExperimentSpreadsheet(main_args.output, updated_metadata)
-    print("Set up: writing spreadsheet to " + main_args.output)
-    print("Data from experiment '" + builder.experiment.name
-          + "' in project '" + builder.project.name + "'")
-    builder.build_experiment_array()
-    builder.write_spreadsheet()
+
+def main(project_name, experiment_name, output, download):
+    builder = ExtractExperimentSpreadsheet(output)
+    ok = builder.set_up_project_experiment_metadata(project_name, experiment_name)
+    if not ok:
+        print("Invalid configuration of metadata or experiment/metadata mismatch. Quiting")
+    else:
+        print("Writing experiment '" + builder.experiment.name
+              + "' in project, '" + builder.project.name + ", to")
+        print("spreadsheet at " + builder.output_path)
+        builder.build_experiment_array()
+        builder.write_spreadsheet()
+        if download:
+            print("Downloading process files to " + download)
+            builder.download_process_files(download)
 
 
 if __name__ == '__main__':
     time_stamp = '%s' % datetime.datetime.now()
-    default_output_file_path = "output.xlsx"
-    default_metadata_file_path = "metadata.json"
 
     argv = sys.argv
     parser = argparse.ArgumentParser(
         description='Dump a project-experiment to a spreadsheet')
-    parser.add_argument('--metadata', type=str, default=default_metadata_file_path,
-                        help="Metadata file path")
-    parser.add_argument('--output', type=str, default=default_output_file_path,
-                        help='Path to output directory')
+    parser.add_argument('proj', type=str, help="Project Name")
+    parser.add_argument('exp', type=str, help="Experiment Name")
+    parser.add_argument('output', type=str,
+                        help='Path to output file')
+    parser.add_argument('--download', type=str,
+                        help="Path to dir for downloading files; if none, files are not downloaded")
     args = parser.parse_args(argv[1:])
 
-    args.metadata = os.path.abspath(args.metadata)
-    if not os.path.isfile(args.metadata):
-        print("The given metadata file path, " + args.metadata + ", is not a file. Please fix.")
-        exit(-1)
+    args.output = os.path.abspath(args.output)
 
     if not args.output.endswith(".xlsx"):
         file = args.output + ".xlsx"
 
-    main(args)
+    if args.download:
+        args.download = os.path.abspath(args.download)
+        if not _verify_data_dir(args.download):
+            print("Path for file download directory does not exist, ignoring: ", args.download)
+            args.files = None
+    print("Output excel spreadsheet for experiment '" + args.exp + "' of project '" + args.proj + "'...")
+    print("  to spreadsheet at " + args.output)
+    if args.download:
+        print("  with downloaded data going to " + args.download)
+
+    main(args.proj, args.exp, args.output, args.download)

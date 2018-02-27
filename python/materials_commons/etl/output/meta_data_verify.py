@@ -1,6 +1,7 @@
 from materials_commons.api import get_project_by_id
 from ..input import metadata
 
+
 class MetadataVerification:
     def __init__(self):
         pass
@@ -13,14 +14,14 @@ class MetadataVerification:
             verified = False
         else:
             metadata.project = project
-            print("Found project:", project.name)
+            print("Found project:", project.name, "(" + project.id + ")")
         experiment = self.get_experiment(project, metadata.experiment_id)
         if not experiment:
             print("Could not find experiment:", metadata.experiment_id)
             verified = False
         else:
             metadata.experiment = experiment
-            print("Found experiment:", experiment.name)
+            print("Found experiment: ", experiment.name, "(" + experiment.id + ")")
         processes = experiment.get_all_processes()
         process_table = self.make_process_table(processes)
         missing = []
@@ -51,6 +52,7 @@ class MetadataVerification:
         for process in processes:
             table[process.id] = process
         return table
+
 
 if __name__ == '__main__':
     metadata = metadata.Metadata()

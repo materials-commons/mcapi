@@ -105,6 +105,53 @@ def get_all_templates():
     return templates
 
 
+# -- top level functions for experiment etl metadata
+def create_experiment_metadata(experiment_id, metadata):
+    """
+    Create a metadata record for Excel-based experiment workflow ETL.
+
+    :param experiment_id: the id of an existing experiment
+    :param metadata: the metadata for the experiment; see :class:`materials_commons.etl.input.build_project.BuildProjectExperiment`
+    :return: a object of :class:`materials_commons.api.EtlMetadata`
+    """
+    results = api.create_experiment_metadata(experiment_id, metadata)
+    if _has_key('error',results):
+        print("Error: ", results['error'])
+        return None
+    data = results['data']
+    return make_object(data=data)
+
+
+def get_experiment_metadata_by_experiment_id(experiment_id):
+    """
+    Fetch an existing metadata record for Excel-based experiment workflow ETL.
+
+    :param experiment_id: the id of an existing experiment
+    :return: a object of :class:`materials_commons.api.EtlMetadata`
+    """
+    results = api.get_experiment_metadata_by_experiment_id(experiment_id)
+    if _has_key('error',results):
+        print("Error: ", results['error'])
+        return None
+    data = results['data']
+    return make_object(data=data)
+
+def get_experiment_metadata_by_id(metadata_id):
+    """
+    Fetch an existing metadata record for Excel-based experiment workflow ETL.
+
+    :param experiment_id: the id of the metadata record
+    :return: a object of :class:`materials_commons.api.EtlMetadata`
+    """
+    results = api.get_experiment_metadata(metadata_id)
+    if _has_key('error',results):
+        print("Error: ", results['error'])
+        return None
+    data = results['data']
+    return make_object(data=data)
+
+
+
 # -- supporting classes
 
 # These print() statements for debugging cases where special processing case is missed
@@ -469,7 +516,7 @@ class Project(MCObject):
         """
 
         # TODO: Project.add_directory(path) - refactor this should check for and fail if path does not exist
-        # TODO: Project.add_directory(path) - refactor add optional flag to create parent path if it does note exist
+        # TODO: Project.add_directory(path) - refactor add optional flag to create parent path if it does not exist
         directory = self.create_or_get_all_directories_on_path(path)[-1]
         directory._project = self
         return directory
@@ -894,12 +941,16 @@ class Experiment(MCObject):
         :param description:
         :return: this
 
-        .. note:: Currently not implemented
-
         """
-        # TODO: Experiment.rename(name)
-        raise NotImplementedError("Experiment.rename(name) is not implemented")
-        pass
+        project = self.project
+        experiment = self
+        if not description:
+            description = self.description
+        results = api.rename_experiment(project.id, experiment.id, name, description)
+        if results:
+            self.name = results['name']
+            self.description = results['description']
+        return self
 
     def put(self):
         """
@@ -2440,7 +2491,7 @@ class File(MCObject):
     # File - additional methods
     def download_file_content(self, local_download_file_path):
         """
-        Down a copy of the file from the database into a local file on a local path.
+        Download a copy of the file from the database into a local file on a local path.
         Will overwrite any existing file.
 
         :param local_download_file_path: the local path ending in the intended file name.
@@ -2538,6 +2589,42 @@ class Template(MCObject):
                 strout.write(tabulate(df, showindex=False, headers=['name', 'attribute', 'otype', 'units']))
                 for line in strout.getvalue().splitlines():
                     pp.write(line)
+
+
+class EtlMetadata(MCObject):
+    """
+    Materials commons Excel-based ELT metadata.
+    Normally created by a call to :func:`materials_commons.api.create_experiment_metadata`
+    and retrieved by a call to :func:`materials_commons.api.get_experiment_metadata`
+    """
+
+    def __init__(self, data=None):
+        self.experiment_id = ''
+        self.json = ''
+
+        # attr = ['id', 'name', 'description', 'birthtime', 'mtime', 'otype', 'owner']
+        super(EtlMetadata, self).__init__(data)
+
+        attr = ['experiment_id', 'json']
+        for a in attr:
+            setattr(self, a, data.get(a, None))
+
+    def _process_special_objects(self):
+        # undo the effect of general object processing on the json data
+        self.json = self.input_data['json']
+
+    def update(self, new_metadata):
+        results = api.update_experiment_metadata(self.id, new_metadata)
+        if _has_key('error', results):
+            print("Error: ", results['error'])
+            return None
+        data = results['data']
+        updated_metadata_record = make_object(data=data)
+        self.json = updated_metadata_record.json
+        return self
+
+    def delete(self):
+        return api.delete_experiment_metadata(self.id)
 
 
 class Property(MCObject):
@@ -2753,6 +2840,7 @@ class SelectionProperty(Property):
                 break
         if not found:
             self.verify_value_type(value)
+            found = value
         self._value = found
 
 
@@ -2839,6 +2927,8 @@ def make_base_object_for_type(data):
             return File(data=data)
         if object_type == 'template':
             return Template(data=data)
+        if object_type == 'experiment_etl_metadata':
+            return EtlMetadata(data=data)
         if object_type == 'experiment_task':
             # Experiment task not implemented
             return MCObject(data=data)

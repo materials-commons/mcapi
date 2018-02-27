@@ -1,11 +1,40 @@
 import sys
 import os
 import argparse
-from materials_commons.api import get_project_by_id
-from materials_commons.etl.input.metadata import Metadata
+from materials_commons.api import get_all_projects
 
 class Walker:
-    def walk(self, experiment):
+
+    def __init__(self):
+        self.project = None
+        self.experiment = None
+
+    def set_up_project_experiment(self, project_name, experiment_name):
+        project_list = get_all_projects()
+        for proj in project_list:
+            if proj.name == project_name:
+                self.project = proj
+        if not self.project:
+            print("Can not find project with name = " + str(project_name) + ". Quiting.")
+            return False
+        experiment_list = self.project.get_all_experiments()
+        found = []
+        for exp in experiment_list:
+            if exp.name == experiment_name:
+                found.append(exp)
+        if not found:
+            print("Can not find Experiment with name = " + str(experiment_name) + ". Quiting.")
+            return False
+        if len(found) > 1:
+            print("Found more the one Experiment with name = " + str(experiment_name) + ";")
+            print("Rename experiment so that '" + str(experiment_name) + "' is unique.")
+            print("Quiting.")
+            return False
+        self.experiment = found[0]
+        return True
+
+    def walk(self):
+        experiment = self.experiment
         print("Walking", experiment.name, "of", experiment.project.name)
         processes = experiment.get_all_processes()
         process_table = self.make_process_dic(processes)
@@ -62,6 +91,7 @@ class Walker:
             padding += "  "
         print(padding, proc.name, proc.id)
         print(padding, self.processSamplesText(proc))
+        print(padding, self.filenameListText(proc))
         measurements = proc.measurements
         for m in measurements:
             header = "|- MEAS" + str("(*)" if m.is_best_measure else "")
@@ -111,6 +141,18 @@ class Walker:
         return text
 
     @staticmethod
+    def filenameListText(process):
+        text = "Files: "
+        files = process.get_all_files()
+        if not files:
+            return text + "(none)"
+        names = []
+        for file in files:
+            names.append(file.name)
+        text += ', '.join(names)
+        return text
+
+    @staticmethod
     def is_child(parent, candidate):
         for sample in parent.output_samples:
             for match in candidate.input_samples:
@@ -135,55 +177,29 @@ class Walker:
             table[proc.id] = proc
         return table
 
-    @staticmethod
-    def find_project(project_id):
-        return get_project_by_id(project_id)
 
-    @staticmethod
-    def find_experiment(project, experiment_id):
-        experiments = project.get_all_experiments()
-        for experiment in experiments:
-            if experiment_id == experiment.id:
-                return experiment
-        return None
-
-
-def main(args):
-    metadata = Metadata()
-    metadata.read(args.metadata)
-    pid = metadata.project_id
-    eid = metadata.experiment_id
+def main(project_name, experiment_name):
 
     walker = Walker()
-    project = walker.find_project(pid)
-    if not project:
-        print("No project:", pid)
-        exit(-1)
-    experiment = walker.find_experiment(project, eid)
-    if not experiment:
-        print("No experiment:", eid)
-        exit(-1)
-    roots = walker.walk(experiment)
+    ok = walker.set_up_project_experiment(project_name, experiment_name)
+    if not ok:
+        return
+    roots = walker.walk()
     print("-----------------------------------------")
     print("|  Process-Workflow  trees (with data)  |")
     print("-----------------------------------------")
+    print("Project: ", walker.project.name, "(" + walker.project.id + ")")
+    print("Experiment: ", walker.experiment.name, "(" + walker.experiment.id + ")")
     for proc in roots:
         walker.print_path(0, proc)
 
 
 if __name__ == '__main__':
-    default_metadata_file_path = "metadata.json"
 
     argv = sys.argv
     parser = argparse.ArgumentParser(
-        description='Print out process-workflow, with data, for the Project/Experiment indicated by a metadata file')
-    parser.add_argument('--metadata', type=str, default=default_metadata_file_path,
-                        help="Metadata file path")
+        description='Print out process-workflow, with data, for a named Project/Experiment')
+    parser.add_argument('proj', type=str, help="Project Name")
+    parser.add_argument('exp', type=str, help="Experiment Name")
     args = parser.parse_args(argv[1:])
-
-    args.metadata = os.path.abspath(args.metadata)
-    if not os.path.isfile(args.metadata):
-        print("The given metadata file path, " + args.metadata + ", is not a file. Please fix.")
-        exit(-1)
-
-    main(args)
+    main(args.proj,args.exp)

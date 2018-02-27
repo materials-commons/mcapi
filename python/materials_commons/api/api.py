@@ -3,7 +3,7 @@ from .remote import Remote
 from .config import Config
 import requests
 import magic
-import json
+# import json
 
 # Defaults
 _mcorg = Remote()
@@ -70,6 +70,14 @@ def delete(restpath, remote=None):
     if r.status_code == requests.codes.ok:
         return r.json()
     r.raise_for_status()
+
+
+def delete_expect_empty(restpath, remote=None):
+    if not remote:
+        remote = use_remote()
+    r = requests.delete(restpath, params=remote.config.params, verify=False)
+    if not r.status_code == requests.codes.ok:
+        r.raise_for_status()
 
 
 def disable_warnings():
@@ -236,6 +244,17 @@ def create_experiment(project_id, name, description, remote=None):
         "description": description
     }
     return post(remote.make_url_v2("projects/" + project_id + "/experiments"), data)
+
+
+def rename_experiment(project_id, experiment_id, name, description, remote=None):
+    if not remote:
+        remote = use_remote()
+    data = {
+        "name": name,
+        "description": description
+    }
+    api_url = remote.make_url_v2("projects/" + project_id + "/experiments/" + experiment_id)
+    return put(api_url, data)
 
 
 def fetch_experiments(project_id, remote=None):
@@ -512,6 +531,51 @@ def update_additional_properties_in_process(project_id, experiment_id, process_i
               "/processes/" + process_id + \
               "/addparameters"
     return post(remote.make_url_v2(api_url), data)
+
+# experiment etl metadata
+
+def create_experiment_metadata(experiment_id, json, remote=None):
+    if not remote:
+        remote = use_remote()
+    data = {
+        'json': json
+    }
+    api_url = "etl/create/" + experiment_id
+    return put(remote.make_url_v2(api_url), data)
+
+
+def get_experiment_metadata(metadata_id, remote=None):
+    if not remote:
+        remote = use_remote()
+    api_url = "etl/metadata/" + metadata_id
+    return get(remote.make_url_v2(api_url))
+
+
+def get_experiment_metadata_by_experiment_id(experiment_id, remote=None):
+    if not remote:
+        remote = use_remote()
+    api_url = "etl/experiment/" + experiment_id + \
+              "/metadata"
+    return get(remote.make_url_v2(api_url))
+
+
+def update_experiment_metadata(metadata_id, json, remote=None):
+    if not remote:
+        remote = use_remote()
+    data = {
+        'json': json
+    }
+    api_url = "etl/metadata/" + metadata_id
+    return post(remote.make_url_v2(api_url), data)
+
+
+def delete_experiment_metadata(metadata_id, remote=None):
+    if not remote:
+        remote = use_remote()
+    api_url = "etl/metadata/" + metadata_id
+    # throws on error
+    delete_expect_empty(remote.make_url_v2(api_url))
+    return True
 
 # templates
 
