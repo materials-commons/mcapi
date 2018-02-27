@@ -1,9 +1,9 @@
 import argparse
 import datetime
 import hashlib
+import math
 import os
 import sys
-import math
 from pathlib import Path
 
 import openpyxl
@@ -13,6 +13,7 @@ from materials_commons.api import get_all_projects
 from materials_commons.etl.common.worksheet_data import read_entire_sheet
 from materials_commons.etl.input.metadata import Metadata
 from .meta_data_verify import MetadataVerification
+from .differ import Differ
 
 
 class Compare:
@@ -21,12 +22,15 @@ class Compare:
         self.project = None
         self.experiment = None
         self.metadata = Metadata()
+        self.delta_list = None
         self.upload = None
         self.download = None
         self.do_files = False
         self.checksum = False
+        self.withchanges = False
 
-    def set_options(self, do_files=False, upload=None, download=None, checksum=False):
+    def set_options(self, do_files=False, upload=None, download=None,
+                    checksum=False, withchanges=False):
         if do_files and not (upload and download):
             do_files = False
             print("Both upload and download must be set to compare files")
@@ -34,6 +38,7 @@ class Compare:
         self.upload = upload
         self.download = download
         self.checksum = checksum
+        self.withchanges = withchanges
 
     def compare(self, project_name, experiment_name, input_file_path, output_file_path):
 
@@ -96,10 +101,34 @@ class Compare:
             print("This experiment does not appear to have been created using ETL input.")
             print("Quiting.")
             return False
-        metadata = MetadataVerification().verify(self.metadata)
-        if not metadata:
-            return False
-        self.metadata = metadata
+
+        if (self.withchanges):
+            print("This compare is done accounting for changes made using the web site.. ")
+            print("  Computing the list of change")
+            differ = Differ()
+            verifier = MetadataVerification(self.metadata)
+            verifier.add_process_table_to_metadata(self.experiment)
+            differ.use_project_experiment_metadata(self.project, self.experiment, self.metadata)
+            ok = differ.set_up_input_data()
+            if not ok:
+                print("  Oops! Computing changes depends on using the saved spreadsheet.\n",
+                      "  Could not locate or read input spreadsheet from experiment")
+                print("  Quitting")
+                return False
+            deltas = differ.compute_deltas()
+            if not deltas:
+                print("  No differences were introduced via changes in the website. "
+                      "  Proceeding with compare without using the list of changes")
+                self.withchanges = False
+            else:
+                print("The following list of 'know changes' were found ...")
+                differ.report_deltas(deltas)
+        else:
+            metadata = MetadataVerification(self.metadata).verify() # adds process_table
+            if not metadata:
+                return False
+            self.metadata = metadata
+
         return True
 
     @staticmethod
@@ -267,12 +296,12 @@ class Compare:
                     if isinstance(probe2, str):
                         probe2 = date_parser.parse(probe2)
                     match = probe1.isoformat() == probe2.isoformat()
-                elif isinstance(probe1, float) or isinstance(probe2,float):
+                elif isinstance(probe1, float) or isinstance(probe2, float):
                     if isinstance(probe1, str):
                         probe1 = float(probe1)
                     if isinstance(probe2, str):
                         probe2 = float(probe2)
-                    match = math.isclose(probe1,probe2)
+                    match = math.isclose(probe1, probe2)
                 elif (probe1 is None) or (probe2 is None):
                     if isinstance(probe1, str) and probe1 == "None":
                         probe1 = None
@@ -288,7 +317,6 @@ class Compare:
                     print("Data mismatch at row = " + str(row) + ", col = " + str(col) + ": "
                           + str(probe1) + ", " + str(probe2) + ", "
                           + str(obj_type1) + ", " + str(obj_type2))
-
 
         if identical:
             print("Data values match")
@@ -313,10 +341,11 @@ class Compare:
             return
 
         print("All compared files match (by " + matching_by + ").")
-#        matching = []
-#        for record in compare_list:
-#            matching.append(record['path'])
-#        print("Matching files/directories (by " + matching_by + "): " + ", ".join(matching))
+
+    #        matching = []
+    #        for record in compare_list:
+    #            matching.append(record['path'])
+    #        print("Matching files/directories (by " + matching_by + "): " + ", ".join(matching))
 
     def get_compare_list(self, metadata, data1, data2):
         types1 = data1[1]
@@ -492,6 +521,8 @@ if __name__ == '__main__':
                         help="Path to dir for downloaded files; if none, files are not compared")
     parser.add_argument('--checksum', action='store_true',
                         help="In comparing upload/download files, also compare checksun; optional")
+    parser.add_argument('--withchanges', action='store_true',
+                        help="In comparing, supress reporting changs for known differences from the web site")
 
     args = parser.parse_args(argv[1:])
 
@@ -507,6 +538,10 @@ if __name__ == '__main__':
     if args.download:
         args.download = os.path.abspath(args.download)
         print("Path to download files: " + args.download)
+
+    if args.withchanges:
+        print("Compare of input and output EXCEL file with take wed site changes into account;")
+        print("    not reporting differences in the case for known website changes")
 
     if args.upload or args.download:
         if not _verify_data_dir(args.upload):
@@ -539,5 +574,6 @@ if __name__ == '__main__':
     do_files = (args.upload is not None) and (args.download is not None)
 
     c = Compare()
-    c.set_options(do_files=do_files, upload=args.upload, download=args.download, checksum=args.checksum)
+    c.set_options(do_files=do_files, upload=args.upload, download=args.download,
+                  checksum=args.checksum, withchanges=args.withchanges)
     c.compare(args.proj, args.exp, args.input, args.output)

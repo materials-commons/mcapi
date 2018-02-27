@@ -95,6 +95,11 @@ class Differ:
         self.metadata = metadata
         return True
 
+    def use_project_experiment_metadata(self, project, experiment, metadata):
+        self.project = project
+        self.experiment = experiment
+        self.metadata = metadata
+
     def set_up_input_data(self):
         file_id = self.metadata.input_excel_file_id
         if not file_id:
