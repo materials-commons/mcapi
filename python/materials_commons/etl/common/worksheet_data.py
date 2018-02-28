@@ -70,5 +70,22 @@ class ExcelIO:
         self.experiment_name_for_testing = experiment_name
 
     # these methods used for testing
-    def write_data(self, path, data, worksheet_name):
-        self.workbook.create_sheet(worksheet_name)
+    def write_data(self, path, data_row_list, worksheet_name=None):
+        self.workbook = openpyxl.Workbook()
+        self.current_worksheet = self.workbook.worksheets[0]
+        if worksheet_name:
+            self.current_worksheet.name = worksheet_name
+        print("write_data", len(data_row_list))
+        if len(data_row_list) > 2:
+            print("write_data", len(data_row_list[0]))
+            if self.project_name_for_testing and len(data_row_list[0]) > 0:
+                data_row_list[0][0] = "PROJ: " + self.project_name_for_testing
+            print("write_data", len(data_row_list[1]))
+            if self.experiment_name_for_testing and len(data_row_list[1]) > 0:
+                data_row_list[1][0] = "EXP: " + self.experiment_name_for_testing
+        for row in range(0, len(data_row_list)):
+            data_row = data_row_list[row]
+            for col in range(0, len(data_row)):
+                data_item = data_row[col]
+                self.current_worksheet.cell(column=col + 1, row=row + 1, value=data_item)
+        self.workbook.save(filename=path)
