@@ -1,7 +1,10 @@
 import unittest
+
+import tempfile
 from os import environ
 from os import path as os_path
 from random import randint
+
 from materials_commons.etl.common.worksheet_data import ExcelIO
 
 
@@ -74,12 +77,47 @@ class TestInput(unittest.TestCase):
         interface.close()
 
     def test_write_data_to_worksheet(self):
-        pass
-        # get temp file path for worksheet
-        # make dummy data for worksheet
-        # write dummy data to worksheet
-        # read dummy data and confirm
+        with tempfile.TemporaryDirectory() as temp_worksheet_dir_path:
+            data_rows = []
+            for row in range(0, 10):
+                data_row = []
+                for col in range(0, 20):
+                    data_row.append((row * 100) + col)
+                data_rows.append(data_row)
+            path = os_path.join(temp_worksheet_dir_path, "dummy_data.xlsx")
+            interface = ExcelIO()
+            interface.set_project_name_for_testing(self.project_name)
+            interface.set_experiment_name_for_testing(self.experiment_name)
+            interface.write_data(path, data_rows, "test_sheet")
+            self.assertIsNotNone(interface.workbook)
+            self.assertIsNotNone(interface.current_worksheet)
+            interface.close()
 
+            print("\n", path)
+
+            interface = ExcelIO()
+            self.assertIsNone(interface.workbook)
+            interface.read_workbook(path)
+            self.assertIsNotNone(interface.workbook)
+            print("worksheets", len(interface.workbook.worksheets), interface.workbook.worksheets)
+            interface.set_current_worksheet_by_index(0)
+            self.assertIsNotNone(interface.current_worksheet)
+            print("worksheet", interface.current_worksheet)
+            row_count = interface.current_worksheet.max_row
+            column_count = interface.current_worksheet.max_column
+            print("counts", row_count, column_count)
+            self.assertTrue(row_count >= 10)
+            self.assertTrue(column_count >= 20)
+            data = interface.read_entire_data_from_current_sheet()
+            interface.close()
+
+            self.assertEquals(data[0][0], "PROJ: " + self.project_name)
+            self.assertEquals(data[1][0], "EXP: " + self.experiment_name)
+            data[0][0] = 0
+            data[1][0] = 100
+            for row in range(0, 10):
+                for col in range(0, 20):
+                    self.assertEquals(data[row][col], (row * 100) + col)
 
     @classmethod
     def make_test_dir_path(cls):
