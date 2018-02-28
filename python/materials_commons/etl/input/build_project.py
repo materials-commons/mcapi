@@ -1,11 +1,9 @@
 from pathlib import Path
 
-import openpyxl
-
 from materials_commons.api import create_project, get_all_templates
 from materials_commons.api.mc import File as FileRecord
 from materials_commons.etl.common.util import _normalise_property_name
-from materials_commons.etl.common.worksheet_data import read_entire_sheet
+from materials_commons.etl.common.worksheet_data import ExcelIO
 from .metadata import Metadata
 
 
@@ -38,13 +36,13 @@ class BuildProjectExperiment:
         self.rename_duplicates = flag
 
     def build(self, spread_sheet_path, data_path):
-
-        wb = openpyxl.load_workbook(filename=spread_sheet_path)
-        sheet_name = wb.sheetnames[0]
-        ws = wb[sheet_name]
-        print("In Excel file, using sheet", sheet_name, "from sheets", wb.sheetnames)
-        self.set_data(read_entire_sheet(ws))
-        wb.close()
+        excel_io_controller = ExcelIO()
+        excel_io_controller.read_workbook(spread_sheet_path)
+        sheet_name_list = excel_io_controller.sheet_name_list()
+        sheet_name = excel_io_controller.set_current_worksheet_by_index(0)
+        print("In Excel file, using sheet", sheet_name, "from sheets", sheet_name_list)
+        self.set_data(excel_io_controller.read_entire_data_from_current_sheet())
+        excel_io_controller.close()
 
         self.suppress_data_upload = not data_path
 
