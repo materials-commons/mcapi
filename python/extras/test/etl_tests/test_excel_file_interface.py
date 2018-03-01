@@ -35,7 +35,7 @@ class TestInput(unittest.TestCase):
         self.assertIsNotNone(interface.workbook)
         interface.close()
 
-    def test_read_worksheet_date(self):
+    def test_read_worksheet_data(self):
         interface = ExcelIO()
         self.assertIsNone(interface.workbook)
         interface.read_workbook(self.spreadsheet_path)

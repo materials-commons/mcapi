@@ -76,14 +76,7 @@ class ExcelIO:
     def set_current_worksheet_by_index(self, index):
         sheet_name = self.workbook.sheetnames[index]
         self.current_worksheet = self.workbook[sheet_name]
+        return self.current_worksheet
 
     def close(self):
         self.workbook.close()
-
-    # these methods used for testing
-    def set_project_name_for_testing(self, project_name):
-        self.project_name_for_write = project_name
-
-    # these methods used for testing
-    def set_experiment_name_for_testing(self, experiment_name):
-        self.experiment_name_for_write = experiment_name
