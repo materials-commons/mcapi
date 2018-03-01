@@ -1,18 +1,35 @@
-import openpyxl
 import argparse
 import datetime
+import sys
+
 import os.path
 from os import walk
-import sys
+
 from materials_commons.api import create_project, get_all_projects, get_all_templates
+from materials_commons.etl.common.worksheet_data import ExcelIO
 
 local_path = './'
 BASE_DIRECTORY = os.path.abspath(local_path)
 
 
 class WorkflowBuilder:
-    def build(self, sheet, data_path):
-        self.source = self._read_entire_sheet(sheet)
+    def __init__(self):
+        self.source = None
+        self.projects = None
+        self.data_path = None
+        self.current_project = None
+        self.current_experiment = None
+        self.sample_table = None
+
+    def build(self, spread_sheet_path, data_path):
+        excel_io_controller = ExcelIO()
+        excel_io_controller.read_workbook(spread_sheet_path)
+        sheet_name_list = excel_io_controller.sheet_name_list()
+        sheet_name = 'Sheet1'
+        print("In Excel file, using sheet", sheet_name, "from sheets", sheet_name_list)
+        self.source = excel_io_controller.read_entire_data_from_current_sheet()
+        excel_io_controller.close()
+
         self.projects = []
         self.data_path = data_path
         self._make_template_table()
@@ -126,26 +143,18 @@ class WorkflowBuilder:
                     print("    Process...")
                     process.pretty_print(shift=4)
 
-    def _read_entire_sheet(self, sheet):
-        data = []
-        for row in sheet.iter_rows():
-            values = []
-            for cell in row:
-                values.append(cell.value)
-            data.append(values)
-        return data
-
-    def _parse_sample_name_list(self, name_string):
-        list = [name_string]
+    @staticmethod
+    def _parse_sample_name_list(name_string):
+        name_list = [name_string]
         start = name_string.find('[')
         end = name_string.find(']', start + 1)
         if (start > -1) and (end > start):
-            slice = name_string[start + 1:end]
-            parts = slice.split(",")
-            list = parts
-        for i in range(0, len(list)):
-            list[i] = list[i].strip()
-        return list
+            name_list_string = name_string[start + 1:end]
+            parts = name_list_string.split(",")
+            name_list = parts
+        for i in range(0, len(name_list)):
+            name_list[i] = name_list[i].strip()
+        return name_list
 
     def _make_unique_project_name(self, name):
         probe = name
@@ -155,7 +164,8 @@ class WorkflowBuilder:
             probe = name + " " + str(count)
         return probe
 
-    def _projects_exists(self, name):
+    @staticmethod
+    def _projects_exists(name):
         projects = get_all_projects()
         for p in projects:
             if p.name == name:
@@ -179,11 +189,9 @@ class WorkflowBuilder:
         return found_id
 
 
-def main(args):
-    wb = openpyxl.load_workbook(filename=args.input, read_only=True)
-    ws = wb['Sheet1']
+def main(settings):
     builder = WorkflowBuilder()
-    builder.build(ws, args.dir)
+    builder.build(settings.input, settings.dir)
 
     print("Built project(s)...")
     for project in builder.projects:
