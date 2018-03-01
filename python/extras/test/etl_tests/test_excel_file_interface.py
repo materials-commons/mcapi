@@ -54,7 +54,7 @@ class TestInput(unittest.TestCase):
         interface.read_workbook(self.spreadsheet_path)
         self.assertIsNotNone(interface.workbook)
         interface.set_current_worksheet_by_index(0)
-        interface.set_project_name_for_testing(self.project_name)
+        interface.force_project_name_for_testing(self.project_name)
         data = interface.read_entire_data_from_current_sheet()
         self.assertIsNotNone(data)
         self.assertEquals(len(data), 10)
@@ -68,7 +68,7 @@ class TestInput(unittest.TestCase):
         interface.read_workbook(self.spreadsheet_path)
         self.assertIsNotNone(interface.workbook)
         interface.set_current_worksheet_by_index(0)
-        interface.set_experiment_name_for_testing(self.experiment_name)
+        interface.force_experiment_name_for_testing(self.experiment_name)
         data = interface.read_entire_data_from_current_sheet()
         self.assertIsNotNone(data)
         self.assertEquals(len(data), 10)
@@ -84,10 +84,11 @@ class TestInput(unittest.TestCase):
                 for col in range(0, 20):
                     data_row.append((row * 100) + col)
                 data_rows.append(data_row)
+            data_rows[0][0] = "PROJ: " + self.project_name
+            data_rows[1][0] = "EXP: " + self.experiment_name
+
             path = os_path.join(temp_worksheet_dir_path, "dummy_data.xlsx")
             interface = ExcelIO()
-            interface.set_project_name_for_testing(self.project_name)
-            interface.set_experiment_name_for_testing(self.experiment_name)
             interface.write_data(path, data_rows, "test_sheet")
             self.assertIsNotNone(interface.workbook)
             self.assertIsNotNone(interface.current_worksheet)

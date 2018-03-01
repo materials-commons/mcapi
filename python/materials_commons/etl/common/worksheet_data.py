@@ -5,8 +5,9 @@ class ExcelIO:
     def __init__(self):
         self.workbook = None
         self.current_worksheet = None
-        self.project_name_for_write = None
-        self.experiment_name_for_write = None
+        # used for testing
+        self._force_project_name_on_read = None
+        self._force_experiment_name_on_read = None
 
     def read_entire_data_from_current_sheet(self):
         sheet = self.current_worksheet
@@ -41,10 +42,10 @@ class ExcelIO:
                     values.append(value)
                 remake_data.append(values)
             data = remake_data
-        if self.project_name_for_write:
-            data[0][0] = "PROJ: " + self.project_name_for_write
-        if self.experiment_name_for_write:
-            data[1][0] = "EXP: " + self.experiment_name_for_write
+        if self._force_project_name_on_read:
+            data[0][0] = "PROJ: " + self._force_project_name_on_read
+        if self._force_experiment_name_on_read:
+            data[1][0] = "EXP: " + self._force_experiment_name_on_read
         return data
 
     def write_data(self, path, data_row_list, worksheet_name=None):
@@ -52,14 +53,6 @@ class ExcelIO:
         self.current_worksheet = self.workbook.worksheets[0]
         if worksheet_name:
             self.current_worksheet.name = worksheet_name
-        print("write_data", len(data_row_list))
-        if len(data_row_list) > 2:
-            print("write_data", len(data_row_list[0]))
-            if self.project_name_for_write and len(data_row_list[0]) > 0:
-                data_row_list[0][0] = "PROJ: " + self.project_name_for_write
-            print("write_data", len(data_row_list[1]))
-            if self.experiment_name_for_write and len(data_row_list[1]) > 0:
-                data_row_list[1][0] = "EXP: " + self.experiment_name_for_write
         for row in range(0, len(data_row_list)):
             data_row = data_row_list[row]
             for col in range(0, len(data_row)):
@@ -80,3 +73,11 @@ class ExcelIO:
 
     def close(self):
         self.workbook.close()
+
+    # these methods used for testing
+    def force_project_name_for_testing(self, project_name):
+        self._force_project_name_on_read = project_name
+
+    # these methods used for testing
+    def force_experiment_name_for_testing(self, experiment_name):
+        self._force_experiment_name_on_read = experiment_name

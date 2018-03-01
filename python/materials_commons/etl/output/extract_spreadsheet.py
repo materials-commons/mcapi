@@ -255,8 +255,6 @@ class ExtractExperimentSpreadsheet:
     def write_spreadsheet(self):
         print("Writing spreadsheet", self.output_path)
         excel_interface = ExcelIO()
-        excel_interface.project_name_for_write = self.project.name
-        excel_interface.experiment_name_for_write = self.experiment.name
         excel_interface.write_data(self.output_path, self.data_row_list)
         excel_interface.close()
 
