@@ -11,7 +11,7 @@ from dateutil import parser as date_parser
 from materials_commons.api import get_all_projects
 from materials_commons.etl.common.worksheet_data import ExcelIO
 from materials_commons.etl.common.metadata import Metadata
-from .meta_data_verify import MetadataVerification
+from materials_commons.etl.common.meta_data_verify import MetadataVerification
 
 
 class Compare:

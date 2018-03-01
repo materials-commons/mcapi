@@ -10,7 +10,7 @@ from materials_commons.etl.common.util import _normalise_property_name
 from materials_commons.etl.common.metadata import Metadata
 from materials_commons.etl.common.process_file_util import make_project_file_id_path_table
 from materials_commons.etl.common.worksheet_data import ExcelIO
-from .meta_data_verify import MetadataVerification
+from materials_commons.etl.common.meta_data_verify import MetadataVerification
 
 
 class ExtractExperimentSpreadsheet:

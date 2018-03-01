@@ -46,7 +46,7 @@ Running Input and Output Processes
 ----------------------------------
 
 An example input file can be obtained from this location:
-https://github.com/materials-commons/mcapi/blob/master/python/materials_commons/etl/input.xlsx
+https://github.com/materials-commons/mcapi/blob/master/python/materials_commons/etl/artifacts/input.xlsx
 
 Just click on "download" link. 
 
