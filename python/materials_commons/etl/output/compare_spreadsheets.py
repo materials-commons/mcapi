@@ -6,7 +6,6 @@ import sys
 import math
 from pathlib import Path
 
-import openpyxl
 from dateutil import parser as date_parser
 
 from materials_commons.api import get_all_projects

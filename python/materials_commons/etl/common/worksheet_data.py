@@ -5,9 +5,8 @@ class ExcelIO:
     def __init__(self):
         self.workbook = None
         self.current_worksheet = None
-        # used for testing
-        self.project_name_for_testing = None
-        self.experiment_name_for_testing = None
+        self.project_name_for_write = None
+        self.experiment_name_for_write = None
 
     def read_entire_data_from_current_sheet(self):
         sheet = self.current_worksheet
@@ -42,11 +41,31 @@ class ExcelIO:
                     values.append(value)
                 remake_data.append(values)
             data = remake_data
-        if self.project_name_for_testing:
-            data[0][0] = "PROJ: " + self.project_name_for_testing
-        if self.experiment_name_for_testing:
-            data[1][0] = "EXP: " + self.experiment_name_for_testing
+        if self.project_name_for_write:
+            data[0][0] = "PROJ: " + self.project_name_for_write
+        if self.experiment_name_for_write:
+            data[1][0] = "EXP: " + self.experiment_name_for_write
         return data
+
+    def write_data(self, path, data_row_list, worksheet_name=None):
+        self.workbook = openpyxl.Workbook()
+        self.current_worksheet = self.workbook.worksheets[0]
+        if worksheet_name:
+            self.current_worksheet.name = worksheet_name
+        print("write_data", len(data_row_list))
+        if len(data_row_list) > 2:
+            print("write_data", len(data_row_list[0]))
+            if self.project_name_for_write and len(data_row_list[0]) > 0:
+                data_row_list[0][0] = "PROJ: " + self.project_name_for_write
+            print("write_data", len(data_row_list[1]))
+            if self.experiment_name_for_write and len(data_row_list[1]) > 0:
+                data_row_list[1][0] = "EXP: " + self.experiment_name_for_write
+        for row in range(0, len(data_row_list)):
+            data_row = data_row_list[row]
+            for col in range(0, len(data_row)):
+                data_item = data_row[col]
+                self.current_worksheet.cell(column=col + 1, row=row + 1, value=data_item)
+        self.workbook.save(filename=path)
 
     def read_workbook(self, path):
         self.workbook = openpyxl.load_workbook(filename=path)
@@ -63,29 +82,8 @@ class ExcelIO:
 
     # these methods used for testing
     def set_project_name_for_testing(self, project_name):
-        self.project_name_for_testing = project_name
+        self.project_name_for_write = project_name
 
     # these methods used for testing
     def set_experiment_name_for_testing(self, experiment_name):
-        self.experiment_name_for_testing = experiment_name
-
-    # these methods used for testing
-    def write_data(self, path, data_row_list, worksheet_name=None):
-        self.workbook = openpyxl.Workbook()
-        self.current_worksheet = self.workbook.worksheets[0]
-        if worksheet_name:
-            self.current_worksheet.name = worksheet_name
-        print("write_data", len(data_row_list))
-        if len(data_row_list) > 2:
-            print("write_data", len(data_row_list[0]))
-            if self.project_name_for_testing and len(data_row_list[0]) > 0:
-                data_row_list[0][0] = "PROJ: " + self.project_name_for_testing
-            print("write_data", len(data_row_list[1]))
-            if self.experiment_name_for_testing and len(data_row_list[1]) > 0:
-                data_row_list[1][0] = "EXP: " + self.experiment_name_for_testing
-        for row in range(0, len(data_row_list)):
-            data_row = data_row_list[row]
-            for col in range(0, len(data_row)):
-                data_item = data_row[col]
-                self.current_worksheet.cell(column=col + 1, row=row + 1, value=data_item)
-        self.workbook.save(filename=path)
+        self.experiment_name_for_write = experiment_name

@@ -4,13 +4,12 @@ import os
 import sys
 from pathlib import Path
 
-import openpyxl
-
 from materials_commons.api import get_all_projects
 from materials_commons.api import File as MC_File
 from materials_commons.etl.common.util import _normalise_property_name
 from materials_commons.etl.common.metadata import Metadata
 from materials_commons.etl.common.process_file_util import make_project_file_id_path_table
+from materials_commons.etl.common.worksheet_data import ExcelIO
 from .meta_data_verify import MetadataVerification
 
 
@@ -255,27 +254,11 @@ class ExtractExperimentSpreadsheet:
 
     def write_spreadsheet(self):
         print("Writing spreadsheet", self.output_path)
-        if self.create_worksheet():
-            self.write_data_to_sheet()
-            self.workbook.save(filename=self.output_path)
-            self.workbook.close()
-
-    def write_data_to_sheet(self):
-        for row in range(0, len(self.data_row_list)):
-            data_row = self.data_row_list[row]
-            for col in range(0, len(data_row)):
-                data_item = data_row[col]
-                self.worksheet.cell(column=col + 1, row=row + 1, value=data_item)
-
-    def create_worksheet(self):
-        wb = openpyxl.Workbook()
-        ws = wb.worksheets[0]
-        ws['A1'] = "PROJ: " + self.project.name
-        ws['A2'] = "EXP: " + self.experiment.name
-        wb.save(filename=self.output_path)
-        self.worksheet = ws
-        self.workbook = wb
-        return wb
+        excel_interface = ExcelIO()
+        excel_interface.project_name_for_write = self.project.name
+        excel_interface.experiment_name_for_write = self.experiment.name
+        excel_interface.write_data(self.output_path, self.data_row_list)
+        excel_interface.close()
 
     @staticmethod
     def remove_units_spec_from_attributes(attributes):
