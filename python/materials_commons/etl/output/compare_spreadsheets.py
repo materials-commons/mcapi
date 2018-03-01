@@ -10,8 +10,8 @@ import openpyxl
 from dateutil import parser as date_parser
 
 from materials_commons.api import get_all_projects
-from materials_commons.etl.common.worksheet_data import read_entire_sheet
-from materials_commons.etl.input.metadata import Metadata
+from materials_commons.etl.common.worksheet_data import ExcelIO
+from materials_commons.etl.common.metadata import Metadata
 from .meta_data_verify import MetadataVerification
 
 
@@ -42,20 +42,24 @@ class Compare:
             return
 
         print('Input --', input_file_path)
-        wb1 = openpyxl.load_workbook(filename=input_file_path)
-        sheets = wb1.sheetnames
-        print("Input -- Selecting: ", sheets[0], "(from", sheets, ")")
-        ws1 = wb1[sheets[0]]
-        data1 = read_entire_sheet(ws1)
+        excel_io_controller = ExcelIO()
+        excel_io_controller.read_workbook(input_file_path)
+        sheet_name_list = excel_io_controller.sheet_name_list()
+        sheet_name = excel_io_controller.set_current_worksheet_by_index(0)
+        print("Input -- Selecting: ", sheet_name, "(from", sheet_name_list, ")")
+        data1 = excel_io_controller.read_entire_data_from_current_sheet()
+        excel_io_controller.close()
         data1 = self.check_for_end_tag(data1)
         print("Input data size:", len(data1), len(data1[0]))
 
         print('Output --', output_file_path)
-        wb2 = openpyxl.load_workbook(filename=output_file_path)
-        sheets = wb2.sheetnames
-        print("Output -- Selecting: ", sheets[0], "(from", sheets, ")")
-        ws2 = wb2[sheets[0]]
-        data2 = read_entire_sheet(ws2)
+        excel_io_controller = ExcelIO()
+        excel_io_controller.read_workbook(input_file_path)
+        sheet_name_list = excel_io_controller.sheet_name_list()
+        sheet_name = excel_io_controller.set_current_worksheet_by_index(0)
+        print("Output -- Selecting: ", sheet_name, "(from", sheet_name_list, ")")
+        data2 = excel_io_controller.read_entire_data_from_current_sheet()
+        excel_io_controller.close()
         data2 = self.check_for_end_tag(data2)
         print("Output data size:", len(data2), len(data2[0]))
 

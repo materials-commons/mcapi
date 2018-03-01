@@ -9,7 +9,7 @@ import openpyxl
 from materials_commons.api import get_all_projects
 from materials_commons.api import File as MC_File
 from materials_commons.etl.common.util import _normalise_property_name
-from materials_commons.etl.input.metadata import Metadata
+from materials_commons.etl.common.metadata import Metadata
 from materials_commons.etl.common.process_file_util import make_project_file_id_path_table
 from .meta_data_verify import MetadataVerification
 
