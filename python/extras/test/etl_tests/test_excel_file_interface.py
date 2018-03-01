@@ -18,7 +18,6 @@ class TestInput(unittest.TestCase):
         cls.experiment_name = cls.fake_name("TestExperiment")
 
     def test_is_setup_correctly(self):
-        print("---")
         self.assertTrue('TEST_DATA_DIR' in environ)
         self.assertIsNotNone(self.test_dir_path)
         self.assertTrue(os_path.exists(self.spreadsheet_path))
@@ -94,19 +93,14 @@ class TestInput(unittest.TestCase):
             self.assertIsNotNone(interface.current_worksheet)
             interface.close()
 
-            print("\n", path)
-
             interface = ExcelIO()
             self.assertIsNone(interface.workbook)
             interface.read_workbook(path)
             self.assertIsNotNone(interface.workbook)
-            print("worksheets", len(interface.workbook.worksheets), interface.workbook.worksheets)
             interface.set_current_worksheet_by_index(0)
             self.assertIsNotNone(interface.current_worksheet)
-            print("worksheet", interface.current_worksheet)
             row_count = interface.current_worksheet.max_row
             column_count = interface.current_worksheet.max_column
-            print("counts", row_count, column_count)
             self.assertTrue(row_count >= 10)
             self.assertTrue(column_count >= 20)
             data = interface.read_entire_data_from_current_sheet()

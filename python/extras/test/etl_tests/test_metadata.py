@@ -2,6 +2,7 @@ import unittest
 from os import environ
 from os import path as os_path
 from random import randint
+from materials_commons.etl.common.metadata import Metadata
 
 
 class TestMetadata(unittest.TestCase):
@@ -16,6 +17,11 @@ class TestMetadata(unittest.TestCase):
         self.assertIsNotNone(self.test_dir_path)
         self.assertIsNotNone(self.random_name)
         self.assertTrue("test" in self.random_name)
+
+    def test_metadata_class(self):
+        pass
+        # most direct way to create metadata is input an excel spreadsheet
+        # So, testing input first
 
     @classmethod
     def make_test_dir_path(cls):
