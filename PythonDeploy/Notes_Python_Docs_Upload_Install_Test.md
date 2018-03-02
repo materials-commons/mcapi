@@ -15,9 +15,6 @@ SCRAP_DOCS_DIR=/Users/weymouth/Desktop/sphinx_docs
 DEPLOY_DIR=${MCAPI_BASE}/PythonDeploy
 DOCS_GITHUB_BASE=/Users/weymouth/working/MaterialsCommons/workspace/src/github.com/materials-commons/materials-commons.github.io/python-api/sphinx/
 
-mkdir -p ${SCRAP_TEST_DIR}
-mkdir -p ${SCRAP_DOCS_DIR}
-
 ----- set up env with python3 for upload (only needs to be done once) ----
 ---- Starting NOT in virtual env ----
 virtualenv --version
@@ -52,29 +49,36 @@ Finally:
 twine upload dist/*
 
 ---- download/test from test PyPI: in any python3 env ---
-rm -rf ${SCRAP_TEST_DIR}/*
+rmdir ${SCRAP_TEST_DIR}
+mkdir -p ${SCRAP_TEST_DIR}
+
+pushd ~/PythonEnvs
+ls
+rm -r ~/PythonEnvs/mcdeptest
+virtualenv -p python3 mcdeptest
+pushd ${SCRAP_TEST_DIR}
 cp -r ${DEPLOY_DIR}/install_test/* ${SCRAP_TEST_DIR}/
-cd ${SCRAP_TEST_DIR}
+pip install pytest
 
-pip install -r test_requirements.txt 
-
+pip install -r test_requirements.txt
 source set_test_dir.sh 
-pytest test_workflow.py 
-
+python -m pytest test_workflow.py 
+popd
+popd
 ---- download/test from prod PyPI: in any env ---
-rm -rf ${SCRAP_TEST_DIR}/*
-cp -r ${DEPLOY_DIR}/install_test ${SCRAP_TEST_DIR}/
-cd ${SCRAP_TEST_DIR}
+-- Set up as above, download/test from test PyPI, but change...
 
 pip install -r requirements.txt 
-
 source set_test_dir.sh 
 pytest test_workflow.py 
 
 ---- set up doc files ---
+rmdir ${SCRAP_DOCS_DIR}
+mkdir -p ${SCRAP_DOCS_DIR}
+
 source ${PYTHON_ENVS}/forDocs/bin/activate
 cd ${SCRAP_DOCS_DIR}
-rm -rf *
+pwd
 cp -r ${MCAPI_SOURCE} source
 pushd source
 pip install -r requirements.txt
@@ -115,6 +119,8 @@ mv _modules site_modules
 popd
 cp -r build/html ${DOCS_GITHUB_BASE}/
 pushd ${DOCS_GITHUB_BASE}
+git status
+git add html
 git commit -m "Update Python API Docs"
 git push
 git status
