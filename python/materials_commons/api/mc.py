@@ -1,6 +1,4 @@
-import copy
 import hashlib
-import json
 import sys
 from io import StringIO
 from os import getcwd
@@ -12,10 +10,11 @@ from tabulate import tabulate
 
 from . import api
 from .base import MCObject, PrettyPrint
-from .base import _decorate_object_with, _is_object, _is_list, _has_key, _data_has_type
-from .base import _is_datetime, _make_datetime
+from .base import _decorate_object_with,  _has_key
 from .measurement import make_measurement_object
 from .property_util import _normalise_property_name, _convert_for_json_if_datetime
+
+from .make_objects import make_object, make_property_object, make_measured_property
 
 
 # -- top level project functions --
@@ -2878,155 +2877,3 @@ class MatrixProperty(Property):
 
     def __init__(self, data=None):
         super(MatrixProperty, self).__init__(data)
-
-
-def make_object(data):
-    try:
-        if _is_datetime(data):
-            return _make_datetime(data)
-        if _is_object(data):
-            holder = make_base_object_for_type(data)
-            for key in data.keys():
-                value = copy.deepcopy(data[key])
-                if _is_object(value):
-                    value = make_object(value)
-                elif _is_list(value):
-                    value = [make_object(x) for x in value]
-                setattr(holder, key, value)
-            holder._process_special_objects()
-            return holder
-        else:
-            return data
-    except Exception as e:
-        msg = "---\nData:\n" + json.dumps(data, indent=2) + "\n" \
-              + "---\nFailed:" + str(e) + "\n" \
-              + "---\n"
-        raise Exception("Failed to make object: \n" + msg)
-
-
-def make_base_object_for_type(data):
-    if _has_key('_type', data):  # catch, convert legacy objects
-        data['otype'] = data['_type']
-    if _data_has_type(data):
-        object_type = data['otype']
-        if object_type == 'process':
-            return Process(data=data)
-        if object_type == 'project':
-            return Project(data=data)
-        if object_type == 'experiment':
-            return Experiment(data=data)
-        if object_type == 'sample':
-            return Sample(data=data)
-        if object_type == 'datadir':
-            return Directory(data=data)
-        if object_type == 'directory':
-            return Directory(data=data)
-        if object_type == 'datafile':
-            return File(data=data)
-        if object_type == 'file':
-            return File(data=data)
-        if object_type == 'template':
-            return Template(data=data)
-        if object_type == 'experiment_etl_metadata':
-            return EtlMetadata(data=data)
-        if object_type == 'experiment_task':
-            # Experiment task not implemented
-            return MCObject(data=data)
-        else:
-            return MCObject(data=data)
-    else:
-        if _has_key('fullname', data):
-            return User(data=data)
-        if _has_key('unit', data):
-            return MCObject(data=data)
-        if _has_key('starred', data):
-            return MCObject(data=data)
-        return MCObject(data=data)
-
-
-def make_property_object(obj):
-    data = obj
-    if isinstance(obj, MCObject):
-        data = obj.input_data
-    if _has_key('_type', data):  # catch, convert legacy objects
-        data['otype'] = data['_type']
-    if _data_has_type(data):
-        object_type = data['otype']
-        holder = None
-        if object_type == 'number':
-            holder = NumberProperty(data=data)
-        if object_type == 'string':
-            holder = StringProperty(data=data)
-        if object_type == 'boolean':
-            holder = BooleanProperty(data=data)
-        if object_type == 'date':
-            holder = DateProperty(data=data)
-        if object_type == 'selection':
-            holder = SelectionProperty(data=data)
-        if object_type == 'function':
-            holder = FunctionProperty(data=data)
-        if object_type == 'composition':
-            holder = CompositionProperty(data=data)
-        if object_type == 'vector':
-            holder = VectorProperty(data=data)
-        if object_type == 'matrix':
-            holder = MatrixProperty(data=data)
-        if not holder:
-            # raise Exception("No Property Object, unrecognized otype = " + object_type, data)
-            holder = Property(data=data)
-        holder._process_special_objects()
-        return holder
-    else:
-        raise Exception("No Property Object, otype not defined", data)
-
-
-def make_measured_property(data):
-    measurement_property = MeasuredProperty(data)
-    measurement_property._process_special_objects()
-    return measurement_property
-
-
-#
-# ---
-#    testing template backend
-# ---
-def _create_new_template(template_data):
-    print("Create new template")
-    results = api._create_new_template(template_data)
-    template = make_object(results)
-    return template
-
-
-def _update_template(template_id, template_data):
-    print("Updating template")
-    results = api._update_template(template_id, template_data)
-    template = make_object(results)
-    return template
-
-
-#
-# ---
-#   testing user profile backend
-# ---
-def _store_in_user_profile(user_id, name, value):
-    results = api._store_in_user_profile(user_id, name, value)
-    value = results['val']
-    if not value:
-        return None
-    return value
-
-
-def _get_from_user_profile(user_id, name):
-    results = api._get_from_user_profile(user_id, name)
-    value = results['val']
-    if not value:
-        return None
-    return value
-
-
-def _clear_from_user_profile(user_id, name):
-    results = api._clear_from_user_profile(user_id, name)
-    value = results['val']
-    if not value:
-        return None
-    return value
