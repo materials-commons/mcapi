@@ -52,6 +52,7 @@ Finally:
 twine upload dist/*
 
 ---- download/test from test PyPI: in any python3 env ---
+echo ${SCRAP_TEST_DIR}
 rm -rf ${SCRAP_TEST_DIR}/*
 cp -r ${DEPLOY_DIR}/install_test/* ${SCRAP_TEST_DIR}/
 cd ${SCRAP_TEST_DIR}
@@ -59,7 +60,7 @@ cd ${SCRAP_TEST_DIR}
 pip install -r test_requirements.txt 
 
 source set_test_dir.sh 
-pytest test_workflow.py 
+python -m pytest test_workflow.py 
 
 ---- download/test from prod PyPI: in any env ---
 rm -rf ${SCRAP_TEST_DIR}/*

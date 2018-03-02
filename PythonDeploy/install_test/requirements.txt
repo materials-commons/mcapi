@@ -1,1 +1,1 @@
-materials_commons==0.7.1
+materials_commons==0.7.3
