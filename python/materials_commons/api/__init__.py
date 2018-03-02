@@ -1,5 +1,5 @@
 from .top_level_project_functions import get_all_projects, create_project, get_project_by_id
-#from .Project import Project
+from .Project import Project
 #from .File import File
 from .mc import Experiment, Process, Sample, Template, Directory
 from .mc import create_experiment_metadata, get_experiment_metadata_by_id
