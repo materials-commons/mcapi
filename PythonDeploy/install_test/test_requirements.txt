@@ -1,2 +1,2 @@
 --extra-index-url https://testpypi.python.org/pypi
-materials_commons==0.7.1
+materials_commons==0.7.3
