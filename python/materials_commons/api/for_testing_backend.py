@@ -1,4 +1,4 @@
-import materials_commons.api as api
+from . import api
 from .make_objects import make_object
 
 

@@ -31,7 +31,9 @@ def make_object(data):
 
 
 def make_base_object_for_type(data):
-    from .mc import Project, Process, Experiment, Sample, Directory, File, Template
+    from .Project import Project
+    from .File import File
+    from .mc import Process, Experiment, Sample, Directory, Template
     from .mc import User, EtlMetadata
 
     if _has_key('_type', data):  # catch, convert legacy objects
