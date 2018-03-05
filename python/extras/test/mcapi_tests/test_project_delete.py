@@ -15,7 +15,6 @@ def _fake_name(prefix):
     number = "%05d" % randint(0, 99999)
     return prefix + number
 
-@pytest.mark.skip("Problems with delete project and activity feed on backend")
 class TestProjectDelete(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -74,7 +73,7 @@ class TestProjectDelete(unittest.TestCase):
         self._set_up_remote_for(another_user_key)
 
         with pytest.raises(HTTPError):
-             project.delete()
+            project.delete()
 
         self._set_up_remote_for(self.mcapikey)
 
