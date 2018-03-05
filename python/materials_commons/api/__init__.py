@@ -6,8 +6,9 @@ from .top_level_api_functions import get_experiment_metadata_by_id
 from .Project import Project
 from .File import File
 from .User import User
+from .Template import Template
 
-from .mc import Experiment, Process, Sample, Template, Directory
+from .mc import Experiment, Process, Sample, Directory
 
 from .mc import Property, MeasuredProperty, NumberProperty
 from .mc import StringProperty, BooleanProperty

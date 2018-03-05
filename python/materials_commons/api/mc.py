@@ -3,8 +3,6 @@ import sys
 from io import StringIO
 from os import listdir
 from os import path as os_path
-from pandas import DataFrame
-from tabulate import tabulate
 
 from . import api
 from .base import MCObject, PrettyPrint
@@ -12,47 +10,6 @@ from .base import _decorate_object_with, _has_key
 from .make_objects import make_object, make_property_object, make_measured_property
 from .measurement import make_measurement_object
 from .property_util import _normalise_property_name, _convert_for_json_if_datetime
-
-
-class User(MCObject):
-    """
-    Representing a registered user.
-
-    .. note:: normally created from the database by a call to top level function :func:`mcapi.get_all_users`
-
-    """
-
-    def __init__(self, data=None):
-        # normally, from the data base
-        self.id = ""
-        self.fullname = ""
-        self.email = ""
-
-        # attr = ['id', 'name', 'description', 'birthtime', 'mtime', 'otype', 'owner']
-        super(User, self).__init__(data)
-
-        attr = ['fullname', 'email']
-        for a in attr:
-            setattr(self, a, data.get(a, None))
-
-    def can_access(self, project):
-        """
-        Does this user have permission to access the indicated project.
-
-        :param project: an instance of the :class: `mcapi.Project`
-        :return: boolean
-
-        >>> user_list = get_all_users()
-        >>> for user in user_list:
-        >>>     if user.can_access(project):
-        >>>         print(user.fullname, user.email)
-
-        """
-        user_ids = project.get_access_list()
-        for id in user_ids:
-            if id == self.id:
-                return True
-        return False
 
 
 class Experiment(MCObject):
@@ -1584,75 +1541,6 @@ def _make_dir_tree_table(base_path, dir_name, relative_base, table_so_far):
         if os_path.isdir(path):
             table_so_far = _make_dir_tree_table(local_path, directory, base, table_so_far)
     return table_so_far
-
-
-class Template(MCObject):
-    """
-    A Materials Commons Template.
-
-    .. note:: Only available through the top level function get_all_templates().
-
-    .. note:: Template is truncated as we only need
-        the id to create processes from a Template, and this is
-        the only way in which Template is used, for now.
-
-    """
-    # global static
-    create = "global_Create Samples"  #: a typical template id, used for testing.
-    compute = "global_Computation"
-    primitive_crystal_structure = "global_Primitive Crystal Structure"
-
-    def __init__(self, data=None):
-        # attr = ['id', 'name', 'description', 'birthtime', 'mtime', 'otype', 'owner']
-        super(Template, self).__init__(data)
-
-        # ---- NOTE
-        # - Template is truncated as we only need the id to create
-        # - processes from a Template
-        # ----
-
-    def pretty_print(self, shift=0, indent=2, out=sys.stdout):
-        """
-        Prints a nice layout of the object and all of it's values.
-
-        :param shift: the offset from the start of the line, in increments of indent
-        :param indent: the indent used for layout, in characters
-        :param out: the stream to which the object in printed
-        :return: None
-        """
-        pp = PrettyPrint(shift=shift, indent=indent, out=out)
-        _data = self.input_data
-        pp.write("name: " + pp.str(self.name))
-        pp.n_indent += 1
-        value_list = ['description', 'id', 'category', 'process_type', 'destructive', 'does_transform']
-        for k in value_list:
-            pp.write(k + ": " + pp.str(_data[k]))
-
-        # for 'create sample' processes
-        measurements = _data['measurements']
-        if len(measurements):
-            pp.write("")
-            pp.write("Create samples with attributes:\n")
-            df = DataFrame.from_records(measurements, columns=['name', 'attribute', 'otype', 'units'])
-            strout = StringIO()
-            strout.write(tabulate(df, showindex=False, headers=['name', 'attribute', 'otype', 'units']))
-            for line in strout.getvalue().splitlines():
-                pp.write(line)
-
-        # for process settings / attributes
-        setup = _data['setup']
-
-        # attributes are grouped, for each group print()attributes
-        for s in setup:
-            properties = s['properties']
-            if len(properties):
-                pp.write("")
-                pp.write("Process attributes: " + s['name'] + "\n")
-                df = DataFrame.from_records(properties, columns=['name', 'attribute', 'otype', 'units'])
-                strout = StringIO()
-                strout.write(tabulate(df, showindex=False, headers=['name', 'attribute', 'otype', 'units']))
-                for line in strout.getvalue().splitlines():
-                    pp.write(line)
 
 
 class EtlMetadata(MCObject):
