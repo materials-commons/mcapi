@@ -7,8 +7,9 @@ from .Project import Project
 from .File import File
 from .User import User
 from .Template import Template
+from .Directory import Directory
 
-from .mc import Experiment, Process, Sample, Directory
+from .mc import Experiment, Process, Sample
 
 from .mc import Property, MeasuredProperty, NumberProperty
 from .mc import StringProperty, BooleanProperty
@@ -29,7 +30,7 @@ from .config import Config as _Config
 from .remote import Remote as _Remote
 from .api import set_remote as _set_remote, use_remote as _use_remote
 from .make_objects import make_object as _make_object
-from .mc import _make_dir_tree_table
+from .Directory import _make_dir_tree_table
 from .for_testing_backend import _create_new_template, _update_template
 from .for_testing_backend import _store_in_user_profile, _get_from_user_profile, _clear_from_user_profile
 from . import api as __api
