@@ -142,6 +142,7 @@ class Project(MCObject):
         :param description: description for the Experiment
         :return: a :class:`mcapi.Experiment` instance
 
+        >>> from materials_commons.api import get_project_by_id
         >>> project_id = "somthing here"
         >>> project = get_project_by_id(project_id)
         >>> experiment = project.create_experiment("Experiment 1", "Test Procedures")
@@ -169,6 +170,7 @@ class Project(MCObject):
 
         :return: a list of :class:`mcapi.Experiment` instances
 
+        >>> from materials_commons.api import get_project_by_id
         >>> project_id = "somthing here"
         >>> project = get_project_by_id(project_id)
         >>> experiment_list = project.get_all_experiments()
@@ -200,6 +202,7 @@ class Project(MCObject):
         :type directory_id: str.
         :return: a :class:`mcapi.Directory` instance
 
+        >>> from materials_commons.api import get_project_by_id
         >>> project_id = "somthing here"
         >>> project = get_project_by_id(project_id)
         >>> directory = project.get_directory_by_id('876655a2-c31b-4895-8766-40a168ea1a87')
@@ -219,6 +222,7 @@ class Project(MCObject):
 
         :return: a list :class:`mcapi.Directory` instances
 
+        >>> from materials_commons.api import get_project_by_id
         >>> project_id = "somthing here"
         >>> project = get_project_by_id(project_id)
         >>> directory_list = project.get_all_directories()
@@ -246,6 +250,7 @@ class Project(MCObject):
 
         :return: a :class:`mcapi.Directory` instance
 
+        >>> from materials_commons.api import get_project_by_id
         >>> project_id = "somthing here"
         >>> project = get_project_by_id(project_id)
         >>> directory = project.get_top_directory()
@@ -271,6 +276,7 @@ class Project(MCObject):
         >>> #   directory 'A'
         >>> #   directory 'B'
         >>>
+        >>> from materials_commons.api import get_project_by_id
         >>> project_id = "somthing here"
         >>> project = get_project_by_id(project_id)
         >>> directory_list = project.get_directory_list("/A/B")
@@ -290,6 +296,7 @@ class Project(MCObject):
         :param directory_id: - the id of the intended directory - string
         :return: a :class:`mcapi.Directory` instance
 
+        >>> from materials_commons.api import get_project_by_id
         >>> project_id = "somthing here"
         >>> project = get_project_by_id(project_id)
         >>> directory = project.get_directory("352eb9b1-8553-4be5-8c08-cbb496ef60ea")
@@ -312,6 +319,7 @@ class Project(MCObject):
         >>> #   directory 'A'
         >>> #   directory 'B'
         >>>
+        >>> from materials_commons.api import get_project_by_id
         >>> project_id = "somthing here"
         >>> project = get_project_by_id(project_id)
         >>> directory_list = project.get_directory_list("/A/B")
@@ -336,6 +344,7 @@ class Project(MCObject):
         :param path: the path, within the project, of the directory - string
         :return: a :class:`mcapi.Directory` instance
 
+        >>> from materials_commons.api import get_project_by_id
         >>> project_id = "somthing here"
         >>> project = get_project_by_id(project_id)
         >>> directory = project.add_directory("/A/B")
@@ -363,6 +372,7 @@ class Project(MCObject):
         :return: a dictionary, indexed by path of the ids of the created directories,
             see :func:`mcapi.Project.get_directory` to get a directory by it's id.
 
+        >>> from materials_commons.api import get_project_by_id
         >>> project_id = "somthing here"
         >>> project = get_project_by_id(project_id)
         >>> directory_path_list = ['/a/b/c', '/a/b/e', '/a/f/g']
@@ -405,6 +415,7 @@ class Project(MCObject):
         :param limit: (optional) the maximum number of MB to be uploaded
         :return: the :class:`mcapi.File` instance representing the uploaded file
 
+        >>> from materials_commons.api import get_project_by_id
         >>> project_id = "somthing here"
         >>> project = get_project_by_id(project_id)
         >>> directory = project.add_directory("/A/B")
@@ -440,6 +451,7 @@ class Project(MCObject):
         :param limit: (optional) the maximum number of MB to be uploaded
         :return: the :class:`mcapi.File` instance representing the uploaded file
 
+        >>> from materials_commons.api import get_project_by_id
         >>> project_id = "somthing here"
         >>> project = get_project_by_id(project_id)
         >>> # uploads file_A.txt from the local path /path/to/Proj/test_dir/file_A.txt
@@ -467,6 +479,7 @@ class Project(MCObject):
         :param limit: (optional) the maximum number of MB to be uploaded for any file in the path
         :return: the :class:`mcapi.Directory` instance representing the uploaded directory
 
+        >>> from materials_commons.api import get_project_by_id
         >>> project_id = "somthing here"
         >>> project = get_project_by_id(project_id)
         >>> # uploads dir_A and all of it's contents
@@ -491,6 +504,7 @@ class Project(MCObject):
         :param local_path: file or directory local path equivalent.
         :return: one of :class:`mcapi.File`, :class:'mcapi.Directory`, or None.
 
+        >>> from materials_commons.api import get_project_by_id
         >>> project_id = "somthing here"
         >>> project = get_project_by_id(project_id)
         >>> project.local_path = "/path/to/Proj"
@@ -528,6 +542,7 @@ class Project(MCObject):
             **checksums_are_equal** (when requested by checksum=True)
                 is True when both files exist and have the same checksum value
 
+        >>> from materials_commons.api import get_project_by_id
         >>> project_id = "somthing here"
         >>> project = get_project_by_id(project_id)
         >>> project.local_path = "/path/to/Proj"
@@ -563,6 +578,7 @@ class Project(MCObject):
 
         :return: a list of :class:`mcapi.Process` - the processes for the Project
 
+        >>> from materials_commons.api import get_project_by_id
         >>> project_id = "somthing here"
         >>> project = get_project_by_id(project_id)
         >>> process_list = project.get_all_processes()
@@ -582,6 +598,7 @@ class Project(MCObject):
         :param process_id: the process id value - string
         :return: a class:`mcapi.Process`  - the intended process
 
+        >>> from materials_commons.api import get_project_by_id
         >>> project_id = "somthing here"
         >>> project = get_project_by_id(project_id)
         >>> process = project.get_process_by_id(process.id)
@@ -601,6 +618,7 @@ class Project(MCObject):
 
         :return: a list of :class:`mcapi.Sample` - the samples for the Project
 
+        >>> from materials_commons.api import get_project_by_id
         >>> project_id = "somthing here"
         >>> project = get_project_by_id(project_id)
         >>> sample_list = project.get_all_samples()
@@ -621,6 +639,7 @@ class Project(MCObject):
         :param sample_id: the sample id value - string
         :return: a class:`mcapi.Sample` - the intended sample
 
+        >>> from materials_commons.api import get_project_by_id
         >>> project_id = "somthing here"
         >>> project = get_project_by_id(project_id)
         >>> sample = project.get_sample_by_id(sample.id)
@@ -641,6 +660,7 @@ class Project(MCObject):
         :param sample_id: the sample id value - string
         :return: a class:`mcapi.Sample` - the intended sample
 
+        >>> from materials_commons.api import get_project_by_id
         >>> project_id = "somthing here"
         >>> project = get_project_by_id(project_id)
         >>> sample = project.fetch_sample_by_id(sample.id)
@@ -660,6 +680,7 @@ class Project(MCObject):
 
         :return: a list of string - the id/email of each user with access
 
+        >>> from materials_commons.api import get_project_by_id
         >>> project_id = "somthing here"
         >>> project = get_project_by_id(project_id)
         >>> user_id_list = project.get_access_list()
