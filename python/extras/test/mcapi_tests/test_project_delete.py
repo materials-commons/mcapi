@@ -8,6 +8,7 @@ from materials_commons.api import _use_remote as use_remote, _set_remote as set_
 from materials_commons.api import get_remote_config_url
 import extras.demo_project.demo_project as demo
 from .assert_helper import AssertHelper
+from requests.exceptions import HTTPError
 
 
 def _fake_name(prefix):
@@ -72,8 +73,8 @@ class TestProjectDelete(unittest.TestCase):
 
         self._set_up_remote_for(another_user_key)
 
-        results = project.delete()
-        self.assertIsNone(results)
+        with pytest.raises(HTTPError):
+             project.delete()
 
         self._set_up_remote_for(self.mcapikey)
 
