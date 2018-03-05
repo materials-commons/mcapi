@@ -14,7 +14,7 @@ def _fake_name(prefix):
     number = "%05d" % randint(0, 99999)
     return prefix + number
 
-
+@pytest.mark.skip("Problems with delete project and activity feed on backend")
 class TestProjectDelete(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
