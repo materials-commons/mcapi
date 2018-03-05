@@ -1,6 +1,7 @@
 from . import api
 from .Project import Project
 from .make_objects import make_object
+from .base import _has_key
 
 
 # -- top level project functions --
@@ -98,7 +99,8 @@ def create_experiment_metadata(experiment_id, metadata):
     Create a metadata record for Excel-based experiment workflow ETL.
 
     :param experiment_id: the id of an existing experiment
-    :param metadata: the metadata for the experiment; see :class:`materials_commons.etl.input.build_project.BuildProjectExperiment`
+    :param metadata: the metadata for the experiment;
+        see :class:`materials_commons.etl.input.build_project.BuildProjectExperiment`
     :return: a object of :class:`materials_commons.api.EtlMetadata`
     """
     results = api.create_experiment_metadata(experiment_id, metadata)
@@ -137,4 +139,3 @@ def get_experiment_metadata_by_id(metadata_id):
         return None
     data = results['data']
     return make_object(data=data)
-
