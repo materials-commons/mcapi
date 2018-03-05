@@ -4,14 +4,15 @@ from .top_level_api_functions import create_experiment_metadata
 from .top_level_api_functions import get_experiment_metadata_by_experiment_id
 from .top_level_api_functions import get_experiment_metadata_by_id
 from .Project import Project
-# from .File import File
+from .File import File
+
 from .mc import Experiment, Process, Sample, Template, Directory, User
 
-# from .mc import Property, MeasuredProperty, NumberProperty
-# from .mc import StringProperty, BooleanProperty
-# from .mc import DateProperty, SelectionProperty
-# from .mc import FunctionProperty, CompositionProperty
-# from .mc import VectorProperty, MatrixProperty
+from .mc import Property, MeasuredProperty, NumberProperty
+from .mc import StringProperty, BooleanProperty
+from .mc import DateProperty, SelectionProperty
+from .mc import FunctionProperty, CompositionProperty
+from .mc import VectorProperty, MatrixProperty
 
 from .measurement import Measurement, MeasurementComposition, MeasurementString,\
     MeasurementMatrix, MeasurementVector, MeasurementSelection, MeasurementFile,\
