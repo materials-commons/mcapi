@@ -38,8 +38,8 @@ def make_base_object_for_type(data):
     from .Directory import Directory
     from .Experiment import Experiment
     from .Process import Process
-    from .mc import Sample
-    from .mc import EtlMetadata
+    from .EtlMetadata import EtlMetadata
+    from .Sample import Sample
 
     if _has_key('_type', data):  # catch, convert legacy objects
         data['otype'] = data['_type']
@@ -81,9 +81,9 @@ def make_base_object_for_type(data):
 
 
 def make_property_object(obj):
-    from .mc import Property, NumberProperty, StringProperty, BooleanProperty, VectorProperty
-    from .mc import DateProperty, SelectionProperty, FunctionProperty, MatrixProperty
-    from .mc import CompositionProperty
+    from .property import Property, NumberProperty, StringProperty, BooleanProperty, VectorProperty
+    from .property import DateProperty, SelectionProperty, FunctionProperty, MatrixProperty
+    from .property import CompositionProperty
     data = obj
     if isinstance(obj, MCObject):
         data = obj.input_data
@@ -120,7 +120,7 @@ def make_property_object(obj):
 
 
 def make_measured_property(data):
-    from .mc import MeasuredProperty
+    from .property import MeasuredProperty
     measurement_property = MeasuredProperty(data)
     measurement_property._process_special_objects()
     return measurement_property

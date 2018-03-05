@@ -10,7 +10,8 @@ from .Template import Template
 from .Directory import Directory
 from .Experiment import Experiment
 from .Process import Process
-from .mc import Sample
+from .EtlMetadata import EtlMetadata
+from .Sample import Sample
 
 from .property import Property, MeasuredProperty, NumberProperty
 from .property  import StringProperty, BooleanProperty
