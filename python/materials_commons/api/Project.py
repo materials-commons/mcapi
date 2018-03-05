@@ -99,7 +99,7 @@ class Project(MCObject):
             description = self.description
         results = api.update_project(self.id, name, description)
         project_id = results['id']
-        from .top_level_project_functions import get_project_by_id
+        from .top_level_api_functions import get_project_by_id
         project = get_project_by_id(project_id)
         return project
 

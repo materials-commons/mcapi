@@ -1,23 +1,23 @@
-from .top_level_project_functions import get_all_projects, create_project, get_project_by_id
+from .top_level_api_functions import get_all_projects, create_project, get_project_by_id
+from .top_level_api_functions import get_all_users, get_all_templates
+from .top_level_api_functions import create_experiment_metadata
+from .top_level_api_functions import get_experiment_metadata_by_experiment_id
+from .top_level_api_functions import get_experiment_metadata_by_id
 from .Project import Project
-#from .File import File
-from .mc import Experiment, Process, Sample, Template, Directory
-from .mc import create_experiment_metadata, get_experiment_metadata_by_id
-from .mc import get_experiment_metadata_by_experiment_id
-from .mc import get_all_users, User
-from .mc import get_all_templates
+# from .File import File
+from .mc import Experiment, Process, Sample, Template, Directory, User
 
-#from .mc import Property, MeasuredProperty, NumberProperty
-#from .mc import StringProperty, BooleanProperty
-#from .mc import DateProperty, SelectionProperty
-#from .mc import FunctionProperty, CompositionProperty
-#from .mc import VectorProperty, MatrixProperty
+# from .mc import Property, MeasuredProperty, NumberProperty
+# from .mc import StringProperty, BooleanProperty
+# from .mc import DateProperty, SelectionProperty
+# from .mc import FunctionProperty, CompositionProperty
+# from .mc import VectorProperty, MatrixProperty
 
-#from .measurement import Measurement, MeasurementComposition, MeasurementString,\
-#    MeasurementMatrix, MeasurementVector, MeasurementSelection, MeasurementFile,\
-#    MeasurementInteger, MeasurementBoolean, MeasurementSample
+from .measurement import Measurement, MeasurementComposition, MeasurementString,\
+    MeasurementMatrix, MeasurementVector, MeasurementSelection, MeasurementFile,\
+    MeasurementInteger, MeasurementBoolean, MeasurementSample
 
-from .bulk_file_uploader import BulkFileUploader#
+from .bulk_file_uploader import BulkFileUploader
 
 from .api import set_remote_config_url, get_remote_config_url
 
