@@ -38,7 +38,7 @@ env:
     - MC_DOI_PUBLICATION_BASE=http://mcpub.localhost/#/details
     - MC_DOI_NAMESPACE='doi:10.5072/FK2'
     - ENV_SCRIPT=travisrun
-    - MC_ORG_BRANCH=etl
+    - MC_ORG_BRANCH=sprint
 
 git:
   depth: 3
@@ -138,9 +138,8 @@ script:
 #  - coverage run --source mcapi,casm_mcapi,demo_project -m py.test test
 #  - coverage report -m
 
-
-after_failure:
-  - echo ${MC_LOG_DIR}/mcapi.out.${SERVERTYPE}
-  - ls ${MC_LOG_DIR}
-  - cat ${MC_LOG_DIR}/mcapi.out.${SERVERTYPE}
-  - cat ${MC_LOG_DIR}/mcapiserver.out.${SERVERTYPE}
+#after_failure:
+#  - echo ${MC_LOG_DIR}/mcapi.out.${SERVERTYPE}
+#  - ls ${MC_LOG_DIR}
+#  - cat ${MC_LOG_DIR}/mcapi.out.${SERVERTYPE}
+#  - cat ${MC_LOG_DIR}/mcapiserver.out.${SERVERTYPE}
