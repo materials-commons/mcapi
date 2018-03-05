@@ -8,14 +8,15 @@ from .File import File
 from .User import User
 from .Template import Template
 from .Directory import Directory
+from .Experiment import Experiment
+from .Process import Process
+from .mc import Sample
 
-from .mc import Experiment, Process, Sample
-
-from .mc import Property, MeasuredProperty, NumberProperty
-from .mc import StringProperty, BooleanProperty
-from .mc import DateProperty, SelectionProperty
-from .mc import FunctionProperty, CompositionProperty
-from .mc import VectorProperty, MatrixProperty
+from .property import Property, MeasuredProperty, NumberProperty
+from .property  import StringProperty, BooleanProperty
+from .property  import DateProperty, SelectionProperty
+from .property  import FunctionProperty, CompositionProperty
+from .property  import VectorProperty, MatrixProperty
 
 from .measurement import Measurement, MeasurementComposition, MeasurementString,\
     MeasurementMatrix, MeasurementVector, MeasurementSelection, MeasurementFile,\
