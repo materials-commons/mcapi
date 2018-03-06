@@ -8,12 +8,12 @@ from materials_commons.api import _use_remote as use_remote, _set_remote as set_
 from materials_commons.api import get_remote_config_url
 import extras.demo_project.demo_project as demo
 from .assert_helper import AssertHelper
+from requests.exceptions import HTTPError
 
 
 def _fake_name(prefix):
     number = "%05d" % randint(0, 99999)
     return prefix + number
-
 
 class TestProjectDelete(unittest.TestCase):
     @classmethod
@@ -38,7 +38,6 @@ class TestProjectDelete(unittest.TestCase):
         with pytest.raises(Exception):
             project.get_all_experiments()
 
-    @pytest.mark.skip(reason="failing - need to review")
     def test_delete_all_projects(self):
         self.helper = AssertHelper(self)
 
@@ -73,8 +72,8 @@ class TestProjectDelete(unittest.TestCase):
 
         self._set_up_remote_for(another_user_key)
 
-        results = project.delete()
-        self.assertIsNone(results)
+        with pytest.raises(HTTPError):
+            project.delete()
 
         self._set_up_remote_for(self.mcapikey)
 
@@ -87,8 +86,8 @@ class TestProjectDelete(unittest.TestCase):
 
     def _build_project(self):
         project_name = _fake_name("ProjectDeleteTest")
-        print("")
-        print("Project name: " + project_name)
+        # print("")
+        # print("Project name: " + project_name)
 
         self.test_project_name = project_name
 

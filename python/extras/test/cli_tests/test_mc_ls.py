@@ -1,6 +1,5 @@
 import unittest
 import os
-import re
 import materials_commons.api as mcapi
 from .cli_test_functions import captured_output
 from materials_commons.cli.init import init_subcommand

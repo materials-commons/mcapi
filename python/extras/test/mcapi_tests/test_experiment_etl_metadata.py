@@ -1,4 +1,5 @@
 import unittest
+import pytest
 from random import randint
 from materials_commons.api import create_experiment_metadata, get_experiment_metadata_by_id
 from materials_commons.api import get_experiment_metadata_by_experiment_id
@@ -35,6 +36,11 @@ class TestExperimentEtlMetadata(unittest.TestCase):
         self.assertIsNotNone(self.base_experiment)
         self.assertIsNotNone(self.base_experiment.id)
         self.assertEqual(self.base_experiment_id, self.base_experiment.id)
+
+    @pytest.mark.skip("No Implements - TODO")
+    def test_basic_metadata_properties(self):
+        # TODO - Implement this test!
+        pass
 
     def test_create_metadata(self):
         fake_metadata = _make_reasonable_metadata()

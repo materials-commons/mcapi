@@ -56,7 +56,7 @@ echo "  download directory = ${download}"
 echo "--------------"
 echo ""
 echo "-- input script"
-python -m materials_commons.etl.input.main ${input} --upload ${upload} --rename
+python -m materials_commons.etl.input_spreadsheet ${input} --upload ${upload} --rename
 echo "-- output script"
 python -m materials_commons.etl.output.extract_spreadsheet "Generic Testing" "Test1" ${output} --download ${download}
 echo "-- compare script"
