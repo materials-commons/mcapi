@@ -1,5 +1,4 @@
 from materials_commons.api import get_project_by_id
-from ..input import metadata
 
 
 class MetadataVerification:
@@ -52,10 +51,3 @@ class MetadataVerification:
         for process in processes:
             table[process.id] = process
         return table
-
-
-if __name__ == '__main__':
-    metadata = metadata.Metadata()
-    metadata.read("/Users/weymouth/Desktop/junk.json")
-    verify = MetadataVerification()
-    verify.verify(metadata)
