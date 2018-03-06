@@ -2,14 +2,14 @@ import argparse
 import datetime
 import os
 import sys
-import Path
+from . import Path
 
 from materials_commons.api import get_all_projects
 from materials_commons.api import File as MC_File
-from materials_commons.etl.common.util import _normalise_property_name
-from materials_commons.etl.common.metadata import Metadata
-from materials_commons.etl.common.process_file_util import make_project_file_id_path_table
-from materials_commons.etl.common.worksheet_data import ExcelIO
+from ..common.util import _normalise_property_name
+from ..common.metadata import Metadata
+from ..common.process_file_util import make_project_file_id_path_table
+from ..common.worksheet_data import ExcelIO
 from .meta_data_verify import MetadataVerification
 
 

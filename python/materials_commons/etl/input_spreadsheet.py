@@ -5,9 +5,9 @@ import sys
 from . import Path
 
 from materials_commons.api import create_project, get_all_templates
-from materials_commons.api.mc import File as FileRecord
-from materials_commons.etl.common.util import _normalise_property_name
-from materials_commons.etl.common.worksheet_data import ExcelIO
+from materials_commons.api import File as FileRecord
+from .common.util import _normalise_property_name
+from .common.worksheet_data import ExcelIO
 from .common.metadata import Metadata
 
 
@@ -560,6 +560,7 @@ def _otype_for_attribute(attribute):
         return "string"
     # print("XXXXX __otype_for_attribute", attribute, "defaluts to string")
     return "string"
+
 
 def _verify_data_dir(dir_path):
     path = Path(dir_path)
