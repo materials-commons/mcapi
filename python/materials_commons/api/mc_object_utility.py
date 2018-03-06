@@ -1,4 +1,4 @@
-from .mc import make_object
+from .make_objects import make_object
 
 
 def make_mc_file(data):

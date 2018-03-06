@@ -1,5 +1,4 @@
 from materials_commons.api import get_project_by_id
-from ..input import metadata
 
 
 class MetadataVerification:
@@ -34,7 +33,6 @@ class MetadataVerification:
             self.failure = "Project"
             return None
         else:
-            metadata.project = project
             print("Found project:", project.name, "(" + project.id + ")")
         experiment = self.get_experiment(project, self.metadata.experiment_id)
         if not experiment:
@@ -43,7 +41,6 @@ class MetadataVerification:
             self.failure = "Experiment"
             return None
         else:
-            metadata.experiment = experiment
             print("Found experiment: ", experiment.name, "(" + experiment.id + ")")
         if not self.metadata.process_table:
             print("Metadata is missing process table. Expected...")
@@ -114,10 +111,3 @@ class MetadataVerification:
             if item['type'] == 'added_process' and process_id == item['data']['process_id']:
                 return True
         return False
-
-
-if __name__ == '__main__':
-    md = metadata.Metadata()
-    md.read("/Users/weymouth/Desktop/junk.json")
-    verify = MetadataVerification(md)
-    verify.verify()

@@ -133,3 +133,8 @@ class PrettyPrint(object):
                     indent=self.indent,
                     out=self.out)
             self.n_indent -= 1
+
+
+# A general package Excpetion
+class MCGenericException(BaseException):
+    pass
