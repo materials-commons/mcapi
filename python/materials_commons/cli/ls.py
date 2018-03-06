@@ -2,7 +2,7 @@ import sys
 import os
 import argparse
 from .functions import make_local_project
-from ..api import File, Directory
+from materials_commons.api import File, Directory
 import copy
 import time
 import hashlib

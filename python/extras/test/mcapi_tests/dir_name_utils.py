@@ -10,9 +10,7 @@ class DirNameUtils:
         for dir in dir_list:
             parts = dir.name.split("/")
             if (len(parts) > 1) and (parts[1] in self.extra_default_dir_names):
-                print("<--", dir.name, parts[1])
                 continue
-            print("++>", dir.name)
             ret.append(dir)
         return ret
 
