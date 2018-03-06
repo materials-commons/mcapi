@@ -37,10 +37,5 @@ or corresponding local file (in that case that you have download or cloned the c
 Build from Excel Spreadsheet
 ----------------------------
 
-An interesting use of the Python API, is the automatic building of Materials Commons projects
-from structured description of your project. To illustrate this, we build a project from the
-input of a spread sheet that described a series of experiments and their measurements.
-The data is fake! The process, however, illustrated a useful usage.
-
-This example is shown in the **build_project_from_excel_sheet.py** and explained
-further in the comments therein.
+For examples of Excel Spredsheet input and output, see the 
+materials_commons/etl/README.md file.
