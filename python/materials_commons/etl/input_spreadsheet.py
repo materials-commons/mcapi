@@ -2,7 +2,7 @@ import argparse
 import datetime
 import os
 import sys
-from pathlib import Path
+from . import Path
 
 from materials_commons.api import create_project, get_all_templates
 from materials_commons.api.mc import File as FileRecord
