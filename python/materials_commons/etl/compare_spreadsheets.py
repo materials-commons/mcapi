@@ -4,7 +4,7 @@ import hashlib
 import os
 import sys
 import math
-from pathlib import Path
+from . import Path
 
 from dateutil import parser as date_parser
 
