@@ -129,7 +129,7 @@ class File(MCObject):
         output_file_path = api.file_download(project_id, file_id, local_download_file_path)
         return output_file_path
 
-    def parent(self):
+    def get_parent(self):
         """
 
         :return: the parent :class:`mcapi.Directory` instance
@@ -143,7 +143,7 @@ class File(MCObject):
 
         :return: the full local path of this file including the filename.
         """
-        parent = self.parent()
+        parent = self.get_parent()
         proj = parent._project
         proj_dirname = os_path.dirname(proj.local_path)
         return os_path.join(proj_dirname, os_path.join(parent.path, self.name))
