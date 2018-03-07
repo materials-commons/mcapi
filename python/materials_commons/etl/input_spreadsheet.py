@@ -24,7 +24,8 @@ class BuildProjectExperiment:
         self.process_files = {}
         self.rename_duplicates = False
         self.data_path = None
-        self.experiment_id = None
+        self.project = None
+        self.experiment = None
         self.suppress_data_upload = False
 
         self._make_template_table()
