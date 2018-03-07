@@ -4,9 +4,12 @@ from os import environ
 from os import path as os_path
 from random import randint
 from materials_commons.api import create_project, get_project_by_id
+from materials_commons.api.File import File
+from materials_commons.api.Directory import Directory
 from materials_commons.etl.common.metadata import Metadata
 from materials_commons.etl.input_spreadsheet import BuildProjectExperiment
 from materials_commons.etl.common.meta_data_verify import MetadataVerification
+
 
 class TestMetadata(unittest.TestCase):
 
@@ -98,6 +101,46 @@ class TestMetadata(unittest.TestCase):
 
         verify = MetadataVerification()
         self.assertTrue(verify.verify(metadata))
+
+        project = get_project_by_id(metadata.project_id)
+        self.assertIsNotNone(project)
+        experiment = verify.get_experiment(project, metadata.experiment_id)
+        self.assertIsNotNone(experiment)
+        processes = experiment.get_all_processes()
+        process_table = verify.make_process_table(processes)
+        missing = []
+        for process_record in metadata.process_metadata:
+            if not process_record['id'] in process_table:
+                missing.append(process_record['id'])
+        self.assertEqual(len(missing), 0)
+
+        self.assertIsNotNone(metadata.input_data_dir_path)
+        self.assertEquals(self.test_input_data_dir_path, metadata.input_data_dir_path)
+        project.local_path = metadata.input_data_dir_path
+
+        for process_record in metadata.process_metadata:
+            files = process_record['files']
+            if files:
+                self.check_files(project, experiment, process_record)
+
+    def check_files(self, project, experiment, process_record):
+        files = process_record['files'] + ", x"
+        file_list = [x.strip() for x in files.split(',')]
+        print(file_list)
+        for file in file_list:
+            if file == 'NoDir':  # special case, directory in Excel spread sheet does not exist in data!
+                continue
+            path = os_path.join(project.local_path, file)
+            probe = project._local_path_to_path(path)
+            self.assertEqual(probe, file)
+            fileOrDir = project.get_by_local_path(path)
+            self.assertIsNotNone(fileOrDir, "The path, " + path + ", does not correspond to a project file or directory")
+            if type(fileOrDir) is File:
+                self.assertTrue(os_path.isfile(path), "The path, " + path + ", is expected to be a file, but is not")
+            if type(fileOrDir) is Directory:
+                self.assertTrue(os_path.isdir(path), "The path, " + path + ", is expected to be a directory, but is not")
+        # print(experiment.files)
+        return True
 
     @classmethod
     def make_test_dir_path(cls):
