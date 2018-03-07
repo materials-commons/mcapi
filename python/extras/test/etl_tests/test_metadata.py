@@ -90,6 +90,14 @@ class TestMetadata(unittest.TestCase):
         experiment_id = builder.experiment.id
         self.assertIsNotNone(experiment_id)
 
+        metadata = Metadata()
+        metadata.read(experiment_id)
+        self.assertEqual(self.test_input_file_path, metadata.input_excel_file_path)
+        self.assertEqual(project_id, metadata.project_id)
+        self.assertEqual(experiment_id, metadata.experiment_id)
+
+        verify = MetadataVerification()
+        self.assertTrue(verify.verify(metadata))
 
     @classmethod
     def make_test_dir_path(cls):
