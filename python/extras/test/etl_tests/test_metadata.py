@@ -126,7 +126,6 @@ class TestMetadata(unittest.TestCase):
     def check_files(self, project, experiment, process_record):
         files = process_record['files']
         file_list = [x.strip() for x in files.split(',')]
-        print(file_list)
         for file in file_list:
             if file == 'NoDir':  # special case, directory in Excel spread sheet does not exist in data!
                 continue
@@ -146,8 +145,7 @@ class TestMetadata(unittest.TestCase):
                     os_path.isdir(path),
                     "The path, " + path + ", is expected to be a directory, but is not")
         process = experiment.get_process_by_id(process_record["id"])
-        for file in process.get_all_files():
-            print(file.name)
+        self.assertIsNotNone(process)
 
     @classmethod
     def make_test_dir_path(cls):
