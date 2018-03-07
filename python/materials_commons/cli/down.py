@@ -43,7 +43,7 @@ def _download(proj, dir, recursive=False, force=False):
     for child in children:
 
         if isinstance(child, File):
-            # p = _obj_path_to_local_path(proj, os.path.join(child.parent().path, child.name))
+            # p = _obj_path_to_local_path(proj, os.path.join(child.get_parent().path, child.name))
             p = child.local_path()
             if not os.path.exists(os.path.dirname(p)):
                 os.makedirs(os.path.dirname(p))
