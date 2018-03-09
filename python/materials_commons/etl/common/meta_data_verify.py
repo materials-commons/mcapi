@@ -29,8 +29,8 @@ class MetadataVerification:
                 missing.append(process_record['id'])
         if missing:
             verified = False
-            for id in missing:
-                print("Could not find process: ", id)
+            for process_id in missing:
+                print("Could not find process: ", process_id)
         else:
             print("Found all processes (" + str(len(process_table)) + ").")
             metadata.process_table = process_table
@@ -38,7 +38,8 @@ class MetadataVerification:
             return metadata
         return None
 
-    def get_experiment(self, project, experiment_id):
+    @staticmethod
+    def get_experiment(project, experiment_id):
         experiment_list = project.get_all_experiments()
         probe = None
         for experiment in experiment_list:
@@ -46,7 +47,8 @@ class MetadataVerification:
                 probe = experiment
         return probe
 
-    def make_process_table(self, processes):
+    @staticmethod
+    def make_process_table(processes):
         table = {}
         for process in processes:
             table[process.id] = process
