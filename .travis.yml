@@ -110,7 +110,7 @@ before_script:
   - cd ${MC_CLONE_DIR}/backend
     # NOTE: this script sets server type to dev
   - source env/${ENV_SCRIPT}.sh
-  - scripts/testdb/setup-and-start-test-db.sh
+  - scripts/testdb/setup-and-start-test-db.sh -c all
 
   - echo ${MC_API_SERVICE_PORT}
   - echo ${MC_SERVICE_PORT}
