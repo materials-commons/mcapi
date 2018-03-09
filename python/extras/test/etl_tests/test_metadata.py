@@ -124,23 +124,28 @@ class TestMetadata(unittest.TestCase):
                 self.check_files(project, experiment, process_record)
 
     def check_files(self, project, experiment, process_record):
-        files = process_record['files'] + ", x"
+        files = process_record['files']
         file_list = [x.strip() for x in files.split(',')]
-        print(file_list)
         for file in file_list:
             if file == 'NoDir':  # special case, directory in Excel spread sheet does not exist in data!
                 continue
             path = os_path.join(project.local_path, file)
             probe = project._local_path_to_path(path)
             self.assertEqual(probe, file)
-            fileOrDir = project.get_by_local_path(path)
-            self.assertIsNotNone(fileOrDir, "The path, " + path + ", does not correspond to a project file or directory")
-            if type(fileOrDir) is File:
-                self.assertTrue(os_path.isfile(path), "The path, " + path + ", is expected to be a file, but is not")
-            if type(fileOrDir) is Directory:
-                self.assertTrue(os_path.isdir(path), "The path, " + path + ", is expected to be a directory, but is not")
-        # print(experiment.files)
-        return True
+            file_or_dir = project.get_by_local_path(path)
+            self.assertIsNotNone(
+                file_or_dir,
+                "The path, " + path + ", does not correspond to a project file or directory")
+            if type(file_or_dir) is File:
+                self.assertTrue(
+                    os_path.isfile(path),
+                    "The path, " + path + ", is expected to be a file, but is not")
+            if type(file_or_dir) is Directory:
+                self.assertTrue(
+                    os_path.isdir(path),
+                    "The path, " + path + ", is expected to be a directory, but is not")
+        process = experiment.get_process_by_id(process_record["id"])
+        self.assertIsNotNone(process)
 
     @classmethod
     def make_test_dir_path(cls):

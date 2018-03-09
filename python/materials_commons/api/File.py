@@ -129,12 +129,16 @@ class File(MCObject):
         output_file_path = api.file_download(project_id, file_id, local_download_file_path)
         return output_file_path
 
-    def parent(self):
+    def get_parent(self):
         """
 
         :return: the parent :class:`mcapi.Directory` instance
         """
-        return self._project.get_directory_by_id(self._directory_id)
+        # TODO File.get_parent()
+        message = "File.get_parent() is not implemented - previous implemation was incorrect"
+        raise NotImplementedError(message)
+        # Note: this was discovered to be working incorrectly - Terry - March 2018
+        # return self._project.get_directory_by_id(self._directory_id)
 
     def local_path(self):
         """
@@ -143,7 +147,10 @@ class File(MCObject):
 
         :return: the full local path of this file including the filename.
         """
-        parent = self.parent()
+        parent = self._project.get_directory_by_id(self._directory_id)
+        # NOTE: there may be problems with the above - only works in the context of using local_path
+        # -- that is self._directory_id is set when the file is created using local_path, but
+        # -- not in other contexts
         proj = parent._project
         proj_dirname = os_path.dirname(proj.local_path)
         return os_path.join(proj_dirname, os_path.join(parent.path, self.name))
