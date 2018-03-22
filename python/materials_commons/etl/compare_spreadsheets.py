@@ -3,7 +3,11 @@ import datetime
 import hashlib
 import os
 import sys
-import math
+try:
+    from math import isclose
+except (ImportError, AttributeError): # not in Python 2.7
+    def isclose(a, b, rel_tol=1e-09, abs_tol=0.0):
+        return abs(a - b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
 from . import Path
 
 from dateutil import parser as date_parser
@@ -270,12 +274,12 @@ class Compare:
                     if isinstance(probe2, str):
                         probe2 = date_parser.parse(probe2)
                     match = probe1.isoformat() == probe2.isoformat()
-                elif isinstance(probe1, float) or isinstance(probe2,float):
+                elif isinstance(probe1, float) or isinstance(probe2, float):
                     if isinstance(probe1, str):
                         probe1 = float(probe1)
                     if isinstance(probe2, str):
                         probe2 = float(probe2)
-                    match = math.isclose(probe1,probe2)
+                    match = isclose(probe1, probe2)
                 elif (probe1 is None) or (probe2 is None):
                     if isinstance(probe1, str) and probe1 == "None":
                         probe1 = None
@@ -291,7 +295,6 @@ class Compare:
                     print("Data mismatch at row = " + str(row) + ", col = " + str(col) + ": "
                           + str(probe1) + ", " + str(probe2) + ", "
                           + str(obj_type1) + ", " + str(obj_type2))
-
 
         if identical:
             print("Data values match")
