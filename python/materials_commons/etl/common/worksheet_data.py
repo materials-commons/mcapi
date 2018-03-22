@@ -10,7 +10,6 @@ class ExcelIO:
         self._force_experiment_name_on_read = None
 
     def read_entire_data_from_current_sheet(self):
-        print("read_entire_data_from_current_sheet")
         sheet = self.current_worksheet
         data = []
         max_last_data_col = 0
