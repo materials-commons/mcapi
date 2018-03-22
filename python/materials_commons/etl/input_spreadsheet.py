@@ -407,7 +407,9 @@ class BuildProjectExperiment:
     def _determine_start_attribute_row(self, start_col_index):
         start_attribute_row_index = 2
         for row in range(1, self.header_end_row):
-            entry = str(self.source[row][start_col_index])
+            entry = self.source[row][start_col_index]
+            if not entry:
+                continue
             if entry.startswith('DUPLICATES_ARE_IDENTICAL'):
                 pass
             #     print("Encountered 'DUPLICATES_ARE_IDENTICAL' - ignored as this is the default behaivor")

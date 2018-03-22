@@ -10,6 +10,7 @@ class ExcelIO:
         self._force_experiment_name_on_read = None
 
     def read_entire_data_from_current_sheet(self):
+        print("read_entire_data_from_current_sheet")
         sheet = self.current_worksheet
         data = []
         max_last_data_col = 0
@@ -24,8 +25,11 @@ class ExcelIO:
                 break
             for cell in row:
                 value = cell.value
-                if str(value).strip() == "" or ("n/a" in str(value).strip()):
-                    value = None
+                try:
+                    if str(value).strip() == "" or ("n/a" in str(value).strip()):
+                        value = None
+                except UnicodeEncodeError:
+                    pass
                 if value and len(values) >= max_last_data_col:
                     max_last_data_col = len(values) + 1
                 values.append(value)
