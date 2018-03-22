@@ -58,9 +58,9 @@ echo ""
 echo "-- input script"
 python -m materials_commons.etl.input_spreadsheet ${input} --upload ${upload} --rename
 echo "-- output script"
-python -m materials_commons.etl.output.extract_spreadsheet "Generic Testing" "Test1" ${output} --download ${download}
+python -m materials_commons.etl.output_spreadsheet "Generic Testing" "Test1" ${output} --download ${download}
 echo "-- compare script"
-python -m materials_commons.etl.output.compare_spreadsheets "Generic Testing" "Test1" ${input} ${output} --checksum --upload ${upload} --download ${download}
+python -m materials_commons.etl.compare_spreadsheets "Generic Testing" "Test1" ${input} ${output} --checksum --upload ${upload} --download ${download}
 # echo "-- project walker script"
 # python -m materials_commons.etl.output.project_walker "Generic Testing" "Test1"
 echo "-- done"
