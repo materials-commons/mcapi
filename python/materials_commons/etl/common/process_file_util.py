@@ -39,12 +39,12 @@ def test(project_name):
     if not project:
         print("Can not find project with name = " + str(project_name) + ". Quiting.")
         return
-    print("Found project: ", project.name, project.id)
+    print("Found project: " + project.name + " (" + project.id + ")")
     print("------")
     table = make_project_file_id_path_table(project)
     print("------")
     for key in table:
-        print(key, "-->", table[key]['file'].name, table[key]['path'])
+        print(key + " --> " + table[key]['file'].name + ", " + table[key]['path'])
 
 
 if __name__ == '__main__':
@@ -55,6 +55,6 @@ if __name__ == '__main__':
     parser.add_argument('exp', type=str, help="Experiment Name")
     args = parser.parse_args(argv[1:])
 
-    print("args: ", args.proj, args.exp)
+    print("args: " +  args.proj + " ," + args.exp)
 
     test(args.proj)

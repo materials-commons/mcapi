@@ -2,7 +2,8 @@ import argparse
 import datetime
 import os
 import sys
-from pathlib import Path
+from . import Path
+from six import string_types
 
 from materials_commons.api import get_all_projects
 from materials_commons.api import File as MC_File
@@ -200,9 +201,9 @@ class ExtractExperimentSpreadsheet:
                     path = Path(self.project.local_path) / entry
                     local_path = str(path)
                     remote_path = "/" + str(Path(top_directory_name) / entry)
-                    print("  : ", remote_path, "-->", local_path)
+                    print("  : " + remote_path + " --> " + local_path)
                     if not remote_path in path_table:
-                        print("  :     file from spreadsheet not in project, skipping", entry)
+                        print("  :     file from spreadsheet not in project, skipping" + entry)
                         continue
                     record = path_table[str(remote_path)]
                     if record['is_file']:
@@ -212,15 +213,15 @@ class ExtractExperimentSpreadsheet:
 
     def downloadLocalFileContent(self, file, path):
         if path.exists():
-            print("  :     skipping dublicate: ", path)
+            print("  :     skipping dublicate: " + str(path))
         else:
             dir = Path(*list(path.parts)[:-1])
-            os.makedirs(dir, exist_ok=True)
+            dir.mkdir(exist_ok=True)
             file.download_file_content(str(path))
 
     def downloadLocalDirContent(self, dir, path):
 #        print("download dir", dir.name, path)
-        os.makedirs(path, exist_ok=True)
+        path.mkdir(exist_ok=True)
         for child in dir.get_children():
             child_path = Path(path, child.name)
 #            print("child_path", str(child_path))
@@ -253,7 +254,7 @@ class ExtractExperimentSpreadsheet:
                 self.data_row_list[row][col] = self.data_row_list[start_row][col]
 
     def write_spreadsheet(self):
-        print("Writing spreadsheet", self.output_path)
+        print("Writing spreadsheet: " + self.output_path)
         excel_interface = ExcelIO()
         excel_interface.write_data(self.output_path, self.data_row_list)
         excel_interface.close()
@@ -283,7 +284,7 @@ class ExtractExperimentSpreadsheet:
         update = []
         for attr in attributes:
             if attr:
-                if isinstance(attr, str):
+                if isinstance(attr, string_types):
                     attr = _normalise_property_name(attr)
                 else:
                     parts = []
@@ -351,7 +352,7 @@ if __name__ == '__main__':
     if args.download:
         args.download = os.path.abspath(args.download)
         if not _verify_data_dir(args.download):
-            print("Path for file download directory does not exist, ignoring: ", args.download)
+            print("Path for file download directory does not exist, ignoring: " + args.download)
             args.files = None
     print("Output excel spreadsheet for experiment '" + args.exp + "' of project '" + args.proj + "'...")
     print("  to spreadsheet at " + args.output)
