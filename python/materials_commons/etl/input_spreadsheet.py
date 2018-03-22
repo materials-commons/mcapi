@@ -44,8 +44,9 @@ class BuildProjectExperiment:
         excel_io_controller = ExcelIO()
         excel_io_controller.read_workbook(spread_sheet_path)
         sheet_name_list = excel_io_controller.sheet_name_list()
-        sheet_name = excel_io_controller.set_current_worksheet_by_index(0)
-        print("In Excel file, using sheet", sheet_name, "from sheets", sheet_name_list)
+        excel_io_controller.set_current_worksheet_by_index(0)
+        sheet_name = sheet_name_list[0]
+        print("In Excel file, using sheet '" + sheet_name + "' from sheets: " + ", ".join(sheet_name_list))
         self.set_data(excel_io_controller.read_entire_data_from_current_sheet())
         excel_io_controller.close()
 
@@ -74,8 +75,8 @@ class BuildProjectExperiment:
 
         self.write_metadata()
 
-        print("Created project:", self.project.name, self.project.id)
-        print("With Experiment", self.experiment.name, self.experiment.id)
+        print("Created project: " + self.project.name + " (" + self.project.id + ")")
+        print("With Experiment: " + self.experiment.name + " (" + self.experiment.id + ")")
 
     def write_metadata(self):
         print("Writing metadata for experiment '" + self.experiment.name + "'")
@@ -330,13 +331,13 @@ class BuildProjectExperiment:
     def _set_project_and_experiment(self):
         self._set_names()
         if self.project_name:
-            print("Project name: ", self.project_name)
+            print("Project name: " + self.project_name)
         else:
             print("No project name found; check format. Quiting.")
             return False
 
         if self.experiment_name:
-            print("Experiment name:", self.experiment_name)
+            print("Experiment name: " + self.experiment_name)
         else:
             print("No experiment name found; check format. Quiting.")
             return False
@@ -351,8 +352,8 @@ class BuildProjectExperiment:
         if existing_experiment:
             if self.rename_duplicates:
                 name = _unique_shadow_name(self.experiment_name, experiment_list)
-                print("Existing experiment with duplicate name. Renamed:",
-                      existing_experiment.name, "-->", name)
+                print("Existing experiment with duplicate name. Renamed: " +
+                      existing_experiment.name + " --> " + name)
                 existing_experiment.rename(name)
             else:
                 print("An experiment already exists with this name, " + self.experiment_name)

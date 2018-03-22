@@ -13,14 +13,14 @@ class MetadataVerification:
             verified = False
         else:
             metadata.project = project
-            print("Found project: " + project.name + "(" + project.id + ")")
+            print("Found project: " + project.name + " (" + project.id + ")")
         experiment = self.get_experiment(project, metadata.experiment_id)
         if not experiment:
             print("Could not find experiment: " + metadata.experiment_id)
             verified = False
         else:
             metadata.experiment = experiment
-            print("Found experiment: " + experiment.name +"(" + experiment.id + ")")
+            print("Found experiment: " + experiment.name + " (" + experiment.id + ")")
         processes = experiment.get_all_processes()
         process_table = self.make_process_table(processes)
         missing = []
