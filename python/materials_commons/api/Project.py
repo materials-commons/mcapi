@@ -153,7 +153,7 @@ class Project(MCObject):
         experiment.project = self
         return experiment
 
-    def get_experiment_by_id(self):  # , experiment_id):
+    def get_experiment_by_id(self, *args):  # , experiment_id):
         """
 
         .. note:: Currently not implemented. Instead use :func:`get_all_experiments` to get
@@ -161,7 +161,7 @@ class Project(MCObject):
 
         """
         # TODO: Project.get_experiment_by_id(id)
-        raise NotImplementedError("Project.get_experiment_by_id(id) not implemented")
+        raise NotImplementedError("Project.get_experiment_by_id(id) not implemented: " + str(len(args)))
         pass
 
     def get_all_experiments(self):

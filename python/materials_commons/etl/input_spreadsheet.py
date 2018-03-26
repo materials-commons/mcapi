@@ -4,7 +4,7 @@ import os
 import sys
 from . import Path
 
-from materials_commons.api import create_project, get_all_templates
+from materials_commons.api import create_project, get_all_templates, get_project_by_id
 from materials_commons.api import File as FileRecord
 from .common.util import _normalise_property_name
 from .common.worksheet_data import ExcelIO
@@ -14,8 +14,16 @@ from .common.metadata import Metadata
 class BuildProjectExperiment:
     def __init__(self):
         self.description = "Project from excel spreadsheet"
-        self.source = self.data_start_row = self.project = self.experiment = None
-        self.data_start_row = self.data_path = None
+        self.override_project_id = None
+        self.override_experiment_name = None
+        self.override_experiment_description = ""
+        self.project_name = None
+        self.experiment_name = None
+        self.project = None
+        self.experiment = None
+        self.source = None
+        self.data_start_row = None
+        self.data_path = None
         self.parent_process_list = None
         self.previous_row_key = None
         self.previous_parent_process = None
@@ -24,8 +32,6 @@ class BuildProjectExperiment:
         self.process_files = {}
         self.rename_duplicates = False
         self.data_path = None
-        self.project = None
-        self.experiment = None
         self.suppress_data_upload = False
 
         self._make_template_table()
@@ -39,6 +45,13 @@ class BuildProjectExperiment:
 
     def set_rename_is_ok(self, flag):
         self.rename_duplicates = flag
+
+    def preset_project_id(self, id):
+        self.override_project_id = id
+
+    def preset_experiment_name_description(self, name, description):
+        self.override_experiment_name = name
+        self.override_experiment_description = description
 
     def build(self, spread_sheet_path, data_path):
         excel_io_controller = ExcelIO()
@@ -75,7 +88,7 @@ class BuildProjectExperiment:
 
         self.write_metadata()
 
-        print("Created project: " + self.project.name + " (" + self.project.id + ")")
+        print("Context project: " + self.project.name + " (" + self.project.id + ")")
         print("With Experiment: " + self.experiment.name + " (" + self.experiment.id + ")")
 
     def write_metadata(self):
@@ -342,7 +355,8 @@ class BuildProjectExperiment:
             print("No experiment name found; check format. Quiting.")
             return False
 
-        self.project = create_project(self.project_name, self.description)
+        if not self.override_project_id:
+            self.project = create_project(self.project_name, self.description)
 
         experiment_list = self.project.get_all_experiments()
         existing_experiment = None
@@ -362,8 +376,12 @@ class BuildProjectExperiment:
                 print("Or specify the --rename flag in the command line arguments.")
                 print("Quiting.")
                 return False
-        self.experiment = self.project.create_experiment(self.experiment_name, "")
-        self.metadata.set_project_id(self.project.id)
+        description = ""
+        if self.override_experiment_description:
+            description = self.override_experiment_description
+        self.experiment = self.project.create_experiment(self.experiment_name, description)
+        if not self.override_project_id:
+            self.metadata.set_project_id(self.project.id)
         self.metadata.set_experiment_id(self.experiment.id)
         return True
 
@@ -454,8 +472,17 @@ class BuildProjectExperiment:
         return entry
 
     def _set_names(self):
-        self.project_name = self._prune_entry(self.source[0][0], "PROJ:")
-        self.experiment_name = self._prune_entry(self.source[1][0], "EXP:")
+        if not self.override_project_id:
+            self.project_name = self._prune_entry(self.source[0][0], "PROJ:")
+        else:
+            project = get_project_by_id(self.override_project_id)
+            self.project = project
+            self.project_name = project.name
+            self.metadata.set_project_id(project.id)
+        if not self.override_experiment_name:
+            self.experiment_name = self._prune_entry(self.source[1][0], "EXP:")
+        else:
+            self.experiment_name = self.override_experiment_name
 
     def _set_row_positions(self):
         self.header_end_row = 0
