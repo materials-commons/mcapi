@@ -8,7 +8,7 @@ from materials_commons.api import create_project, get_project_by_id
 from materials_commons.etl.input_spreadsheet import BuildProjectExperiment
 
 
-@pytest.mark.skip("These tests take a long time to run - about 8 seconds on a fast machine")
+# @pytest.mark.skip("These tests take a long time to run - about 8 seconds on a fast machine")
 class TestEtlEndToEnd(unittest.TestCase):
 
     @classmethod
