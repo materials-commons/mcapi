@@ -2,9 +2,14 @@
 
 from setuptools import setup, find_packages
 
+version = 'unknown'
+
+with open('materials_commons/VERSION.txt') as f:
+    version = f.read().strip()
+
 setup(
     name='materials_commons',
-    version='0.7.4b3',
+    version=version,
     description='The Materials Commons tool set',
     long_description="""This package contains two modules:
     (1) materials_commons.api, the Materials Commons Python API, an interface
