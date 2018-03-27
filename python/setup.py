@@ -26,6 +26,8 @@ setup(
     author='Materials Commons development team',
     author_email='materials-commons-authors@umich.edu',
     license='MIT',
+    package_data={'api':['VERSION.txt']},
+    include_package_data=True,
     packages=find_packages(),
     scripts=['scripts/mc'],
     classifiers=[

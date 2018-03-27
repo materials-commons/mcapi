@@ -6,7 +6,7 @@ from os import path as os_path
 from random import randint
 from materials_commons.api import create_project, get_project_by_id
 from materials_commons.etl.input_spreadsheet import BuildProjectExperiment
-
+from materials_commons import version
 
 # @pytest.mark.skip("These tests take a long time to run - about 8 seconds on a fast machine")
 class TestEtlEndToEnd(unittest.TestCase):
@@ -19,6 +19,10 @@ class TestEtlEndToEnd(unittest.TestCase):
         cls.experiment_name = cls.fake_name("TestExperiment")
         cls.experiment_description = "This is a test experiment: " + cls.experiment_name
         cls.project = create_project(cls.project_name, "This is a test project")
+        print()
+        print("--------------- version check ------------")
+        print(version.version())
+        print("--------------- version check ------------")
 
     def test_is_setup_correctly(self):
         self.assertTrue('TEST_DATA_DIR' in environ)
@@ -35,6 +39,7 @@ class TestEtlEndToEnd(unittest.TestCase):
         self.assertIsNotNone(self.project.name)
         self.assertIsNotNone(self.project.description)
         self.assertEqual(self.project.name, self.project_name)
+
 
     def test_etl_preset_project_id(self):
         builder = BuildProjectExperiment()

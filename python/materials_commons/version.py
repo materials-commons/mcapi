@@ -2,4 +2,4 @@ import pkg_resources
 
 
 def version():
-    return pkg_resources.resource_string('materials_commons', 'VERSION.txt').strip().decode("utf-8")
+    return pkg_resources.get_distribution("materials_commons").version
