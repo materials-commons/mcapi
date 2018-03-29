@@ -49,22 +49,25 @@ Finally:
 twine upload dist/*
 
 ---- download/test from test PyPI: in any python3 env ---
-rmdir ${SCRAP_TEST_DIR}
+rm -rf ${SCRAP_TEST_DIR}
 mkdir -p ${SCRAP_TEST_DIR}
 
 pushd ~/PythonEnvs
 ls
 rm -r ~/PythonEnvs/mcdeptest
 virtualenv -p python3 mcdeptest
-pushd ${SCRAP_TEST_DIR}
-cp -r ${DEPLOY_DIR}/install_test/* ${SCRAP_TEST_DIR}/
-pip install pytest
+source mcdeptest/bin/activate
+popd
 
+cp -r ${DEPLOY_DIR}/install_test/* ${SCRAP_TEST_DIR}/
+pushd ${SCRAP_TEST_DIR}
+ls
+pip install pytest
 pip install -r test_requirements.txt
 source set_test_dir.sh 
 python -m pytest test_workflow.py 
 popd
-popd
+
 ---- download/test from prod PyPI: in any env ---
 -- Set up as above, download/test from test PyPI, but change...
 
