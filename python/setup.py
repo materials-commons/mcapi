@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='materials_commons',
-    version='0.7.4',
+    version='0.7.5',
     description='The Materials Commons tool set',
     long_description="""This package contains two modules:
     (1) materials_commons.api, the Materials Commons Python API, an interface
