@@ -2,10 +2,13 @@
 
 from setuptools import setup, find_packages
 
-version = 'unknown'
 
-with open('materials_commons/VERSION.txt') as f:
-    version = f.read().strip()
+try:
+    with open('materials_commons/VERSION.txt') as f:
+        version = f.read().strip()
+except IOError:
+    version = '0.7.6u'
+
 
 setup(
     name='materials_commons',
@@ -26,7 +29,7 @@ setup(
     author='Materials Commons development team',
     author_email='materials-commons-authors@umich.edu',
     license='MIT',
-    package_data={'api':['VERSION.txt']},
+    package_data={'api': ['VERSION.txt']},
     include_package_data=True,
     packages=find_packages(),
     scripts=['scripts/mc'],
@@ -59,6 +62,10 @@ setup(
         "rethinkdb",
         "pathlib>=1.0.1",
         "numpy",
+        "pathlib",
+        "openpyxl",
+        "urllib3",
+        "requests",
         "pandas>=0.21.0",
         "tabulate>=0.8.1",
         "sortedcontainers>=1.5.7",
