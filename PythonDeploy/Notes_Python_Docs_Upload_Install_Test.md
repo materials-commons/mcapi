@@ -76,7 +76,7 @@ source set_test_dir.sh
 pytest test_workflow.py 
 
 ---- set up doc files ---
-rmdir ${SCRAP_DOCS_DIR}
+rm -fr ${SCRAP_DOCS_DIR}
 mkdir -p ${SCRAP_DOCS_DIR}
 
 source ${PYTHON_ENVS}/forDocs/bin/activate
