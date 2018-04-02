@@ -1,78 +1,51 @@
-Package materials_commons.api - main classes
-============================================
+Package materials_commons
+=========================
 
-.. contents::
+The package **materials_commons** consists of three parts: the Python AIP, **materials_commons.api**,
+the Command Line Interface, **materials_commons.cli**, and a newly developend set of scripts for
+Extraction Transformation and Loading (ETL) of experiment workflows from well formatted Excel
+spreadsheets, **materials_commons.etl**. The ETL part is in pre-alpha development, subject to
+frequent change and (therefore) excluded from this documentation. Contact the developers and/or
+review the code at the GitHub site, if you are interested in details.
 
-Project
--------
+This package relates to the original Materials Commons service running at MaterialsCommons.org,
+that is https://materialscommons.org. The server code is available on
+GitHub at https://github.com/materials-commons/materialscommons.org.
+Full documentation is also available: https://materials-commons.github.io/ .
 
-.. autoclass:: materials_commons.api.Project
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-
-Experiment
+To Install
 ----------
 
-.. autoclass:: materials_commons.api.Experiment
-    :members:
-    :undoc-members:
-    :show-inheritance:
+The Materials Commons package is available as a PyPI package, and therefore can easily be installed:
 
-Sample
-------
+.. code-block:: sh
 
-.. autoclass:: materials_commons.api.Sample
-    :members:
-    :undoc-members:
-    :show-inheritance:
+    pip install materials_commons
 
-Process
--------
 
-.. autoclass:: materials_commons.api.Process
-    :members:
-    :undoc-members:
-    :show-inheritance:
+The Python API (materials_commons.api)
+--------------------------------------
 
-Template
---------
+The Materials Commons Python API is an
+interface to the REST server on an host running the
+Materials Commons service. As above, the original Materials Commons
+service is running at https://materialscommons.org .
+See the docs at (https://materials-commons.github.io/python-api/) for
+an introduction and instructions on how to use this Python API
 
-.. autoclass:: materials_commons.api.Template
-    :members:
-    :undoc-members:
-    :show-inheritance:
+Documentation for the Python API module:
+:doc:`index_api`
 
-Directory
----------
+The Command Line Interface (materials_commons.cli)
+--------------------------------------------------
 
-.. autoclass:: materials_commons.api.Directory
-    :members:
-    :undoc-members:
-    :show-inheritance:
+The Materials Commons CLI program "mc" makes use of the CLI module to
+enable project and experiment creation, file upload/download, and searching
+for and querying information about samples and processes from the command line.
+Developers can also use the CLI module to customize the "mc"
+program via plugins that create samples and processes for specific applications.
+A tutorial on how to customize the CLI is currently under development.
 
-File
-----
-
-.. autoclass:: materials_commons.api.File
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-User
-----
-
-.. autoclass:: materials_commons.api.User
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-BulkFileUploader
-----------------
-
-.. autoclass:: materials_commons.api.BulkFileUploader
-    :members:
-    :undoc-members:
-    :show-inheritance:
+Documentation for the CLI module:
+:doc:`materials_commons.cli`
 
