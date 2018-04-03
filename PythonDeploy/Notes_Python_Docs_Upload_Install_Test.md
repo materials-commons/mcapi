@@ -76,7 +76,7 @@ source set_test_dir.sh
 pytest test_workflow.py 
 
 ---- set up doc files ---
-rmdir ${SCRAP_DOCS_DIR}
+rm -fr ${SCRAP_DOCS_DIR}
 mkdir -p ${SCRAP_DOCS_DIR}
 
 source ${PYTHON_ENVS}/forDocs/bin/activate
@@ -102,10 +102,9 @@ rm source/materials_commons.api.measurement.rst
 rm source/materials_commons.api.property_util.rst
 rm source/materials_commons.api.remote.rst
 rm source/materials_commons.api.version.rst
-rm source/materials_commons.cli.*
 rm source/materials_commons.etl.*
 cp ${DEPLOY_DIR}/docs_started_dir/* ./
-cp conf.py index.rst source/
+cp conf.py index.rst index_api.rst source/
 make html
 pushd build/html
 ls *.html | xargs sed -i '' 's/_sources/site_sources/g'
