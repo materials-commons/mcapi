@@ -53,15 +53,40 @@ class BuildProjectExperiment:
         self.override_experiment_name = name
         self.override_experiment_description = description
 
-    def build(self, spread_sheet_path, data_path):
+    def extract_all_file_paths(self, spread_sheet_path):
+        if not self.source:
+            self.set_source_from_path(spread_sheet_path)
+
+    def set_source_from_path(self, spread_sheet_path):
         excel_io_controller = ExcelIO()
         excel_io_controller.read_workbook(spread_sheet_path)
         sheet_name_list = excel_io_controller.sheet_name_list()
         excel_io_controller.set_current_worksheet_by_index(0)
         sheet_name = sheet_name_list[0]
-        print("In Excel file, using sheet '" + sheet_name + "' from sheets: " + ", ".join(sheet_name_list))
+        # print("In Excel file, using sheet '" + sheet_name +
+        #       "' from sheets: [" + ", ".join(sheet_name_list) + "]")
         self.set_data(excel_io_controller.read_entire_data_from_current_sheet())
         excel_io_controller.close()
+
+    def stage(self, spread_sheet_path, data_path):
+        if not self.source:
+            self.set_source_from_path(spread_sheet_path)
+        if not data_path:
+            return None
+        self._set_row_positions()
+        self._set_col_positions()
+        self._determine_start_attribute_row(1)
+        desired_file_dir_list = self._get_source_file_dir_list()
+        missing_set = set()
+        for entry in desired_file_dir_list:
+            path = os.path.join(data_path, entry)
+            if not os.path.isdir(path) and not os.path.isfile(path):
+                missing_set.add(entry)
+        return missing_set
+
+    def build(self, spread_sheet_path, data_path):
+        if not self.source:
+            self.set_source_from_path(spread_sheet_path)
 
         self.suppress_data_upload = not data_path
 
@@ -337,7 +362,8 @@ class BuildProjectExperiment:
         process.add_files(process_files)
 
     def set_project_description(self, description):
-        self.description = description
+        if not self.override_project_id:
+            self.description = description
 
     # helper methods
 
@@ -384,6 +410,20 @@ class BuildProjectExperiment:
             self.metadata.set_project_id(self.project.id)
         self.metadata.set_experiment_id(self.experiment.id)
         return True
+
+    def _get_source_file_dir_list(self):
+        row = self.metadata.start_attribute_row
+        ret_list = []
+        data_row_start = self.metadata.data_row_start
+        data_row_end = self.metadata.data_row_end
+        for col in range(1, self.metadata.data_col_end):
+            attribute_type = self.source[row][col]
+            if attribute_type == "FILES":
+                for data_row in range(data_row_start, data_row_end):
+                    entry = self.source[data_row][col]
+                    if entry:
+                        ret_list += [x.strip() for x in entry.split(',')]
+        return ret_list
 
     def _scan_for_process_descriptions(self):
         # print("_scan_for_process_descriptions", self.start_sweep_col, self.end_sweep_col)

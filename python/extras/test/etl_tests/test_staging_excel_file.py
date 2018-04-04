@@ -1,15 +1,12 @@
 import unittest
-import pytest
 
 from os import environ
 from os import path as os_path
 from random import randint
 from materials_commons.api import create_project, get_project_by_id
 from materials_commons.etl.input_spreadsheet import BuildProjectExperiment
-from materials_commons import version
 
 
-# @pytest.mark.skip("These tests take a long time to run - about 8 seconds on a fast machine")
 class TestEtlEndToEnd(unittest.TestCase):
 
     @classmethod
@@ -20,10 +17,6 @@ class TestEtlEndToEnd(unittest.TestCase):
         cls.experiment_name = cls.fake_name("TestExperiment")
         cls.experiment_description = "This is a test experiment: " + cls.experiment_name
         cls.project = create_project(cls.project_name, "This is a test project")
-        print()
-        print("--------------- version check ------------")
-        print(version.version())
-        print("--------------- version check ------------")
 
     def test_is_setup_correctly(self):
         self.assertTrue('TEST_DATA_DIR' in environ)
@@ -41,35 +34,30 @@ class TestEtlEndToEnd(unittest.TestCase):
         self.assertIsNotNone(self.project.description)
         self.assertEqual(self.project.name, self.project_name)
 
-
-    def test_etl_preset_project_id(self):
+    def test_etl_staging_test_in_parts(self):
         builder = BuildProjectExperiment()
-        builder.set_rename_is_ok(True)
-        builder.preset_project_id(self.project.id)
-        builder.build(self.spreadsheet_path, None)
-        project_id = builder.metadata.project_id
-        self.assertIsNotNone(project_id)
-        project = get_project_by_id(project_id)
-        self.assertIsNotNone(project)
-        self.assertEqual(project.name, self.project_name)
+        data_dir = os_path.join(self.test_dir_path, "test_data", "data")
+        builder.set_source_from_path(self.spreadsheet_path)
+        builder._set_row_positions()
+        builder._set_col_positions()
+        builder._determine_start_attribute_row(1)
+        desired_file_dir_list = builder._get_source_file_dir_list()
+        missing_set = set()
+        for entry in desired_file_dir_list:
+            path = os_path.join(data_dir, entry)
+            if not os_path.isdir(path) and not os_path.isfile(path):
+                missing_set.add(entry)
+        self.assertIsNotNone(missing_set)
+        self.assertEqual(1, len(missing_set))
+        self.assertTrue('NoDir' in missing_set)
 
-    def test_etl_preset_experiment_name_description(self):
+    def test_etl_staging_test(self):
         builder = BuildProjectExperiment()
-        builder.set_rename_is_ok(True)
-        builder.preset_project_id(self.project.id)
-        builder.preset_experiment_name_description(self.experiment_name, self.experiment_description)
-        builder.build(self.spreadsheet_path, None)
-        project_id = builder.metadata.project_id
-        self.assertIsNotNone(project_id)
-        project = get_project_by_id(project_id)
-        self.assertIsNotNone(project)
-        self.assertEqual(project.name, self.project_name)
-        experiment_id = builder.metadata.experiment_id
-        self.assertIsNotNone(experiment_id)
-        experiment = self._implement_get_experiment_by_id(project, experiment_id)
-        self.assertIsNotNone(experiment)
-        self.assertEqual(experiment.name, self.experiment_name)
-        self.assertEqual(experiment.description, self.experiment_description)
+        data_dir = os_path.join(self.test_dir_path, "test_data", "data")
+        missing_set = builder.stage(self.spreadsheet_path, data_dir)
+        self.assertIsNotNone(missing_set)
+        self.assertEqual(1, len(missing_set))
+        self.assertTrue('NoDir' in missing_set)
 
     @classmethod
     def make_test_dir_path(cls):
