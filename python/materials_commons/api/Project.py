@@ -642,7 +642,7 @@ class Project(MCObject):
         >>> from materials_commons.api import get_project_by_id
         >>> project_id = "somthing here"
         >>> project = get_project_by_id(project_id)
-        >>> sample = project.get_sample_by_id(sample.id)
+        >>> sample = project.fetch_sample_by_id(sample.id)
 
         ..todo:: determine and document the difference between mcapi.fetch_sample_by_id and mcapi.get_sample_by_id
 
@@ -663,7 +663,7 @@ class Project(MCObject):
         >>> from materials_commons.api import get_project_by_id
         >>> project_id = "somthing here"
         >>> project = get_project_by_id(project_id)
-        >>> sample = project.fetch_sample_by_id(sample.id)
+        >>> sample = project.get_sample_by_id(sample.id)
 
         ..todo:: determine and document the difference between mcapi.fetch_sample_by_id and mcapi.get_sample_by_id
 

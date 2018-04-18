@@ -206,10 +206,14 @@ class Experiment(MCObject):
         """
         project = self.project
         experiment = self
-        results = api.get_experiment_sample_by_id(project.id, experiment.id, sample_id)
-        sample = make_object(results)
-        sample.project = project
-        sample.experiment = experiment
+        samples = self.get_all_samples()
+        sample = None
+        for probe in samples:
+            if sample_id == probe.id:
+                sample = probe
+        if sample:
+            sample.project = project
+            sample.experiment = experiment
         return sample
 
     def get_all_samples(self):
