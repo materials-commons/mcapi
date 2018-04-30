@@ -99,7 +99,8 @@ def set_remote_config_url(url):
     :param url: the URL as a string
     :return: None
 
-    >>> mcapi.set_remote_config_url("http://mcdev.localhost/api")
+    >>> import materials_commons
+    >>> materials_commons.api.set_remote_config_url("http://mcdev.localhost/api")
 
     """
     set_remote(Remote(config=Config(override_config={'mcurl': url})))
@@ -111,7 +112,8 @@ def get_remote_config_url():
 
     :return: the URL as a string
 
-    >>> url = mcapi.get_remote_config_url()
+    >>> import materials_commons
+    >>> url = materials_commons.api.get_remote_config_url()
     >>> print(url)
 
     """
