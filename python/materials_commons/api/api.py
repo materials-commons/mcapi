@@ -99,7 +99,8 @@ def set_remote_config_url(url):
     :param url: the URL as a string
     :return: None
 
-    >>> mcapi.set_remote_config_url("http://mcdev.localhost/api")
+    >>> import materials_commons
+    >>> materials_commons.api.set_remote_config_url("http://mcdev.localhost/api")
 
     """
     set_remote(Remote(config=Config(override_config={'mcurl': url})))
@@ -111,7 +112,8 @@ def get_remote_config_url():
 
     :return: the URL as a string
 
-    >>> url = mcapi.get_remote_config_url()
+    >>> import materials_commons
+    >>> url = materials_commons.api.get_remote_config_url()
     >>> print(url)
 
     """
@@ -383,20 +385,11 @@ def get_all_files_for_process(project_id, experiment_id, process_id, remote=None
 
 # Sample
 
-def get_sample_by_id(project_id, process_id, remote=None):
+def get_sample_by_id(project_id, sample_id, remote=None):
     if not remote:
         remote = use_remote()
     api_url = "projects/" + project_id \
-              + "/processes/" + process_id
-    return get(remote.make_url_v2(api_url))
-
-
-def get_experiment_sample_by_id(project_id, experiment_id, process_id, remote=None):
-    if not remote:
-        remote = use_remote()
-    api_url = "projects/" + project_id \
-              + "/experiments/" + experiment_id \
-              + "/processes/" + process_id
+              + "/samples/" + sample_id
     return get(remote.make_url_v2(api_url))
 
 

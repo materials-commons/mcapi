@@ -49,22 +49,25 @@ Finally:
 twine upload dist/*
 
 ---- download/test from test PyPI: in any python3 env ---
-rmdir ${SCRAP_TEST_DIR}
+rm -rf ${SCRAP_TEST_DIR}
 mkdir -p ${SCRAP_TEST_DIR}
 
 pushd ~/PythonEnvs
 ls
 rm -r ~/PythonEnvs/mcdeptest
 virtualenv -p python3 mcdeptest
-pushd ${SCRAP_TEST_DIR}
-cp -r ${DEPLOY_DIR}/install_test/* ${SCRAP_TEST_DIR}/
-pip install pytest
+source mcdeptest/bin/activate
+popd
 
+cp -r ${DEPLOY_DIR}/install_test/* ${SCRAP_TEST_DIR}/
+pushd ${SCRAP_TEST_DIR}
+ls
+pip install pytest
 pip install -r test_requirements.txt
 source set_test_dir.sh 
 python -m pytest test_workflow.py 
 popd
-popd
+
 ---- download/test from prod PyPI: in any env ---
 -- Set up as above, download/test from test PyPI, but change...
 
@@ -73,7 +76,7 @@ source set_test_dir.sh
 pytest test_workflow.py 
 
 ---- set up doc files ---
-rmdir ${SCRAP_DOCS_DIR}
+rm -fr ${SCRAP_DOCS_DIR}
 mkdir -p ${SCRAP_DOCS_DIR}
 
 source ${PYTHON_ENVS}/forDocs/bin/activate
@@ -99,10 +102,9 @@ rm source/materials_commons.api.measurement.rst
 rm source/materials_commons.api.property_util.rst
 rm source/materials_commons.api.remote.rst
 rm source/materials_commons.api.version.rst
-rm source/materials_commons.cli.*
 rm source/materials_commons.etl.*
 cp ${DEPLOY_DIR}/docs_started_dir/* ./
-cp conf.py index.rst source/
+cp conf.py index.rst index_api.rst source/
 make html
 pushd build/html
 ls *.html | xargs sed -i '' 's/_sources/site_sources/g'
