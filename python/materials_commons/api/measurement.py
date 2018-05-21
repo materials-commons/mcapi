@@ -190,9 +190,9 @@ def make_measurement_object(obj):
             holder = MeasurementSample(data=data)
         if object_type == 'file':
             holder = MeasurementFile(data=data)
-        if holder:
-            holder._process_special_objects()
-            return holder
-        raise Exception("No Measurement Object, unrecognized otype = " + object_type, data)
+        if not holder:
+            holder = Measurement(data=data)
+        holder._process_special_objects()
+        return holder
     else:
         raise Exception("No Measurement Object, otype not defined", data)
