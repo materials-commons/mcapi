@@ -38,7 +38,7 @@ env:
     - MC_DOI_PUBLICATION_BASE=http://mcpub.localhost/#/details
     - MC_DOI_NAMESPACE='doi:10.5072/FK2'
     - ENV_SCRIPT=travisrun
-    - MC_ORG_BRANCH=etl
+    - MC_ORG_BRANCH=release
 
 git:
   depth: 3
