@@ -3,6 +3,7 @@ from .remote import Remote
 from .config import Config
 import requests
 import magic
+
 # import json
 
 # Defaults
@@ -525,6 +526,7 @@ def update_additional_properties_in_process(project_id, experiment_id, process_i
               "/addparameters"
     return post(remote.make_url_v2(api_url), data)
 
+
 # experiment etl metadata
 
 def create_experiment_metadata(experiment_id, json, remote=None):
@@ -569,6 +571,7 @@ def delete_experiment_metadata(metadata_id, remote=None):
     # throws on error
     delete_expect_empty(remote.make_url_v2(api_url))
     return True
+
 
 # templates
 
@@ -681,7 +684,10 @@ def file_download(project_id, file_id, output_file_path, remote=None):
 def add_files_to_process(project_id, experiment_id, process, files, remote=None):
     if not remote:
         remote = use_remote()
-    file_id_list = [{'command': 'add', 'id': f.id} for f in files]
+    for f in files:
+        if not hasattr(f, 'direction'):
+            f.direction = ''
+    file_id_list = [{'command': 'add', 'id': f.id, 'direction': f.direction} for f in files]
     data = {
         "template_id": process.template_id,
         "process_id": process.id,
@@ -783,11 +789,13 @@ def update_comment(comment_id, updated_text, remote=None):
     api_url = "comments/" + comment_id
     return put(remote.make_url_v2(api_url), data)
 
+
 def delete_comment(comment_id, remote=None):
     if not remote:
         remote = use_remote()
     api_url = "comments/" + comment_id
     return delete(remote.make_url_v2(api_url))
+
 
 # for testing only - doi
 def check_statue_of_doi_server(project_id,
