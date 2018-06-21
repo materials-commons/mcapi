@@ -444,8 +444,12 @@ def fetch_sample_details(project_id, sample_id, remote=None):
 def add_samples_to_process(project_id, experiment_id, process, samples, remote=None):
     if not remote:
         remote = use_remote()
+
+    for sample in samples:
+        if not hasattr(sample, 'transform'):
+            sample.transform = False
     samples_data = [
-        {'command': 'add', 'id': s.id, 'property_set_id': s.property_set_id}
+        {'command': 'add', 'id': s.id, 'property_set_id': s.property_set_id, 'transform': s.transform}
         for s in samples]
     data = {
         "template_id": process.template_id,
