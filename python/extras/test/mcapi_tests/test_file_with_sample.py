@@ -3,6 +3,7 @@ from random import randint
 from os import environ
 from os import path as os_path
 from os.path import getsize
+# noinspection PyCompatibility
 from pathlib import Path
 from materials_commons.api import create_project
 from materials_commons.api import Template, get_all_templates

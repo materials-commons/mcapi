@@ -7,7 +7,7 @@ from materials_commons.api import create_project, get_project_by_id
 from materials_commons.api.File import File
 from materials_commons.api.Directory import Directory
 from materials_commons.etl.common.metadata import Metadata
-from materials_commons.etl.input_spreadsheet import BuildProjectExperiment
+from materials_commons.etl.old_input_spreadsheet import BuildProjectExperiment
 from materials_commons.etl.common.meta_data_verify import MetadataVerification
 
 

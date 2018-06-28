@@ -5,7 +5,7 @@ from os import environ
 from os import path as os_path
 from random import randint
 from materials_commons.api import create_project, get_project_by_id
-from materials_commons.etl.input_spreadsheet import BuildProjectExperiment
+from materials_commons.etl.old_input_spreadsheet import BuildProjectExperiment
 from materials_commons import version
 
 

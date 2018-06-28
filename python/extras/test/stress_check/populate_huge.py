@@ -2,19 +2,13 @@ import os
 from os import walk
 from random import randint
 
-BASE_DIR = "/Volumes/Data2/lotsOfFiles"
-TOTAL_NUMBER_OF_FILE = 10000
-DIRECTORY_SIZE = 500
+BASE_DIR = "/Volumes/Data2/lotsOfDirsOfFiles"
+TOTAL_NUMBER_OF_FILES = 1000000
+DIRECTORY_SIZE = 1000
 
-
-def random_tag_for_line(line):
-    tag = randint(0, 9999999999)
-    return line + " ::  random tag %010d" % tag
-
-
-def clear_dir():
-    create_dir_if_needed(BASE_DIR)
-    test_dir_path = os.path.abspath(BASE_DIR)
+def clear_dir(dir):
+    create_dir_if_needed(dir)
+    test_dir_path = os.path.abspath(dir)
     for (dirpath, dirnames, filenames) in walk(test_dir_path):
         for name in filenames:
             if name.endswith(".txt"):
@@ -30,20 +24,17 @@ def create_dir_if_needed(name):
 
 
 def populate():
-    clear_dir()
+    clear_dir(BASE_DIR)
     os.chdir(BASE_DIR)
-    for i in range(TOTAL_NUMBER_OF_FILE):
+    for i in range(TOTAL_NUMBER_OF_FILES):
         if i % DIRECTORY_SIZE == 0:
             os.chdir(BASE_DIR)
-            name = 'sub-' + '%04d' % i
+            name = 'sub-' + '%06d' % i
             create_dir_if_needed(name)
             os.chdir(name)
-        filename = "testFile" + "%04d" % i + ".txt"
+        filename = "testFile" + "%06d" % i + ".txt"
         f = open(filename, "w+")
-        lines = randint(10, 3000)
-        for j in range(0, lines):
-            line = random_tag_for_line("This is line of text in file %s" % filename)
-            f.write(line + "\n")
+        line = "This is line of text in file %s \n" % filename
         f.close()
 
 
