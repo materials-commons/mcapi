@@ -1,6 +1,5 @@
 import os
 from os import walk
-from random import randint
 
 BASE_DIR = "/Volumes/Data2/lotsOfDirsOfFiles"
 TOTAL_NUMBER_OF_FILES = 1000000

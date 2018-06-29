@@ -52,6 +52,8 @@ class ExcelIO:
         return data
 
     def write_data(self, path, data_row_list, worksheet_name=None):
+        print("self", self)
+        print("path", path)
         self.workbook = openpyxl.Workbook()
         self.current_worksheet = self.workbook.worksheets[0]
         if worksheet_name:
