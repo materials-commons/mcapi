@@ -126,26 +126,10 @@ def configure_remote(remote, apikey):
 
 def projects(remote=None, apikey=None):
     remote = configure_remote(remote, apikey)
-    """
-    get data for all projects
-
-    Returns
-    ----------
-      results: List[dict()]
-
-    """
     return get(remote.make_url_v2('projects'), remote)
 
 
 def create_project(name, description, remote=None, apikey=None):
-    """
-    create a project
-
-    Returns
-    ----------
-      results: dict of 'project_id' and 'datadir_id'
-
-    """
     remote = configure_remote(remote, apikey)
     data = {
         "name": name,
@@ -182,9 +166,8 @@ def delete_project(project_id, remote=None, apikey=None):
     return delete(remote.make_url_v2(api_url), remote)
 
 
-def get_project_processes(project_id, remote=None):
-    if not remote:
-        remote = use_remote()
+def get_project_processes(project_id, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     api_url = "/projects/" + project_id + "/processes"
     return get(remote.make_url_v2(api_url), remote)
 
@@ -223,17 +206,8 @@ def remove_user_access_to_project(project_id, user_id, remote=None, apikey=None)
 
 
 # Experiment
-def create_experiment(project_id, name, description, remote=None):
-    if not remote:
-        remote = use_remote()
-    """
-        create a project
-
-        Returns
-        ----------
-          results: id of new experiment
-
-        """
+def create_experiment(project_id, name, description, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     data = {
         "project_id": project_id,
         "name": name,
@@ -242,9 +216,8 @@ def create_experiment(project_id, name, description, remote=None):
     return post(remote.make_url_v2("projects/" + project_id + "/experiments"), data, remote)
 
 
-def rename_experiment(project_id, experiment_id, name, description, remote=None):
-    if not remote:
-        remote = use_remote()
+def rename_experiment(project_id, experiment_id, name, description, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     data = {
         "name": name,
         "description": description
@@ -253,9 +226,8 @@ def rename_experiment(project_id, experiment_id, name, description, remote=None)
     return put(api_url, data, remote)
 
 
-def fetch_experiments(project_id, remote=None):
-    if not remote:
-        remote = use_remote()
+def fetch_experiments(project_id, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     return get(remote.make_url_v2("projects/" + project_id + "/experiments"), remote)
 
 
@@ -266,39 +238,34 @@ def fetch_experiment_samples(project_id, experiment_id, remote=None):
     return get(remote.make_url_v2(api_url), remote)
 
 
-def fetch_experiment_processes(project_id, experiment_id, remote=None):
-    if not remote:
-        remote = use_remote()
+def fetch_experiment_processes(project_id, experiment_id, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     api_url = "/projects/" + project_id + "/experiments/" + experiment_id + "/processes"
     return get(remote.make_url_v2(api_url), remote)
 
 
-def delete_experiment(project_id, experiment_id, remote=None):
-    if not remote:
-        remote = use_remote()
+def delete_experiment(project_id, experiment_id, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     api_url = "/projects/" + project_id + "/experiments/" + experiment_id
     return delete(remote.make_url_v2(api_url), remote)
 
 
-def delete_experiment_fully(project_id, experiment_id, remote=None):
-    if not remote:
-        remote = use_remote()
+def delete_experiment_fully(project_id, experiment_id, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     api_url = "/projects/" + project_id + "/experiments/" + experiment_id + "/delete/fully"
     return delete(remote.make_url_v2(api_url), remote)
 
 
-def delete_experiment_dry_run(project_id, experiment_id, remote=None):
-    if not remote:
-        remote = use_remote()
+def delete_experiment_dry_run(project_id, experiment_id, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     api_url = "/projects/" + project_id + "/experiments/" + experiment_id + "/delete/dryrun"
     return get(remote.make_url_v2(api_url), remote)
 
 
 # Process
 
-def create_process_from_template(project_id, experiment_id, template_id, remote=None):
-    if not remote:
-        remote = use_remote()
+def create_process_from_template(project_id, experiment_id, template_id, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     data = {
         "id": template_id
     }
@@ -308,9 +275,8 @@ def create_process_from_template(project_id, experiment_id, template_id, remote=
     return post(remote.make_url_v2(api_url), data, remote)
 
 
-def push_name_for_process(project_id, process_id, name, remote=None):
-    if not remote:
-        remote = use_remote()
+def push_name_for_process(project_id, process_id, name, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     data = {
         "name": name
     }
@@ -318,16 +284,14 @@ def push_name_for_process(project_id, process_id, name, remote=None):
     return put(remote.make_url_v2(api_url), data, remote)
 
 
-def delete_process(project_id, process_id, remote=None):
-    if not remote:
-        remote = use_remote()
+def delete_process(project_id, process_id, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     api_url = "projects/" + project_id + "/processes/" + process_id
     return delete(remote.make_url_v2(api_url), remote)
 
 
-def set_notes_for_process(project_id, process_id, value, remote=None):
-    if not remote:
-        remote = use_remote()
+def set_notes_for_process(project_id, process_id, value, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     data = {
         "description": value
     }
@@ -335,17 +299,15 @@ def set_notes_for_process(project_id, process_id, value, remote=None):
     return put(remote.make_url_v2(api_url), data, remote)
 
 
-def get_process_by_id(project_id, process_id, remote=None):
-    if not remote:
-        remote = use_remote()
+def get_process_by_id(project_id, process_id, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     api_url = "projects/" + project_id \
               + "/processes/" + process_id
     return get(remote.make_url_v2(api_url), remote)
 
 
-def get_experiment_process_by_id(project_id, experiment_id, process_id, remote=None):
-    if not remote:
-        remote = use_remote()
+def get_experiment_process_by_id(project_id, experiment_id, process_id, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     api_url = "projects/" + project_id \
               + "/experiments/" + experiment_id \
               + "/processes/" + process_id
