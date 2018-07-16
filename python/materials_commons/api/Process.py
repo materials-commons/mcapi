@@ -774,7 +774,7 @@ class Process(MCObject):
         """
         Make sure that known output samples are set in the this.
 
-        :return: a new copy of the Process (this) with the addition of output samples from the database
+        :return: the Process (this) with the addition of output samples from the database
         """
         detailed_process = self.experiment.get_process_by_id(self.id)
         self.output_samples = detailed_process.output_samples
@@ -784,7 +784,7 @@ class Process(MCObject):
         """
         Make sure that known input samples are set in this.
 
-        :return: a new copy of the Process (this) with the addition of input samples from the database
+        :return: the Process (this) with the addition of input samples from the database
         """
         detailed_process = self.experiment.get_process_by_id(self.id)
         self.input_samples = detailed_process.input_samples
