@@ -27,8 +27,8 @@ class Config(object):
         for key in override_config:
             self.config[key] = override_config[key]
 
-        self.mcapikey = config['apikey']
-        self.mcurl = config['mcurl']
+        self.mcapikey = self.config['apikey']
+        self.mcurl = self.config['mcurl']
         self.params = {'apikey': self.mcapikey}
 
         # 'interfaces': [

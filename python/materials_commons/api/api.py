@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from .remote import Remote
+from .remote import Remote, RemoteWithApikey
 from .config import Config
 import requests
 import magic
@@ -120,11 +120,22 @@ def get_remote_config_url():
     return use_remote().config.mcurl
 
 
-# Project
+def configure_remote(remote, apikey):
+    if apikey and remote:
+        remote = RemoteWithApikey(apikey, config=remote.config)
+    elif apikey:
+        remote = RemoteWithApikey(apikey)
 
-def projects(remote=None):
     if not remote:
         remote = use_remote()
+
+    return remote
+
+
+# Project
+
+def projects(remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     """
     get data for all projects
 
