@@ -31,51 +31,41 @@ def mcorg():
     return _mcorg
 
 
-def get(restpath, remote=None):
-    if not remote:
-        remote = use_remote()
-    r = requests.get(restpath, params=remote.config.params, verify=False)
+def get(restpath, remote):
+    r = requests.get(restpath, params=remote.config.get_params(), verify=False)
     if r.status_code == requests.codes.ok:
         return r.json()
     r.raise_for_status()
 
 
-def post(restpath, data, remote=None):
-    if not remote:
-        remote = use_remote()
+def post(restpath, data, remote):
     data = OrderedDict(data)
     r = requests.post(
-        restpath, params=remote.config.params, verify=False, json=data
+        restpath, params=remote.config.get_params(), verify=False, json=data
     )
     if r.status_code == requests.codes.ok:
         return r.json()
     r.raise_for_status()
 
 
-def put(restpath, data, remote=None):
-    if not remote:
-        remote = use_remote()
+def put(restpath, data, remote):
     r = requests.put(
-        restpath, params=remote.config.params, verify=False, json=data
+        restpath, params=remote.config.get_params(), verify=False, json=data
     )
     if r.status_code == requests.codes.ok:
         return r.json()
     r.raise_for_status()
 
 
-def delete(restpath, remote=None):
-    if not remote:
-        remote = use_remote()
-    r = requests.delete(restpath, params=remote.config.params, verify=False)
+def delete(restpath, remote):
+    r = requests.delete(restpath, params=remote.config.get_params(), verify=False)
     if r.status_code == requests.codes.ok:
         return r.json()
     r.raise_for_status()
 
 
-def delete_expect_empty(restpath, remote=None):
-    if not remote:
-        remote = use_remote()
-    r = requests.delete(restpath, params=remote.config.params, verify=False)
+def delete_expect_empty(restpath, remote):
+    r = requests.delete(restpath, params=remote.config.get_params(), verify=False)
     if not r.status_code == requests.codes.ok:
         r.raise_for_status()
 
@@ -144,12 +134,10 @@ def projects(remote=None, apikey=None):
       results: List[dict()]
 
     """
-    return get(remote.make_url_v2('projects'), remote=remote)
+    return get(remote.make_url_v2('projects'), remote)
 
 
-def create_project(name, description, remote=None):
-    if not remote:
-        remote = use_remote()
+def create_project(name, description, remote=None, apikey=None):
     """
     create a project
 
@@ -158,85 +146,80 @@ def create_project(name, description, remote=None):
       results: dict of 'project_id' and 'datadir_id'
 
     """
+    remote = configure_remote(remote, apikey)
     data = {
         "name": name,
         "description": description
     }
-    return post(remote.make_url_v2("projects"), data)
+    return post(remote.make_url_v2("projects"), data, remote)
 
 
-def get_project_by_id(project_id, remote=None):
-    if not remote:
-        remote = use_remote()
+def get_project_by_id(project_id, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     api_url = "projects/" + project_id
-    return get(remote.make_url_v2(api_url), remote=remote)
+    return get(remote.make_url_v2(api_url), remote)
 
 
-def update_project(project_id, name, description, remote=None):
-    if not remote:
-        remote = use_remote()
+def update_project(project_id, name, description, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     data = {
         "name": name,
         "description": description
     }
-    return put(remote.make_url_v2("projects/" + project_id), data)
+    return put(remote.make_url_v2("projects/" + project_id), data, remote)
 
 
 def get_project_sample_by_id(project_id, sample_id, remote=None):
     if not remote:
         remote = use_remote()
     api_url = "projects/" + project_id + "/samples/" + sample_id
-    return get(remote.make_url_v2(api_url), remote=remote)
+    return get(remote.make_url_v2(api_url), remote)
 
 
-def delete_project(project_id, remote=None):
-    if not remote:
-        remote = use_remote()
+def delete_project(project_id, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     api_url = "/projects/" + project_id
-    return delete(remote.make_url_v2(api_url))
+    return delete(remote.make_url_v2(api_url), remote)
 
 
 def get_project_processes(project_id, remote=None):
     if not remote:
         remote = use_remote()
     api_url = "/projects/" + project_id + "/processes"
-    return get(remote.make_url_v2(api_url))
+    return get(remote.make_url_v2(api_url), remote)
 
 
 def get_project_samples(project_id, remote=None):
     if not remote:
         remote = use_remote()
     api_url = "/projects/" + project_id + "/samples"
-    return get(remote.make_url_v2(api_url))
+    return get(remote.make_url_v2(api_url), remote)
 
 
-def users_with_access_to_project(project_id, remote=None):
-    if not remote:
-        remote = use_remote()
+def users_with_access_to_project(project_id, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     api_url = "projects/" + project_id + "/access"
-    return get(remote.make_url_v2(api_url))
+    return get(remote.make_url_v2(api_url), remote)
 
 
-def add_user_access_to_project(project_id, user_id, remote=None):
-    if not remote:
-        remote = use_remote()
+def add_user_access_to_project(project_id, user_id, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     data = {
         "action": "add",
         "user_id": user_id
     }
     api_url = "projects/" + project_id + "/access"
-    return put(remote.make_url_v2(api_url), data)
+    return put(remote.make_url_v2(api_url), data, remote)
 
 
-def remove_user_access_to_project(project_id, user_id, remote=None):
-    if not remote:
-        remote = use_remote()
+def remove_user_access_to_project(project_id, user_id, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     data = {
         "action": "delete",
         "user_id": user_id
     }
     api_url = "projects/" + project_id + "/access"
-    return put(remote.make_url_v2(api_url), data)
+    return put(remote.make_url_v2(api_url), data, remote)
 
 
 # Experiment
@@ -256,7 +239,7 @@ def create_experiment(project_id, name, description, remote=None):
         "name": name,
         "description": description
     }
-    return post(remote.make_url_v2("projects/" + project_id + "/experiments"), data)
+    return post(remote.make_url_v2("projects/" + project_id + "/experiments"), data, remote)
 
 
 def rename_experiment(project_id, experiment_id, name, description, remote=None):
@@ -267,48 +250,48 @@ def rename_experiment(project_id, experiment_id, name, description, remote=None)
         "description": description
     }
     api_url = remote.make_url_v2("projects/" + project_id + "/experiments/" + experiment_id)
-    return put(api_url, data)
+    return put(api_url, data, remote)
 
 
 def fetch_experiments(project_id, remote=None):
     if not remote:
         remote = use_remote()
-    return get(remote.make_url_v2("projects/" + project_id + "/experiments"))
+    return get(remote.make_url_v2("projects/" + project_id + "/experiments"), remote)
 
 
 def fetch_experiment_samples(project_id, experiment_id, remote=None):
     if not remote:
         remote = use_remote()
     api_url = "projects/" + project_id + "/experiments/" + experiment_id + "/samples"
-    return get(remote.make_url_v2(api_url))
+    return get(remote.make_url_v2(api_url), remote)
 
 
 def fetch_experiment_processes(project_id, experiment_id, remote=None):
     if not remote:
         remote = use_remote()
     api_url = "/projects/" + project_id + "/experiments/" + experiment_id + "/processes"
-    return get(remote.make_url_v2(api_url))
+    return get(remote.make_url_v2(api_url), remote)
 
 
 def delete_experiment(project_id, experiment_id, remote=None):
     if not remote:
         remote = use_remote()
     api_url = "/projects/" + project_id + "/experiments/" + experiment_id
-    return delete(remote.make_url_v2(api_url))
+    return delete(remote.make_url_v2(api_url), remote)
 
 
 def delete_experiment_fully(project_id, experiment_id, remote=None):
     if not remote:
         remote = use_remote()
     api_url = "/projects/" + project_id + "/experiments/" + experiment_id + "/delete/fully"
-    return delete(remote.make_url_v2(api_url))
+    return delete(remote.make_url_v2(api_url), remote)
 
 
 def delete_experiment_dry_run(project_id, experiment_id, remote=None):
     if not remote:
         remote = use_remote()
     api_url = "/projects/" + project_id + "/experiments/" + experiment_id + "/delete/dryrun"
-    return get(remote.make_url_v2(api_url))
+    return get(remote.make_url_v2(api_url), remote)
 
 
 # Process
@@ -322,7 +305,7 @@ def create_process_from_template(project_id, experiment_id, template_id, remote=
     api_url = "projects/" + project_id + \
               "/experiments/" + experiment_id + \
               "/processes/templates/" + template_id
-    return post(remote.make_url_v2(api_url), data)
+    return post(remote.make_url_v2(api_url), data, remote)
 
 
 def push_name_for_process(project_id, process_id, name, remote=None):
@@ -332,14 +315,14 @@ def push_name_for_process(project_id, process_id, name, remote=None):
         "name": name
     }
     api_url = "projects/" + project_id + "/processes/" + process_id
-    return put(remote.make_url_v2(api_url), data)
+    return put(remote.make_url_v2(api_url), data, remote)
 
 
 def delete_process(project_id, process_id, remote=None):
     if not remote:
         remote = use_remote()
     api_url = "projects/" + project_id + "/processes/" + process_id
-    return delete(remote.make_url_v2(api_url))
+    return delete(remote.make_url_v2(api_url), remote)
 
 
 def set_notes_for_process(project_id, process_id, value, remote=None):
@@ -349,7 +332,7 @@ def set_notes_for_process(project_id, process_id, value, remote=None):
         "description": value
     }
     api_url = "projects/" + project_id + "/processes/" + process_id
-    return put(remote.make_url_v2(api_url), data)
+    return put(remote.make_url_v2(api_url), data, remote)
 
 
 def get_process_by_id(project_id, process_id, remote=None):
@@ -357,7 +340,7 @@ def get_process_by_id(project_id, process_id, remote=None):
         remote = use_remote()
     api_url = "projects/" + project_id \
               + "/processes/" + process_id
-    return get(remote.make_url_v2(api_url))
+    return get(remote.make_url_v2(api_url), remote)
 
 
 def get_experiment_process_by_id(project_id, experiment_id, process_id, remote=None):
@@ -366,7 +349,7 @@ def get_experiment_process_by_id(project_id, experiment_id, process_id, remote=N
     api_url = "projects/" + project_id \
               + "/experiments/" + experiment_id \
               + "/processes/" + process_id
-    return get(remote.make_url_v2(api_url))
+    return get(remote.make_url_v2(api_url), remote)
 
 
 def delete_sample_created_by_process(project_id, process_id, sample_id, property_set_id, remote=None):
@@ -381,7 +364,7 @@ def delete_sample_created_by_process(project_id, process_id, sample_id, property
         "samples": command_list
     }
     api_url = "projects/" + project_id + "/processes/" + process_id
-    return put(remote.make_url_v2(api_url), data)
+    return put(remote.make_url_v2(api_url), data, remote)
 
 
 def get_all_files_for_process(project_id, experiment_id, process_id, remote=None):
@@ -391,7 +374,7 @@ def get_all_files_for_process(project_id, experiment_id, process_id, remote=None
               + "/experiments/" + experiment_id \
               + "/processes/" + process_id \
               + "/files"
-    return get(remote.make_url_v2(api_url))
+    return get(remote.make_url_v2(api_url), remote)
 
 
 # Sample
@@ -401,7 +384,7 @@ def get_sample_by_id(project_id, sample_id, remote=None):
         remote = use_remote()
     api_url = "projects/" + project_id \
               + "/samples/" + sample_id
-    return get(remote.make_url_v2(api_url))
+    return get(remote.make_url_v2(api_url), remote)
 
 
 def create_samples_in_project(project_id, process_id, sample_names, remote=None):
@@ -413,7 +396,7 @@ def create_samples_in_project(project_id, process_id, sample_names, remote=None)
         "samples": sample_names_data
     }
     api_url = "projects/" + project_id + "/samples"
-    return post(remote.make_url_v2(api_url), data)
+    return post(remote.make_url_v2(api_url), data, remote)
 
 
 def add_samples_to_experiment(project_id, experiment_id, sample_id_list, remote=None):
@@ -423,30 +406,30 @@ def add_samples_to_experiment(project_id, experiment_id, sample_id_list, remote=
         "samples": sample_id_list
     }
     api_url = "projects/" + project_id + "/experiments/" + experiment_id + "/samples"
-    return post(remote.make_url_v2(api_url), data)
+    return post(remote.make_url_v2(api_url), data, remote)
 
 
 def link_files_to_sample(project_id, sample_id, file_id_list, remote=None):
     if not remote:
         remote = use_remote()
     command_list = []
-    for id in file_id_list:
+    for file_id in file_id_list:
         command_list.append({
             "command": "add",
-            "id": id
+            "id": file_id
         })
     data = {
         "files": command_list
     }
     api_url = "projects/" + project_id + "/samples/" + sample_id + "/files"
-    return put(remote.make_url_v2(api_url), data)
+    return put(remote.make_url_v2(api_url), data, remote)
 
 
 def fetch_sample_details(project_id, sample_id, remote=None):
     if not remote:
         remote = use_remote()
     api_url = "projects/" + project_id + "/samples/" + sample_id
-    return get(remote.make_url_v2(api_url))
+    return get(remote.make_url_v2(api_url), remote)
 
 
 # Create sample process
@@ -465,7 +448,7 @@ def add_samples_to_process(project_id, experiment_id, process, samples, remote=N
     api_url = "projects/" + project_id + \
               "/experiments/" + experiment_id + \
               "/processes/" + process.id
-    return put(remote.make_url_v2(api_url), data)
+    return put(remote.make_url_v2(api_url), data, remote)
 
 
 # add/update measurements on process samples
@@ -487,7 +470,7 @@ def set_measurement_for_process_samples(project_id, experiment_id, process_id,
     api_url = "projects/" + project_id + \
               "/experiments/" + experiment_id + \
               "/samples/measurements"
-    return post(remote.make_url_v2(api_url), data)
+    return post(remote.make_url_v2(api_url), data, remote)
 
 
 # update process setup values
@@ -510,7 +493,7 @@ def update_process_setup_properties(project_id, experiment_id, process, properti
         if not data["properties"][index]["required"]:
             data["properties"][index]["required"] = False
         index += 1
-    return put(remote.make_url_v2(api_url), data)
+    return put(remote.make_url_v2(api_url), data, remote)
 
 
 def update_process_setup_properties_make_data(setup_property):
@@ -534,7 +517,8 @@ def update_additional_properties_in_process(project_id, experiment_id, process_i
               "/experiments/" + experiment_id + \
               "/processes/" + process_id + \
               "/addparameters"
-    return post(remote.make_url_v2(api_url), data)
+    return post(remote.make_url_v2(api_url), data, remote)
+
 
 # experiment etl metadata
 
@@ -545,14 +529,14 @@ def create_experiment_metadata(experiment_id, json, remote=None):
         'json': json
     }
     api_url = "etl/create/" + experiment_id
-    return put(remote.make_url_v2(api_url), data)
+    return put(remote.make_url_v2(api_url), data, remote)
 
 
 def get_experiment_metadata(metadata_id, remote=None):
     if not remote:
         remote = use_remote()
     api_url = "etl/metadata/" + metadata_id
-    return get(remote.make_url_v2(api_url))
+    return get(remote.make_url_v2(api_url), remote)
 
 
 def get_experiment_metadata_by_experiment_id(experiment_id, remote=None):
@@ -560,7 +544,7 @@ def get_experiment_metadata_by_experiment_id(experiment_id, remote=None):
         remote = use_remote()
     api_url = "etl/experiment/" + experiment_id + \
               "/metadata"
-    return get(remote.make_url_v2(api_url))
+    return get(remote.make_url_v2(api_url), remote)
 
 
 def update_experiment_metadata(metadata_id, json, remote=None):
@@ -570,7 +554,7 @@ def update_experiment_metadata(metadata_id, json, remote=None):
         'json': json
     }
     api_url = "etl/metadata/" + metadata_id
-    return post(remote.make_url_v2(api_url), data)
+    return post(remote.make_url_v2(api_url), data, remote)
 
 
 def delete_experiment_metadata(metadata_id, remote=None):
@@ -578,8 +562,9 @@ def delete_experiment_metadata(metadata_id, remote=None):
         remote = use_remote()
     api_url = "etl/metadata/" + metadata_id
     # throws on error
-    delete_expect_empty(remote.make_url_v2(api_url))
+    delete_expect_empty(remote.make_url_v2(api_url), remote)
     return True
+
 
 # templates
 
@@ -587,7 +572,7 @@ def get_all_templates(remote=None):
     if not remote:
         remote = use_remote()
     api_url = "templates"
-    return get(remote.make_url_v2(api_url))
+    return get(remote.make_url_v2(api_url), remote)
 
 
 # users
@@ -595,7 +580,7 @@ def get_all_users(remote=None):
     if not remote:
         remote = use_remote()
     api_url = "users"
-    return get(remote.make_url_v2(api_url))
+    return get(remote.make_url_v2(api_url), remote)
 
 
 # directory
@@ -604,7 +589,7 @@ def directory_by_id(project_id, directory_id, remote=None):
         remote = use_remote()
     api_url = "projects/" + project_id + \
               "/directories/" + directory_id
-    return get(remote.make_url_v2(api_url))
+    return get(remote.make_url_v2(api_url), remote)
 
 
 def create_fetch_all_directories_on_path(project_id, directory_id, path, remote=None):
@@ -616,7 +601,7 @@ def create_fetch_all_directories_on_path(project_id, directory_id, path, remote=
     }
     api_url = "projects/" + project_id + \
               "/directories/"
-    return post(remote.make_url_v2(api_url), data)
+    return post(remote.make_url_v2(api_url), data, remote)
 
 
 def directory_rename(project_id, directory_id, new_name, remote=None):
@@ -629,7 +614,7 @@ def directory_rename(project_id, directory_id, new_name, remote=None):
     }
     api_url = "projects/" + project_id + \
               "/directories/" + directory_id
-    return put(remote.make_url_v2(api_url), data)
+    return put(remote.make_url_v2(api_url), data, remote)
 
 
 def directory_move(project_id, directory_id, new_directory_id, remote=None):
@@ -642,7 +627,7 @@ def directory_move(project_id, directory_id, new_directory_id, remote=None):
     }
     api_url = "projects/" + project_id + \
               "/directories/" + directory_id
-    return put(remote.make_url_v2(api_url), data)
+    return put(remote.make_url_v2(api_url), data, remote)
 
 
 def directory_create_subdirectories_from_path_list(project_id, directory_id, path_list, remote=None):
@@ -653,7 +638,7 @@ def directory_create_subdirectories_from_path_list(project_id, directory_id, pat
     }
     api_url = "projects/" + project_id + \
               "/directories/" + directory_id
-    return post(remote.make_url_v2(api_url), data)
+    return post(remote.make_url_v2(api_url), data, remote)
 
 
 # file
@@ -666,7 +651,7 @@ def file_upload(project_id, directory_id, file_name, input_path, remote=None):
         mime_type = magic.Magic(mime=True).from_file(input_path)
         files = {'file': (file_name, f, mime_type)}
         restpath = remote.make_url_v2(api_url)
-        r = requests.post(restpath, params=remote.config.params, files=files, verify=False)
+        r = requests.post(restpath, params=remote.config.get_params(), files=files, verify=False)
         if r.status_code == requests.codes.ok:
             return r.json()
         r.raise_for_status()
@@ -678,7 +663,7 @@ def file_download(project_id, file_id, output_file_path, remote=None):
     with open(output_file_path, 'wb') as f:
         api_url = "projects/" + project_id + "/files/" + file_id + "/download"
         restpath = remote.make_url_v2(api_url)
-        r = requests.get(restpath, params=remote.config.params, stream=True, verify=False)
+        r = requests.get(restpath, params=remote.config.get_params(), stream=True, verify=False)
 
         if not r.ok:
             r.raise_for_status()
@@ -701,7 +686,7 @@ def add_files_to_process(project_id, experiment_id, process, files, remote=None)
     api_url = "projects/" + project_id + \
               "/experiments/" + experiment_id + \
               "/processes/" + process.id
-    return put(remote.make_url_v2(api_url), data)
+    return put(remote.make_url_v2(api_url), data, remote)
 
 
 def file_rename(project_id, file_id, new_file_name, remote=None):
@@ -712,7 +697,7 @@ def file_rename(project_id, file_id, new_file_name, remote=None):
     }
     api_url = "projects/" + project_id + \
               "/files/" + file_id
-    return put(remote.make_url_v2(api_url), data)
+    return put(remote.make_url_v2(api_url), data, remote)
 
 
 def file_move(project_id, old_directory_id, new_directory_id, file_id, remote=None):
@@ -726,7 +711,7 @@ def file_move(project_id, old_directory_id, new_directory_id, file_id, remote=No
     }
     api_url = "projects/" + project_id + \
               "/files/" + file_id
-    return put(remote.make_url_v2(api_url), data)
+    return put(remote.make_url_v2(api_url), data, remote)
 
 
 # for testing only - datasets
@@ -740,7 +725,7 @@ def create_dataset(project_id, experiment_id, title, description, remote=None):
     api_url = "projects/" + project_id + \
               "/experiments/" + experiment_id + \
               "/datasets"
-    return post(remote.make_url_v2(api_url), data)
+    return post(remote.make_url_v2(api_url), data, remote)
 
 
 def publish_dataset(project_id, experiment_id, dataset_id, remote=None):
@@ -751,7 +736,7 @@ def publish_dataset(project_id, experiment_id, dataset_id, remote=None):
               "/experiments/" + experiment_id + \
               "/datasets/" + dataset_id + \
               "/publish"
-    return put(remote.make_url_v2(api_url), data)
+    return put(remote.make_url_v2(api_url), data, remote)
 
 
 def add_process_to_dataset(project_id,
@@ -768,7 +753,7 @@ def add_process_to_dataset(project_id,
               "/experiments/" + experiment_id + \
               "/datasets/" + dataset_id + \
               "/processes"
-    return put(remote.make_url_v2(api_url), data)
+    return put(remote.make_url_v2(api_url), data, remote)
 
 
 # for testing only - comments
@@ -782,7 +767,7 @@ def add_comment(item_type, item_id, text, remote=None):
     }
     api_url = "comments"
     print(remote.make_url_v2(api_url))
-    return post(remote.make_url_v2(api_url), data)
+    return post(remote.make_url_v2(api_url), data, remote)
 
 
 def update_comment(comment_id, updated_text, remote=None):
@@ -792,13 +777,15 @@ def update_comment(comment_id, updated_text, remote=None):
         'text': updated_text
     }
     api_url = "comments/" + comment_id
-    return put(remote.make_url_v2(api_url), data)
+    return put(remote.make_url_v2(api_url), data, remote)
+
 
 def delete_comment(comment_id, remote=None):
     if not remote:
         remote = use_remote()
     api_url = "comments/" + comment_id
-    return delete(remote.make_url_v2(api_url))
+    return delete(remote.make_url_v2(api_url), remote)
+
 
 # for testing only - doi
 def check_statue_of_doi_server(project_id,
@@ -809,7 +796,7 @@ def check_statue_of_doi_server(project_id,
               "/experiments/" + experiment_id + \
               "/datasets/" + dataset_id + \
               "/doiserverstatus"
-    return get(remote.make_url_v2(api_url))
+    return get(remote.make_url_v2(api_url), remote)
 
 
 def create_doi(project_id, experiment_id, dataset_id, title,
@@ -826,7 +813,7 @@ def create_doi(project_id, experiment_id, dataset_id, title,
               "/experiments/" + experiment_id + \
               "/datasets/" + dataset_id + \
               "/doi"
-    return post(remote.make_url_v2(api_url), data)
+    return post(remote.make_url_v2(api_url), data, remote)
 
 
 def get_doi_metadata(project_id, experiment_id, dataset_id, remote=None):
@@ -836,7 +823,7 @@ def get_doi_metadata(project_id, experiment_id, dataset_id, remote=None):
               "/experiments/" + experiment_id + \
               "/datasets/" + dataset_id + \
               "/doi"
-    return get(remote.make_url_v2(api_url))
+    return get(remote.make_url_v2(api_url), remote)
 
 
 def get_doi_link(project_id, experiment_id, dataset_id, remote=None):
@@ -846,7 +833,7 @@ def get_doi_link(project_id, experiment_id, dataset_id, remote=None):
               "/experiments/" + experiment_id + \
               "/datasets/" + dataset_id + \
               "/doi/link"
-    return get(remote.make_url_v2(api_url))
+    return get(remote.make_url_v2(api_url), remote)
 
 
 def _create_new_template(template_data, remote=None):
@@ -854,7 +841,7 @@ def _create_new_template(template_data, remote=None):
         remote = use_remote()
     api_url = "templates/"
     data = template_data
-    return post(remote.make_url_v2(api_url), data)
+    return post(remote.make_url_v2(api_url), data, remote)
 
 
 def _update_template(template_id, template_data, remote=None):
@@ -862,7 +849,7 @@ def _update_template(template_id, template_data, remote=None):
         remote = use_remote()
     api_url = "templates/" + template_id
     data = template_data
-    return put(remote.make_url_v2(api_url), data)
+    return put(remote.make_url_v2(api_url), data, remote)
 
 
 #
@@ -876,18 +863,18 @@ def _store_in_user_profile(user_id, name, value, remote=None):
     data = {
         'value': value
     }
-    return put(remote.make_url_v2(api_url), data)
+    return put(remote.make_url_v2(api_url), data, remote)
 
 
 def _get_from_user_profile(user_id, name, remote=None):
     if not remote:
         remote = use_remote()
     api_url = "users/" + user_id + "/profiles/" + name
-    return get(remote.make_url_v2(api_url))
+    return get(remote.make_url_v2(api_url), remote)
 
 
 def _clear_from_user_profile(user_id, name, remote=None):
     if not remote:
         remote = use_remote()
     api_url = "users/" + user_id + "/profiles/" + name
-    return delete(remote.make_url_v2(api_url))
+    return delete(remote.make_url_v2(api_url), remote)

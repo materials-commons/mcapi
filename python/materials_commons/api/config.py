@@ -29,8 +29,6 @@ class Config(object):
 
         self.mcapikey = self.config['apikey']
         self.mcurl = self.config['mcurl']
-        self.params = {'apikey': self.mcapikey}
-
         # 'interfaces': [
         #   { 'name': 'casm',
         #     'desc':'Create CASM samples, processes, measurements, etc.',
@@ -42,3 +40,6 @@ class Config(object):
         #   }
         # }
         self.interfaces = config.get('interfaces', dict())
+
+    def get_params(self):
+        return {'apikey': self.mcapikey}

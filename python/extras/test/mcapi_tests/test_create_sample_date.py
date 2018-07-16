@@ -35,7 +35,7 @@ class TestCreateSampleDate(unittest.TestCase):
         self.assertIsNotNone(self.experiment.id)
         self.assertEqual(self.experiment_id, self.experiment.id)
 
-    def test_set_date_from_raw_data(self):
+    def test_set_data_from_raw_data(self):
 
         process = self.experiment.create_process_from_template(Template.create)
         process.rename("Testing01")
@@ -73,7 +73,7 @@ class TestCreateSampleDate(unittest.TestCase):
                   "/experiments/" + self.experiment_id + \
                   "/processes/" + process.id
 
-        results = api.put(api.use_remote().make_url_v2(api_url), payload)
+        results = api.put(api.use_remote().make_url_v2(api_url), payload, api.use_remote())
 
         self.assertEqual(results['otype'], 'process')
         self.assertEqual(results['setup'][0]['properties'][2]['value'], value)
