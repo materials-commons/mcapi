@@ -8,17 +8,17 @@ class TestConfig(unittest.TestCase):
     def test_default_config(self):
         config = Config()
         self.assertIsNotNone(config)
-        self.assertIsNotNone(config.params)
-        self.assertIsNotNone(config.params['apikey'])
+        self.assertIsNotNone(config.get_params())
+        self.assertIsNotNone(config.get_params()['apikey'])
         self.assertIsNotNone(config.mcurl)
 
     def test_path_settings(self):
         config = Config(config_file_path=self.make_test_dir_path(), config_file_name="config.json")
         self.assertIsNotNone(config)
-        self.assertIsNotNone(config.params)
-        self.assertIsNotNone(config.params['apikey'])
+        self.assertIsNotNone(config.get_params())
+        self.assertIsNotNone(config.get_params()['apikey'])
         self.assertIsNotNone(config.mcurl)
-        self.assertEqual(config.params['apikey'], "12345678901234567890123456789012")
+        self.assertEqual(config.get_params()['apikey'], "12345678901234567890123456789012")
         self.assertEqual(config.mcurl, "http://not.mcdev.localhost/api")
 
     def make_test_dir_path(self):
