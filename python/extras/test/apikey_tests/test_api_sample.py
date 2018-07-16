@@ -33,3 +33,8 @@ class TestApiSampleRaw(unittest.TestCase):
         pass
 
 # def delete_sample_created_by_process(project_id, process_id, sample_id, property_set_id, remote=None):
+# def get_sample_by_id(project_id, sample_id, remote=None):
+# def create_samples_in_project(project_id, process_id, sample_names, remote=None):
+# def add_samples_to_experiment(project_id, experiment_id, sample_id_list, remote=None):
+# def fetch_sample_details(project_id, sample_id, remote=None):
+
