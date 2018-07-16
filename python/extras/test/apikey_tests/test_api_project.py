@@ -95,21 +95,21 @@ class TestApiProjectRaw(unittest.TestCase):
         self.assertEqual(self.user, raw_data['owner'])
         project_id = raw_data['id']
 
-        value = api.users_with_access_to_project(project_id, remote=None, apikey=self.apikey)
+        value = api.users_with_access_to_project(project_id, apikey=self.apikey)
         user_list_raw = value['val']
         self.assertEqual(1, len(user_list_raw))
         self.assertEqual(self.user, user_list_raw[0]['user_id'])
 
-        value = api.add_user_access_to_project(project_id, self.access_user, remote=None, apikey=self.apikey)
+        value = api.add_user_access_to_project(project_id, self.access_user, apikey=self.apikey)
         added_user = value['val']
         self.assertEqual(self.access_user, added_user)
-        value = api.users_with_access_to_project(project_id, remote=None, apikey=self.apikey)
+        value = api.users_with_access_to_project(project_id, apikey=self.apikey)
         user_list_raw = value['val']
         self.assertEqual(2, len(user_list_raw))
 
-        value = api.remove_user_access_to_project(project_id, self.access_user, remote=None, apikey=self.apikey)
+        value = api.remove_user_access_to_project(project_id, self.access_user, apikey=self.apikey)
         removed_user = value['val']
         self.assertEqual(self.access_user, removed_user)
-        value = api.users_with_access_to_project(project_id, remote=None, apikey=self.apikey)
+        value = api.users_with_access_to_project(project_id, apikey=self.apikey)
         user_list_raw = value['val']
         self.assertEqual(1, len(user_list_raw))
