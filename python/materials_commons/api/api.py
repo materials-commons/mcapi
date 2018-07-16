@@ -153,9 +153,8 @@ def update_project(project_id, name, description, remote=None, apikey=None):
     return put(remote.make_url_v2("projects/" + project_id), data, remote)
 
 
-def get_project_sample_by_id(project_id, sample_id, remote=None):
-    if not remote:
-        remote = use_remote()
+def get_project_sample_by_id(project_id, sample_id, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     api_url = "projects/" + project_id + "/samples/" + sample_id
     return get(remote.make_url_v2(api_url), remote)
 
@@ -172,9 +171,8 @@ def get_project_processes(project_id, remote=None, apikey=None):
     return get(remote.make_url_v2(api_url), remote)
 
 
-def get_project_samples(project_id, remote=None):
-    if not remote:
-        remote = use_remote()
+def get_project_samples(project_id, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     api_url = "/projects/" + project_id + "/samples"
     return get(remote.make_url_v2(api_url), remote)
 
@@ -231,9 +229,8 @@ def fetch_experiments(project_id, remote=None, apikey=None):
     return get(remote.make_url_v2("projects/" + project_id + "/experiments"), remote)
 
 
-def fetch_experiment_samples(project_id, experiment_id, remote=None):
-    if not remote:
-        remote = use_remote()
+def fetch_experiment_samples(project_id, experiment_id, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     api_url = "projects/" + project_id + "/experiments/" + experiment_id + "/samples"
     return get(remote.make_url_v2(api_url), remote)
 
@@ -314,9 +311,8 @@ def get_experiment_process_by_id(project_id, experiment_id, process_id, remote=N
     return get(remote.make_url_v2(api_url), remote)
 
 
-def delete_sample_created_by_process(project_id, process_id, sample_id, property_set_id, remote=None):
-    if not remote:
-        remote = use_remote()
+def delete_sample_created_by_process(project_id, process_id, sample_id, property_set_id, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     command_list = [{
         "command": "delete",
         "id": sample_id,
@@ -341,17 +337,15 @@ def get_all_files_for_process(project_id, experiment_id, process_id, remote=None
 
 # Sample
 
-def get_sample_by_id(project_id, sample_id, remote=None):
-    if not remote:
-        remote = use_remote()
+def get_sample_by_id(project_id, sample_id, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     api_url = "projects/" + project_id \
               + "/samples/" + sample_id
     return get(remote.make_url_v2(api_url), remote)
 
 
-def create_samples_in_project(project_id, process_id, sample_names, remote=None):
-    if not remote:
-        remote = use_remote()
+def create_samples_in_project(project_id, process_id, sample_names, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     sample_names_data = [{"name": name} for name in sample_names]
     data = {
         "process_id": process_id,
@@ -361,9 +355,8 @@ def create_samples_in_project(project_id, process_id, sample_names, remote=None)
     return post(remote.make_url_v2(api_url), data, remote)
 
 
-def add_samples_to_experiment(project_id, experiment_id, sample_id_list, remote=None):
-    if not remote:
-        remote = use_remote()
+def add_samples_to_experiment(project_id, experiment_id, sample_id_list, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     data = {
         "samples": sample_id_list
     }
@@ -387,9 +380,8 @@ def link_files_to_sample(project_id, sample_id, file_id_list, remote=None):
     return put(remote.make_url_v2(api_url), data, remote)
 
 
-def fetch_sample_details(project_id, sample_id, remote=None):
-    if not remote:
-        remote = use_remote()
+def fetch_sample_details(project_id, sample_id, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     api_url = "projects/" + project_id + "/samples/" + sample_id
     return get(remote.make_url_v2(api_url), remote)
 
