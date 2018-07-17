@@ -8,7 +8,7 @@ def fake_name(prefix):
     return prefix + number
 
 
-class TestApiProjectRaw(unittest.TestCase):
+class TestApiFileBasicRaw(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):

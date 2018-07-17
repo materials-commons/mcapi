@@ -587,9 +587,8 @@ def directory_create_subdirectories_from_path_list(project_id, directory_id, pat
 
 # file
 
-def file_upload(project_id, directory_id, file_name, input_path, remote=None):
-    if not remote:
-        remote = use_remote()
+def file_upload(project_id, directory_id, file_name, input_path, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     with open(input_path, 'rb') as f:
         api_url = "projects/" + project_id + "/directories/" + directory_id + "/fileupload"
         mime_type = magic.Magic(mime=True).from_file(input_path)
@@ -601,9 +600,8 @@ def file_upload(project_id, directory_id, file_name, input_path, remote=None):
         r.raise_for_status()
 
 
-def file_download(project_id, file_id, output_file_path, remote=None):
-    if not remote:
-        remote = use_remote()
+def file_download(project_id, file_id, output_file_path, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     with open(output_file_path, 'wb') as f:
         api_url = "projects/" + project_id + "/files/" + file_id + "/download"
         restpath = remote.make_url_v2(api_url)
