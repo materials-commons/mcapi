@@ -476,9 +476,8 @@ def update_additional_properties_in_process(project_id, experiment_id, process_i
 
 # experiment etl metadata
 
-def create_experiment_metadata(experiment_id, json, remote=None):
-    if not remote:
-        remote = use_remote()
+def create_experiment_metadata(experiment_id, json, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     data = {
         'json': json
     }
@@ -486,24 +485,21 @@ def create_experiment_metadata(experiment_id, json, remote=None):
     return put(remote.make_url_v2(api_url), data, remote)
 
 
-def get_experiment_metadata(metadata_id, remote=None):
-    if not remote:
-        remote = use_remote()
+def get_experiment_metadata(metadata_id, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     api_url = "etl/metadata/" + metadata_id
     return get(remote.make_url_v2(api_url), remote)
 
 
-def get_experiment_metadata_by_experiment_id(experiment_id, remote=None):
-    if not remote:
-        remote = use_remote()
+def get_experiment_metadata_by_experiment_id(experiment_id, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     api_url = "etl/experiment/" + experiment_id + \
               "/metadata"
     return get(remote.make_url_v2(api_url), remote)
 
 
-def update_experiment_metadata(metadata_id, json, remote=None):
-    if not remote:
-        remote = use_remote()
+def update_experiment_metadata(metadata_id, json, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     data = {
         'json': json
     }
@@ -511,9 +507,8 @@ def update_experiment_metadata(metadata_id, json, remote=None):
     return post(remote.make_url_v2(api_url), data, remote)
 
 
-def delete_experiment_metadata(metadata_id, remote=None):
-    if not remote:
-        remote = use_remote()
+def delete_experiment_metadata(metadata_id, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     api_url = "etl/metadata/" + metadata_id
     # throws on error
     delete_expect_empty(remote.make_url_v2(api_url), remote)
@@ -538,17 +533,15 @@ def get_all_users(remote=None):
 
 
 # directory
-def directory_by_id(project_id, directory_id, remote=None):
-    if not remote:
-        remote = use_remote()
+def directory_by_id(project_id, directory_id, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     api_url = "projects/" + project_id + \
               "/directories/" + directory_id
     return get(remote.make_url_v2(api_url), remote)
 
 
-def create_fetch_all_directories_on_path(project_id, directory_id, path, remote=None):
-    if not remote:
-        remote = use_remote()
+def create_fetch_all_directories_on_path(project_id, directory_id, path, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     data = {
         "from_dir": directory_id,
         "path": path
@@ -558,9 +551,8 @@ def create_fetch_all_directories_on_path(project_id, directory_id, path, remote=
     return post(remote.make_url_v2(api_url), data, remote)
 
 
-def directory_rename(project_id, directory_id, new_name, remote=None):
-    if not remote:
-        remote = use_remote()
+def directory_rename(project_id, directory_id, new_name, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     data = {
         'rename': {
             'new_name': new_name
@@ -571,9 +563,8 @@ def directory_rename(project_id, directory_id, new_name, remote=None):
     return put(remote.make_url_v2(api_url), data, remote)
 
 
-def directory_move(project_id, directory_id, new_directory_id, remote=None):
-    if not remote:
-        remote = use_remote()
+def directory_move(project_id, directory_id, new_directory_id, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     data = {
         'move': {
             'new_directory_id': new_directory_id
@@ -584,9 +575,8 @@ def directory_move(project_id, directory_id, new_directory_id, remote=None):
     return put(remote.make_url_v2(api_url), data, remote)
 
 
-def directory_create_subdirectories_from_path_list(project_id, directory_id, path_list, remote=None):
-    if not remote:
-        remote = use_remote()
+def directory_create_subdirectories_from_path_list(project_id, directory_id, path_list, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     data = {
         'paths': path_list
     }

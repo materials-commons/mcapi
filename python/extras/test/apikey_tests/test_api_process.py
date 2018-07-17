@@ -1,5 +1,4 @@
 import unittest
-import pytest
 from random import randint
 from materials_commons.api import api
 from materials_commons.api import Template
