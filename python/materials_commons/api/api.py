@@ -657,9 +657,8 @@ def file_move(project_id, old_directory_id, new_directory_id, file_id, remote=No
 
 
 # for testing only - datasets
-def create_dataset(project_id, experiment_id, title, description, remote=None):
-    if not remote:
-        remote = use_remote()
+def create_dataset(project_id, experiment_id, title, description, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     data = {
         'title': title,
         'description': description
@@ -670,9 +669,8 @@ def create_dataset(project_id, experiment_id, title, description, remote=None):
     return post(remote.make_url_v2(api_url), data, remote)
 
 
-def publish_dataset(project_id, experiment_id, dataset_id, remote=None):
-    if not remote:
-        remote = use_remote()
+def publish_dataset(project_id, experiment_id, dataset_id, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     data = {}
     api_url = "projects/" + project_id + \
               "/experiments/" + experiment_id + \
@@ -681,10 +679,9 @@ def publish_dataset(project_id, experiment_id, dataset_id, remote=None):
     return put(remote.make_url_v2(api_url), data, remote)
 
 
-def add_process_to_dataset(project_id,
-                           experiment_id, dataset_id, process_id, remote=None):
-    if not remote:
-        remote = use_remote()
+def add_process_to_dataset(
+        project_id, experiment_id, dataset_id, process_id, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     data = {
         'processes': [{
             'command': 'add',
@@ -699,9 +696,8 @@ def add_process_to_dataset(project_id,
 
 
 # for testing only - comments
-def add_comment(item_type, item_id, text, remote=None):
-    if not remote:
-        remote = use_remote()
+def add_comment(item_type, item_id, text, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     data = {
         'item_type': item_type,
         'item_id': item_id,
@@ -712,9 +708,8 @@ def add_comment(item_type, item_id, text, remote=None):
     return post(remote.make_url_v2(api_url), data, remote)
 
 
-def update_comment(comment_id, updated_text, remote=None):
-    if not remote:
-        remote = use_remote()
+def update_comment(comment_id, updated_text, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     data = {
         'text': updated_text
     }
@@ -722,18 +717,16 @@ def update_comment(comment_id, updated_text, remote=None):
     return put(remote.make_url_v2(api_url), data, remote)
 
 
-def delete_comment(comment_id, remote=None):
-    if not remote:
-        remote = use_remote()
+def delete_comment(comment_id, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     api_url = "comments/" + comment_id
     return delete(remote.make_url_v2(api_url), remote)
 
 
 # for testing only - doi
 def check_statue_of_doi_server(project_id,
-                               experiment_id, dataset_id, remote=None):
-    if not remote:
-        remote = use_remote()
+                               experiment_id, dataset_id, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     api_url = "projects/" + project_id + \
               "/experiments/" + experiment_id + \
               "/datasets/" + dataset_id + \
@@ -742,9 +735,8 @@ def check_statue_of_doi_server(project_id,
 
 
 def create_doi(project_id, experiment_id, dataset_id, title,
-               description, author, year, remote=None):
-    if not remote:
-        remote = use_remote()
+               description, author, year, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     data = {
         'title': title,
         'description': description,
@@ -758,9 +750,8 @@ def create_doi(project_id, experiment_id, dataset_id, title,
     return post(remote.make_url_v2(api_url), data, remote)
 
 
-def get_doi_metadata(project_id, experiment_id, dataset_id, remote=None):
-    if not remote:
-        remote = use_remote()
+def get_doi_metadata(project_id, experiment_id, dataset_id, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     api_url = "projects/" + project_id + \
               "/experiments/" + experiment_id + \
               "/datasets/" + dataset_id + \
@@ -768,9 +759,8 @@ def get_doi_metadata(project_id, experiment_id, dataset_id, remote=None):
     return get(remote.make_url_v2(api_url), remote)
 
 
-def get_doi_link(project_id, experiment_id, dataset_id, remote=None):
-    if not remote:
-        remote = use_remote()
+def get_doi_link(project_id, experiment_id, dataset_id, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     api_url = "projects/" + project_id + \
               "/experiments/" + experiment_id + \
               "/datasets/" + dataset_id + \
@@ -778,17 +768,15 @@ def get_doi_link(project_id, experiment_id, dataset_id, remote=None):
     return get(remote.make_url_v2(api_url), remote)
 
 
-def _create_new_template(template_data, remote=None):
-    if not remote:
-        remote = use_remote()
+def _create_new_template(template_data, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     api_url = "templates/"
     data = template_data
     return post(remote.make_url_v2(api_url), data, remote)
 
 
-def _update_template(template_id, template_data, remote=None):
-    if not remote:
-        remote = use_remote()
+def _update_template(template_id, template_data, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     api_url = "templates/" + template_id
     data = template_data
     return put(remote.make_url_v2(api_url), data, remote)
