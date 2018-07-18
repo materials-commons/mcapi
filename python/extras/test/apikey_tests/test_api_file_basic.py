@@ -65,5 +65,3 @@ class TestApiFileBasicRaw(unittest.TestCase):
         self.assertEqual(self.file_name, dir_file_raw['name'])
         self.assertEqual(self.file_id, dir_file_raw['id'])
         self.assertEqual(key + "/" + self.file_name, dir_file_raw['path'])
-
-

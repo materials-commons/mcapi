@@ -147,6 +147,3 @@ class TestApiProcessRaw(unittest.TestCase):
         self.assertEqual(process_id, process_raw['id'])
         self.assertEqual(test_value, process_raw['description'])
 
-
-
-

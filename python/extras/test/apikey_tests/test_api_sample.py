@@ -173,5 +173,7 @@ class TestApiSampleRaw(unittest.TestCase):
                 found = sample
         self.assertIsNone(found)
 
-
+    def test_add_samples_to_process_raw(self):
+        # def add_samples_to_process(project_id, experiment_id, process, samples, remote=None):
+        self.assertTrue(False)
 
