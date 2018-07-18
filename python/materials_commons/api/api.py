@@ -516,17 +516,15 @@ def delete_experiment_metadata(metadata_id, remote=None, apikey=None):
 
 # templates
 
-def get_all_templates(remote=None):
-    if not remote:
-        remote = use_remote()
+def get_all_templates(remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     api_url = "templates"
     return get(remote.make_url_v2(api_url), remote)
 
 
 # users
-def get_all_users(remote=None):
-    if not remote:
-        remote = use_remote()
+def get_all_users(remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     api_url = "users"
     return get(remote.make_url_v2(api_url), remote)
 
