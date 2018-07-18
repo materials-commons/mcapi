@@ -843,7 +843,9 @@ class Process(MCObject):
         project = self.project
         experiment = self.experiment
         process = self
-        results = api.add_files_to_process(project.id, experiment.id, process, file_list)
+        file_ids = [file.id for file in file_list]
+        results = api.add_files_to_process(
+            project.id, experiment.id, process.id, process.template_id, file_ids)
         process = make_object(results)
         process.project = project
         process.experiment = experiment

@@ -616,18 +616,18 @@ def file_download(project_id, file_id, output_file_path, remote=None, apikey=Non
     return output_file_path
 
 
-def add_files_to_process(project_id, experiment_id, process, files, remote=None):
+def add_files_to_process(project_id, experiment_id, process_id, template_id, file_ids, remote=None):
     if not remote:
         remote = use_remote()
-    file_id_list = [{'command': 'add', 'id': f.id} for f in files]
+    file_id_list = [{'command': 'add', 'id': id} for id in file_ids]
     data = {
-        "template_id": process.template_id,
-        "process_id": process.id,
+        "template_id": template_id,
+        "process_id": process_id,
         "files": file_id_list
     }
     api_url = "projects/" + project_id + \
               "/experiments/" + experiment_id + \
-              "/processes/" + process.id
+              "/processes/" + process_id
     return put(remote.make_url_v2(api_url), data, remote)
 
 
