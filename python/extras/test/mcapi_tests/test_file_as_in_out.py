@@ -41,7 +41,7 @@ class TestFileAsInOut(unittest.TestCase):
         cls.samples2 = cls.process_create2.create_samples(sample_names=[cls.sample_name2])
         cls.sample2 = cls.samples2[0]
 
-        cls.helper = TestFileProcessSampleHelper()
+        cls.helper = FileProcessSampleHelperForInOut()
         cls.filepath = cls.helper.filepath
         cls.top_directory = project.get_top_directory()
 
@@ -110,7 +110,7 @@ class TestFileAsInOut(unittest.TestCase):
         self.process_measure.pretty_print()
 
 
-class TestFileProcessSampleHelper:
+class FileProcessSampleHelperForInOut:
     def __init__(self):
         filename = 'fractal.jpg'
         self.test_path = os_path.abspath(environ['TEST_DATA_DIR'])
