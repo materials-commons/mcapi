@@ -33,3 +33,8 @@ def _make_test_dir_path(file_name):
 def _get_file_size(file_path):
     byte_count = getsize(file_path)
     return byte_count
+
+
+class FileTestException(BaseException):
+    def __init__(self, *args):
+        super.__init__(BaseException, *args)

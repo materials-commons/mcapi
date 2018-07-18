@@ -631,9 +631,8 @@ def add_files_to_process(project_id, experiment_id, process, files, remote=None)
     return put(remote.make_url_v2(api_url), data, remote)
 
 
-def file_rename(project_id, file_id, new_file_name, remote=None):
-    if not remote:
-        remote = use_remote()
+def file_rename(project_id, file_id, new_file_name, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     data = {
         "name": new_file_name
     }
@@ -642,9 +641,8 @@ def file_rename(project_id, file_id, new_file_name, remote=None):
     return put(remote.make_url_v2(api_url), data, remote)
 
 
-def file_move(project_id, old_directory_id, new_directory_id, file_id, remote=None):
-    if not remote:
-        remote = use_remote()
+def file_move(project_id, old_directory_id, new_directory_id, file_id, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     data = {
         'move': {
             'old_directory_id': old_directory_id,

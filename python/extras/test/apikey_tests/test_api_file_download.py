@@ -7,6 +7,7 @@ from os.path import exists, isfile
 from random import randint
 from materials_commons.api import api
 from .base_utils_for_file_tests import _upload_generic_test_file, _original_generic_test_file_path
+from .base_utils_for_file_tests import FileTestException
 
 
 def fake_name(prefix):
@@ -29,7 +30,7 @@ class TestApiFileDownloadRaw(unittest.TestCase):
             cls.file_id = file_record_raw['id']
             cls.file_name = file_record_raw['name']
             cls.original_file_path = _original_generic_test_file_path()
-        except BaseException:
+        except FileTestException:
             pytest.fail("Unexpected, exception", pytrace=True)
 
     def test_file_download_raw(self):
