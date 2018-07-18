@@ -427,9 +427,8 @@ def set_measurement_for_process_samples(
 
 # update process setup values
 
-def update_process_setup_properties(project_id, experiment_id, process, properties, remote=None):
-    if not remote:
-        remote = use_remote()
+def update_process_setup_properties(project_id, experiment_id, process, properties, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     properties_data = []
     for prop in properties:
         properties_data.append(update_process_setup_properties_make_data(prop))
@@ -459,9 +458,8 @@ def update_process_setup_properties_make_data(setup_property):
     return data
 
 
-def update_additional_properties_in_process(project_id, experiment_id, process_id, properties, remote=None):
-    if not remote:
-        remote = use_remote()
+def update_additional_properties_in_process(project_id, experiment_id, process_id, properties, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     data = {
         'properties': properties
     }

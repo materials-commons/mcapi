@@ -2,8 +2,10 @@ import unittest
 import pytest
 from random import randint
 
-from materials_commons.api import api, Template
-
+from materials_commons.api import api
+from materials_commons.api.Template import Template
+from materials_commons.api.Process import Process
+from materials_commons.api.make_objects import make_object
 
 def fake_name(prefix):
     number = "%05d" % randint(0, 99999)
@@ -44,7 +46,6 @@ class TestProcessPropMeasRaw(unittest.TestCase):
             cls.project_id, cls.experiment_id, cls.create_process_id,
             cls.template_id, cls.pair_list, apikey=cls.apikey)
 
-    @pytest.mark.skip("set aside")
     def test_set_measurement_for_process_samples_raw(self):
 
         measurement_property = {
@@ -84,10 +85,41 @@ class TestProcessPropMeasRaw(unittest.TestCase):
         self.assertEqual(self.create_process_id, measurement['process_id'])
 
     def test_update_process_setup_properties_raw(self):
-        process = None
-        properties = None
-        results = api.update_process_setup_properties(
+        process_record_raw = api.get_process_by_id(self.project_id, self.create_process_id, apikey=self.apikey)
+        process = make_object(process_record_raw)
+        table = process.get_setup_properties_as_dictionary()
+        self.assertTrue('manufacturer' in table)
+        process_property = table['manufacturer']
+        self.assertIsNotNone(process_property)
+        test_value = "This is a test"
+        process_property.value = test_value
+        properties = [process_property]
+        process_record_raw = api.update_process_setup_properties(
             self.project_id, self.experiment_id, process, properties, apikey=self.apikey)
+        process = make_object(process_record_raw)
+        table = process.get_setup_properties_as_dictionary()
+        process_property = table['manufacturer']
+        self.assertEqual(test_value, process_property.value)
 
-
-# api.update_additional_properties_in_process(project_id, experiment_id, process_id, properties, apikey=self.apikey)
+    def test_update_additional_properties_in_process_raw(self):
+        test_property = {
+            "name": "test",
+            "attribute": 'test',
+            "otype": "string",
+            "value": "This is a test"
+        }
+        properties = [test_property]
+        api.update_additional_properties_in_process(
+            self.project_id, self.experiment_id, self.create_process_id, properties, apikey = self.apikey)
+        process_record_raw = api.get_process_by_id(self.project_id, self.create_process_id, apikey=self.apikey)
+        print("")
+        found = None
+        for setup in process_record_raw['setup']:
+            if setup['attribute'] == 'process':
+                found = setup
+        self.assertIsNotNone(found)
+        properties = found['properties']
+        self.assertEqual(1, len(properties))
+        property = properties[0]
+        for key in test_property:
+            self.assertEqual(test_property[key], property[key])
