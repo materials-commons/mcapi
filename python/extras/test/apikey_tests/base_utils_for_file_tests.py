@@ -36,5 +36,5 @@ def _get_file_size(file_path):
 
 
 class FileTestException(BaseException):
-    def __init__(self, *args):
-        super.__init__(BaseException, *args)
+    def __init__(self, *args, **kwargs):
+        super.__init__(BaseException, *args, **kwargs)
