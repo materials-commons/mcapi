@@ -174,6 +174,11 @@ class TestApiSampleRaw(unittest.TestCase):
         self.assertIsNone(found)
 
     def test_add_samples_to_process_raw(self):
-        # def add_samples_to_process(project_id, experiment_id, process, samples, remote=None):
-        self.assertTrue(False)
+        results = api.get_project_samples(self.project_id, apikey=self.apikey)
+        sample_list = results[0]['versions']
+        pair_list = [{'sample_id': s['sample_id'], 'property_set_id': s['property_set_id']} for s in sample_list]
+        results = api.add_samples_to_process(
+            self.project_id, self.experiment_id, self.create_process_id,
+            self.template_id, pair_list, apikey=self.apikey)
+
 

@@ -387,9 +387,8 @@ def fetch_sample_details(project_id, sample_id, remote=None, apikey=None):
 # Create sample process
 
 def add_samples_to_process(
-        project_id, experiment_id, process_id, template_id, sample_id_prop_id_list, remote=None):
-    if not remote:
-        remote = use_remote()
+        project_id, experiment_id, process_id, template_id, sample_id_prop_id_list, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     samples_data = [
         {'command': 'add', 'id': s['sample_id'], 'property_set_id': s['property_set_id']}
         for s in sample_id_prop_id_list]
