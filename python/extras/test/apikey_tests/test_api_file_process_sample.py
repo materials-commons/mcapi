@@ -31,6 +31,15 @@ class TestApiFileProcessSampleRaw(unittest.TestCase):
         process_record_raw = api.create_process_from_template(
             cls.project_id, cls.experiment_id, cls.template_id, apikey=cls.apikey)
         cls.process_id = process_record_raw['id']
+        cls.sample_name = "TestSample1"
+        results = api.create_samples_in_project(
+            cls.project_id, cls.process_id, [cls.sample_name], apikey=cls.apikey)
+        sample_list_raw = results['samples']
+        sample_raw = sample_list_raw[0]
+        cls.sample_id = sample_raw['id']
+        api.add_samples_to_experiment(
+            cls.project_id, cls.experiment_id, [sample_raw['id']], apikey=cls.apikey)
+
         try:
             file_record_raw = _upload_generic_test_file(cls.project_id, cls.apikey)
             cls.file_id = file_record_raw['id']
@@ -39,16 +48,30 @@ class TestApiFileProcessSampleRaw(unittest.TestCase):
             pytest.fail("Unexpected, exception", pytrace=True)
 
     def test_add_files_to_process_raw(self):
-        stub_process = {'id': self.process_id, }
-        results = api.add_files_to_process(
-            self.project_id, self.experiment_id, stub_process, [self.file_id], apikey=self.apikey)
-        print("--")
-        print(results)
-
-    def test_get_all_files_for_process_raw(self):
-        # def get_all_files_for_process(project_id, experiment_id, process_id, remote=None):
-        pass
+        process_record_raw = api.add_files_to_process(
+            self.project_id, self.experiment_id, self.process_id, self.template_id,
+            [self.file_id], apikey=self.apikey)
+        self.assertEqual("process", process_record_raw['otype'])
+        self.assertEqual(self.user, process_record_raw['owner'])
+        process_file_list_raw = api.get_all_files_for_process(
+            self.project_id, self.experiment_id, self.process_id, apikey=self.apikey)
+        self.assertEqual(1, len(process_file_list_raw))
+        process_file_raw = process_file_list_raw[0]
+        self.assertEqual('datafile', process_file_raw['otype'])
+        self.assertEqual(self.file_name, process_file_raw['name'])
+        self.assertEqual(self.user, process_file_raw['owner'])
+        self.assertEqual(self.process_id, process_file_raw['process_id'])
+        self.assertEqual(self.file_id, process_file_raw['id'])
 
     def test_link_files_to_sample_raw(self):
-        # def link_files_to_sample(project_id, sample_id, file_id_list, remote=None):
-        pass
+        flag = api.link_files_to_sample(
+            self.project_id, self.sample_id, [self.file_id], apikey=self.apikey)
+        self.assertTrue(flag)
+        sample_record_raw = api.get_project_sample_by_id(self.project_id, self.sample_id, apikey=self.apikey)
+        self.assertEqual(1, len(sample_record_raw['files']))
+        sample_file_raw = sample_record_raw['files'][0]
+        self.assertEqual('datafile', sample_file_raw['otype'])
+        self.assertEqual(self.file_name, sample_file_raw['name'])
+        self.assertEqual(self.user, sample_file_raw['owner'])
+        self.assertEqual(self.sample_id, sample_file_raw['sample_id'])
+        self.assertEqual(self.file_id, sample_file_raw['id'])

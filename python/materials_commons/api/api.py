@@ -325,9 +325,8 @@ def delete_sample_created_by_process(project_id, process_id, sample_id, property
     return put(remote.make_url_v2(api_url), data, remote)
 
 
-def get_all_files_for_process(project_id, experiment_id, process_id, remote=None):
-    if not remote:
-        remote = use_remote()
+def get_all_files_for_process(project_id, experiment_id, process_id, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     api_url = "projects/" + project_id \
               + "/experiments/" + experiment_id \
               + "/processes/" + process_id \
@@ -364,9 +363,8 @@ def add_samples_to_experiment(project_id, experiment_id, sample_id_list, remote=
     return post(remote.make_url_v2(api_url), data, remote)
 
 
-def link_files_to_sample(project_id, sample_id, file_id_list, remote=None):
-    if not remote:
-        remote = use_remote()
+def link_files_to_sample(project_id, sample_id, file_id_list, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     command_list = []
     for file_id in file_id_list:
         command_list.append({
@@ -616,9 +614,9 @@ def file_download(project_id, file_id, output_file_path, remote=None, apikey=Non
     return output_file_path
 
 
-def add_files_to_process(project_id, experiment_id, process_id, template_id, file_ids, remote=None):
-    if not remote:
-        remote = use_remote()
+def add_files_to_process(
+        project_id, experiment_id, process_id, template_id, file_ids, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     file_id_list = [{'command': 'add', 'id': id} for id in file_ids]
     data = {
         "template_id": template_id,
