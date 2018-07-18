@@ -823,7 +823,9 @@ class Process(MCObject):
         project = self.project
         experiment = self.experiment
         process = self
-        results = api.add_samples_to_process(project.id, experiment.id, process, samples)
+        arg_pair_list = [{'sample_id': s.id, 'property_set_id': s.property_set_id} for s in samples]
+        results = api.add_samples_to_process(
+            project.id, experiment.id, process.id, process.template_id, arg_pair_list)
         new_process = make_object(results)
         for sample in new_process.input_samples:
             sample.experiment = experiment

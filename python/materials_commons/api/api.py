@@ -386,20 +386,21 @@ def fetch_sample_details(project_id, sample_id, remote=None, apikey=None):
 
 # Create sample process
 
-def add_samples_to_process(project_id, experiment_id, process, samples, remote=None):
+def add_samples_to_process(
+        project_id, experiment_id, process_id, template_id, sample_id_prop_id_list, remote=None):
     if not remote:
         remote = use_remote()
     samples_data = [
-        {'command': 'add', 'id': s.id, 'property_set_id': s.property_set_id}
-        for s in samples]
+        {'command': 'add', 'id': s['sample_id'], 'property_set_id': s['property_set_id']}
+        for s in sample_id_prop_id_list]
     data = {
-        "template_id": process.template_id,
-        "process_id": process.id,
+        "template_id": template_id,
+        "process_id": process_id,
         "samples": samples_data
     }
     api_url = "projects/" + project_id + \
               "/experiments/" + experiment_id + \
-              "/processes/" + process.id
+              "/processes/" + process_id
     return put(remote.make_url_v2(api_url), data, remote)
 
 
