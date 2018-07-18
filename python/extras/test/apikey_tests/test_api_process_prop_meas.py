@@ -1,5 +1,7 @@
 import unittest
+import pytest
 from random import randint
+
 from materials_commons.api import api, Template
 
 
@@ -26,78 +28,66 @@ class TestProcessPropMeasRaw(unittest.TestCase):
         cls.template_id = Template.create
         process_record_raw = api.create_process_from_template(
             cls.project_id, cls.experiment_id, cls.template_id, apikey=cls.apikey)
-        cls.process_id = process_record_raw['id']
+        cls.create_process_id = process_record_raw['id']
         cls.sample_name = "TestSample1"
         results = api.create_samples_in_project(
-            cls.project_id, cls.process_id, [cls.sample_name], apikey=cls.apikey)
+            cls.project_id, cls.create_process_id, [cls.sample_name], apikey=cls.apikey)
         sample_list_raw = results['samples']
         sample_raw = sample_list_raw[0]
         cls.sample_id = sample_raw['id']
         api.add_samples_to_experiment(
             cls.project_id, cls.experiment_id, [sample_raw['id']], apikey=cls.apikey)
+        results = api.get_project_samples(cls.project_id, apikey=cls.apikey)
+        sample_list = results[0]['versions']
+        cls.pair_list = [{'sample_id': s['sample_id'], 'property_set_id': s['property_set_id']} for s in sample_list]
+        api.add_samples_to_process(
+            cls.project_id, cls.experiment_id, cls.create_process_id,
+            cls.template_id, cls.pair_list, apikey=cls.apikey)
 
+    @pytest.mark.skip("set aside")
     def test_set_measurement_for_process_samples_raw(self):
+
         measurement_property = {
             "name": "Composition",
-        "attribute": "composition"
+            "attribute": "composition"
         }
 
-        self.assertTrue(False)
-# api.set_measurement_for_process_samples(project_id, experiment_id, process_id,
-#                                        samples, measurement_property, measurements, apikey=self.apikey)
-# api.update_process_setup_properties(project_id, experiment_id, process, properties, apikey=self.apikey)
+        measurement_data = {
+            "name": "Composition",
+            "attribute": "composition",
+            "otype": "composition",
+            "unit": "at%",
+            "value": [
+                {"element": "Al", "value": 94},
+                {"element": "Ca", "value": 1},
+                {"element": "Zr", "value": 5}],
+            "is_best_measure": True
+        }
+
+        measurements = [measurement_data]
+
+        samples_data = [
+            {'id': s['sample_id'], 'property_set_id': s['property_set_id']}
+            for s in self.pair_list]
+
+        flag = api.set_measurement_for_process_samples(
+            self.project_id, self.experiment_id, self.create_process_id, samples_data,
+            measurement_property, measurements, apikey=self.apikey)
+
+        self.assertTrue(flag)
+
+        process_record_raw = api.get_process_by_id(self.project_id, self.create_process_id, apikey=self.apikey)
+        self.assertEqual(self.user, process_record_raw['owner'])
+        self.assertEqual(1, len(process_record_raw['measurements']))
+        measurement = process_record_raw['measurements'][0]
+        self.assertEqual('composition', measurement['attribute'])
+        self.assertEqual(self.create_process_id, measurement['process_id'])
+
+    def test_update_process_setup_properties_raw(self):
+        process = None
+        properties = None
+        results = api.update_process_setup_properties(
+            self.project_id, self.experiment_id, process, properties, apikey=self.apikey)
+
+
 # api.update_additional_properties_in_process(project_id, experiment_id, process_id, properties, apikey=self.apikey)
-
-# >>> measurement_data = {
-# >>>     "name": "Composition",
-# >>>     "attribute": "composition",
-# >>>     "otype": "composition",
-# >>>     "unit": "at%",
-# >>>     "value": [
-# >>>         {"element": "Al", "value": 94},
-# >>>         {"element": "Ca", "value": 1},
-# >>>         {"element": "Zr", "value": 5}],
-# >>>     "is_best_measure": True
-# >>> }
-# >>> measurement = my_process.create_measurement(data=measurement_data)
-# >>>
-# >>> measurement_property = {
-# >>>     "name": "Composition",
-# >>>     "attribute": "composition"
-# >>> }
-# >>> my_process = my_process.set_measurements_for_process_samples(measurement_property, [measurement])
-#
-# self._set_measurement_for_process_samples(
-#     self.make_list_of_samples_for_measurement(self.get_all_samples()),
-#     measurement_property,
-#     measurements
-#
-# # Process - internal (private method)
-# def _set_measurement_for_process_samples(self, samples_with_property_set_ids, measurement_property, measurements):
-#     project_id = self.project.id
-#     experiment_id = self.experiment.id
-#     process_id = self.id
-#     samples_parameter = []
-#     for table in samples_with_property_set_ids:
-#         samples_parameter.append({
-#             'id': table['sample'].id,
-#             'property_set_id': table['property_set_id']
-#         })
-#     measurement_parameter = []
-#     for measurement in measurements:
-#         measurement_parameter.append({
-#             'name': measurement.name,
-#             'attribute': measurement.attribute,
-#             'otype': measurement.otype,
-#             'value': measurement.value,
-#             'unit': measurement.unit,
-#             'is_best_measure': measurement.is_best_measure
-#         })
-#     success_flag = api.set_measurement_for_process_samples(
-#         project_id, experiment_id, process_id,
-#         samples_parameter, measurement_property, measurement_parameter)
-#     if not success_flag:
-#         print("mcapi.mc._set_measurement_for_process_samples - unexpectedly failed")
-#         return None
-#     return self.experiment.get_process_by_id(process_id)
-

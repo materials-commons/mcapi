@@ -405,10 +405,10 @@ def add_samples_to_process(
 
 # add/update measurements on process samples
 
-def set_measurement_for_process_samples(project_id, experiment_id, process_id,
-                                        samples, measurement_property, measurements, remote=None):
-    if not remote:
-        remote = use_remote()
+def set_measurement_for_process_samples(
+        project_id, experiment_id, process_id,
+        samples, measurement_property, measurements, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
     request_properties = {
         'property': measurement_property,
         'add_as': 'separate',
