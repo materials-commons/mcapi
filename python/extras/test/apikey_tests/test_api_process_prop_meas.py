@@ -6,11 +6,10 @@ from materials_commons.api.api import configure_remote
 
 class TestProcessPropMeasRaw(unittest.TestCase):
 
-    def test__raw(self):
+    def test_set_measurement_for_process_samples_raw(self):
         self.assertTrue(False)
-
-# def set_measurement_for_process_samples(project_id, experiment_id, process_id,
-#                                        samples, measurement_property, measurements, remote=None):
-# def update_process_setup_properties(project_id, experiment_id, process, properties, remote=None):
-# def update_additional_properties_in_process(project_id, experiment_id, process_id, properties, remote=None):
+# api.set_measurement_for_process_samples(project_id, experiment_id, process_id,
+#                                        samples, measurement_property, measurements, apikey=self.apikey)
+# api.update_process_setup_properties(project_id, experiment_id, process, properties, apikey=self.apikey)
+# api.update_additional_properties_in_process(project_id, experiment_id, process_id, properties, apikey=self.apikey)
 
