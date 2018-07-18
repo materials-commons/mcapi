@@ -9,13 +9,14 @@ def fake_name(prefix):
     return prefix + number
 
 
-@pytest.mark.skip("Unimplemented - TestApiFileBasicRaw")
 class TestApiFileBasicRaw(unittest.TestCase):
 
+    @pytest.mark.skip("Unimplemented - TestApiFileBasicRaw - test_file_rename_raw")
     def test_file_rename_raw(self):
         # def file_rename(project_id, file_id, new_file_name, apikey=self.apikey)
         pass
 
+    @pytest.mark.skip("Unimplemented - TestApiFileBasicRaw - test_file_move_raw")
     def test_file_move_raw(self):
         # def file_move(project_id, old_directory_id, new_directory_id, file_id, apikey=self.apikey
         pass

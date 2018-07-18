@@ -8,12 +8,14 @@ from random import randint
 from materials_commons.api import api
 from .base_utils_for_file_tests import _upload_generic_test_file, _original_generic_test_file_path
 
+
 def fake_name(prefix):
     number = "%05d" % randint(0, 99999)
     return prefix + number
 
 
 class TestApiFileDownloadRaw(unittest.TestCase):
+
     @classmethod
     def setUpClass(cls):
         cls.user = "another@test.mc"
@@ -38,4 +40,3 @@ class TestApiFileDownloadRaw(unittest.TestCase):
         self.assertTrue(exists(path))
         self.assertTrue(isfile(path))
         self.assertTrue(filecmp.cmp(self.original_file_path, path))
-
