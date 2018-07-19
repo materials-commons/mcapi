@@ -18,7 +18,7 @@ class Project(MCObject):
 
     """
 
-    def __init__(self, name="", description="", remote_url="", data=None):
+    def __init__(self, name="", description="", remote_url="", data=None, apikey=None):
         # normally, from the data base
         self.id = ""  #: project id - string (from database)
         self.name = ""  #: project name - string (from database)
@@ -31,6 +31,7 @@ class Project(MCObject):
 
         # additional fields
         self._top = None
+        self._apikey = apikey
         self.source = remote_url  #: remote URL for this project - string (local only - not in database)
 
         if not data:
@@ -125,7 +126,7 @@ class Project(MCObject):
         """
         results = None
         try:
-            results = api.delete_project(self.id)
+            results = api.delete_project(self.id, apikey=self._apikey)
             results = results['project_id']
         except MCGenericException:
             print("Delete of project failed: ", self.name, "(" + self.id + ")")
@@ -148,7 +149,7 @@ class Project(MCObject):
         >>> experiment = project.create_experiment("Experiment 1", "Test Procedures")
 
         """
-        experiment_json_dict = api.create_experiment(self.id, name, description)
+        experiment_json_dict = api.create_experiment(self.id, name, description, apikey=self._apikey)
         experiment = make_object(experiment_json_dict)
         experiment.project = self
         return experiment
@@ -178,7 +179,7 @@ class Project(MCObject):
         >>>     print(experiment.id, experiment.name)
 
         """
-        list_results = api.fetch_experiments(self.id)
+        list_results = api.fetch_experiments(self.id, apikey=self._apikey)
         experiments = [make_object(o) for o in list_results]
         experiments = [_decorate_object_with(x, 'project', self) for x in experiments]
         return experiments
@@ -210,7 +211,7 @@ class Project(MCObject):
 
         """
 
-        results = api.directory_by_id(self.id, directory_id)
+        results = api.directory_by_id(self.id, directory_id, apikey=self._apikey)
         directory = make_object(results)
         directory._project = self
         directory.shallow = False
@@ -231,7 +232,7 @@ class Project(MCObject):
 
         """
 
-        results = api.directory_by_id(self.id, "all")
+        results = api.directory_by_id(self.id, "all", apikey=self._apikey)
         directories = []
         for item in results:
             item['otype'] = 'directory'
@@ -257,7 +258,7 @@ class Project(MCObject):
 
         """
         if not self._top:
-            results = api.directory_by_id(self.id, "top")
+            results = api.directory_by_id(self.id, "top", apikey=self._apikey)
             directory = make_object(results)
             directory._project = self
             self._set_top_directory(directory)
@@ -686,7 +687,7 @@ class Project(MCObject):
         >>> user_id_list = project.get_access_list()
 
         """
-        results = api.users_with_access_to_project(self.id)
+        results = api.users_with_access_to_project(self.id, apikey=self._apikey)
         user_list = []
         if results['val']:
             for record in results['val']:
@@ -701,7 +702,7 @@ class Project(MCObject):
         :param new_user: the user_id of the user to add
         :return: string - the user_id, if added; otherwise error message
         """
-        results = api.add_user_access_to_project(self.id, new_user)
+        results = api.add_user_access_to_project(self.id, new_user, apikey=self._apikey)
         if 'error' in results:
             return results['error']
         return results['val']
@@ -714,7 +715,7 @@ class Project(MCObject):
         :param user_to_remote: the user_id of the user to the user to remove
         :return: string - the user_id (in any case)
         """
-        results = api.remove_user_access_to_project(self.id, user_to_remote)
+        results = api.remove_user_access_to_project(self.id, user_to_remote, apikey=self._apikey)
         if 'error' in results:
             return results['error']
         return results['val']

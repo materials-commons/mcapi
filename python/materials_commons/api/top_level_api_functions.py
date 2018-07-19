@@ -38,7 +38,7 @@ def get_project_by_id(project_id, apikey=None):
 
     """
     results = api.get_project_by_id(project_id, apikey=apikey)
-    return Project(data=results)
+    return Project(data=results, apikey=apikey)
 
 
 def get_all_projects(apikey=None):
@@ -55,7 +55,7 @@ def get_all_projects(apikey=None):
     results = api.projects(apikey=apikey)
     projects = []
     for r in results:
-        projects.append(Project(data=r))
+        projects.append(Project(data=r, apikey=apikey))
     return projects
 
 
