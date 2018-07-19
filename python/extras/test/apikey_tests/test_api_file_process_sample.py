@@ -2,7 +2,7 @@ import unittest
 import pytest
 from random import randint
 from materials_commons.api import api
-from .base_utils_for_file_tests import _upload_generic_test_file, _original_generic_test_file_path
+from .base_utils_for_file_tests import _upload_generic_test_file
 from .base_utils_for_file_tests import FileTestException
 from materials_commons.api import Template
 

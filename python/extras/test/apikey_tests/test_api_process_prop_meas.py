@@ -1,11 +1,10 @@
 import unittest
-import pytest
 from random import randint
 
 from materials_commons.api import api
 from materials_commons.api.Template import Template
-from materials_commons.api.Process import Process
 from materials_commons.api.make_objects import make_object
+
 
 def fake_name(prefix):
     number = "%05d" % randint(0, 99999)
@@ -110,7 +109,7 @@ class TestProcessPropMeasRaw(unittest.TestCase):
         }
         properties = [test_property]
         api.update_additional_properties_in_process(
-            self.project_id, self.experiment_id, self.create_process_id, properties, apikey = self.apikey)
+            self.project_id, self.experiment_id, self.create_process_id, properties, apikey=self.apikey)
         process_record_raw = api.get_process_by_id(self.project_id, self.create_process_id, apikey=self.apikey)
         print("")
         found = None
@@ -120,6 +119,6 @@ class TestProcessPropMeasRaw(unittest.TestCase):
         self.assertIsNotNone(found)
         properties = found['properties']
         self.assertEqual(1, len(properties))
-        property = properties[0]
+        found_property = properties[0]
         for key in test_property:
-            self.assertEqual(test_property[key], property[key])
+            self.assertEqual(test_property[key], found_property[key])

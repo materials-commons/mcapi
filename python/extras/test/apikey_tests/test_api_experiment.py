@@ -50,7 +50,7 @@ class TestApiExperimentRaw(unittest.TestCase):
         experiment_raw = api.create_experiment(self.project_id, name, description, apikey=self.apikey)
         self.assertEqual(self.user, experiment_raw['owner'])
         experiment_list = api.fetch_experiments(self.project_id, apikey=self.apikey)
-        self.assertTrue(len(experiment_list)>0)
+        self.assertTrue(len(experiment_list) > 0)
         found = None
         for experiment in experiment_list:
             if experiment['id'] == experiment_raw['id']:
@@ -66,7 +66,7 @@ class TestApiExperimentRaw(unittest.TestCase):
         self.assertEqual(self.user, experiment_raw['owner'])
         experiment_id = experiment_raw['id']
         experiment_list = api.fetch_experiments(self.project_id, apikey=self.apikey)
-        self.assertTrue(len(experiment_list)>0)
+        self.assertTrue(len(experiment_list) > 0)
         found = None
         for experiment in experiment_list:
             if experiment['id'] == experiment_id:
@@ -92,7 +92,7 @@ class TestApiExperimentRaw(unittest.TestCase):
         self.assertEqual(self.user, experiment_raw['owner'])
         experiment_id = experiment_raw['id']
         experiment_list = api.fetch_experiments(self.project_id, apikey=self.apikey)
-        self.assertTrue(len(experiment_list)>0)
+        self.assertTrue(len(experiment_list) > 0)
         found = None
         for experiment in experiment_list:
             if experiment['id'] == experiment_id:
@@ -119,7 +119,7 @@ class TestApiExperimentRaw(unittest.TestCase):
         self.assertEqual(self.user, experiment_raw['owner'])
         experiment_id = experiment_raw['id']
         experiment_list = api.fetch_experiments(self.project_id, apikey=self.apikey)
-        self.assertTrue(len(experiment_list)>0)
+        self.assertTrue(len(experiment_list) > 0)
         found = None
         for experiment in experiment_list:
             if experiment['id'] == experiment_id:

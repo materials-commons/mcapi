@@ -53,7 +53,7 @@ class TestApiProcessRaw(unittest.TestCase):
 
         process_list = api.get_project_processes(self.project_id, apikey=self.apikey)
         self.assertIsNotNone(process_list)
-        self.assertTrue(len(process_list)>0)
+        self.assertTrue(len(process_list) > 0)
         found = None
         for process in process_list:
             if process_id == process['id']:
@@ -69,7 +69,7 @@ class TestApiProcessRaw(unittest.TestCase):
         process_list = api.fetch_experiment_processes(
             self.project_id, self.experiment_id, apikey=self.apikey)
         self.assertIsNotNone(process_list)
-        self.assertTrue(len(process_list)>0)
+        self.assertTrue(len(process_list) > 0)
         found = None
         for process in process_list:
             if process_id == process['id']:
@@ -85,7 +85,7 @@ class TestApiProcessRaw(unittest.TestCase):
         process_list = api.fetch_experiment_processes(
             self.project_id, self.experiment_id, apikey=self.apikey)
         self.assertIsNotNone(process_list)
-        self.assertTrue(len(process_list)>0)
+        self.assertTrue(len(process_list) > 0)
         found = None
         for process in process_list:
             if process_id == process['id']:
@@ -98,7 +98,7 @@ class TestApiProcessRaw(unittest.TestCase):
         process_list = api.fetch_experiment_processes(
             self.project_id, self.experiment_id, apikey=self.apikey)
         self.assertIsNotNone(process_list)
-        self.assertTrue(len(process_list)>0)
+        self.assertTrue(len(process_list) > 0)
         found = None
         for process in process_list:
             if process_id == process['id']:
@@ -107,7 +107,7 @@ class TestApiProcessRaw(unittest.TestCase):
 
         process_list = api.get_project_processes(self.project_id, apikey=self.apikey)
         self.assertIsNotNone(process_list)
-        self.assertTrue(len(process_list)>0)
+        self.assertTrue(len(process_list) > 0)
         found = None
         for process in process_list:
             if process_id == process['id']:
@@ -146,4 +146,3 @@ class TestApiProcessRaw(unittest.TestCase):
         self.assertEqual('process', process_raw['otype'])
         self.assertEqual(process_id, process_raw['id'])
         self.assertEqual(test_value, process_raw['description'])
-

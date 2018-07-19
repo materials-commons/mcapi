@@ -2,6 +2,7 @@ import unittest
 from os import environ
 from os import path as os_path
 from random import randint
+# noinspection PyCompatibility
 from pathlib import Path
 from materials_commons.api import api
 from .base_utils_for_file_tests import _setup_test_filepath1, _get_file_size
@@ -38,4 +39,3 @@ class TestApiFileUploadRaw(unittest.TestCase):
         self.assertEqual(byte_count, file_raw['size'])
         self.assertEqual(byte_count, file_raw['uploaded'])
         self.assertEqual(self.user, file_raw['owner'])
-

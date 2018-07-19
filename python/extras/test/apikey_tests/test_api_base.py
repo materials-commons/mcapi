@@ -3,6 +3,7 @@ from materials_commons.api.config import Config
 from materials_commons.api.remote import RemoteWithApikey
 from materials_commons.api.api import configure_remote
 
+
 class BaseTest(unittest.TestCase):
     def test_config(self):
         config = Config(override_config={'apikey': 'testing1', 'mcurl': 'testing2'})

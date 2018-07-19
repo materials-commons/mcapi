@@ -1,4 +1,5 @@
 from os import environ
+# noinspection PyCompatibility
 from pathlib import Path
 from os import path as os_path
 from os.path import getsize
@@ -24,6 +25,7 @@ def _upload_generic_test_file(project_id, apikey):
 def _original_generic_test_file_path():
     return _setup_test_filepath1()
 
+
 def _make_test_dir_path(file_name):
     test_path = os_path.abspath(environ['TEST_DATA_DIR'])
     test_file_path = os_path.join(test_path, 'test_upload_data', file_name)
@@ -36,5 +38,4 @@ def _get_file_size(file_path):
 
 
 class FileTestException(BaseException):
-    def __init__(self, *args, **kwargs):
-        super.__init__(BaseException, *args, **kwargs)
+    pass

@@ -1,5 +1,4 @@
 import unittest
-import pytest
 from random import randint
 from materials_commons.api import api
 from materials_commons.api import Template
@@ -180,5 +179,4 @@ class TestApiSampleRaw(unittest.TestCase):
         results = api.add_samples_to_process(
             self.project_id, self.experiment_id, self.create_process_id,
             self.template_id, pair_list, apikey=self.apikey)
-
-
+        self.assertIsNone(results, "Missing code?")

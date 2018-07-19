@@ -1,5 +1,4 @@
 import unittest
-import pytest
 from random import randint
 from materials_commons.api import api
 
@@ -166,7 +165,7 @@ def _make_reasonable_metadata():
             },
             {
               "id": "d7c0f921-6695-4e17-b02e-f5eb37345677",
-              "name": "Preperation 1",
+              "name": "Preparation 1",
               "template": "global_Heat Treatment",
               "start_row": 5,
               "end_row": 6,
@@ -175,7 +174,7 @@ def _make_reasonable_metadata():
             },
             {
               "id": "566ac438-c2a0-4b31-a9aa-c59c548082df",
-              "name": "Preperation 1",
+              "name": "Preparation 1",
               "template": "global_Heat Treatment",
               "start_row": 6,
               "end_row": 7,
@@ -184,7 +183,7 @@ def _make_reasonable_metadata():
             },
             {
               "id": "687d94be-5fd7-4fd0-97d7-e61275897131",
-              "name": "Preperation 1",
+              "name": "Preparation 1",
               "template": "global_Heat Treatment",
               "start_row": 7,
               "end_row": 8,
@@ -193,7 +192,7 @@ def _make_reasonable_metadata():
             },
             {
               "id": "9335c438-650a-4de6-afc0-02e2f0048965",
-              "name": "Preperation 1",
+              "name": "Preparation 1",
               "template": "global_Heat Treatment",
               "start_row": 8,
               "end_row": 9,
@@ -237,7 +236,7 @@ def _make_reasonable_metadata():
             [
               "NAME",
               None,
-              "Preperation 1",
+              "Preparation 1",
               None,
               None
             ],

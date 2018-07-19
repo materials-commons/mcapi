@@ -2,7 +2,7 @@ import unittest
 import pytest
 from random import randint
 from materials_commons.api import api
-from .base_utils_for_file_tests import _upload_generic_test_file, _original_generic_test_file_path
+from .base_utils_for_file_tests import _upload_generic_test_file
 from .base_utils_for_file_tests import FileTestException
 
 
@@ -30,7 +30,7 @@ class TestApiFileBasicRaw(unittest.TestCase):
 
     def test_file_rename_raw(self):
         new_file_name = "RENAME-" + self.file_name
-        file_record_raw =  api.file_rename(
+        file_record_raw = api.file_rename(
             self.project_id, self.file_id, new_file_name, apikey=self.apikey)
         self.assertEqual('datafile', file_record_raw['otype'])
         self.assertEqual(new_file_name, file_record_raw['name'])

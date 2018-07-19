@@ -1,6 +1,7 @@
 import unittest
 from materials_commons.api import api
 
+
 class TestTemplatesRaw(unittest.TestCase):
 
     @classmethod
