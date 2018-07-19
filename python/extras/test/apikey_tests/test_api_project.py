@@ -35,11 +35,10 @@ class TestApiProjectRaw(unittest.TestCase):
         self.assertTrue(len(project_list) > 0)
         found_project = None
         for project in project_list:
-            self.assertEqual(self.user, project['owner'])
-            if project['name'] == project_name:
+            if self.user == project['owner'] and project_id == project['id']:
                 found_project = project
         self.assertIsNotNone(found_project)
-        self.assertEqual(project_id, found_project['id'])
+        self.assertEqual(project_name, found_project['name'])
 
     def test_get_project_by_id_raw(self):
         project_name = fake_name("TestApikeyProject-")

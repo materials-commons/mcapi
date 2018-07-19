@@ -1,6 +1,6 @@
 import unittest
+import pytest
 from random import randint
-# from unittest import mock
 
 
 def fake_name(prefix):
@@ -8,6 +8,7 @@ def fake_name(prefix):
     return prefix + number
 
 
+@pytest.mark.skip("Defered")
 class TestHolder(unittest.TestCase):
 
     def test(self):
