@@ -32,9 +32,10 @@ class TestApiProjectRaw(unittest.TestCase):
         self.assertEqual(self.user, raw_data['owner'])
         project_id = raw_data['id']
         project_list = api.projects(apikey=self.apikey)
-        self.assertTrue(len(project_list) > 1)
+        self.assertTrue(len(project_list) > 0)
         found_project = None
         for project in project_list:
+            self.assertEqual(self.user, project['owner'])
             if project['name'] == project_name:
                 found_project = project
         self.assertIsNotNone(found_project)
@@ -78,7 +79,7 @@ class TestApiProjectRaw(unittest.TestCase):
         results = api.delete_project(project_id, apikey=self.apikey)
         self.assertEqual(project_id, results['project_id'])
         project_list = api.projects(apikey=self.apikey)
-        self.assertTrue(len(project_list) > 1)
+        self.assertTrue(len(project_list) > 0)
         found_project = None
         for project in project_list:
             if project['name'] == project_name:
