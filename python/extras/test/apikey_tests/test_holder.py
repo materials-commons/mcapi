@@ -8,7 +8,7 @@ def fake_name(prefix):
     return prefix + number
 
 
-@pytest.mark.skip("Defered")
+@pytest.mark.skip("TestHolder - check this")
 class TestHolder(unittest.TestCase):
 
     def test(self):

@@ -1,4 +1,5 @@
 import unittest
+import pytest
 from random import randint
 from materials_commons.api import create_project, Experiment
 
@@ -7,7 +8,7 @@ def fake_name(prefix):
     number = "%05d" % randint(0, 99999)
     return prefix + number
 
-
+@pytest.mark.skip("TestFile - later")
 class TestFile(unittest.TestCase):
 
     @classmethod

@@ -106,7 +106,7 @@ class Experiment(MCObject):
         experiment = self
         if not description:
             description = self.description
-        results = api.rename_experiment(project.id, experiment.id, name, description)
+        results = api.rename_experiment(project.id, experiment.id, name, description, apikey=project._apikey)
         if results:
             self.name = results['name']
             self.description = results['description']
@@ -133,7 +133,7 @@ class Experiment(MCObject):
         :return: the id of the deleted experiment
 
         """
-        api.delete_experiment(self.project.id, self.id)
+        api.delete_experiment(self.project.id, self.id, apikey=self.project._apikey)
         return self.id
 
     # Experiment - Process-related methods
@@ -156,7 +156,7 @@ class Experiment(MCObject):
         """
         project = self.project
         experiment = self
-        results = api.create_process_from_template(project.id, experiment.id, template_id)
+        results = api.create_process_from_template(project.id, experiment.id, template_id, apikey=project._apikey)
         process = make_object(results)
         process.project = project
         process.experiment = experiment
@@ -172,7 +172,7 @@ class Experiment(MCObject):
         """
         project = self.project
         experiment = self
-        results = api.get_experiment_process_by_id(project.id, experiment.id, process_id)
+        results = api.get_experiment_process_by_id(project.id, experiment.id, process_id, apikey=project._apikey)
         process = make_object(results)
         process.project = project
         process.experiment = experiment
@@ -186,7 +186,7 @@ class Experiment(MCObject):
         :return: the list of :class:`mcapi.Process` instances
 
         """
-        process_list = api.fetch_experiment_processes(self.project.id, self.id)
+        process_list = api.fetch_experiment_processes(self.project.id, self.id, apikey=self.project._apikey)
         processes = [make_object(x) for x in process_list]
         processes = [_decorate_object_with(x, 'project', self.project) for x in processes]
         processes = [_decorate_object_with(x, 'experiment', self) for x in processes]
