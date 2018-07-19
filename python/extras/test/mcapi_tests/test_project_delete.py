@@ -19,6 +19,7 @@ class TestProjectDelete(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.mcapikey = "totally-bogus"
+        cls.user = "test@test.mc"
         cls.host = get_remote_config_url()
 
     def test_delete(self):
@@ -43,14 +44,21 @@ class TestProjectDelete(unittest.TestCase):
 
         self._build_project()
 
+        # Note also returns projects to which I have access - but not owner
         projects = get_all_projects()
         self.assertTrue(len(projects) > 0)
 
         for project in projects:
-            project.delete()
+            # just projects for which I am the owner
+            if project.owner == self.user:
+                project.delete()
 
         projects = get_all_projects()
-        self.assertEqual(len(projects), 0)
+        owned_projects = []
+        for project in projects:
+            if project.owner == self.user:
+                owned_projects.append(project)
+        self.assertEqual(len(owned_projects), 0)
 
     def test_only_owner_can_delete(self):
         self.helper = AssertHelper(self)
