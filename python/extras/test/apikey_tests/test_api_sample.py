@@ -176,7 +176,14 @@ class TestApiSampleRaw(unittest.TestCase):
         results = api.get_project_samples(self.project_id, apikey=self.apikey)
         sample_list = results[0]['versions']
         pair_list = [{'sample_id': s['sample_id'], 'property_set_id': s['property_set_id']} for s in sample_list]
-        results = api.add_samples_to_process(
+        process_record_raw = api.add_samples_to_process(
             self.project_id, self.experiment_id, self.create_process_id,
             self.template_id, pair_list, apikey=self.apikey)
-        self.assertIsNone(results, "Missing code?")
+        self.assertEqual("process", process_record_raw['otype'])
+        self.assertEqual(self.user, process_record_raw['owner'])
+        sample_list = process_record_raw['output_samples']
+        self.assertEqual(1, len(sample_list))
+        sample_record_raw = sample_list[0]
+        self.assertEqual("sample", sample_record_raw['otype'])
+        self.assertEqual(self.user, sample_record_raw['owner'])
+        self.assertEqual(self.create_process_id,sample_record_raw['process_id'])
