@@ -5,7 +5,7 @@ from .base import _has_key
 
 
 # -- top level project functions --
-def create_project(name, description):
+def create_project(name, description, apikey=None):
     """
     Creates a new Project object in the database and return it.
 
@@ -20,13 +20,13 @@ def create_project(name, description):
     >>> print(project.name, project.description)
 
     """
-    results = api.create_project(name, description)
+    results = api.create_project(name, description, apikey=apikey)
     project_id = results['id']
-    project = get_project_by_id(project_id)
+    project = get_project_by_id(project_id, apikey=apikey)
     return project
 
 
-def get_project_by_id(project_id):
+def get_project_by_id(project_id, apikey=None):
     """
     Fetch a project from the database and return it/
 
@@ -37,11 +37,11 @@ def get_project_by_id(project_id):
     >>> project = get_project_by_id("e4fd5c88-2fb7-40af-b3fc-2711d786e5f6")
 
     """
-    results = api.get_project_by_id(project_id)
+    results = api.get_project_by_id(project_id, apikey=apikey)
     return Project(data=results)
 
 
-def get_all_projects():
+def get_all_projects(apikey=None):
     """
     Return a list of all the project to which the current user has access.
 
@@ -52,7 +52,7 @@ def get_all_projects():
     >>>     print(project.name)
 
     """
-    results = api.projects()
+    results = api.projects(apikey=apikey)
     projects = []
     for r in results:
         projects.append(Project(data=r))
@@ -60,7 +60,7 @@ def get_all_projects():
 
 
 # -- top level user function ---
-def get_all_users():
+def get_all_users(apikey=None):
     """
     Return the list of all users registered on the server.
 
@@ -71,13 +71,13 @@ def get_all_users():
     >>>     print(user.fullname, user.email)
 
     """
-    results = api.get_all_users()
+    results = api.get_all_users(apikey=apikey)
     users = [make_object(u) for u in results['val']]
     return users
 
 
 # -- top level template function ---
-def get_all_templates():
+def get_all_templates(apikey=None):
     """
     Return a list of all the templates known to the system.
 
@@ -88,7 +88,7 @@ def get_all_templates():
     >>>     print(template.name, template.id)
 
     """
-    templates_array = api.get_all_templates()
+    templates_array = api.get_all_templates(apikey=apikey)
     templates = [make_object(t) for t in templates_array]
     return templates
 
