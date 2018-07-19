@@ -8,7 +8,7 @@ def fake_name(prefix):
     return prefix + number
 
 
-# Note: Experiment methods - testing moved to test of Sample
+# Note: Experiment methods - testing moved to Process
 # def get_sample_by_id(self, sample_id):
 # def get_all_samples(self):
 # def decorate_with_samples(self):

@@ -175,7 +175,7 @@ class Process(MCObject):
         :return: the updated :class:`mcapi.Process`
 
         """
-        results = api.push_name_for_process(self.project.id, self.id, process_name)
+        results = api.push_name_for_process(self.project.id, self.id, process_name, apikey=self.project._apikey)
         process = make_object(results)
         process.project = self.project
         process.experiment = self.experiment
@@ -201,7 +201,7 @@ class Process(MCObject):
 
         results = None
         try:
-            results = api.delete_process(self.project.id, self.id)
+            results = api.delete_process(self.project.id, self.id, apikey=self.project._apikey)
             if 'error' in results:
                 results = None
             else:
@@ -227,7 +227,7 @@ class Process(MCObject):
     # Process - additional basic methods
     def set_notes(self, note_text):
         note_text = "<p>" + note_text + "</p>"
-        results = api.set_notes_for_process(self.project.id, self.id, note_text)
+        results = api.set_notes_for_process(self.project.id, self.id, note_text, apikey=self.project._apikey)
         process = make_object(results)
         process.project = self.project
         process.experiment = self.experiment
@@ -237,7 +237,7 @@ class Process(MCObject):
 
     def add_to_notes(self, note_text):
         note_text = self.notes + "\n<p>" + note_text + "</p>"
-        results = api.set_notes_for_process(self.project.id, self.id, note_text)
+        results = api.set_notes_for_process(self.project.id, self.id, note_text, apikey=self.project._apikey)
         process = make_object(results)
         process.project = self.project
         process.experiment = self.experiment
