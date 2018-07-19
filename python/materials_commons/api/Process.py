@@ -825,7 +825,7 @@ class Process(MCObject):
         process = self
         arg_pair_list = [{'sample_id': s.id, 'property_set_id': s.property_set_id} for s in samples]
         results = api.add_samples_to_process(
-            project.id, experiment.id, process.id, process.template_id, arg_pair_list)
+            project.id, experiment.id, process.id, process.template_id, arg_pair_list, apikey=self.project._apikey)
         new_process = make_object(results)
         for sample in new_process.input_samples:
             sample.experiment = experiment
@@ -869,7 +869,8 @@ class Process(MCObject):
     def _create_samples(self, sample_names):
         project = self.project
         process = self
-        samples_array_dict = api.create_samples_in_project(project.id, process.id, sample_names)
+        samples_array_dict = api.create_samples_in_project(
+            project.id, process.id, sample_names, apikey=self.project._apikey)
         samples_array = samples_array_dict['samples']
         # NOTE: in this case, for this version of API, for the call implemented, the
         # returned object is very sparse; hence the samples need to be re-fetched...
@@ -891,6 +892,6 @@ class Process(MCObject):
                     sample_in_experiment = s
             if not sample_in_experiment:
                 process.experiment.samples.append(sample)
-        api.add_samples_to_experiment(project.id, process.experiment.id, samples_id_list)
+        api.add_samples_to_experiment(project.id, process.experiment.id, samples_id_list, apikey=self.project._apikey)
         return samples
 

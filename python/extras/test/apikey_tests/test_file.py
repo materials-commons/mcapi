@@ -24,3 +24,6 @@ class TestFile(unittest.TestCase):
 # def add_file_by_local_path(self, local_path, verbose=False, limit=50):
 # def get_by_local_path(self, local_path):
 # def file_exists_by_local_path(self, local_path, checksum=False):
+
+# # def get_all_files(self):
+# # def add_files(self, files_list):

@@ -648,7 +648,7 @@ class Project(MCObject):
         ..todo:: determine and document the difference between mcapi.fetch_sample_by_id and mcapi.get_sample_by_id
 
         """
-        sample_json_dict = api.get_project_sample_by_id(self.id, sample_id)
+        sample_json_dict = api.get_project_sample_by_id(self.id, sample_id, apikey=self._apikey)
         sample = make_object(sample_json_dict)
         sample.project = self
         return sample
