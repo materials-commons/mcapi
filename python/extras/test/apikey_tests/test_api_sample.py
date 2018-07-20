@@ -186,4 +186,4 @@ class TestApiSampleRaw(unittest.TestCase):
         sample_record_raw = sample_list[0]
         self.assertEqual("sample", sample_record_raw['otype'])
         self.assertEqual(self.user, sample_record_raw['owner'])
-        self.assertEqual(self.create_process_id,sample_record_raw['process_id'])
+        self.assertEqual(self.create_process_id, sample_record_raw['process_id'])

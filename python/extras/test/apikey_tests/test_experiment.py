@@ -1,7 +1,7 @@
 import unittest
-import pytest
 from random import randint
 from materials_commons.api import create_project, Template
+
 
 def fake_name(prefix):
     number = "%05d" % randint(0, 99999)
@@ -103,4 +103,3 @@ class TestExperimentDecorateWithSamples(unittest.TestCase):
         process_list = self.experiment.processes
         self.assertEqual(1, len(process_list))
         self.assertEqual(process.id, process_list[0].id)
-

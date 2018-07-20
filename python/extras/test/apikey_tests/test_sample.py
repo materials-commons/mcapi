@@ -1,7 +1,7 @@
 import unittest
 import pytest
 from random import randint
-from materials_commons.api import create_project, Experiment
+from materials_commons.api import create_project
 
 
 def fake_name(prefix):

@@ -17,7 +17,7 @@ def fake_name(prefix):
 # def get_directory_list(self, path):
 # def create_or_get_all_directories_on_path(self, path):
 # def add_directory_list(self, path_list, top=None):
-# - redundent to test with multiple directories
+# - redundant to test with multiple directories
 # def get_directory_by_id(self, directory_id):
 # def get_all_directories(self):
 
@@ -107,26 +107,26 @@ class TestDirectory(unittest.TestCase):
         directory_list = self.top_directory.create_descendant_list_by_path("/F/G/H")
         self.assertEqual(3, len(directory_list))
         print('')
-        directory_F = directory_list[0]
-        directory_G = directory_list[1]
-        directory_H = directory_list[2]
+        directory_f = directory_list[0]
+        directory_g = directory_list[1]
+        directory_h = directory_list[2]
 
         # move H from G to F
-        child_list = directory_F.get_children()
+        child_list = directory_f.get_children()
         self.assertEqual(1, len(child_list))
         name = self.project_name + "/F/G"
         self.assertEqual(name, child_list[0].path)
 
-        child_list = directory_G.get_children()
+        child_list = directory_g.get_children()
         self.assertEqual(1, len(child_list))
         name = self.project_name + "/F/G/H"
         self.assertEqual(name, child_list[0].path)
 
-        directory_H.move(directory_F)
-        child_list = directory_F.get_children()
+        directory_h.move(directory_f)
+        child_list = directory_f.get_children()
         self.assertEqual(2, len(child_list))
 
-        child_list = directory_G.get_children()
+        child_list = directory_g.get_children()
         self.assertEqual(0, len(child_list))
 
 
@@ -183,8 +183,8 @@ class TestProjectDirectory(unittest.TestCase):
         path11 = "/F/G1/H1"
         path12 = "/F/G1/H2"
         path23 = "/F/G2/H3"
-        path3N = "/F/G3"
-        path_list = [path11, path12, path23, path3N]
+        path3n = "/F/G3"
+        path_list = [path11, path12, path23, path3n]
         directory_path_table = self.project.add_directory_list(path_list)
         for path in path_list:
             self.assertTrue(path in directory_path_table)
@@ -194,6 +194,7 @@ class TestProjectDirectory(unittest.TestCase):
         name = self.project_name + "/I1/I2"
         directory = self.project.get_directory_by_id(directory.id)
         self.assertEqual(name, directory.path)
+
 
 class TestProjectDirectoryIsolated(unittest.TestCase):
 
@@ -209,8 +210,8 @@ class TestProjectDirectoryIsolated(unittest.TestCase):
         path11 = "/F/G1/H1"
         path12 = "/F/G1/H2"
         path23 = "/F/G2/H3"
-        path3N = "/F/G3"
-        path_list = [path11, path12, path23, path3N]
+        path3n = "/F/G3"
+        path_list = [path11, path12, path23, path3n]
         directory_path_table = self.project.add_directory_list(path_list)
         for path in path_list:
             self.assertTrue(path in directory_path_table)

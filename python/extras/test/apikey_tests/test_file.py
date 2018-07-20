@@ -53,12 +53,12 @@ class TestFileBasic(unittest.TestCase):
         self.assertEqual(new_name, file.name)
 
     def test_file_move(self):
-        id = self.test_file2.id
+        file_id = self.test_file2.id
 
         children = self.top_directory.get_children()
         found = None
         for item in children:
-            if item.id == id:
+            if item.id == file_id:
                 found = item
         self.assertIsNotNone(found)
 
@@ -68,14 +68,14 @@ class TestFileBasic(unittest.TestCase):
         children = self.top_directory.get_children()
         found = None
         for item in children:
-            if item.id == id:
+            if item.id == file_id:
                 found = item
         self.assertIsNone(found)
 
         children = self.directory.get_children()
         found = None
         for item in children:
-            if item.id == id:
+            if item.id == file_id:
                 found = item
         self.assertIsNotNone(found)
 
@@ -144,10 +144,10 @@ class TestProjectFile(unittest.TestCase):
         self.project.local_path = local_path
         self.project.add_file_by_local_path(_setup_test_filepath1())
         flag = self.project.file_exists_by_local_path(_setup_test_filepath1())
-        self.assertTrue(flag, "test_project_file_file_exists_by_local_path: file_exists, no checksun")
+        self.assertTrue(flag, "test_project_file_file_exists_by_local_path: file_exists, no checksum")
 
         flag = self.project.file_exists_by_local_path(_setup_test_filepath1(), checksum=True)
-        self.assertTrue(flag, "test_project_file_file_exists_by_local_path: file_exists, checksun")
+        self.assertTrue(flag, "test_project_file_file_exists_by_local_path: file_exists, checksum")
 
 
 class TestProjectFileAddTree(unittest.TestCase):
@@ -236,7 +236,7 @@ class TestFileDirectory(unittest.TestCase):
         filepath1 = _setup_test_filepath1()
         file_input_path = _get_absolute_path_from_path(filepath1)
         directory = self.project.add_directory("/A")
-        file = directory.add_file("test.jpg",file_input_path)
+        file = directory.add_file("test.jpg", file_input_path)
         self.assertEqual(self.user, file.owner)
         self.assertEqual("test.jpg", file.name)
 

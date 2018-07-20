@@ -34,6 +34,7 @@ class TestTopLevel(unittest.TestCase):
         project = create_project(project_name, description, apikey=self.apikey)
         self.assertEqual(self.user, project.owner)
         again_project = get_project_by_id(project.id, apikey=self.apikey)
+        self.assertEqual(project.name, again_project.name)
 
     def test_get_all_projects(self):
         # at least one project
