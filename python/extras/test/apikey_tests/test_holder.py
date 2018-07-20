@@ -17,5 +17,4 @@ class TestHolder(unittest.TestCase):
         self.assertEqual(" ", "api/Experiment.py")
         self.assertEqual(" ", "api/File.py")
         self.assertEqual(" ", "api/Sample.py")
-        self.assertEqual(" ", "api/Process.py")
         self.assertEqual(" ", "api/Directory.py")

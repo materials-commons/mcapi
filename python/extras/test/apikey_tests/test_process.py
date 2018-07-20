@@ -1,5 +1,5 @@
 import unittest
-import pytest
+# import pytest
 from random import randint
 from materials_commons.api import create_project, get_all_templates, Template
 from .apikey_helper_utils import find_template_id_from_match, make_template_table
@@ -47,7 +47,6 @@ class TestProcess(unittest.TestCase):
         cls.experiment = cls.project.create_experiment(experiment_name, description)
         cls.process = cls.experiment.create_process_from_template(Template.create)
 
-    @pytest.mark.skip("TestProcess rename")
     def test_process_rename(self):
         process = self.experiment.create_process_from_template(Template.create)
         new_name = 'new_name'
@@ -55,7 +54,6 @@ class TestProcess(unittest.TestCase):
         self.assertEqual(new_name, update.name)
         self.assertEqual(self.user, update.owner)
 
-    @pytest.mark.skip("TestProcess delete")
     def test_process_delete(self):
         process = self.experiment.create_process_from_template(Template.create)
         self.assertEqual(self.user, process.owner)
@@ -74,7 +72,6 @@ class TestProcess(unittest.TestCase):
                 found = probe
         self.assertIsNone(found)
 
-    @pytest.mark.skip("TestProcess set notes")
     def test_process_set_notes(self):
         process_notes_value = "An experimental process with notes"
         process_notes_value_expected = "<p>" + process_notes_value + "</p>"
@@ -82,7 +79,6 @@ class TestProcess(unittest.TestCase):
         self.assertEqual(process.description, process_notes_value_expected)
         self.assertEqual(process.notes, process_notes_value_expected)
 
-    @pytest.mark.skip("TestProcess add notes")
     def test_process_add_to_notes(self):
         process_notes_value = "An experimental process with notes"
         process_notes_value_expected = "<p>" + process_notes_value + "</p>"
@@ -93,7 +89,6 @@ class TestProcess(unittest.TestCase):
         process_notes_value_expected = process_notes_value_expected + "\n" + process_notes_value_expected
         self.assertEqual(process.notes, process_notes_value_expected)
 
-    @pytest.mark.skip("TestProcess create samples")
     def test_process_create_samples(self):
         create_process = self.experiment.create_process_from_template(Template.create)
         sample_name = fake_name("TestSample-")
@@ -104,7 +99,6 @@ class TestProcess(unittest.TestCase):
         self.assertEqual(sample_name, sample.name)
         self.assertEqual(self.user, sample.owner)
 
-    @pytest.mark.skip("TestProcess get all samples")
     def test_process_get_all_samples(self):
         create_process = self.experiment.create_process_from_template(Template.create)
         sample_name = fake_name("TestSample-")
@@ -120,7 +114,6 @@ class TestProcess(unittest.TestCase):
         self.assertIsNotNone(found)
         self.assertEqual(sample_name, found.name)
 
-    @pytest.mark.skip("TestProcess link samples")
     def test_process_link_process_with_samples(self):
         create_process = self.experiment.create_process_from_template(Template.create)
         sample_name = fake_name("TestSample-")
@@ -163,19 +156,16 @@ class TestProcessProperties(unittest.TestCase):
         ht_template = find_template_id_from_match(cls.templates, "Heat Treatment")
         cls.ht_process = cls.experiment.create_process_from_template(ht_template)
 
-    @pytest.mark.skip("TestProcessProperties")
     def test_get_setup_properties_as_dictionary(self):
         # for create process
         table = self.create_process.get_setup_properties_as_dictionary()
         self.assertTrue('manufacturer' in table)
         self.assertTrue('supplier' in table)
 
-    @pytest.mark.skip("TestProcessProperties")
     def test_is_known_setup_property(self):
         # for create process
         self.assertTrue(self.create_process.is_known_setup_property('supplier'))
 
-    @pytest.mark.skip("TestProcessProperties")
     def test_set_known_setup_property(self):
         # for Heat Treatment Process
         process = self.ht_process
@@ -196,7 +186,6 @@ class TestProcessProperties(unittest.TestCase):
         self.assertEqual(100, setup_property.value)
         self.assertEqual('C', setup_property.unit)
 
-    @pytest.mark.skip("TestProcessProperties")
     def test_update_additional_setup_properties(self):
         # for Heat Treatment Process
         process = self.ht_process
@@ -244,10 +233,34 @@ class TestProcessProperties(unittest.TestCase):
 # def get_process_by_id(self, process_id):
 
 class TestProcessForProject(unittest.TestCase):
-    @pytest.mark.skip("TestProcess TestProcessForProject")
-    def any_test(self):
-        pass
-# from Project
-# def get_all_processes(self):
-# def get_process_by_id(self, process_id):
 
+    @classmethod
+    def setUpClass(cls):
+        cls.user = "another@test.mc"
+        cls.apikey = "another-bogus-account"
+        cls.another_user = "test@test.mc"
+        cls.another_apikey = "totally-bogus"
+        cls.templates = make_template_table(get_all_templates())
+        project_name = fake_name("TestApikeyProject-")
+        description = "Test project generated by automated test"
+        cls.project = create_project(project_name, description, apikey=cls.apikey)
+        experiment_name = fake_name("TestApikeyExperiment-")
+        description = "Test experiment generated by automated test"
+        cls.experiment = cls.project.create_experiment(experiment_name, description)
+
+        cls.create_template = find_template_id_from_match(cls.templates, "Create Sample")
+        cls.create_process = cls.experiment.create_process_from_template(cls.create_template)
+
+        cls.ht_template = find_template_id_from_match(cls.templates, "Heat Treatment")
+        cls.ht_process = cls.experiment.create_process_from_template(cls.ht_template)
+
+    def test_project_get_all_processes(self):
+        process_list = self.project.get_all_processes()
+        self.assertEqual(2, len(process_list))
+        process_templates = [process.template_id for process in process_list]
+        self.assertTrue(self.ht_template in process_templates)
+        self.assertTrue(self.create_template in process_templates)
+
+    def test_project_get_process_by_id(self):
+        process = self.project.get_process_by_id(self.ht_process.id)
+        self.assertEqual(self.ht_template, process.template_id)

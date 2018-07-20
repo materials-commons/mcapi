@@ -587,7 +587,7 @@ class Project(MCObject):
         >>>     print(process.name)
 
         """
-        process_list = api.get_project_processes(self.id, self.remote)
+        process_list = api.get_project_processes(self.id, self.remote, apikey=self._apikey)
         processes = [make_object(x) for x in process_list]
         processes = [_decorate_object_with(x, 'project', self) for x in processes]
         return processes
@@ -605,7 +605,7 @@ class Project(MCObject):
         >>> process = project.get_process_by_id(process.id)
 
         """
-        results = api.get_process_by_id(self.id, process_id)
+        results = api.get_process_by_id(self.id, process_id, apikey=self._apikey)
         process = make_object(results)
         process.project = self
         process._update_project_experiment()
