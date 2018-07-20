@@ -94,7 +94,7 @@ def get_all_templates(apikey=None):
 
 
 # -- top level functions for experiment etl metadata
-def create_experiment_metadata(experiment_id, metadata):
+def create_experiment_metadata(experiment_id, metadata, apikey=None):
     """
     Create a metadata record for Excel-based experiment workflow ETL.
 
@@ -103,7 +103,7 @@ def create_experiment_metadata(experiment_id, metadata):
         see :class:`materials_commons.etl.input.build_project.BuildProjectExperiment`
     :return: a object of :class:`materials_commons.api.EtlMetadata`
     """
-    results = api.create_experiment_metadata(experiment_id, metadata)
+    results = api.create_experiment_metadata(experiment_id, metadata, apikey=apikey)
     if _has_key('error', results):
         print("Error: ", results['error'])
         return None
@@ -111,14 +111,14 @@ def create_experiment_metadata(experiment_id, metadata):
     return make_object(data=data)
 
 
-def get_experiment_metadata_by_experiment_id(experiment_id):
+def get_experiment_metadata_by_experiment_id(experiment_id, apikey=None):
     """
     Fetch an existing metadata record for Excel-based experiment workflow ETL.
 
     :param experiment_id: the id of an existing experiment
     :return: a object of :class:`materials_commons.api.EtlMetadata`
     """
-    results = api.get_experiment_metadata_by_experiment_id(experiment_id)
+    results = api.get_experiment_metadata_by_experiment_id(experiment_id, apikey=apikey)
     if _has_key('error', results):
         print("Error: ", results['error'])
         return None
@@ -126,14 +126,14 @@ def get_experiment_metadata_by_experiment_id(experiment_id):
     return make_object(data=data)
 
 
-def get_experiment_metadata_by_id(metadata_id):
+def get_experiment_metadata_by_id(metadata_id, apikey=None):
     """
     Fetch an existing metadata record for Excel-based experiment workflow ETL.
 
     :param metadata_id: the id of the metadata record
     :return: a object of :class:`materials_commons.api.EtlMetadata`
     """
-    results = api.get_experiment_metadata(metadata_id)
+    results = api.get_experiment_metadata(metadata_id, apikey=apikey)
     if _has_key('error', results):
         print("Error: ", results['error'])
         return None

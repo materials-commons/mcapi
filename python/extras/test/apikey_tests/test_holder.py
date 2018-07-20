@@ -12,9 +12,6 @@ def fake_name(prefix):
 class TestHolder(unittest.TestCase):
 
     def test(self):
-        self.assertEqual(" ", "api/EtlMetadata.py")
         self.assertEqual(" ", "api/for_testing_backend.py")
-        self.assertEqual(" ", "api/Experiment.py")
         self.assertEqual(" ", "api/File.py")
         self.assertEqual(" ", "api/Sample.py")
-        self.assertEqual(" ", "api/Directory.py")
