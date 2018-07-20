@@ -83,7 +83,7 @@ class File(MCObject):
         project_id = self._project.id
         old_directory_id = self._directory_id
         new_directory_id = new_directory.id
-        results = api.file_move(project_id, old_directory_id, new_directory.id, self.id)
+        results = api.file_move(project_id, old_directory_id, new_directory.id, self.id, apikey=self._project._apikey)
         updated_file = make_object(results)
         updated_file._project = self._project
         updated_file._directory_id = new_directory_id

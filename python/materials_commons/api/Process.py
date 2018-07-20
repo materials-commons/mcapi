@@ -321,7 +321,7 @@ class Process(MCObject):
         project = self.project
         experiment = self.experiment
         process = self
-        results = api.get_all_files_for_process(project.id, experiment.id, process.id)
+        results = api.get_all_files_for_process(project.id, experiment.id, process.id, apikey=self.project._apikey)
         file_list = [make_object(x) for x in results]
         return file_list
 
@@ -848,7 +848,7 @@ class Process(MCObject):
         process = self
         file_ids = [file.id for file in file_list]
         results = api.add_files_to_process(
-            project.id, experiment.id, process.id, process.template_id, file_ids)
+            project.id, experiment.id, process.id, process.template_id, file_ids, apikey=self.project._apikey)
         process = make_object(results)
         process.project = project
         process.experiment = experiment
