@@ -432,7 +432,7 @@ class Project(MCObject):
             print("uploading:", os_path.relpath(local_path, getcwd()), " as:", file_name)
         project_id = self.id
         directory_id = directory.id
-        results = api.file_upload(project_id, directory_id, file_name, local_path)
+        results = api.file_upload(project_id, directory_id, file_name, local_path, apikey=self._apikey)
         uploaded_file = make_object(results)
         uploaded_file._project = self
         uploaded_file._directory = directory

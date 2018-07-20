@@ -68,7 +68,7 @@ class File(MCObject):
         """
         project_id = self._project.id
         file_id = self.id
-        results = api.file_rename(project_id, file_id, new_file_name)
+        results = api.file_rename(project_id, file_id, new_file_name, apikey=self._project._apikey)
         updated_file = make_object(results)
         updated_file._project = self._project
         return updated_file
@@ -126,7 +126,8 @@ class File(MCObject):
         """
         project_id = self._project.id
         file_id = self.id
-        output_file_path = api.file_download(project_id, file_id, local_download_file_path)
+        output_file_path = api.file_download(
+            project_id, file_id, local_download_file_path, apikey=self._project._apikey)
         return output_file_path
 
     def get_parent(self):

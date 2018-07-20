@@ -11,6 +11,23 @@ def _setup_test_filepath1():
     return filepath
 
 
+def _get_filename_from_path(path):
+    path = Path(path)
+    file_name = path.parts[-1]
+    return str(file_name)
+
+
+def _get_absolute_path_from_path(path):
+    path = Path(path)
+    return str(path.absolute())
+
+
+def _get_local_test_dir_path():
+    test_path = os_path.abspath(environ['TEST_DATA_DIR'])
+    test_file_path = os_path.join(test_path, 'test_upload_data')
+    return test_file_path
+
+
 def _upload_generic_test_file(project_id, apikey):
     results = api.directory_by_id(project_id, 'top', apikey=apikey)
     directory_id = results['id']
