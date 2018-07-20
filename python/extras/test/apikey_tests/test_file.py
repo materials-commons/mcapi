@@ -63,7 +63,7 @@ class TestFileBasic(unittest.TestCase):
         self.assertIsNotNone(found)
 
         moved_file = self.test_file2.move(self.directory)
-        self.assertEqual(id, moved_file.id)
+        self.assertEqual(file_id, moved_file.id)
 
         children = self.top_directory.get_children()
         found = None
