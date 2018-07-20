@@ -461,7 +461,8 @@ class Process(MCObject):
                 e['value'] = str(e['value'])
             args.append(e)
         if args:
-            ret = api.update_additional_properties_in_process(self.project.id, self.experiment.id, self.id, args)
+            ret = api.update_additional_properties_in_process(
+                self.project.id, self.experiment.id, self.id, args, apikey=self.project._apikey)
             updated = make_object(ret['val'])
             self.setup = updated.setup
         return self
@@ -859,7 +860,7 @@ class Process(MCObject):
         experiment = self.experiment
         process = self
         results = api.update_process_setup_properties(
-            project.id, experiment.id, process, prop_list)
+            project.id, experiment.id, process, prop_list, apikey=self.project._apikey)
         process = make_object(results)
         process.project = project
         process.experiment = experiment

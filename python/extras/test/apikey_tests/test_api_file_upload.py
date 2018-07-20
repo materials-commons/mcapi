@@ -5,7 +5,7 @@ from random import randint
 # noinspection PyCompatibility
 from pathlib import Path
 from materials_commons.api import api
-from .base_utils_for_file_tests import _setup_test_filepath1, _get_file_size
+from .apikey_helper_utils import _setup_test_filepath1, _get_file_size
 
 
 def fake_name(prefix):
