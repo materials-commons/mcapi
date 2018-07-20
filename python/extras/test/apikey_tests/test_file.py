@@ -24,6 +24,11 @@ class TestFile(unittest.TestCase):
 # def add_file_by_local_path(self, local_path, verbose=False, limit=50):
 # def get_by_local_path(self, local_path):
 # def file_exists_by_local_path(self, local_path, checksum=False):
+# def add_directory_tree_by_local_path(self, local_path, verbose=False, limit=50):
 
 # # def get_all_files(self):
 # # def add_files(self, files_list):
+
+# From Directory - moved to File
+# def add_file(self, file_name, local_input_path, verbose=False, limit=50):
+# def add_directory_tree(dir_name, input_dir_path, verbose=False, limit=50):

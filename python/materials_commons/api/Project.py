@@ -395,7 +395,7 @@ class Project(MCObject):
                 path = "/" + path
             new_path_list.append(path)
         results = api.directory_create_subdirectories_from_path_list(
-            self.id, base_directory.id, new_path_list)
+            self.id, base_directory.id, new_path_list, apikey=self._apikey)
         data = results['val']
         table = {}
         project_name = self.name

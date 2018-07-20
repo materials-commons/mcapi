@@ -14,13 +14,13 @@ def fake_name(prefix):
 # def get_directory_list(self, path):
 # def create_or_get_all_directories_on_path(self, path):
 # def add_directory_list(self, path_list, top=None):
-# def add_directory_tree_by_local_path(self, local_path, verbose=False, limit=50):
 
 # Move to File
 # def add_file_using_directory(self, directory, file_name, local_path, verbose=False, limit=50):
 # def add_file_by_local_path(self, local_path, verbose=False, limit=50):
 # def get_by_local_path(self, local_path):
 # def file_exists_by_local_path(self, local_path, checksum=False):
+# def add_directory_tree_by_local_path(self, local_path, verbose=False, limit=50):
 
 # Move to Process
 # def get_all_processes(self):
