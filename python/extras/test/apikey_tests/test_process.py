@@ -163,16 +163,19 @@ class TestProcessProperties(unittest.TestCase):
         ht_template = find_template_id_from_match(cls.templates, "Heat Treatment")
         cls.ht_process = cls.experiment.create_process_from_template(ht_template)
 
+    @pytest.mark.skip("TestProcessProperties")
     def test_get_setup_properties_as_dictionary(self):
         # for create process
         table = self.create_process.get_setup_properties_as_dictionary()
         self.assertTrue('manufacturer' in table)
         self.assertTrue('supplier' in table)
 
+    @pytest.mark.skip("TestProcessProperties")
     def test_is_known_setup_property(self):
         # for create process
         self.assertTrue(self.create_process.is_known_setup_property('supplier'))
 
+    @pytest.mark.skip("TestProcessProperties")
     def test_set_known_setup_property(self):
         # for Heat Treatment Process
         process = self.ht_process
@@ -193,6 +196,7 @@ class TestProcessProperties(unittest.TestCase):
         self.assertEqual(100, setup_property.value)
         self.assertEqual('C', setup_property.unit)
 
+    @pytest.mark.skip("TestProcessProperties")
     def test_update_additional_setup_properties(self):
         # for Heat Treatment Process
         process = self.ht_process
@@ -235,26 +239,9 @@ class TestProcessProperties(unittest.TestCase):
         self.assertEqual('', attribute_lighting['unit'])
 
 
-class TestProcessSampleMeasurement(unittest.TestCase):
-    @pytest.mark.skip("TestProcess TestProcessMeasurements")
-    def any_test(self):
-        pass
-
-# def make_list_of_samples_for_measurement(self, samples):
-# def create_measurement(self, data):
-# def set_measurements_for_process_samples(self, measurement_property, measurements):
-# def set_measurement(self, attribute, measurement_data, name=None):
-# def add_integer_measurement(self, attrname, value, name=None):
-# def add_number_measurement(self, attrname, value, name=None):
-# def add_boolean_measurement(self, attrname, value, name=None):
-# def add_string_measurement(self, attrname, value, name=None):
-# def add_file_measurement(self, attrname, file, name=None):
-# def add_sample_measurement(self, attrname, sample, name=None):
-# def add_list_measurement(self, attrname, value, value_type, name=None):
-# def add_numpy_matrix_measurement(self, attrname, value, name=None):
-# def add_selection_measurement(self, attrname, value, name=None):
-# def add_vector_measurement(self, attrname, value, name=None):
-
+# from Project
+# def get_all_processes(self):
+# def get_process_by_id(self, process_id):
 
 class TestProcessForProject(unittest.TestCase):
     @pytest.mark.skip("TestProcess TestProcessForProject")
@@ -263,16 +250,4 @@ class TestProcessForProject(unittest.TestCase):
 # from Project
 # def get_all_processes(self):
 # def get_process_by_id(self, process_id):
-# def get_all_samples(self):
-# def fetch_sample_by_id(self, sample_id):
-# def get_sample_by_id(self, sample_id):
 
-
-class TestProcessForExperiment(unittest.TestCase):
-    @pytest.mark.skip("TestProcess TestProcessForExperiment")
-    def any_test(self):
-        pass
-# from Experiment
-# def get_sample_by_id(self, sample_id):
-# def get_all_samples(self):
-# def decorate_with_samples(self):

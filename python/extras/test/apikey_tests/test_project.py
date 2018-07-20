@@ -25,6 +25,8 @@ def fake_name(prefix):
 # Move to Process
 # def get_all_processes(self):
 # def get_process_by_id(self, process_id):
+
+# Moved to Sample
 # def get_all_samples(self):
 # def fetch_sample_by_id(self, sample_id):
 # def get_sample_by_id(self, sample_id):
