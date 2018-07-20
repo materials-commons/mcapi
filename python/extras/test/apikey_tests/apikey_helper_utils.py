@@ -37,5 +37,20 @@ def _get_file_size(file_path):
     return byte_count
 
 
+def make_template_table(templates):
+    ret = {}
+    for t in templates:
+        ret[t.id] = t
+    return ret
+
+
+def find_template_id_from_match(template_table, match):
+    found_id = None
+    for key in template_table:
+        if match in key:
+            found_id = key
+    return found_id
+
+
 class FileTestException(BaseException):
     pass
