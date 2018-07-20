@@ -8,8 +8,12 @@ def fake_name(prefix):
     return prefix + number
 
 
-@pytest.mark.skip("TestHolder - check this")
 class TestHolder(unittest.TestCase):
 
-    def test(self):
+    @pytest.mark.skip("TestHolder - check this")
+    def test1(self):
         self.assertEqual(" ", "api/Sample.py")
+
+    @pytest.mark.skip("TestHolder - check this")
+    def test1(self):
+        self.assertEqual(" ", "extras/test/apikey_tests/test_process_sample_measurement.py")
