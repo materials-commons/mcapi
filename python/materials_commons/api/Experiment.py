@@ -223,7 +223,7 @@ class Experiment(MCObject):
         :return: the list of :class:`mcapi.Sample` instances
 
         """
-        samples_list = api.fetch_experiment_samples(self.project.id, self.id)
+        samples_list = api.fetch_experiment_samples(self.project.id, self.id, apikey=self.project._apikey)
         samples = [make_object(x) for x in samples_list]
         samples = [_decorate_object_with(x, 'project', self.project) for x in samples]
         samples = [_decorate_object_with(x, 'experiment', self) for x in samples]

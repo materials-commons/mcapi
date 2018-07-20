@@ -627,7 +627,7 @@ class Project(MCObject):
         >>>     print(sample.name)
 
         """
-        samples_list = api.get_project_samples(self.id, self.remote)
+        samples_list = api.get_project_samples(self.id, self.remote, apikey=self._apikey)
         samples = [make_object(x) for x in samples_list]
         samples = [_decorate_object_with(x, 'project', self) for x in samples]
         return samples
@@ -669,7 +669,7 @@ class Project(MCObject):
         ..todo:: determine and document the difference between mcapi.fetch_sample_by_id and mcapi.get_sample_by_id
 
         """
-        results = api.get_sample_by_id(self.id, sample_id)
+        results = api.get_sample_by_id(self.id, sample_id, apikey=self._apikey)
         sample = make_object(results)
         sample.project = self
         return sample
