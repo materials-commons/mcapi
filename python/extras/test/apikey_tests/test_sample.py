@@ -74,7 +74,7 @@ class TestSample(unittest.TestCase):
         self.assertEqual(1, len(ret_sample.processes))
         self.assertEqual(self.create_process.id, ret_sample.processes[0].id)
 
-    @pytest.mark.skip("Delete Sample appears no to work")
+    @pytest.mark.skip("Delete Sample appears not to work")
     def test_sample_delete(self):
         sample = self.samples[0]
         sample_name = self.samples_names[0]

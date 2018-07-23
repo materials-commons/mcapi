@@ -5,16 +5,16 @@ from .make_objects import make_object
 # ---
 #    testing template backend
 # ---
-def _create_new_template(template_data):
+def _create_new_template(template_data, apikey=None):
     print("Create new template")
-    results = api._create_new_template(template_data)
+    results = api._create_new_template(template_data, apikey=apikey)
     template = make_object(results)
     return template
 
 
-def _update_template(template_id, template_data):
+def _update_template(template_id, template_data, apikey=None):
     print("Updating template")
-    results = api._update_template(template_id, template_data)
+    results = api._update_template(template_id, template_data, apikey=apikey)
     template = make_object(results)
     return template
 
@@ -22,24 +22,24 @@ def _update_template(template_id, template_data):
 # ---
 #   testing user profile backend
 # ---
-def _store_in_user_profile(user_id, name, value):
-    results = api._store_in_user_profile(user_id, name, value)
+def _store_in_user_profile(user_id, name, value, apikey=None):
+    results = api._store_in_user_profile(user_id, name, value, apikey=apikey)
     value = results['val']
     if not value:
         return None
     return value
 
 
-def _get_from_user_profile(user_id, name):
-    results = api._get_from_user_profile(user_id, name)
+def _get_from_user_profile(user_id, name, apikey=None):
+    results = api._get_from_user_profile(user_id, name, apikey=apikey)
     value = results['val']
     if not value:
         return None
     return value
 
 
-def _clear_from_user_profile(user_id, name):
-    results = api._clear_from_user_profile(user_id, name)
+def _clear_from_user_profile(user_id, name, apikey=None):
+    results = api._clear_from_user_profile(user_id, name, apikey=apikey)
     value = results['val']
     if not value:
         return None

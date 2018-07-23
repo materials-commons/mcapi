@@ -12,8 +12,9 @@ class TestHolder(unittest.TestCase):
 
     @pytest.mark.skip("TestHolder - check this")
     def test1(self):
-        self.assertEqual(" ", "api/Sample.py")
-
-    @pytest.mark.skip("TestHolder - check this")
-    def test1(self):
         self.assertEqual(" ", "extras/test/apikey_tests/test_process_sample_measurement.py")
+
+
+# materials_commons/api/EtlMetadata.py
+# measurement in Process.py
+# update in Project.py
