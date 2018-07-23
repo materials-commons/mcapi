@@ -121,7 +121,10 @@ class TestProcessSampleMeasurement(unittest.TestCase):
             ret[name] = the_property
         return ret
 
-
+# note: all measurement methods funnel through process.set_measurement
+#   to process._set_measurement_for_process_samples;
+#   it is sufficient to test the above examples!
+# ----
 # def set_measurement(self, attribute, measurement_data, name=None):
 # def add_integer_measurement(self, attrname, value, name=None):
 # def add_number_measurement(self, attrname, value, name=None):
