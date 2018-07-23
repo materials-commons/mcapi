@@ -20,19 +20,18 @@ class MultiuserStress:
             user_name = "user-%03d" % i
             apikey = "bogus-key-%03d" % i
             user_id = '{}@mc.test'.format(user_name)
-            self.log.info("id = {}, name = {}, apikey = {}".format(user_id, user_name, apikey))
             self.make_sure_user_exists(db, user_name, user_id, apikey)
             w = Worker(worker_name, apikey)
             self.worker_list.append(w)
             p = Process(target=task_call, args=(w,))
             self.process_list.append(p)
+            self.log.info("Completed setup for worker{}".format(worker_name))
 
     def run(self):
-        pass
-        # for p in self.process_list:
-        #     p.start()
-        # for p in self.process_list:
-        #     p.join()
+        for p in self.process_list:
+            p.start()
+        for p in self.process_list:
+            p.join()
 
     def make_sure_user_exists(self, db, user_name, user_id, apikey):
         exists = db.get_user_by_id(user_id)

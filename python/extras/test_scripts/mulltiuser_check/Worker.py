@@ -12,6 +12,7 @@ class Worker:
         self.log.info("init: name = {}".format(self.name))
 
     def run(self):
+        # noinspection PyBroadException
         try:
             self.log.info("Starting worker {}".format(self.name))
             self._set_up_remote_for(self.apikey)
@@ -34,7 +35,7 @@ class Worker:
             process_templates = [process.template_id for process in process_list]
 
             self.log.info("Ending worker {}".format(self.name))
-        except BaseException as r:
+        except BaseException:
             self.log.exception("Exception in worker {}".format(self.name))
 
     @staticmethod
@@ -55,7 +56,6 @@ class Worker:
         for t in templates:
             ret[t.id] = t
         return ret
-
 
     @staticmethod
     def find_template_id_from_match(template_table, match):
