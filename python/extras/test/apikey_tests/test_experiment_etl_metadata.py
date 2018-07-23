@@ -28,6 +28,19 @@ class TestExperimentMetadata(unittest.TestCase):
         metadata = create_experiment_metadata(self.experiment.id, metadata_data, apikey=self.apikey)
         self.assertEqual(self.user, metadata.owner)
 
+    def test_update_experiment_metadata(self):
+        metadata_data = _make_reasonable_metadata()
+        metadata = create_experiment_metadata(self.experiment.id, metadata_data, apikey=self.apikey)
+
+        old_value = metadata.json["input_data_dir_path"]
+        new_value = old_value + '/extra'
+        self.assertTrue(metadata.json["input_data_dir_path"] == old_value)
+        self.assertFalse(metadata.json["input_data_dir_path"] == new_value)
+
+        metadata_data["input_data_dir_path"] = new_value
+        metadata = metadata.update(metadata_data)
+        self.assertEqual(new_value, metadata.json["input_data_dir_path"])
+
     def test_get_experiment_metadata_by_experiment_id(self):
         # Note: top level functions
         metadata_data = _make_reasonable_metadata()
@@ -48,6 +61,18 @@ class TestExperimentMetadata(unittest.TestCase):
         self.assertEqual(self.user, metadata_by_id.owner)
         self.assertEqual(metadata.experiment_id, metadata_by_id.experiment_id)
 
+    def test_delete_experiment_metadata(self):
+        metadata_data = _make_reasonable_metadata()
+        metadata = create_experiment_metadata(self.experiment.id, metadata_data, apikey=self.apikey)
+        self.assertEqual(self.user, metadata.owner)
+
+        metadata_by_id = get_experiment_metadata_by_id(metadata.id, apikey=self.apikey)
+        self.assertEqual(self.user, metadata_by_id.owner)
+        self.assertEqual(metadata.experiment_id, metadata_by_id.experiment_id)
+
+        metadata.delete()
+        metadata_by_id = get_experiment_metadata_by_id(metadata.id, apikey=self.apikey)
+        self.assertIsNone(metadata_by_id)
 
 def _make_reasonable_metadata():
     return {

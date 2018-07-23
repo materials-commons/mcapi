@@ -98,10 +98,10 @@ class Project(MCObject):
         """
         if not description:
             description = self.description
-        results = api.update_project(self.id, name, description)
+        results = api.update_project(self.id, name, description, apikey=self._apikey)
         project_id = results['id']
         from .top_level_api_functions import get_project_by_id
-        project = get_project_by_id(project_id)
+        project = get_project_by_id(project_id, apikey=self._apikey)
         return project
 
     def put(self):
