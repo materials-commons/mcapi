@@ -29,13 +29,99 @@ class TestProcessSampleMeasurement(unittest.TestCase):
         ht_template = find_template_id_from_match(cls.templates, "Heat Treatment")
         cls.ht_process = cls.experiment.create_process_from_template(ht_template)
 
-    @pytest.mark.skip("TestProcessSampleMeasurement")
-    def any_test(self):
-        pass
+        cls.sample_names1 = ["sample1a"]
+        cls.samples1 = cls.create_process.create_samples(cls.sample_names1)
 
-# def make_list_of_samples_for_measurement(self, samples):
-# def create_measurement(self, data):
-# def set_measurements_for_process_samples(self, measurement_property, measurements):
+    def test_set_integer_measurement(self):
+        attribute = "spacing"
+        value = 5
+        name = "Gap Spacing"
+        otype = "integer"
+
+        process = self.create_process
+        process = process.add_integer_measurement(attribute, value, name=name)
+        sample_out = process.output_samples[0]
+        properties_out = sample_out.properties
+        table = self.make_properties_dictionary(properties_out)
+        selected_property = table[name]
+        self.assertEqual(len(selected_property.best_measure), 1)
+        measurement_out = selected_property.best_measure[0]
+        self.assertEqual(measurement_out.name, name)
+        self.assertEqual(measurement_out.attribute, attribute)
+        self.assertEqual(measurement_out.otype, otype)
+        self.assertEqual(measurement_out.unit, "")
+        self.assertEqual(measurement_out.value, value)
+
+    # noinspection SpellCheckingInspection,SpellCheckingInspection
+    def test_set_string_measurement(self):
+        attribute = "label"
+        value = "booloo ball"
+        name = "Gingle Snit"
+        otype = "string"
+
+        process = self.create_process
+        process = process.add_string_measurement(attribute, value, name=name)
+        sample_out = process.output_samples[0]
+        properties_out = sample_out.properties
+        table = self.make_properties_dictionary(properties_out)
+        selected_property = table[name]
+        self.assertEqual(len(selected_property.best_measure), 1)
+        measurement_out = selected_property.best_measure[0]
+        self.assertEqual(measurement_out.name, name)
+        self.assertEqual(measurement_out.attribute, attribute)
+        self.assertEqual(measurement_out.otype, otype)
+        self.assertEqual(measurement_out.unit, "")
+        self.assertEqual(measurement_out.value, value)
+
+    def test_set_boolean_measurement(self):
+        attribute = "flag"
+        value = True
+        name = "Shift"
+        otype = "boolean"
+
+        process = self.create_process
+        process = process.add_boolean_measurement(attribute, value, name=name)
+        sample_out = process.output_samples[0]
+        properties_out = sample_out.properties
+        table = self.make_properties_dictionary(properties_out)
+        selected_property = table[name]
+        self.assertEqual(len(selected_property.best_measure), 1)
+        measurement_out = selected_property.best_measure[0]
+        self.assertEqual(measurement_out.name, name)
+        self.assertEqual(measurement_out.attribute, attribute)
+        self.assertEqual(measurement_out.otype, otype)
+        self.assertEqual(measurement_out.unit, "")
+        self.assertEqual(measurement_out.value, value)
+
+    def test_set_number_measurement(self):
+        attribute = "scale"
+        value = 7
+        name = "Scaling Factor"
+        otype = "number"
+
+        process = self.create_process
+        process = process.add_number_measurement(attribute, value, name=name)
+        sample_out = process.output_samples[0]
+        properties_out = sample_out.properties
+        table = self.make_properties_dictionary(properties_out)
+        selected_property = table[name]
+        self.assertEqual(len(selected_property.best_measure), 1)
+        measurement_out = selected_property.best_measure[0]
+        self.assertEqual(measurement_out.name, name)
+        self.assertEqual(measurement_out.attribute, attribute)
+        self.assertEqual(measurement_out.otype, otype)
+        self.assertEqual(measurement_out.unit, "")
+        self.assertEqual(measurement_out.value, value)
+
+    @staticmethod
+    def make_properties_dictionary(properties):
+        ret = {}
+        for the_property in properties:
+            name = the_property.name
+            ret[name] = the_property
+        return ret
+
+
 # def set_measurement(self, attribute, measurement_data, name=None):
 # def add_integer_measurement(self, attrname, value, name=None):
 # def add_number_measurement(self, attrname, value, name=None):

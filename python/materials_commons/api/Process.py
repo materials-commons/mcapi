@@ -814,7 +814,8 @@ class Process(MCObject):
             })
         success_flag = api.set_measurement_for_process_samples(
             project_id, experiment_id, process_id,
-            samples_parameter, measurement_property, measurement_parameter)
+            samples_parameter, measurement_property, measurement_parameter,
+            apikey=self.project._apikey)
         if not success_flag:
             print("mcapi.mc._set_measurement_for_process_samples - unexpectedly failed")
             return None
