@@ -23,7 +23,7 @@ if __name__ == "__main__":
 
     startup_log = logging.getLogger("top_level_setup")
     startup_log.info("Starting...")
-    number_of_users = 1
+    number_of_users = 100
     startup_log.info("setting number of users = {}".format(number_of_users))
     main(number_of_users)
     startup_log.info("End.")
