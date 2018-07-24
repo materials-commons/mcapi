@@ -34,6 +34,9 @@ pip install sphinx
 pip install config
 
 ----- upload: in env with python3 ---
+(note, account info must be in ~/.pypirc, see:
+https://github.com/prisms-center/operations.materialscommons.org/blob/master/notes/PyPiNotes.txt
+)
 cd ${MCAPI_BASE}
 cd python
 source ${PYTHON_ENVS}/forPyPiUpload/bin/activate
