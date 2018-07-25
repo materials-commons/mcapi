@@ -299,7 +299,7 @@ class Process(MCObject):
         output_samples = self.output_samples
         return input_samples + output_samples
 
-    def add_input_samples_to_process(self, samples):
+    def add_input_samples_to_process(self, samples, transform=None):
         """
         Add input samples to this process.
 
@@ -307,7 +307,7 @@ class Process(MCObject):
         :return: the updated process
 
         """
-        return self._add_input_samples_to_process(samples)
+        return self._add_input_samples_to_process(samples, transform=transform)
 
     # Process - File-related methods - truncated?
     # TODO: should Process have File-related create, get_by_id, get_all?
@@ -821,13 +821,17 @@ class Process(MCObject):
             return None
         return self.experiment.get_process_by_id(process_id)
 
-    def _add_input_samples_to_process(self, samples):
+    def _add_input_samples_to_process(self, samples, transform=None):
         project = self.project
         experiment = self.experiment
         process = self
-        arg_pair_list = [{'sample_id': s.id, 'property_set_id': s.property_set_id} for s in samples]
+        arg_list = [{'sample_id': s.id, 'property_set_id': s.property_set_id} for s in samples]
+        if not transform is None:
+            for ap in arg_list:
+                ap['transform'] = transform
+        print(arg_list)
         results = api.add_samples_to_process(
-            project.id, experiment.id, process.id, process.template_id, arg_pair_list, apikey=self.project._apikey)
+            project.id, experiment.id, process.id, process.template_id, arg_list, apikey=self.project._apikey)
         new_process = make_object(results)
         for sample in new_process.input_samples:
             sample.experiment = experiment
