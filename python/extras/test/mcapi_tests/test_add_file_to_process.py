@@ -12,7 +12,7 @@ def fake_name(prefix):
     return prefix + number
 
 
-class TestAddFileToProcess(unittest.TestCase):
+class TestAddFileToProcessBasic(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
@@ -115,3 +115,54 @@ class TestAddFileToProcess(unittest.TestCase):
             self.byte_count = getsize(input_path)
 
             self.file = self.project.add_file_using_directory(self.test_dir, self.file_name, input_path)
+
+
+class TestAddFileToProcessWithDirection(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.project_name = fake_name("Test file Project-")
+        cls.project_description = "A test Project generated from api"
+        cls.experiment_name = fake_name("Experiment-")
+        cls.experiment_description = "A test Experiment generated from api"
+        cls.test_dir_path = "/testDir1/testdir2/testdir3"
+
+        cls.project = create_project(
+            name=cls.project_name,
+            description=cls.project_description)
+
+        cls.experiment = cls.project.create_experiment(
+            name=cls.experiment_name,
+            description=cls.experiment_description)
+
+        cls.process = cls.experiment.create_process_from_template(Template.create)
+
+    def test_add_file_to_process_with_direction(self):
+        filepath = self.make_test_dir_path('fractal.jpg')
+        test_dir = self.project.add_directory(self.test_dir_path)
+
+        filename1 = "test1.jpg"
+        file1 = self.project.add_file_using_directory(test_dir, filename1, filepath)
+        files1 = [file1]
+
+        filename2 = "test2.jpg"
+        file2 = self.project.add_file_using_directory(test_dir, filename2, filepath)
+        files2 = [file2]
+
+        process = self.process
+        process = process.add_files(files1, direction='in')
+        process = process.add_files(files2, direction='out')
+
+        process = self.experiment.get_process_by_id(process.id)
+        files = process.get_all_files()
+        self.assertEqual(len(files), 2)
+        self.assertTrue(False)
+
+    def make_test_dir_path(self, file_name):
+        self.assertTrue('TEST_DATA_DIR' in environ)
+        test_path = os_path.abspath(environ['TEST_DATA_DIR'])
+        self.assertIsNotNone(test_path)
+        self.assertTrue(os_path.isdir(test_path))
+        test_file = os_path.join(test_path, 'test_upload_data', file_name)
+        self.assertTrue(os_path.isfile(test_file))
+        return test_file
