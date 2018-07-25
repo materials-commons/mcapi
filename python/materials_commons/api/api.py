@@ -402,6 +402,9 @@ def add_samples_to_process(
         "process_id": process_id,
         "samples": samples_data
     }
+
+    print(data)
+
     api_url = "projects/" + project_id + \
               "/experiments/" + experiment_id + \
               "/processes/" + process_id
