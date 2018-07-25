@@ -5,6 +5,7 @@ import pkg_resources
 
 class TestVersion(unittest.TestCase):
 
+    @pytest.mark.skip("This test only works in the context of the module - TestVersion")
     def test_version(self):
         print("Code version is ",version.version())
         with open(pkg_resources.resource_filename('materials_commons', 'VERSION.txt')) as f:

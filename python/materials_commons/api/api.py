@@ -447,7 +447,7 @@ def add_samples_to_process(project_id, experiment_id, process, samples, remote=N
 
     for sample in samples:
         if not hasattr(sample, 'transform'):
-            sample.transform = False
+            sample.transform = True
     samples_data = [
         {'command': 'add', 'id': s.id, 'property_set_id': s.property_set_id, 'transform': s.transform}
         for s in samples]
