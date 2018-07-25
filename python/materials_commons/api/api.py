@@ -3,6 +3,7 @@ from .remote import Remote, RemoteWithApikey
 from .config import Config
 import requests
 import magic
+
 # import json
 
 # Defaults
@@ -389,9 +390,14 @@ def fetch_sample_details(project_id, sample_id, remote=None, apikey=None):
 def add_samples_to_process(
         project_id, experiment_id, process_id, template_id, sample_id_prop_id_list, remote=None, apikey=None):
     remote = configure_remote(remote, apikey)
-    samples_data = [
-        {'command': 'add', 'id': s['sample_id'], 'property_set_id': s['property_set_id']}
-        for s in sample_id_prop_id_list]
+
+    samples_data = []
+    for s in sample_id_prop_id_list:
+        data_item = {'command': 'add', 'id': s['sample_id'], 'property_set_id': s['property_set_id']}
+        if 'transform' in s:
+            data_item['transform'] = s['transform']
+        samples_data.append(s)
+
     data = {
         "template_id": template_id,
         "process_id": process_id,
@@ -458,7 +464,8 @@ def update_process_setup_properties_make_data(setup_property):
     return data
 
 
-def update_additional_properties_in_process(project_id, experiment_id, process_id, properties, remote=None, apikey=None):
+def update_additional_properties_in_process(
+        project_id, experiment_id, process_id, properties, remote=None, apikey=None):
     remote = configure_remote(remote, apikey)
     data = {
         'properties': properties
@@ -613,7 +620,22 @@ def file_download(project_id, file_id, output_file_path, remote=None, apikey=Non
 def add_files_to_process(
         project_id, experiment_id, process_id, template_id, file_ids, remote=None, apikey=None):
     remote = configure_remote(remote, apikey)
-    file_id_list = [{'command': 'add', 'id': id} for id in file_ids]
+    print("")
+    print("-------------------------------------")
+    print("|------> unhandled change <---------|")
+    print("-------------------------------------")
+    print("|                                   |")
+    print("|  add 'direction' to files spec    |")
+    print("|  in api.py add_files_to_process   |")
+    print("|                                   |")
+    print("-------------------------------------")
+    print("|------> unhandled change <---------|")
+    print("-------------------------------------")
+
+    # for f in files:
+    #     if not hasattr(f, 'direction'):
+    #         f.direction = ''
+    file_id_list = [{'command': 'add', 'id': file_id} for file_id in file_ids]
     data = {
         "template_id": template_id,
         "process_id": process_id,
