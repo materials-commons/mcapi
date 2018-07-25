@@ -1,4 +1,5 @@
 import unittest
+import pytest
 from random import randint
 from os import environ
 from os import path as os_path
@@ -23,8 +24,6 @@ class TestFileMove(unittest.TestCase):
         project = create_project(cls.project_name, description)
         cls.project_id = project.id
         cls.project = project
-        print('')
-        print(project.name)
 
         cls.top_directory = project.get_top_directory()
         cls.test_dir_path_for_move = '/TestForMove'
@@ -109,6 +108,7 @@ class TestFileMove(unittest.TestCase):
         self.assertEqual(file._directory_id, probe._directory_id)
         self.assertEqual(file._directory_id, self.directory_for_file_move.id)
 
+    @pytest.mark.skip("Incompete test - test_file_move.py - test_move_file")
     def test_move_file(self):
         test_file = self.test_file
         target = self.directory_f
@@ -123,6 +123,3 @@ class TestFileMove(unittest.TestCase):
         self.assertEqual(directory.id, self.directory_for_file_move.id)
         self.assertEqual(directory._project, self.project)
         child_list = directory.get_children()
-        print(child_list)
-        for child in child_list:
-            print(child.name)

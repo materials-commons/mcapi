@@ -94,8 +94,6 @@ class TestComment(unittest.TestCase):
     @classmethod
     def build_project(cls, test_dir_path):
         project_name = cls.fake_name("ProjectForCommentTest")
-        print("")
-        print("Project name: " + project_name)
 
         builder = demo.DemoProject(test_dir_path)
         project = builder.build_project()

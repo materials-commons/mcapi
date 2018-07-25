@@ -696,7 +696,6 @@ def add_comment(item_type, item_id, text, remote=None, apikey=None):
         'text': text
     }
     api_url = "comments"
-    print(remote.make_url_v2(api_url))
     return post(remote.make_url_v2(api_url), data, remote)
 
 

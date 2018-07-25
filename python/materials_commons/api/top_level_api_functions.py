@@ -105,7 +105,7 @@ def create_experiment_metadata(experiment_id, metadata, apikey=None):
     """
     results = api.create_experiment_metadata(experiment_id, metadata, apikey=apikey)
     if _has_key('error', results):
-        print("Error: ", results['error'])
+        # print("Error: ", results['error'])
         return None
     data = results['data']
     return make_object(data=data)
@@ -120,7 +120,7 @@ def get_experiment_metadata_by_experiment_id(experiment_id, apikey=None):
     """
     results = api.get_experiment_metadata_by_experiment_id(experiment_id, apikey=apikey)
     if _has_key('error', results):
-        print("Error: ", results['error'])
+        # print("Error: ", results['error'])
         return None
     data = results['data']
     return make_object(data=data)
@@ -135,7 +135,7 @@ def get_experiment_metadata_by_id(metadata_id, apikey=None):
     """
     results = api.get_experiment_metadata(metadata_id, apikey=apikey)
     if _has_key('error', results):
-        print("Error: ", results['error'])
+        # print("Error: ", results['error'])
         return None
     data = results['data']
     return make_object(data=data)

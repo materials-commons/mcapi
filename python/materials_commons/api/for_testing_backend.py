@@ -6,14 +6,12 @@ from .make_objects import make_object
 #    testing template backend
 # ---
 def _create_new_template(template_data, apikey=None):
-    print("Create new template")
     results = api._create_new_template(template_data, apikey=apikey)
     template = make_object(results)
     return template
 
 
 def _update_template(template_id, template_data, apikey=None):
-    print("Updating template")
     results = api._update_template(template_id, template_data, apikey=apikey)
     template = make_object(results)
     return template

@@ -61,16 +61,8 @@ class TestSampleAssociate(unittest.TestCase):
         for sample in process_with_sample.input_samples:
             sample.decorate_with_processes()
         found_process = None
-        print('')
-        print('----')
-        print(process_with_sample.input_samples)
-        print(process_with_sample.input_samples[0])
-        print(process_with_sample.input_samples[0].processes)
-        print('----')
         for process in process_with_sample.input_samples[0].processes:
-            print(process.process_type)
             if process.process_type == 'analysis':
                 found_process = process
-        print('----')
         self.assertIsNotNone(found_process)
         self.assertEqual(found_process.id, process_with_sample.id)

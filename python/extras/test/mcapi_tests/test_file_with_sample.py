@@ -48,8 +48,6 @@ class TestFileProcessSample(unittest.TestCase):
         cls.measurement_process = epma_process
 
     def test_is_setup_correctly(self):
-        print("")
-        print(self.project.name)
         self.assertTrue('TEST_DATA_DIR' in environ)
         self.assertIsNotNone(self.helper.test_path)
         self.assertTrue(os_path.isdir(self.helper.test_path))

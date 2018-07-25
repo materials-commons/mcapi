@@ -1,5 +1,4 @@
 import unittest
-import pytest
 from random import randint
 from materials_commons.api import create_project, get_all_templates
 from materials_commons.api import Template
@@ -13,7 +12,6 @@ def fake_name(prefix):
 
 
 # noinspection SpellCheckingInspection
-@pytest.mark.skip(reason="failing - do to recent changes in mc.org - relitive to process/samples")
 class TestProcessDelete(unittest.TestCase):
 
     @classmethod
