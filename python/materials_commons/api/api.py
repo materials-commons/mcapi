@@ -397,9 +397,6 @@ def add_samples_to_process(
         if 'transform' in s:
             data_item['transform'] = s['transform']
         samples_data.append(data_item)
-
-    print(samples_data)
-
     data = {
         "template_id": template_id,
         "process_id": process_id,

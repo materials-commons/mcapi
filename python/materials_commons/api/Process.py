@@ -829,7 +829,6 @@ class Process(MCObject):
         if not transform is None:
             for ap in arg_list:
                 ap['transform'] = transform
-        print(arg_list)
         results = api.add_samples_to_process(
             project.id, experiment.id, process.id, process.template_id, arg_list, apikey=self.project._apikey)
         new_process = make_object(results)
