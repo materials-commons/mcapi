@@ -95,7 +95,8 @@ class PrettyPrint(object):
         self.out = out
         self.n_indent = 0
 
-    def str(self, val):
+    @staticmethod
+    def str(val):
         result = str(val)
         if ' ' in result:
             result = "'" + result + "'"
@@ -116,8 +117,8 @@ class PrettyPrint(object):
         if len(object_list):
             self.write(title)
             self.n_indent += 1
-            for object in object_list:
-                object.pretty_print(
+            for print_object in object_list:
+                print_object.pretty_print(
                     shift=(self.shift + self.n_indent * self.indent),
                     indent=self.indent,
                     out=self.out)
@@ -135,6 +136,10 @@ class PrettyPrint(object):
             self.n_indent -= 1
 
 
-# A general package Excpetion
+# A general package Exceptions
 class MCGenericException(BaseException):
+    pass
+
+
+class MCConfigurationException(MCGenericException):
     pass

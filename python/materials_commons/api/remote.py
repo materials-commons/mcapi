@@ -1,10 +1,12 @@
 from .config import Config
+from .base import MCConfigurationException
 
 
 class Remote(object):
     def __init__(self, config=Config()):
-        if (not config.mcurl) or (not config.mcapikey):
-            raise Exception("Remote not properly configured: mcapikey and mcurl are required")
+        if not config.mcurl:
+            raise MCConfigurationException(
+                "Remote not properly configured: mcurl is required")
 
         self.config = config
 

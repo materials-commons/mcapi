@@ -18,7 +18,7 @@ class EtlMetadata(MCObject):
         # attr = ['id', 'name', 'description', 'birthtime', 'mtime', 'otype', 'owner']
         super(EtlMetadata, self).__init__(data)
 
-        attr = ['experiment_id', 'json']
+        attr = ['experiment_id', 'json', 'apikey']
         for a in attr:
             setattr(self, a, data.get(a, None))
 
@@ -27,14 +27,15 @@ class EtlMetadata(MCObject):
         self.json = self.input_data['json']
 
     def update(self, new_metadata):
-        results = api.update_experiment_metadata(self.id, new_metadata)
+        results = api.update_experiment_metadata(self.id, new_metadata, apikey=self.apikey)
         if _has_key('error', results):
             print("Error: ", results['error'])
             return None
         data = results['data']
+        data['apikey'] = self.apikey
         updated_metadata_record = make_object(data=data)
         self.json = updated_metadata_record.json
         return self
 
     def delete(self):
-        return api.delete_experiment_metadata(self.id)
+        return api.delete_experiment_metadata(self.id,apikey=self.apikey)

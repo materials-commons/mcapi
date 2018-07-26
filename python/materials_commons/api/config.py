@@ -1,7 +1,9 @@
 import getpass
 import os
+import warnings
 from os.path import join
 import json
+from .base import MCConfigurationException
 
 
 class Config(object):
@@ -18,7 +20,18 @@ class Config(object):
             with open(config_file, 'r') as f:
                 config = json.load(f)
         else:
-            raise Exception("No config file found, " + config_file + ": Run \'mc setup c\'")
+            config = {
+                'apikey': None,
+                'mcurl': None
+            }
+
+        env_apikey = os.environ.get("MC_API_KEY")
+        env_mcurl = os.environ.get("MC_API_URL")
+
+        if env_apikey:
+            config['apikey'] = env_apikey
+        if env_mcurl:
+            config['mcurl'] = env_mcurl
 
         self.config = config
         for key in config:
@@ -29,6 +42,18 @@ class Config(object):
 
         self.mcapikey = self.config['apikey']
         self.mcurl = self.config['mcurl']
+
+        message = None
+        if not self.mcurl:
+            message = "Python API, Configuration Exception, env variables: " \
+                      + "You must set MC_API_URL"
+            raise MCConfigurationException(message)
+
+        if not self.mcapikey:
+            message = "Python API, Configuration Warning, env variables: " \
+                      + "The apikey in MC_API_KEY is not set; assuming it is set in all calls"
+            warnings.warn(message, UserWarning)
+
         # 'interfaces': [
         #   { 'name': 'casm',
         #     'desc':'Create CASM samples, processes, measurements, etc.',
