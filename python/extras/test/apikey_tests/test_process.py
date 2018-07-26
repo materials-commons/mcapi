@@ -128,13 +128,12 @@ class TestProcess(unittest.TestCase):
         self.assertEqual(ht_template, ht_process.template_id)
 
         ht_process.add_input_samples_to_process([sample])
-        self.assertEqual(1, len(ht_process.input_samples))
-        self.assertEqual(0, len(ht_process.output_samples))
+        self.assertEqual(1, len(ht_process.input_samples), "input_samples, before decorate")
+        self.assertEqual(0, len(ht_process.output_samples), "output_samples, before decorate")
         ht_process = ht_process.decorate_with_input_samples()
         ht_process = ht_process.decorate_with_output_samples()
-        self.assertEqual(1, len(ht_process.input_samples))
-        self.assertEqual(0, len(ht_process.output_samples))
-        # unexpected results, above!!!
+        self.assertEqual(1, len(ht_process.input_samples), "input_samples, after decorate")
+        self.assertEqual(1, len(ht_process.output_samples), "output_samples, after decorate")
 
 
 class TestProcessProperties(unittest.TestCase):

@@ -50,7 +50,7 @@ class TestApiFileProcessSampleRaw(unittest.TestCase):
     def test_add_files_to_process_raw(self):
         process_record_raw = api.add_files_to_process(
             self.project_id, self.experiment_id, self.process_id, self.template_id,
-            [self.file_id], apikey=self.apikey)
+            [self.file_id], None, apikey=self.apikey)
         self.assertEqual("process", process_record_raw['otype'])
         self.assertEqual(self.user, process_record_raw['owner'])
         process_file_list_raw = api.get_all_files_for_process(
