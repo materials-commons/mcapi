@@ -149,14 +149,34 @@ class TestAddFileToProcessWithDirection(unittest.TestCase):
         file2 = self.project.add_file_using_directory(test_dir, filename2, filepath)
         files2 = [file2]
 
+        filename3 = "test3.jpg"
+        file3 = self.project.add_file_using_directory(test_dir, filename3, filepath)
+        files3 = [file3]
+
         process = self.process
         process = process.add_files(files1, direction='in')
         process = process.add_files(files2, direction='out')
+        process = process.add_files(files3)
 
         process = self.experiment.get_process_by_id(process.id)
         files = process.get_all_files()
-        self.assertEqual(len(files), 2)
-        self.assertTrue(False)
+        self.assertEqual(3, len(files), "expected number of files")
+        match_file1 = None
+        match_file2 = None
+        match_file3 = None
+        for file in files:
+            if file.id == file1.id:
+                match_file1 = file
+            if file.id == file2.id:
+                match_file2 = file
+            if file.id == file3.id:
+                match_file3 = file
+        self.assertIsNotNone(match_file1)
+        self.assertIsNotNone(match_file2)
+        self.assertIsNotNone(match_file3)
+        self.assertEqual('in', match_file1.direction, "Direction for match_file1")
+        self.assertEqual('out', match_file2.direction, "Direction for match_file2")
+        self.assertEqual('', match_file3.direction, "Direction for match_file3")
 
     def make_test_dir_path(self, file_name):
         self.assertTrue('TEST_DATA_DIR' in environ)

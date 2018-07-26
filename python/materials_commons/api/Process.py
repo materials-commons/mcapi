@@ -304,6 +304,10 @@ class Process(MCObject):
         Add input samples to this process.
 
         :param samples: a list of :class:`mcapi.Sample` instances
+        :param transform: (optional, default = None), a True/False flag to indicate that
+        the output samples should be (automaticially) generated for transform-type
+        processes. The normal behavior, without the flag, is for the output samples
+        to be generate.
         :return: the updated process
 
         """
@@ -325,15 +329,17 @@ class Process(MCObject):
         file_list = [make_object(x) for x in results]
         return file_list
 
-    def add_files(self, files_list):
+    def add_files(self, files_list, direction=None):
         """
         Add files to this process.
 
         :param files_list: a list of :class:`mcapi.File` instances
+        :param direction: (optional - default unset) 'in' or 'out' - set the
+        indicated direction of the file with respect to the process
         :return: the updated process
 
         """
-        return self._add_files_to_process(files_list)
+        return self._add_files_to_process(files_list, direction=direction)
 
     # Process - SetupProperties-related methods - special methods
     def get_setup_properties_as_dictionary(self):
@@ -846,13 +852,14 @@ class Process(MCObject):
         process._update_project_experiment()
         return process
 
-    def _add_files_to_process(self, file_list):
+    def _add_files_to_process(self, file_list, direction=None):
         project = self.project
         experiment = self.experiment
         process = self
         file_ids = [file.id for file in file_list]
         results = api.add_files_to_process(
-            project.id, experiment.id, process.id, process.template_id, file_ids, apikey=self.project._apikey)
+            project.id, experiment.id, process.id, process.template_id,
+            file_ids, direction, apikey=self.project._apikey)
         process = make_object(results)
         process.project = project
         process.experiment = experiment

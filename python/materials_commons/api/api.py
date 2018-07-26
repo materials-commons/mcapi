@@ -617,24 +617,12 @@ def file_download(project_id, file_id, output_file_path, remote=None, apikey=Non
 
 
 def add_files_to_process(
-        project_id, experiment_id, process_id, template_id, file_ids, remote=None, apikey=None):
+        project_id, experiment_id, process_id, template_id, file_ids,
+        direction, remote=None, apikey=None):
     remote = configure_remote(remote, apikey)
-    print("")
-    print("-------------------------------------")
-    print("|------> unhandled change <---------|")
-    print("-------------------------------------")
-    print("|                                   |")
-    print("|  add 'direction' to files spec    |")
-    print("|  in api.py add_files_to_process   |")
-    print("|                                   |")
-    print("-------------------------------------")
-    print("|------> unhandled change <---------|")
-    print("-------------------------------------")
-
-    # for f in files:
-    #     if not hasattr(f, 'direction'):
-    #         f.direction = ''
-    file_id_list = [{'command': 'add', 'id': file_id} for file_id in file_ids]
+    if not direction:
+        direction = ''
+    file_id_list = [{'command': 'add', 'id': file_id, 'direction': direction} for file_id in file_ids]
     data = {
         "template_id": template_id,
         "process_id": process_id,

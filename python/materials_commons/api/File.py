@@ -42,7 +42,7 @@ class File(MCObject):
         # attr = ['id', 'name', 'description', 'birthtime', 'mtime', 'otype', 'owner']
         super(File, self).__init__(data)
 
-        attr = ['size', 'uploaded', 'checksum', 'current', 'owner', 'usesid']
+        attr = ['size', 'uploaded', 'checksum', 'current', 'owner', 'usesid', 'direction']
         for a in attr:
             setattr(self, a, data.get(a, None))
 
