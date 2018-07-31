@@ -24,8 +24,8 @@ class TestAddNumberMeasurements(unittest.TestCase):
         cls.experiment_id = cls.experiment.id
         if template:
             cls.process = cls.experiment.create_process_from_template(template)
-            # cls.sample_name = "pcs-sample-1"
-            # cls.sample = cls.process.create_samples(sample_names=[cls.sample_name])[0]
+            cls.sample_name = "pcs-sample-1"
+            cls.sample = cls.process.create_samples(sample_names=[cls.sample_name])[0]
 
     def test_is_setup_correctly(self):
         self.assertIsNotNone(self.template)
@@ -41,15 +41,15 @@ class TestAddNumberMeasurements(unittest.TestCase):
         self.assertIsNotNone(self.process.id)
         self.assertIsNotNone(self.process.process_type)
         self.assertEqual(self.process.process_type, 'create')
-        # self.assertTrue(self.process.does_transform)
+        self.assertTrue(self.process.does_transform)
 
-        # sample = self.sample
-        # samples = self.process.output_samples
-        # self.assertIsNotNone(sample)
-        # self.assertIsNotNone(sample.name)
-        # self.assertIsNotNone(sample.property_set_id)
-        # self.assertEqual(sample.name, self.sample_name)
-        # self.assertEqual(sample.name, samples[0].name)
+        sample = self.sample
+        samples = self.process.output_samples
+        self.assertIsNotNone(sample)
+        self.assertIsNotNone(sample.name)
+        self.assertIsNotNone(sample.property_set_id)
+        self.assertEqual(sample.name, self.sample_name)
+        self.assertEqual(sample.name, samples[0].name)
 
     def test_add_number_measurement(self):
         self.assertIsNotNone(self.template)
@@ -58,16 +58,16 @@ class TestAddNumberMeasurements(unittest.TestCase):
         attribute = "Domain size (x)"
         parameter_list[attribute] = 1
         updated_process = process.add_number_measurement(attribute, parameter_list[attribute])
-        # sample_out = updated_process.output_samples[0]
-        # properties_out = sample_out.properties
-        # table = self.make_properties_dictionary(properties_out)
-        # property_data = table[attribute]
-        # self.assertEqual(len(property_data.best_measure), 1)
-        # measurement_out = property_data.best_measure[0]
-        # print()
-        # print(measurement_out.name)
-        # print(measurement_out.attribute)
-        # print(measurement_out.value)
+        updated_process.decorate_with_output_samples()
+        sample_out = updated_process.output_samples[0]
+        properties_out = sample_out.properties
+        table = self.make_properties_dictionary(properties_out)
+        property_data = table[attribute]
+        self.assertEqual(len(property_data.best_measure), 1)
+        measurement_out = property_data.best_measure[0]
+        self.assertEqual(attribute, measurement_out.name)
+        self.assertEqual(attribute, measurement_out.attribute)
+        self.assertEqual(1, measurement_out.value)
 
     def make_properties_dictionary(self, properties):
         ret = {}
