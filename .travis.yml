@@ -87,7 +87,7 @@ install:
   - popd
 
   - cd python
-  - pushd extras/test/test_data
+  - pushd materials_commons_extras/test/test_data
   - export TEST_DATA_DIR=`pwd`
   - popd
   - export MC_PYTHON_API_DIR=`pwd`
@@ -133,8 +133,8 @@ before_script:
 script:
 # suspending excel regression until completed with refactoring
   - echo "Restore Excel I/O regression testing"
-#  - ./extras/scripts/io_regression_test/run_excel_io_regression_test.sh
-  - pytest -rsx extras/test
+#  - ./materials_commons_extras/scripts/io_regression_test/run_excel_io_regression_test.sh
+  - pytest -rsx materials_commons_extras/test
 #  - -rsx to show reasons for skipping and failed tests - updated
 #  and/or ...
 #  - coverage run --source mcapi,casm_mcapi,demo_project -m py.test test
