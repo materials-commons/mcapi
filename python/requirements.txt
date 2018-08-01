@@ -3,6 +3,7 @@ requests
 rethinkdb
 pytest
 pytest-cov
+pathlib2
 coverage
 pathlib
 numpy
