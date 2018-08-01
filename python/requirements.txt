@@ -1,18 +1,22 @@
 python-magic
 requests
 rethinkdb
-pytest
-pytest-cov
 pathlib2
-coverage
 pathlib
 numpy
 pandas
 tabulate
 sortedcontainers
-mock
 openpyxl
 xlsxwriter
 urllib3
+# these are used in special cases:
+#   pypif - in the citrine example code
+#   pip - in the version test code
 pypif
 pip
+# these are for testing only
+pytest
+pytest-cov
+coverage
+mock
