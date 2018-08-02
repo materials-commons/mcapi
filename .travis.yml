@@ -89,7 +89,9 @@ install:
   - cd python
   - pushd materials_commons_extras/test/test_data
   - export TEST_DATA_DIR=`pwd`
-  - python generate_datea_data.py
+  - pushd etl_test_data
+  - python generate_test_data.py
+  - popd
   - popd
   - export MC_PYTHON_API_DIR=`pwd`
   - pip install coverage
