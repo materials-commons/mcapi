@@ -44,11 +44,6 @@ git:
   depth: 3
 
 before_install:
-  - ls /home/travis/build/materials-commons/mcapi/python/materials_commons_extras/test/test_data
-  - ls /home/travis/build/materials-commons/mcapi/python/materials_commons_extras/test/test_data/etl_test_data
-  - ls /home/travis/build/materials-commons/mcapi/python/materials_commons_extras/test/test_data/etl_test_data/test_data
-  - ls /home/travis/build/materials-commons/mcapi/python/materials_commons_extras/test/test_data/etl_test_data/test_data/data
-  - exit(-1)
     # PATH
   - export PATH=./:$PATH
     # RethinkDB
@@ -94,6 +89,7 @@ install:
   - cd python
   - pushd materials_commons_extras/test/test_data
   - export TEST_DATA_DIR=`pwd`
+  - python generate_datea_data.py
   - popd
   - export MC_PYTHON_API_DIR=`pwd`
   - pip install coverage
