@@ -3,7 +3,7 @@ import unittest
 from os import environ
 from os import path as os_path
 from random import randint
-from materials_commons.api import create_project, get_project_by_id
+from materials_commons.api import create_project
 from materials_commons.etl.old_input_spreadsheet import BuildProjectExperiment
 
 
@@ -42,11 +42,14 @@ class TestEtlEndToEnd(unittest.TestCase):
         builder._set_col_positions()
         builder._determine_start_attribute_row(1)
         desired_file_dir_list = builder._get_source_file_dir_list()
+        print("\nTestEtlEndToEnd::test_etl_staging_test_in_parts")
+        print(desired_file_dir_list)
         missing_set = set()
         for entry in desired_file_dir_list:
             path = os_path.join(data_dir, entry)
             if not os_path.isdir(path) and not os_path.isfile(path):
                 missing_set.add(entry)
+        print(missing_set)
         self.assertIsNotNone(missing_set)
         self.assertEqual(1, len(missing_set))
         self.assertTrue('NoDir' in missing_set)
