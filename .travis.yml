@@ -44,6 +44,11 @@ git:
   depth: 3
 
 before_install:
+  - ls /home/travis/build/materials-commons/mcapi/python/materials_commons_extras/test/test_data
+  - ls /home/travis/build/materials-commons/mcapi/python/materials_commons_extras/test/test_data/etl_test_data
+  - ls /home/travis/build/materials-commons/mcapi/python/materials_commons_extras/test/test_data/etl_test_data/test_data
+  - ls /home/travis/build/materials-commons/mcapi/python/materials_commons_extras/test/test_data/etl_test_data/test_data/data
+  - exit(-1)
     # PATH
   - export PATH=./:$PATH
     # RethinkDB
