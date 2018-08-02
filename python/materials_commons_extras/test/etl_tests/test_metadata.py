@@ -27,6 +27,8 @@ class TestMetadata(unittest.TestCase):
         self.assertIsNotNone(self.test_input_file_path)
         self.assertTrue(os_path.isfile(self.test_input_file_path))
         self.assertIsNotNone(self.test_input_data_dir_path)
+        print("")
+        print(self.test_input_data_dir_path)
         self.assertTrue(os_path.isdir(self.test_input_data_dir_path))
         self.assertIsNotNone(self.random_name)
         self.assertTrue("test" in self.random_name)

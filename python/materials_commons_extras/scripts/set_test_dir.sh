@@ -31,7 +31,7 @@ export BUILD_DEMO_PROJECT_DATA=${TEST_DATA_DIR}/demo_project_data
 echo "BUILD_DEMO_PROJECT_DATA=$BUILD_DEMO_PROJECT_DATA"
 
 export MC_API_KEY=totally-bogus
-echo "MC_API_KEY=$%MC_API_KEY"
+echo "MC_API_KEY=$MC_API_KEY"
 
 export MC_API_URL=http://mcdev.localhost/api
 echo "MC_API_URL=$MC_API_URL"
