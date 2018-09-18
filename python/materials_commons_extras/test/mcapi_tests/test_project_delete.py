@@ -23,7 +23,7 @@ class TestProjectDelete(unittest.TestCase):
         cls.user = "test@test.mc"
         cls.host = get_remote_config_url()
 
-    def test_delete(self):
+    def test_delete_one_project(self):
         self.helper = AssertHelper(self)
 
         project = self._build_project()

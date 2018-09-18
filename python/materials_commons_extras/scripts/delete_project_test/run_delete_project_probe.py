@@ -5,6 +5,7 @@ from os import environ
 from os import path as os_path
 from random import randint
 from optparse import OptionParser
+from time import sleep
 
 import materials_commons_extras.demo_project.demo_project as demo
 
@@ -15,46 +16,62 @@ TABLES = ['access', 'best_measure_history', 'comments', 'datadir2datafile', 'dat
           'experiment2datafile', 'experiment2dataset', 'experiment2experimentnote',
           'experiment2experimenttask', 'experiment2process', 'experiment2sample',
           'experiment_etl_metadata', 'experimentnotes', 'experiments', 'experimenttask2process',
-          'experimenttasks', 'globus_auth_info', 'machines', 'measurement2datafile',
+          'experimenttasks', 'machines', 'measurement2datafile',
           'measurements', 'note2item', 'notes', 'process2file', 'process2measurement',
           'process2sample', 'process2setup', 'process2setupfile', 'processes',
           'project2datadir', 'project2datafile', 'project2dataset', 'project2experiment',
           'project2process', 'project2sample', 'projects', 'properties', 'property2measurement',
           'propertyset2property', 'propertysets', 'review2item', 'reviews', 'runs',
           'sample2datafile', 'sample2propertyset', 'sample2sample', 'samples',
-          'setupproperties', 'setups', 'shares', 'tag2item', 'tags',
-          'ui', 'uploads']
+          'setupproperties', 'setups', 'shares', 'tag2item', 'tags']
+
+# NOTE: 'globus_auth_info' does not exist in current test env
+# Check: project2dataset
+# these tables are not getting reset by project delete:
+#             datadirs
+#             process2setup
+#             properties
+#             property2measurement
+#             propertyset2property
+#             propertysets
+#             sample2propertyset
+#             setupproperties
 
 
 class DeleteProjectProbe:
     def __init__(self, db_port):
         self.conn = r.connect('localhost', db_port, db='materialscommons')
-        self.precondition = {}
-        self.postcondition = {}
+        self.pre_condition = {}
+        self.post_condition = {}
 
     def doit(self):
         # tables = r.table_list().run(self.conn)
         # print(tables)
         tables = TABLES
+        # for table in tables:
+        #     results = r.table(table).pluck('owner').run(self.conn)
+        #     if results:
+        #         results = list(results)
+        #         if len(results) > 0 and results[0]:
+        #             results = results[0]
+        #     print("{} --> {}".format(table, results))
         for table in tables:
-            results = r.table(table).pluck('owner').run(self.conn)
-            if results:
-                results = list(results)
-                if len(results) > 0 and results[0]:
-                    results = results[0]
-            print("{} --> {}".format(table, results))
-        # for table in tables:
-        #     results = r.table(table).count().run(self.conn)
-        #     self.precondition[table] = results
-        # project = self._build_project()
-        # project.delete()
-        # for table in tables:
-        #     results = r.table(table).count().run(self.conn)
-        #     self.postcondition[table] = results
-        # for key in tables:
-        #     mark = "<--" if not self.precondition[key] == self.postcondition[key] else ""
-        #     print("{} - {} - {}  {}".format(key, self.precondition[key], self.postcondition[key], mark))
-        #     # print("{} -- {}".format(key, self.postcondition[key]))
+            results = r.table(table).count().run(self.conn)
+            self.pre_condition[table] = results
+        project = self._build_project()
+        print("project id = {}".format(project.id))
+        experiments = project.get_all_experiments()
+        for exp in experiments:
+            print("experiment id = {}".format(exp.id))
+        project.delete()
+        for table in tables:
+            results = r.table(table).count().run(self.conn)
+            self.post_condition[table] = results
+        for key in tables:
+            if not self.pre_condition[key] == self.post_condition[key]:
+                mark = "<--" if not self.pre_condition[key] == self.post_condition[key] else ""
+                print("{} - {} - {}  {}".format(key, self.pre_condition[key], self.post_condition[key], mark))
+                # print("{} -- {}".format(key, self.postcondition[key]))
 
     def _build_project(self):
         project_name = self._fake_name("ProjectDeleteTest")
