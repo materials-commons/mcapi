@@ -15,6 +15,7 @@ def _fake_name(prefix):
     number = "%05d" % randint(0, 99999)
     return prefix + number
 
+
 class TestProjectDelete(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -27,7 +28,6 @@ class TestProjectDelete(unittest.TestCase):
 
         project = self._build_project()
         project_name = self.test_project_name
-        experiment = project.get_all_experiments()[0]
         self.helper.confirm_demo_project_content(project, project_name, 1)
 
         deleted_project_id = project.delete()
