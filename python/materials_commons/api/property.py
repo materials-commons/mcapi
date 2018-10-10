@@ -189,6 +189,7 @@ class SelectionProperty(Property):
         super(SelectionProperty, self).__init__(data)
 
     def verify_value_type(self, value):
+        print("verify_value_type: {}".format(value))
         if isinstance(value, dict):
             if isinstance(value['name'], str) and isinstance(value['value'], str):
                 return
@@ -196,6 +197,11 @@ class SelectionProperty(Property):
             message = "Only str/unicode values for a SelectionProperty; "
             message += "value = '" + str(value) + "', type = " + str(type(value)) + " is not valid"
             raise MCPropertyException(message)
+        for choice in self.choices:
+            if "Other" == choice['name']:
+                print("Other in choices")
+                return
+        print("Other not in choices")
         found = False
         for choice in self.choices:
             if value == choice['name'] or value == choice['value']:
@@ -211,17 +217,20 @@ class SelectionProperty(Property):
             raise MCPropertyException(message)
 
     def _set_value(self, value):
+        # note: assumes that verify_value_type has been called
         if not value:
             self._value = value
             return
         found = None
+        has_other = False
         for choice in self.choices:
+            if choice['value'] == 'other':
+                has_other = True
             if value == choice['name'] or value == choice['value']:
                 found = choice
                 break
-        if not found:
-            self.verify_value_type(value)
-            found = value
+        if has_other and not found:
+            found = {"name": "Other", "value": value}
         self._value = found
 
 

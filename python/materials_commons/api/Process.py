@@ -371,6 +371,7 @@ class Process(MCObject):
         return attribute in self.get_setup_properties_as_dictionary()
 
     def set_value_of_setup_property(self, name, value):
+        print("set_value_of_setup_property; name = {}, value = {}".format(name, value))
         """
         Populate, locally, the template-supported set-up property indicated by *name*, with a value for that property.
 
@@ -382,6 +383,7 @@ class Process(MCObject):
         if prop:
             prop.verify_value_type(value)
             prop.value = value
+            print('one', prop.name, prop.attribute, prop.value)
         else:
             raise MCPropertyException("Property '" + name + "' is not defined for this process template")
 
