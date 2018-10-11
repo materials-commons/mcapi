@@ -189,7 +189,6 @@ class SelectionProperty(Property):
         super(SelectionProperty, self).__init__(data)
 
     def verify_value_type(self, value):
-        print("verify_value_type: {}".format(value))
         if isinstance(value, dict):
             if isinstance(value['name'], str) and isinstance(value['value'], str):
                 return
@@ -199,9 +198,7 @@ class SelectionProperty(Property):
             raise MCPropertyException(message)
         for choice in self.choices:
             if "Other" == choice['name']:
-                print("Other in choices")
                 return
-        print("Other not in choices")
         found = False
         for choice in self.choices:
             if value == choice['name'] or value == choice['value']:
@@ -219,6 +216,10 @@ class SelectionProperty(Property):
     def _set_value(self, value):
         # note: assumes that verify_value_type has been called
         if not value:
+            self._value = value
+            return
+        # note: if choices is empty, we are in init stage
+        if len(self.choices) == 0:
             self._value = value
             return
         found = None

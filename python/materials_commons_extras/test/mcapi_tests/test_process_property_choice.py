@@ -1,4 +1,5 @@
 import unittest
+import pytest
 from random import randint
 from materials_commons.api import create_project
 from materials_commons.api import get_all_templates
@@ -24,6 +25,7 @@ class TestProcessPropertyChoice(unittest.TestCase):
         template_id = cls.template_id_with(template_table, "APT")
         cls.process = cls.base_experiment.create_process_from_template(template_id)
 
+    @pytest.mark.skip()
     def test_is_setup_correctly(self):
         self.assertIsNotNone(self.base_project)
         self.assertIsNotNone(self.base_project.name)
@@ -41,8 +43,19 @@ class TestProcessPropertyChoice(unittest.TestCase):
         self.assertEqual(len(self.process.setup), 1)
         self.assertEqual(len(self.process.setup[0].properties), 10)
 
+    @pytest.mark.skip()
+    def test_known_non_choice_selection(self):
+        self.process.set_value_of_setup_property('specimen_temperature', 2000)
+        self.process.set_unit_of_setup_property('specimen_temperature', 'C')
+        prop = self.process.get_setup_properties_as_dictionary()['specimen_temperature']
+        self.assertEqual(2000, prop.value)
+        self.assertEqual('C', prop.unit)
+        new_process = self.process.update_setup_properties(['specimen_temperature'])
+        prop = new_process.get_setup_properties_as_dictionary()['specimen_temperature']
+        self.assertEqual(2000, prop.value)
+        self.assertEqual('C', prop.unit)
+
     def test_known_choice_selection(self):
-        print("")
         properties_table = self.process.get_setup_properties_as_dictionary()
         choice_attributes = ['mode','evaporation_control','imaging_gas']
         for a in choice_attributes:
@@ -60,7 +73,6 @@ class TestProcessPropertyChoice(unittest.TestCase):
         # set by value - override and push to database
         self.process.set_value_of_setup_property('mode', 'voltage')
         prop = self.process.get_setup_properties_as_dictionary()['mode']
-        print(prop.value)
         self.assertEqual(prop.attribute, "mode")
         self.assertEqual(prop.name, "Mode")
         self.assertEqual(prop.value['name'], 'Voltage')
@@ -68,11 +80,14 @@ class TestProcessPropertyChoice(unittest.TestCase):
         new_process = self.process.update_setup_properties(['mode'])
         self.assertEqual(self.process.id, new_process.id)
         prop = new_process.get_setup_properties_as_dictionary()['mode']
+        self.assertIsNotNone(prop)
         self.assertEqual(prop.attribute, "mode")
         self.assertEqual(prop.name, "Mode")
+        self.assertIsNotNone(prop.value)
         self.assertEqual(prop.value['name'], 'Voltage')
         self.assertEqual(prop.value['value'], 'voltage')
 
+    @pytest.mark.skip()
     def test_unknown_choice_selection_for_other(self):
         print("")
         properties_table = self.process.get_setup_properties_as_dictionary()

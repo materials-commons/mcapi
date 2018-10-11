@@ -6,6 +6,7 @@ from .base import _decorate_object_with
 from .make_objects import make_object, make_property_object
 from .measurement import make_measurement_object
 from .property import _normalise_property_name, _convert_for_json_if_datetime
+from .property import MCPropertyException
 
 
 class Process(MCObject):
@@ -22,14 +23,18 @@ class Process(MCObject):
         self.output_files = []  #: list of :class:`mcapi.File` instance
         self.input_samples = []  #: list of :class:`mcapi.Sample` instance
         self.output_samples = []  #: list of :class:`mcapi.Sample` instance
+        self.transformed_samples = []  #: list of :class:`mcapi.Sample` instance
+        self.measurements = []  #: list of :class:`mcapi.Measurement` instance
 
         self.owner = ''
         self.setup = []
-        self.measurements = []  #: list of :class:`mcapi.Measurement` instance
-        self.transformed_samples = []  #: list of :class:`mcapi.Sample` instance
         self.what = ''  #: string
         self.why = ''  #: string
         self.category = None  #: string
+        self.process_type = None
+        self.template_id = ''
+        self.template_name = ''
+
         self.experiment = None  #: the :class:`mcapi.Experiment` containing this process
 
         self.project = None  #: the :class:`mcapi.Project` containing this process
@@ -44,6 +49,8 @@ class Process(MCObject):
         #: 'in' or 'out' - filled in when process is in Sample.processes; see :class:`mcapi.Sample`
         self.direction = ''
 
+        self.template_id = ''  #: string - filled in when process is initialized`
+        self.template_name = ''  #: string - filled in when process is initialized`
         self.process_id = ''  #: string - filled in when process is in Sample.processes; see :class:`mcapi.Sample`
         self.sample_id = ''  #: string - filled in when process is in Sample.processes; see :class:`mcapi.Sample`
         self.property_set_id = ''  #: string - filled in when process is in Sample.processes; see :class:`mcapi.Sample`
@@ -57,6 +64,8 @@ class Process(MCObject):
 
         #: extra field for convenience; equivalent to description
         self.notes = ''
+
+        self.files = []
 
         self._files = []
 
@@ -161,7 +170,8 @@ class Process(MCObject):
         setup_element.properties = [self._transform_property(prop) for prop in setup_element.properties]
         return setup_element
 
-    def _transform_property(self, process_property):
+    @staticmethod
+    def _transform_property(process_property):
         prop = make_property_object(process_property)
         return prop
 
@@ -206,7 +216,7 @@ class Process(MCObject):
                 results = None
             else:
                 results = results['id']
-        except Exception:
+        except BaseException:
             pass
 
         return results
@@ -285,7 +295,8 @@ class Process(MCObject):
 
         """
         # TODO: Process.get_sample_by_id(id)
-        raise NotImplementedError("Process.get_sample_by_id(id) is not implemented")
+        message = "Process.get_sample_by_id({}) is not implemented".format(process_id)
+        raise NotImplementedError(message)
         pass
 
     def get_all_samples(self):
@@ -371,7 +382,6 @@ class Process(MCObject):
         return attribute in self.get_setup_properties_as_dictionary()
 
     def set_value_of_setup_property(self, name, value):
-        print("set_value_of_setup_property; name = {}, value = {}".format(name, value))
         """
         Populate, locally, the template-supported set-up property indicated by *name*, with a value for that property.
 
@@ -383,13 +393,13 @@ class Process(MCObject):
         if prop:
             prop.verify_value_type(value)
             prop.value = value
-            print('one', prop.name, prop.attribute, prop.value)
         else:
             raise MCPropertyException("Property '" + name + "' is not defined for this process template")
 
     def set_unit_of_setup_property(self, name, unit):
         """
-        Augment, locally, the template-supported set-up property indicated by *name*, with a unit type for that property.
+        Augment, locally, the template-supported set-up property indicated
+        by *name*, with a unit type for that property.
 
         :param name: - string
         :param unit: - unit type - string
@@ -437,7 +447,8 @@ class Process(MCObject):
         (Currently, the object types supported are: 'string' and 'number'. The 'otype' is not
         required, The default will be based on the type of value.)
 
-        :param entry_list: a list of objects: [{name: name, attribute: attribute, value: value, unit: unit, otype: object-type}, ...]
+        :param entry_list: a list of objects: [{name: name,
+            attribute: attribute, value: value, unit: unit, otype: object-type}, ...]
         :return: the updated process
         """
         args = []
@@ -476,19 +487,21 @@ class Process(MCObject):
         return self
 
     def make_list_of_samples_for_measurement(self, samples):
-        '''
-        Augment samples with setup properties from this process; the samples must have been created by the process;
+        """
+        Augment samples with setup properties from this process;
+        the samples must have been created by the process;
         see :func:`mcapi.Process.create_sample`
 
         :param samples: list of :class:`mcapi.Sample` instances
-        :return: list of :class:`mcapi.Sample` instances with their property_set id values set
+        :return: list of :class:`mcapi.Sample` instances with their
+            property_set id values set
 
-        '''
+        """
         process_measurement_samples = self.get_all_samples()
-        filter = "in"
+        direction_filter = "in"
         if self.process_type == 'transform' or self.process_type == 'create':
-            filter = "out"
-        process_measurement_samples = [s for s in process_measurement_samples if s.direction == filter]
+            direction_filter = "out"
+        process_measurement_samples = [s for s in process_measurement_samples if s.direction == direction_filter]
         if not process_measurement_samples:
             return []
 
