@@ -1,5 +1,4 @@
 import unittest
-import pytest
 from random import randint
 from materials_commons.api import create_project
 from materials_commons.api import get_all_templates
@@ -25,7 +24,6 @@ class TestProcessPropertyChoice(unittest.TestCase):
         template_id = cls.template_id_with(template_table, "APT")
         cls.process = cls.base_experiment.create_process_from_template(template_id)
 
-    @pytest.mark.skip()
     def test_is_setup_correctly(self):
         self.assertIsNotNone(self.base_project)
         self.assertIsNotNone(self.base_project.name)
@@ -43,7 +41,6 @@ class TestProcessPropertyChoice(unittest.TestCase):
         self.assertEqual(len(self.process.setup), 1)
         self.assertEqual(len(self.process.setup[0].properties), 10)
 
-    @pytest.mark.skip()
     def test_known_non_choice_selection(self):
         self.process.set_value_of_setup_property('specimen_temperature', 2000)
         self.process.set_unit_of_setup_property('specimen_temperature', 'C')
@@ -87,35 +84,30 @@ class TestProcessPropertyChoice(unittest.TestCase):
         self.assertEqual(prop.value['name'], 'Voltage')
         self.assertEqual(prop.value['value'], 'voltage')
 
-    @pytest.mark.skip()
     def test_unknown_choice_selection_for_other(self):
-        print("")
+        # setup
         properties_table = self.process.get_setup_properties_as_dictionary()
         choice_attributes = ['mode','evaporation_control','imaging_gas']
         for a in choice_attributes:
             self.assertIn(a, properties_table)
         choice_name_lookup = {}
-        print(properties_table['evaporation_control'].choices)
         for choice in properties_table['evaporation_control'].choices:
             choice_name_lookup[choice['value']] = choice['name']
         self.assertIn('other', choice_name_lookup)
-        self.process.set_value_of_setup_property('evaporation_control', 'constant_detector_rate')
+        # setting unknown value
+        self.process.set_value_of_setup_property('evaporation_control', 'anything')
         prop = self.process.get_setup_properties_as_dictionary()['evaporation_control']
-        print(prop.name, prop.attribute, prop.value)
-        # self.assertEqual(prop.attribute, "evaporation_control")
-        # self.assertEqual(prop.name, "Evaporation Control")
-        # print(prop.value)
-        # self.assertEqual(prop.value['name'], 'Other')
-        # self.assertEqual(prop.value['value'], 'anything')
-        #new_process = self.process.update_setup_properties(['mode'])
-        #self.assertEqual(self.process.id, new_process.id)
-        #prop = new_process.get_setup_properties_as_dictionary()['mode']
-        #self.assertEqual(prop.attribute, "mode")
-        #self.assertEqual(prop.name, "Mode")
-        #self.assertEqual(prop.value['name'], 'Voltage')
-        #self.assertEqual(prop.value['value'], 'voltage')
-
-
+        self.assertEqual(prop.attribute, "evaporation_control")
+        self.assertEqual(prop.name, "Evaporation Control")
+        self.assertEqual(prop.value['name'], 'Other')
+        self.assertEqual(prop.value['value'], 'anything')
+        new_process = self.process.update_setup_properties(['evaporation_control'])
+        self.assertEqual(self.process.id, new_process.id)
+        prop = new_process.get_setup_properties_as_dictionary()['evaporation_control']
+        self.assertEqual(prop.attribute, "evaporation_control")
+        self.assertEqual(prop.name, "Evaporation Control")
+        self.assertEqual(prop.value['name'], 'Other')
+        self.assertEqual(prop.value['value'], 'anything')
 
     @classmethod
     def make_template_table(cls):

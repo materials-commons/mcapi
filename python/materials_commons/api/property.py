@@ -222,6 +222,7 @@ class SelectionProperty(Property):
         if len(self.choices) == 0:
             self._value = value
             return
+        # this is non-init stage with a non-None value
         found = None
         has_other = False
         for choice in self.choices:

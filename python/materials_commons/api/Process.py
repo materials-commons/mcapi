@@ -438,6 +438,7 @@ class Process(MCObject):
             prop = prop_dict[name]
             if prop:
                 prop_list.append(prop)
+        probe = prop_list[0]
         return self._update_process_setup_properties(prop_list)
 
     def update_additional_setup_properties(self, entry_list):
