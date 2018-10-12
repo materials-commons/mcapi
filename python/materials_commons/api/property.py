@@ -196,6 +196,9 @@ class SelectionProperty(Property):
             message = "Only str/unicode values for a SelectionProperty; "
             message += "value = '" + str(value) + "', type = " + str(type(value)) + " is not valid"
             raise MCPropertyException(message)
+        for choice in self.choices:
+            if "Other" == choice['name']:
+                return
         found = False
         for choice in self.choices:
             if value == choice['name'] or value == choice['value']:
@@ -211,17 +214,25 @@ class SelectionProperty(Property):
             raise MCPropertyException(message)
 
     def _set_value(self, value):
+        # note: assumes that verify_value_type has been called
         if not value:
             self._value = value
             return
+        # note: if choices is empty, we are in init stage
+        if len(self.choices) == 0:
+            self._value = value
+            return
+        # this is non-init stage with a non-None value
         found = None
+        has_other = False
         for choice in self.choices:
+            if choice['value'] == 'other':
+                has_other = True
             if value == choice['name'] or value == choice['value']:
                 found = choice
                 break
-        if not found:
-            self.verify_value_type(value)
-            found = value
+        if has_other and not found:
+            found = {"name": "Other", "value": value}
         self._value = found
 
 
