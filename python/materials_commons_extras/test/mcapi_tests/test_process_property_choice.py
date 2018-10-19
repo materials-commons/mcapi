@@ -1,4 +1,5 @@
 import unittest
+import pytest
 from random import randint
 from materials_commons.api import create_project
 from materials_commons.api import get_all_templates
@@ -108,6 +109,40 @@ class TestProcessPropertyChoice(unittest.TestCase):
         self.assertEqual(prop.name, "Evaporation Control")
         self.assertEqual(prop.value['name'], 'Other')
         self.assertEqual(prop.value['value'], 'anything')
+
+    @pytest.mark.skip("Test for special-case templates")
+    def test_special_case_choice_selection(self):
+        # setup
+        template_table = self.make_template_table()
+        template_id = self.template_id_with(template_table, "Gleeble Thermomechanical Simulation")
+        print(template_id)
+        if not template_id:
+            return
+        process = self.base_experiment.create_process_from_template(template_id)
+
+        #
+        # properties_table = self.process.get_setup_properties_as_dictionary()
+        # choice_attributes = ['mode','evaporation_control','imaging_gas']
+        # for a in choice_attributes:
+        #     self.assertIn(a, properties_table)
+        # choice_name_lookup = {}
+        # for choice in properties_table['evaporation_control'].choices:
+        #     choice_name_lookup[choice['value']] = choice['name']
+        # self.assertIn('other', choice_name_lookup)
+        # # setting unknown value
+        # self.process.set_value_of_setup_property('evaporation_control', 'anything')
+        # prop = self.process.get_setup_properties_as_dictionary()['evaporation_control']
+        # self.assertEqual(prop.attribute, "evaporation_control")
+        # self.assertEqual(prop.name, "Evaporation Control")
+        # self.assertEqual(prop.value['name'], 'Other')
+        # self.assertEqual(prop.value['value'], 'anything')
+        # new_process = self.process.update_setup_properties(['evaporation_control'])
+        # self.assertEqual(self.process.id, new_process.id)
+        # prop = new_process.get_setup_properties_as_dictionary()['evaporation_control']
+        # self.assertEqual(prop.attribute, "evaporation_control")
+        # self.assertEqual(prop.name, "Evaporation Control")
+        # self.assertEqual(prop.value['name'], 'Other')
+        # self.assertEqual(prop.value['value'], 'anything')
 
     @classmethod
     def make_template_table(cls):
