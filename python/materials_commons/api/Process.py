@@ -284,11 +284,11 @@ class Process(MCObject):
                     ret_samples.append(probe)
         return ret_samples
 
-    def get_sample_by_id(self, process_id):
+    def get_sample_by_id(self, sample_id):
         """
         Get indicated Sample.
 
-        :param process_id: sample if - string
+        :param sample_id: the id of the sample - string
         :return: a :class:`mcapi.Sample` instance
 
         .. note:: Currently not implemented
@@ -528,8 +528,8 @@ class Process(MCObject):
         return results
 
     # Process - Measurement-related methods - special treatment
-
-    def create_measurement(self, data):
+    @staticmethod
+    def create_measurement(data):
         """
 
         :param data: dictionary - measurement data, see example
@@ -795,7 +795,7 @@ class Process(MCObject):
     # Process - additional methods
     def decorate_with_output_samples(self):
         """
-        Make sure that known output samples are set in the this.
+        Make sure that known output samples are set in the this Process.
 
         :return: the Process (this) with the addition of output samples from the database
         """
@@ -805,7 +805,7 @@ class Process(MCObject):
 
     def decorate_with_input_samples(self):
         """
-        Make sure that known input samples are set in this.
+        Make sure that known input samples are set in this Process.
 
         :return: the Process (this) with the addition of input samples from the database
         """

@@ -89,6 +89,7 @@ class Project(MCObject):
     def rename(self, name, description=None):
         """
         Change the name and (optionally) description of a project.
+        Default description is the current description.
         Returns the new project from the database.
 
         :param name: new name for project
@@ -114,7 +115,6 @@ class Project(MCObject):
         """
         # TODO: Project.put()
         raise NotImplementedError("Project.put() is not implemented")
-
         pass
 
     def delete(self):

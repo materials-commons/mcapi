@@ -1,5 +1,8 @@
 from .make_objects import make_object
 
+# Note: these utilities are currently used by dataset.py in
+# materials_commons_extras/test
+
 
 def make_mc_file(data):
     if '_type' in data.keys():
