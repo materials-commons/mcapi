@@ -12,7 +12,7 @@ class Directory(MCObject):
     A Materials Commons Directory.
 
     .. note:: normally created from the database by call to :func:`mcapi.Project.add_directory` or
-        any of the project methods that create directories on a given path
+        any of the other project methods that create or fetch directories on a given path
 
     """
 
@@ -93,6 +93,7 @@ class Directory(MCObject):
 
         """
         # TODO Directory.put()
+        raise NotImplementedError("Directory.put() is not implemented")
         pass
 
     def delete(self):
@@ -109,13 +110,13 @@ class Directory(MCObject):
         pass
 
     def get_children(self):
-        from .File import File
         """
         Get the contents of this directory.
 
         :return: a list of :class:`mcapi.Directory` and/or :class:`mcapi.File` instances
 
         """
+        from .File import File
         results = api.directory_by_id(self._project.id, self.id, apikey=self._project._apikey)
         ret = []
         for dir_or_file in results['children']:
@@ -133,7 +134,7 @@ class Directory(MCObject):
     def create_descendant_list_by_path(self, path):
         """
         Create any directories missing on the given path, relative to this directory, and return all the
-        directories on the path.
+        directories on the path, the base directory first, the leaf directory last.
 
         :param path: string
         :return: a list of :class:`mcapi.Directory` instances
@@ -154,7 +155,7 @@ class Directory(MCObject):
     def get_descendant_list_by_path(self, path):
         """
         Return all the directories on the given path, relative to this directory; if any are missing
-        and error is generated.
+        an error is generated. See also :func:`mcapi.Directory.create_descendant_list_by_path`
 
         :param path: string
         :return: a list of :class:`mcapi.Directory` instances
@@ -175,7 +176,7 @@ class Directory(MCObject):
 
     def add_file(self, file_name, local_input_path, verbose=False, limit=50):
         """
-        Upload local file, and attach it to an new file in this directory.
+        Upload local file, and attach it this directory as a new file in this directory.
 
         :param file_name: name of the new file - string
         :param local_input_path: path to the local file - string

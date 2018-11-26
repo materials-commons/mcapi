@@ -1,6 +1,8 @@
 from . import api
 from .make_objects import make_object
 
+# NOTE: these methods are not stable, no code should be written that depends on them
+# They are used for testing only.
 
 # ---
 #    testing template backend

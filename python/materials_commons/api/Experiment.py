@@ -95,7 +95,7 @@ class Experiment(MCObject):
 
     def rename(self, name, description=None):
         """
-        rename this experiment
+        rename this experiment; optionally change the description - defaults to the previous description.
 
         :param name:
         :param description:
@@ -145,6 +145,7 @@ class Experiment(MCObject):
         :param template_id:
         :return: the :class:`mcapi.Process` instance
 
+        >>> from materials_commons.api import get_all_templates
         >>> templates = get_all_templates()
         >>> template = None
         >>> for t in templates:
