@@ -6,7 +6,7 @@ https://packaging.python.org/guides/using-testpypi/
 https://packaging.python.org/guides/migrating-to-pypi-org/#uploading
 
 ----- set for your system
-PYTHON3=/Library/Frameworks/Python.framework/Versions/3.6/bin/python3
+PYTHON3=`which python3`
 PYTHON_ENVS=~/PythonEnvs
 MCAPI_BASE=/Users/weymouth/working/MaterialsCommons/workspace/src/github.com/materials-commons/mcapi
 SCRAP_TEST_DIR=/Users/weymouth/Desktop/test-python-load
