@@ -124,6 +124,7 @@ mv _modules site_modules
 popd
 cp -r build/html ${DOCS_GITHUB_BASE}/
 pushd ${DOCS_GITHUB_BASE}
+git pull
 git status
 git add html
 git commit -m "Update Python API Docs"
