@@ -6,7 +6,7 @@ names = [
     "file3.txt",
     "file4.txt",
     "file5.txt",
-    "not_uplaod_file.txt",
+    "not_upload_file.txt",
 ]
 
 paths = [
@@ -34,12 +34,11 @@ for p in range(0, len(sets)):
 
 for i in range(1,20):
     tag = str(i)
-    if (i < 10):
+    if i < 10:
         tag = "0" + tag
     name = "DataFile" + tag + ".txt"
     with open(paths[3] + name,'w') as file:
         file.write("This is a test data file, " + name + "\n")
-#        file.write("This is a test data file, " + name)
         file.close()
 
 print("done.")
