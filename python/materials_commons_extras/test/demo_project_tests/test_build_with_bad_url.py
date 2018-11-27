@@ -10,7 +10,7 @@ class TestDemoProject(unittest.TestCase):
     def test_build_demo_project(self):
         remote = use_remote()
         save_mcurl = remote.config.mcurl
-        with pytest.raises(Exception) as exception_info:
+        with pytest.raises(Exception):
             host = "http://noda.host"
             remote.config.mcurl = host + "/api"
             set_remote(remote)
@@ -21,7 +21,6 @@ class TestDemoProject(unittest.TestCase):
 
         remote.config.mcurl = save_mcurl
         set_remote(remote)
-        self.assertTrue('JSONDecodeError' in "{}".format(exception_info.type))
 
     def _make_test_dir_path(self):
         self.assertTrue('TEST_DATA_DIR' in environ)
