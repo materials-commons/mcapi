@@ -21,8 +21,7 @@ class TestDemoProject(unittest.TestCase):
 
         remote.config.mcurl = save_mcurl
         set_remote(remote)
-        self.assertTrue(str(exception_info.type).find("ConnectionError") > 0)
-        self.assertTrue(str(exception_info.value).find("host='noda.host'") > 0)
+        self.assertTrue('JSONDecodeError' in "{}".format(exception_info.type))
 
     def _make_test_dir_path(self):
         self.assertTrue('TEST_DATA_DIR' in environ)

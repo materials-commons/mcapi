@@ -20,10 +20,14 @@ class TestEtlEndToEnd(unittest.TestCase):
         cls.experiment_name = cls.fake_name("TestExperiment")
         cls.experiment_description = "This is a test experiment: " + cls.experiment_name
         cls.project = create_project(cls.project_name, "This is a test project")
-        print()
-        print("--------------- version check ------------")
-        print(version.version())
-        print("--------------- version check ------------")
+        # noinspection PyBroadException
+        try:
+            print()
+            print("--------------- version check ------------")
+            print(version.version())
+            print("--------------- version check ------------")
+        except BaseException:
+            pass
 
     def test_is_setup_correctly(self):
         self.assertTrue('TEST_DATA_DIR' in environ)

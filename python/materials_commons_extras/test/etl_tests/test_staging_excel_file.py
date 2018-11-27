@@ -7,7 +7,7 @@ from materials_commons.api import create_project
 from materials_commons.etl.old_input_spreadsheet import BuildProjectExperiment
 
 
-class TestEtlEndToEnd(unittest.TestCase):
+class TestEtlStagingExcelFile(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
