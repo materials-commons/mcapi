@@ -15,6 +15,7 @@ class TestTemplateAccess(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         user_id = "test@test.mc"
+        cls.user_apikey = "totally-bogus"
         users = get_all_users()
         user = None
         for probe in users:
@@ -69,11 +70,11 @@ class TestTemplateAccess(unittest.TestCase):
         self.assertEqual(template.id, test_id)
         self.assertEqual(template.otype, 'template')
         self.assertFalse(template.does_transform)
-        self.assertEqual(template.owner, 'test@test.mc')
+        self.assertEqual(template.owner, self.test_user_id)
 
         update_data = template.input_data
         update_data["does_transform"] = True
-        self.assertEqual(update_data['owner'], 'test@test.mc')
+        self.assertEqual(update_data['owner'], self.test_user_id)
         update_data.pop('id')
 
         template = _update_template(template.id, update_data)
@@ -91,7 +92,7 @@ class TestTemplateAccess(unittest.TestCase):
         self.assertEqual(template.id, test_id)
         self.assertEqual(template.otype, 'template')
         self.assertFalse(template.does_transform)
-        self.assertEqual(template.owner, 'test@test.mc')
+        self.assertEqual(template.owner, self.test_user_id)
 
         another_user_id = 'another@test.mc'
         another_user_key = 'another-bogus-account'
@@ -107,11 +108,13 @@ class TestTemplateAccess(unittest.TestCase):
 
         update_data = template.input_data
         update_data["does_transform"] = True
-        self.assertEqual(update_data['owner'], 'test@test.mc')
+        self.assertEqual(update_data['owner'], self.test_user_id)
         update_data.pop('id')
 
         with pytest.raises(Exception):
             _update_template(template.id, update_data)
+
+        self._set_up_remote_for(self.user_apikey)
 
     def test_non_admin_user_cannot_update_standard_template(self):
         templates = get_all_templates()
@@ -125,7 +128,7 @@ class TestTemplateAccess(unittest.TestCase):
         self.assertEqual(template.id, template_id)
         update_data = template.input_data
         update_data["does_transform"] = True
-        self.assertNotEqual(update_data['owner'], 'test@test.mc')
+        self.assertNotEqual(update_data['owner'], self.test_user_id)
         update_data.pop('id')
         update_data.pop('owner')
         with pytest.raises(Exception):
@@ -156,7 +159,7 @@ class TestTemplateAccess(unittest.TestCase):
 
         update_data = template.input_data
         update_data["does_transform"] = True
-        self.assertNotEqual(update_data['owner'], 'test@test.mc')
+        self.assertNotEqual(update_data['owner'], self.test_user_id)
         update_data.pop('id')
         update_data.pop('owner')
 
@@ -168,7 +171,7 @@ class TestTemplateAccess(unittest.TestCase):
 
         update_data = template.input_data
         update_data["does_transform"] = False
-        self.assertNotEqual(update_data['owner'], 'test@test.mc')
+        self.assertNotEqual(update_data['owner'], self.test_user_id)
         update_data.pop('id')
         update_data.pop('owner')
 
