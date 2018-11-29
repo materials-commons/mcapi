@@ -14,6 +14,10 @@ class Remote(object):
         p = self.config.mcurl + '/v2/' + restpath
         return p
 
+    def make_url_v4(self, restpath):
+        p = self.config.mcurl + '/v4/' + restpath
+        return p
+
     def make_url(self, restpath):
         p = self.config.mcurl + "/" + restpath
         return p

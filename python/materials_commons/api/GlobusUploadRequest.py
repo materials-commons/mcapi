@@ -9,7 +9,16 @@ class GlobusUploadRequest(MCObject):
         or any of the other project functions that uploading a file.
     """
 
-    def __init__(self):
+    def __init__(self, data):
+        self.fake_done_count = 0
+        self.id = ""
+        self.globus_url = ""
+        self.globus_endpoint_id = ""
+        self.globus_endpoint_path = ""
+        self.input_data = data
+        attr = ['id', 'globus_url', 'globus_endpoint_id', 'globus_endpoint_path']
+        for a in attr:
+            setattr(self, a, data.get(a, None))
         pass
 
     def is_done(self):
@@ -23,7 +32,8 @@ class GlobusUploadRequest(MCObject):
         .. note: This function can return False 'forever' is the transfer is never started
             or if it fails.
         """
-        pass
+        self.fake_done_count += 1
+        return self.fake_done_count > 4
 
     def get_cli_transfer_target(self):
         """
@@ -32,7 +42,7 @@ class GlobusUploadRequest(MCObject):
 
         :return: String - the destination target suitable for the Globus CLI
         """
-        pass
+        return "{}:{}".format(self.globus_endpoint_id, self.globus_endpoint_path)
 
     def get_url_transfer_target(self):
         """
@@ -43,4 +53,4 @@ class GlobusUploadRequest(MCObject):
         :return: String - URL for the Globus Web app; a transfer with the
             source unspecified, and the destination set to the target to Materials Commons
         """
-        pass
+        return self.globus_url

@@ -8,6 +8,7 @@ from . import api
 from .File import File
 from .base import MCObject, PrettyPrint, _decorate_object_with, MCGenericException
 from .mc_object_utility import make_object
+from .GlobusUploadRequest import GlobusUploadRequest
 
 
 class Project(MCObject):
@@ -719,3 +720,10 @@ class Project(MCObject):
         if 'error' in results:
             return results['error']
         return results['val']
+
+    # Project - globus
+    def init_globus_upload_request(self):
+        print("Project - init_globus_upload_request")
+        results = api.init_globus_upload_request(self.id, apikey=self._apikey)
+        ret = GlobusUploadRequest(results)
+        return ret

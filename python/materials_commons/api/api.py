@@ -34,9 +34,8 @@ def mcorg():
 
 def get(restpath, remote):
     r = requests.get(restpath, params=remote.config.get_params(), verify=False)
-    if r.status_code == requests.codes.ok:
-        return r.json()
     r.raise_for_status()
+    return r.json()
 
 
 def post(restpath, data, remote):
@@ -44,31 +43,27 @@ def post(restpath, data, remote):
     r = requests.post(
         restpath, params=remote.config.get_params(), verify=False, json=data
     )
-    if r.status_code == requests.codes.ok:
-        return r.json()
     r.raise_for_status()
+    return r.json()
 
 
 def put(restpath, data, remote):
     r = requests.put(
         restpath, params=remote.config.get_params(), verify=False, json=data
     )
-    if r.status_code == requests.codes.ok:
-        return r.json()
     r.raise_for_status()
+    return r.json()
 
 
 def delete(restpath, remote):
     r = requests.delete(restpath, params=remote.config.get_params(), verify=False)
-    if r.status_code == requests.codes.ok:
-        return r.json()
     r.raise_for_status()
+    return r.json()
 
 
 def delete_expect_empty(restpath, remote):
     r = requests.delete(restpath, params=remote.config.get_params(), verify=False)
-    if not r.status_code == requests.codes.ok:
-        r.raise_for_status()
+    r.raise_for_status()
 
 
 def disable_warnings():
@@ -202,6 +197,15 @@ def remove_user_access_to_project(project_id, user_id, remote=None, apikey=None)
     }
     api_url = "projects/" + project_id + "/access"
     return put(remote.make_url_v2(api_url), data, remote)
+
+
+def init_globus_upload_request(project_id, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
+    data = {
+        "project_id": project_id
+    }
+    api_url = "createGlobusUploadRequest"
+    return post(remote.make_url_v4(api_url), data, remote)
 
 
 # Experiment

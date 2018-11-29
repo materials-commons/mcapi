@@ -10,9 +10,11 @@ def fake_name(prefix):
 
 if __name__ == "__main__":
 
+    apikey = "totally-bogus"
+
     name = fake_name("TestProject-")
     description = "Test project - for testing Globus upload request"
-    project = create_project(name, description)
+    project = create_project(name, description, apikey=apikey)
 
     request = project.init_globus_upload_request()
     print("Use this URL in the Globus web app:")
@@ -22,7 +24,7 @@ if __name__ == "__main__":
     print("    {}".format(request.get_cli_transfer_target()))
     time.sleep(20)
 
-    while not request.done():
+    while not request.is_done():
         print ("Waiting for the requested transfer to finish")
         time.sleep(5)
 
