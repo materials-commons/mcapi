@@ -1,20 +1,21 @@
 import time
-from random import randint
-from materials_commons.api import create_project
+from materials_commons.api import get_all_projects
 
-
-def fake_name(prefix):
-    number = "%05d" % randint(0, 99999)
-    return prefix + number
-
+TEST_PROJECT_NAME = "Test1"
 
 if __name__ == "__main__":
 
     apikey = "totally-bogus"
 
-    name = fake_name("TestProject-")
-    description = "Test project - for testing Globus upload request"
-    project = create_project(name, description, apikey=apikey)
+    projects = get_all_projects(apikey=apikey)
+    project = None
+
+    for probe in projects:
+        if probe.name == TEST_PROJECT_NAME:
+            project = probe
+
+    if not project:
+        print("Failed to fine test project, {}, aborting".format(TEST_PROJECT_NAME))
 
     request = project.init_globus_upload_request()
     print("Use this URL in the Globus web app:")

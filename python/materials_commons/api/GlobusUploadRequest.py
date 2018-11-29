@@ -1,7 +1,4 @@
-from .base import MCObject
-
-
-class GlobusUploadRequest(MCObject):
+class GlobusUploadRequest():
     """
     A Materials Commons Globus Upload Request.
 
