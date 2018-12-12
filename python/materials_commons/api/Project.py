@@ -727,3 +727,10 @@ class Project(MCObject):
         results = api.init_globus_upload_request(self.id, apikey=self._apikey)
         ret = GlobusUploadRequest(results)
         return ret
+
+    def get_globus_upload_status_list(self, background_process_id):
+        if background_process_id and background_process_id=="all":
+            background_process_id = None
+        results = api.get_globus_upload_status_list(self.id, background_process_id, apikey=self._apikey)
+        print(results)
+        return []
