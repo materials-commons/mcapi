@@ -1,7 +1,8 @@
 API for MaterialsCommons.org
 ============================
 
-This is the python version of an API to MaterialsCommons.org. 
+This is the python version of an API to
+[MaterialsCommons.org](https://github.com/materials-commons/materialscommons.org). 
 The source code is available at 
 https://github.com/materials-commons/mcapi/tree/master/python.
 
