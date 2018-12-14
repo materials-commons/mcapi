@@ -9,6 +9,7 @@ from .File import File
 from .base import MCObject, PrettyPrint, _decorate_object_with, MCGenericException
 from .mc_object_utility import make_object
 from .GlobusUploadRequest import GlobusUploadRequest
+from .GlobusUploadStatus import GlobusUploadStatus
 
 
 class Project(MCObject):
@@ -728,9 +729,9 @@ class Project(MCObject):
         ret = GlobusUploadRequest(results)
         return ret
 
-    def get_globus_upload_status_list(self, background_process_id):
-        if background_process_id and background_process_id=="all":
-            background_process_id = None
-        results = api.get_globus_upload_status_list(self.id, background_process_id, apikey=self._apikey)
-        print(results)
-        return []
+    def get_globus_upload_status_list(self):
+        results = api.get_globus_upload_status_list(self.id, apikey=self._apikey)
+        status_list = []
+        if results['value']:
+            status_list = [GlobusUploadStatus(x) for x in results["value"] ]
+        return status_list

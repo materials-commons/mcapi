@@ -208,14 +208,13 @@ def init_globus_upload_request(project_id, remote=None, apikey=None):
     return post(remote.make_url_v4(api_url), data, remote)
 
 
-def get_globus_upload_status_list(project_id, background_process_id, remote=None, apikey=None):
+def get_globus_upload_status_list(project_id, remote=None, apikey=None):
     remote = configure_remote(remote, apikey)
     data = {
         "project_id": project_id,
-        "background_process_id": background_process_id
     }
-    api_url = "getGlobusUploadStatusList"
-    return post(remote.make_url_v4(api_url), data, remote)
+    api_url = "etl/globus/upload/status"
+    return post(remote.make_url(api_url), data, remote)
 
 
 # Experiment
