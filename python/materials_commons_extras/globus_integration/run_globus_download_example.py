@@ -3,10 +3,19 @@ from materials_commons.api import get_all_projects
 
 TEST_PROJECT_NAME = "Test1"
 
+USER_API_KEY = "totally-bogus"
+# USER_API_KEY = <your key here>  # for other
+
+# to change remote host, configure base URL in $HOME/.materialscommons/config.json
+# for example:
+# {
+#   "mcurl": "https://test.materialscommons.org/api"
+# }
+
 
 if __name__ == "__main__":
 
-    apikey = "totally-bogus"
+    apikey = USER_API_KEY
 
     projects = get_all_projects(apikey=apikey)
     project = None
