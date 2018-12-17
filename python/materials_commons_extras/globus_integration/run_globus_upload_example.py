@@ -31,7 +31,7 @@ if __name__ == "__main__":
             project = probe
 
     if not project:
-        print("Failed to fine test project, {}, aborting".format(TEST_PROJECT_NAME))
+        print("Failed to find test project, {}, aborting".format(TEST_PROJECT_NAME))
         sys.exit(-1)
 
     request = project.init_globus_upload_request()

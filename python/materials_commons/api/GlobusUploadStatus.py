@@ -3,6 +3,12 @@ import datetime
 from .base import MCObject
 
 class GlobusUploadStatus(MCObject):
+    """
+    A Materials Commons Globus Upload Status record.
+
+    .. note:: normally created from the database by a call to :func:`mcapi.Project.get_globus_upload_status_list`
+    """
+
     def __init__(self, data):
         self.input_data = data
         self.project_id = ""
