@@ -46,8 +46,9 @@ if __name__ == "__main__":
 
     while not all_done(status_list):
         print ("Waiting for the requested transfer to finish")
-        print_status_list(status_list);
+        print_status_list(status_list)
         time.sleep(5)
+        status_list = project.get_globus_upload_status_list()
 
     print("Done.")
 
