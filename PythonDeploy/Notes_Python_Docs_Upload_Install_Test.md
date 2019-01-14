@@ -1,4 +1,20 @@
 ```
+Note that to do the install you need a file ${HOME}/.pypirc - with this content -
+——
+[distutils]
+index-servers =
+  pypi
+  pypitest
+
+[pypi]
+username=(see operations)
+password=(see operations)i
+
+[pypitest]
+repository=https://test.pypi.org/legacy/
+username=(see operations)
+password=(see operations)
+
 Notes on testing/upload/install
 
 https://packaging.python.org/tutorials/distributing-packages/
@@ -110,13 +126,13 @@ cp ${DEPLOY_DIR}/docs_started_dir/* ./
 cp conf.py index.rst index_api.rst source/
 make html
 pushd build/html
-ls *.html | xargs sed -i '' 's/_sources/site_sources/g'
-ls *.html | xargs sed -i '' 's/_static/site_static/g'
-ls *.html | xargs sed -i '' 's/_modules/site_modules/g'
+ls *.html | xargs sed -i 's/_sources/site_sources/g'
+ls *.html | xargs sed -i 's/_static/site_static/g'
+ls *.html | xargs sed -i 's/_modules/site_modules/g'
 
-ls *.js | xargs sed -i '' 's/_sources/site_sources/g'
-ls *.js | xargs sed -i '' 's/_static/site_static/g'
-ls *.js | xargs sed -i '' 's/_modules/site_modules/g'
+ls *.js | xargs sed -i 's/_sources/site_sources/g'
+ls *.js | xargs sed -i 's/_static/site_static/g'
+ls *.js | xargs sed -i 's/_modules/site_modules/g'
 
 mv _sources site_sources
 mv _static site_static
