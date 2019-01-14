@@ -72,3 +72,4 @@ target/
 # Mac OsX
 .DS_Store
 **/.DS_Store
+*.swp
