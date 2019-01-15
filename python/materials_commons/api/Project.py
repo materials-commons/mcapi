@@ -493,7 +493,7 @@ class Project(MCObject):
         """
         path = self._local_path_to_path(os_path.dirname(local_path))
         directory = self.create_or_get_all_directories_on_path(path)[-1]
-        return directory.\
+        return directory. \
             add_directory_tree(os_path.basename(local_path),
                                os_path.dirname(local_path), verbose, limit)
 
@@ -722,14 +722,13 @@ class Project(MCObject):
         return results['val']
 
     # Project - globus
-    def init_globus_upload_request(self):
-        print("Project - init_globus_upload_request")
-        results = api.init_globus_upload_request(self.id, apikey=self._apikey)
+    def create_globus_upload_request(self):
+        results = api.create_globus_upload_request(self.id, apikey=self._apikey)
         ret = GlobusUploadRequest(results)
         return ret
 
     def get_globus_upload_status_list(self, background_process_id):
-        if background_process_id and background_process_id=="all":
+        if background_process_id and background_process_id == "all":
             background_process_id = None
         results = api.get_globus_upload_status_list(self.id, background_process_id, apikey=self._apikey)
         print(results)

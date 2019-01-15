@@ -199,7 +199,7 @@ def remove_user_access_to_project(project_id, user_id, remote=None, apikey=None)
     return put(remote.make_url_v2(api_url), data, remote)
 
 
-def init_globus_upload_request(project_id, remote=None, apikey=None):
+def create_globus_upload_request(project_id, remote=None, apikey=None):
     remote = configure_remote(remote, apikey)
     data = {
         "project_id": project_id

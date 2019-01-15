@@ -26,7 +26,7 @@ class GlobusUploadRequest():
 
         :return: Boolean - the transfer is (successfully) completed, with all files added
 
-        .. note: This function can return False 'forever' is the transfer is never started
+        .. note: This function can return False 'forever' if the transfer is never started
             or if it fails.
         """
         self.fake_done_count += 1

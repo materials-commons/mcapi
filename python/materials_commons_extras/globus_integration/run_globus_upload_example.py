@@ -17,7 +17,7 @@ if __name__ == "__main__":
     if not project:
         print("Failed to fine test project, {}, aborting".format(TEST_PROJECT_NAME))
 
-    request = project.init_globus_upload_request()
+    request = project.create_globus_upload_request()
     print("Use this URL in the Globus web app:")
     print("    {}".format(request.get_url_transfer_target()))
     print("       OR ")
