@@ -78,7 +78,7 @@ install:
   - npm install
   - pip install rethinkdb
   - pip install Flask
-  - pip install pytest
+  - pip install 'pytest==3.6' --force-reinstall
   - pip install pbkdf2
   - popd
 
