@@ -13,9 +13,14 @@ def _fake_name(prefix):
     number = "%05d" % randint(0, 99999)
     return prefix + number
 
+# This code was originally used to test devleopment for the DOI in dataset.
+# While the tests refer to the "old" DOI inteface, and repository,
+# the code points to places where an eventual API for DOI control could be
+# extrapolated from what is already there.
+
 
 class TestDoi(unittest.TestCase):
-    @pytest.mark.skip("Prevent frequent use of DOI test site and resources")
+    @pytest.mark.skip("Code out of data - see comments therein - to be updated?")
     def test_doi(self):
         self.helper = aid.AssertHelper(self)
 
