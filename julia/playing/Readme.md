@@ -1,3 +1,0 @@
-
-
-julia> Pkg.add("Requests")
