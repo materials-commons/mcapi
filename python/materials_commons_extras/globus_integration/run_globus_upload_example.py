@@ -14,18 +14,21 @@ USER_API_KEY = "totally-bogus"
 # }
 
 
-def all_done(status_list):
+def all_done(status_list_in):
     done = True
-    for status in status_list:
+    for status in status_list_in:
         if status.status != 'done':
             done = False
     return done
 
 
-def print_status_list(status_list):
+def print_status_list(status_list_in):
     print("Status list")
-    for status in status_list:
-        print("birthtime = {}, status = {}, message = {}".format(status.birthtime, status.status, status.message))
+    for status in status_list_in:
+        if not status.status == 'done':
+            print(
+                "id = {}, birthtime = {}, status = {}, upload id = {}\n  message = {}"
+                .format(status.id, status.birthtime, status.status, status.background_task_id, status.message))
 
 
 if __name__ == "__main__":
@@ -54,10 +57,9 @@ if __name__ == "__main__":
     status_list = project.get_globus_upload_status_list()
 
     while not all_done(status_list):
-        print ("Waiting for the requested transfer to finish")
+        print("Waiting for the requested transfer to finish")
         print_status_list(status_list)
         time.sleep(5)
         status_list = project.get_globus_upload_status_list()
 
     print("Done.")
-
