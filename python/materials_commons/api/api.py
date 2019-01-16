@@ -790,6 +790,16 @@ def get_doi_link(project_id, experiment_id, dataset_id, remote=None, apikey=None
     return get(remote.make_url_v2(api_url), remote)
 
 
+def get_apikey(email, password):
+    remote = mcorg()
+    api_url = "user/"+email+"/apikey"
+    data = {
+        "password": password
+    }
+    u = put(remote.make_url(api_url), data, remote)
+    return u["apikey"]
+
+
 def _create_new_template(template_data, remote=None, apikey=None):
     remote = configure_remote(remote, apikey)
     api_url = "templates/"

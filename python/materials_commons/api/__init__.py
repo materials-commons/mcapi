@@ -25,7 +25,7 @@ from .measurement import Measurement, MeasurementComposition, MeasurementString,
 
 from .bulk_file_uploader import BulkFileUploader
 
-from .api import set_remote_config_url, get_remote_config_url
+from .api import set_remote_config_url, get_remote_config_url, get_apikey
 
 # for testing only!
 from .config import Config as _Config
