@@ -4,3 +4,4 @@ test/test_data/cli_test_project/
 
 # directory for testing files that should not be in github
 ignore/
+venv
