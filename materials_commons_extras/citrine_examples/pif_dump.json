@@ -1,0 +1,279 @@
+{
+    "references": [
+        {
+            "doi": "fake doi"
+        }
+    ],
+    "contacts": [
+        {
+            "name": {
+                "title": "HRH",
+                "given": "Test",
+                "family": "User"
+            },
+            "email": "test@mc.org"
+        }
+    ],
+    "licenses": [
+        {
+            "name": " ODC-BY 1.0",
+            "description": "Open Data Commons Attribution, version 1.0",
+            "url": "https://opendatacommons.org/licenses/by/summary/"
+        }
+    ],
+    "names": [
+        "Demo Project",
+        "Demo Project Description"
+    ],
+    "source": {
+        "producer": "LIFT Materials"
+    },
+    "properties": [
+        {
+            "dataType": "EXPERIMENTAL",
+            "name": "voltage",
+            "scalars": [
+                {
+                    "value": 15
+                }
+            ],
+            "units": "kv",
+            "methods": [
+                {
+                    "name": "EPMA SEM measurement",
+                    "instruments": [
+                        {
+                            "name": "EPMA SEM"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "dataType": "EXPERIMENTAL",
+            "name": "beam current",
+            "scalars": [
+                {
+                    "value": 20
+                }
+            ],
+            "units": "mA",
+            "methods": [
+                {
+                    "name": "EPMA SEM measurement",
+                    "instruments": [
+                        {
+                            "name": "EPMA SEM"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "dataType": "EXPERIMENTAL",
+            "name": "step size",
+            "scalars": [
+                {
+                    "value": 10
+                }
+            ],
+            "methods": [
+                {
+                    "name": "EPMA SEM measurement",
+                    "instruments": [
+                        {
+                            "name": "EPMA SEM"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "dataType": "EXPERIMENTAL",
+            "name": "site description",
+            "scalars": [
+                {
+                    "value": "on 5mm plate, center section, mid-thickness"
+                }
+            ],
+            "methods": [
+                {
+                    "name": "EPMA SEM measurement",
+                    "instruments": [
+                        {
+                            "name": "EPMA SEM"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "scalers": [
+                {
+                    "value": 20
+                },
+                {
+                    "value": 20
+                }
+            ],
+            "name": "measurement grid dimension",
+            "methods": [
+                {
+                    "name": "EPMA SEM measurement",
+                    "instruments": [
+                        {
+                            "name": "EPMA SEM"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Image of Casting (L124)",
+            "files": {
+                "url": "http://mc.server.org/fileStore/MagicKey",
+                "mimeType": "image/jpeg"
+            },
+            "methods": [
+                {
+                    "name": "EPMA SEM measurement",
+                    "instruments": [
+                        {
+                            "name": "EPMA SEM"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "LIFT Specimen Die",
+            "files": {
+                "url": "http://mc.server.org/fileStore/MagicKey",
+                "mimeType": "image/jpeg"
+            },
+            "methods": [
+                {
+                    "name": "EPMA SEM measurement",
+                    "instruments": [
+                        {
+                            "name": "EPMA SEM"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Experiment Data Lift380 L124 2016-12-27",
+            "files": {
+                "url": "http://mc.server.org/fileStore/MagicKey",
+                "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            },
+            "methods": [
+                {
+                    "name": "EPMA SEM measurement",
+                    "instruments": [
+                        {
+                            "name": "EPMA SEM"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "dataType": "EXPERIMENTAL",
+            "name": "dataset_name",
+            "scalars": [
+                {
+                    "value": "Demo Project"
+                }
+            ],
+            "methods": [
+                {
+                    "name": "EPMA SEM measurement",
+                    "instruments": [
+                        {
+                            "name": "EPMA SEM"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "dataType": "EXPERIMENTAL",
+            "name": "dateset_description",
+            "scalars": [
+                {
+                    "value": "Demo Project Description"
+                }
+            ],
+            "methods": [
+                {
+                    "name": "EPMA SEM measurement",
+                    "instruments": [
+                        {
+                            "name": "EPMA SEM"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "category": "system.chemical",
+    "composition": [
+        {
+            "element": "Al",
+            "idealAtomicPercent": {
+                "value": 94
+            }
+        },
+        {
+            "element": "Ca",
+            "idealAtomicPercent": {
+                "value": 1
+            }
+        },
+        {
+            "element": "Zr",
+            "idealAtomicPercent": {
+                "value": 5
+            }
+        }
+    ],
+    "chemicalFormula": "Not Sure What this is - need to find out!",
+    "preparation": [
+        {
+            "name": "Obtaining casting of L124",
+            "details": [
+                {
+                    "name": "casting generic category",
+                    "scalars": [
+                        {
+                            "value": "LIFT 389"
+                        }
+                    ]
+                },
+                {
+                    "name": "casting instance name",
+                    "scalars": [
+                        {
+                            "value": "L124"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Sectioning l124",
+            "details": [
+                {
+                    "name": "sectioning properties",
+                    "scalars": [
+                        {
+                            "value": "Sectioning includes 5mm plate, center section"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
