@@ -142,3 +142,14 @@ def get_experiment_metadata_by_id(metadata_id, apikey=None):
     data = results['data']
     data['apikey'] = apikey
     return make_object(data=data)
+
+
+def get_apikey(email, password):
+    """
+    Fetch the apikey for the given user
+
+    :param email: user email address
+    :param password: user password
+    :return: the users apikey string
+    """
+    return api.get_apikey(email, password)
