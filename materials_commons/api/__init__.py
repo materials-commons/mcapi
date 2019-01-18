@@ -17,6 +17,9 @@ from .GlobusUploadRequest import GlobusUploadRequest
 from .GlobusDownloadRequest import GlobusDownloadRequest
 from .GlobusUploadStatus import GlobusUploadStatus
 
+from .config import Config
+from .remote import Remote
+
 from .property import Property, MeasuredProperty, NumberProperty
 from .property import StringProperty, BooleanProperty
 from .property import DateProperty, SelectionProperty
@@ -30,6 +33,7 @@ from .measurement import Measurement, MeasurementComposition, MeasurementString,
 from .bulk_file_uploader import BulkFileUploader
 
 from .api import set_remote_config_url, get_remote_config_url
+from .api import set_remote
 
 # for testing only!
 from .config import Config as _Config
@@ -39,3 +43,4 @@ from .make_objects import make_object as _make_object
 from .Directory import _make_dir_tree_table
 from .for_testing_backend import _create_new_template, _update_template
 from .for_testing_backend import _store_in_user_profile, _get_from_user_profile, _clear_from_user_profile
+from . import api as __api

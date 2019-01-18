@@ -35,7 +35,6 @@ rm -f source/materials_commons.api.rst
 rm -f source/materials_commons.api.api.rst
 rm -f source/materials_commons.api.base.rst
 rm -f source/materials_commons.api.bulk_file_uploader.rst
-rm -f source/materials_commons.api.config.rst
 rm -f source/materials_commons.api.mc.rst
 rm -f source/materials_commons.api.mc_object_utility.rst
 rm -f source/materials_commons.api.measurement.rst
