@@ -2,6 +2,7 @@ import datetime
 
 from .base import MCObject
 
+
 class GlobusUploadStatus(MCObject):
     """
     A Materials Commons Globus Upload Status record.
