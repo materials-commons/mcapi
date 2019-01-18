@@ -83,3 +83,26 @@ BulkFileUploader
     :undoc-members:
     :show-inheritance:
 
+GlobusUploadRequest
+-------------------
+
+.. autoclass:: materials_commons.api.GlobusUploadRequest
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+GlobusUploadStatus
+------------------
+
+.. autoclass:: materials_commons.api.GlobusUploadStatus
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+GlobusDownloadRequest
+---------------------
+
+.. autoclass:: materials_commons.api.GlobusDownloadRequest
+    :members:
+    :undoc-members:
+    :show-inheritance:
