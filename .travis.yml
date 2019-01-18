@@ -123,6 +123,8 @@ before_script:
   - sleep 10
   - ps -eo "pid,command" | grep rethinkdb
   - ps -eo "pid,command" | grep servers
+  - mcservers start
+  - mcservers
 
     # Note: guard to prevent tests if host is not available - and verify users for tests
   - curl -o junk.txt http://mcdev.localhost/api/users?apikey=totally-bogus
