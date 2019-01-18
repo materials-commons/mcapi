@@ -316,9 +316,9 @@ class Process(MCObject):
 
         :param samples: a list of :class:`mcapi.Sample` instances
         :param transform: (optional, default = None), a True/False flag to indicate that
-        the output samples should be (automaticially) generated for transform-type
-        processes. The normal behavior, without the flag, is for the output samples
-        to be generate.
+            the output samples should be (automaticially) generated for transform-type
+            processes. The normal behavior, without the flag, is for the output samples
+            to be generate.
         :return: the updated process
 
         """
@@ -345,8 +345,8 @@ class Process(MCObject):
         Add files to this process.
 
         :param files_list: a list of :class:`mcapi.File` instances
-        :param direction: (optional - default unset) 'in' or 'out' - set the
-        indicated direction of the file with respect to the process
+        :param direction: (optional - default unset) 'in' or 'out' -
+            set the indicated direction of the file with respect to the process
         :return: the updated process
 
         """
@@ -922,4 +922,3 @@ class Process(MCObject):
                 process.experiment.samples.append(sample)
         api.add_samples_to_experiment(project.id, process.experiment.id, samples_id_list, apikey=self.project._apikey)
         return samples
-
