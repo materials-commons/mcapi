@@ -1,4 +1,20 @@
 ```
+Note that to do the install you need a file ${HOME}/.pypirc - with this content -
+——
+[distutils]
+index-servers =
+  pypi
+  pypitest
+
+[pypi]
+username=(see operations)
+password=(see operations)i
+
+[pypitest]
+repository=https://test.pypi.org/legacy/
+username=(see operations)
+password=(see operations)
+
 Notes on testing/upload/install
 
 https://packaging.python.org/tutorials/distributing-packages/
@@ -6,7 +22,7 @@ https://packaging.python.org/guides/using-testpypi/
 https://packaging.python.org/guides/migrating-to-pypi-org/#uploading
 
 ----- set for your system
-PYTHON3=/Library/Frameworks/Python.framework/Versions/3.6/bin/python3
+PYTHON3=`which python3`
 PYTHON_ENVS=~/PythonEnvs
 MCAPI_BASE=/Users/weymouth/working/MaterialsCommons/workspace/src/github.com/materials-commons/mcapi
 SCRAP_TEST_DIR=/Users/weymouth/Desktop/test-python-load
@@ -110,13 +126,13 @@ cp ${DEPLOY_DIR}/docs_started_dir/* ./
 cp conf.py index.rst index_api.rst source/
 make html
 pushd build/html
-ls *.html | xargs sed -i '' 's/_sources/site_sources/g'
-ls *.html | xargs sed -i '' 's/_static/site_static/g'
-ls *.html | xargs sed -i '' 's/_modules/site_modules/g'
+ls *.html | xargs sed -i 's/_sources/site_sources/g'
+ls *.html | xargs sed -i 's/_static/site_static/g'
+ls *.html | xargs sed -i 's/_modules/site_modules/g'
 
-ls *.js | xargs sed -i '' 's/_sources/site_sources/g'
-ls *.js | xargs sed -i '' 's/_static/site_static/g'
-ls *.js | xargs sed -i '' 's/_modules/site_modules/g'
+ls *.js | xargs sed -i 's/_sources/site_sources/g'
+ls *.js | xargs sed -i 's/_static/site_static/g'
+ls *.js | xargs sed -i 's/_modules/site_modules/g'
 
 mv _sources site_sources
 mv _static site_static
@@ -124,6 +140,7 @@ mv _modules site_modules
 popd
 cp -r build/html ${DOCS_GITHUB_BASE}/
 pushd ${DOCS_GITHUB_BASE}
+git pull
 git status
 git add html
 git commit -m "Update Python API Docs"

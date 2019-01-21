@@ -38,7 +38,7 @@ env:
     - MC_DOI_PUBLICATION_BASE=http://mcpub.localhost/#/details
     - MC_DOI_NAMESPACE='doi:10.5072/FK2'
     - ENV_SCRIPT=travisrun
-    - MC_ORG_BRANCH=etl
+    - MC_ORG_BRANCH=release
 
 git:
   depth: 3
@@ -78,7 +78,7 @@ install:
   - npm install
   - pip install rethinkdb
   - pip install Flask
-  - pip install pytest
+  - pip install 'pytest==3.6' --force-reinstall
   - pip install pbkdf2
   - popd
 
@@ -86,11 +86,10 @@ install:
 
   - popd
 
-  - cd python
   - pushd materials_commons_extras/test/test_data
   - export TEST_DATA_DIR=`pwd`
   - pushd etl_test_data
-  - python generate_test_data.py
+  - ./generate_test_data.py
   - popd
   - popd
   - export MC_PYTHON_API_DIR=`pwd`
@@ -124,6 +123,8 @@ before_script:
   - sleep 10
   - ps -eo "pid,command" | grep rethinkdb
   - ps -eo "pid,command" | grep servers
+  - mcservers start
+  - mcservers
 
     # Note: guard to prevent tests if host is not available - and verify users for tests
   - curl -o junk.txt http://mcdev.localhost/api/users?apikey=totally-bogus
