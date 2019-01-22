@@ -3,12 +3,13 @@ from materials_commons.api import get_all_projects
 
 
 class DemoProject:
-    def __init__(self, data_directory_path):
+    def __init__(self, data_directory_path, apikey):
+        self.apikey = apikey
         self.build_data_directory = data_directory_path
         self.project_name = "Demo Project"
 
     def does_project_exist(self):
-        projects = get_all_projects()
+        projects = get_all_projects(apikey=self.apikey)
         project = None
         for p in projects:
             if p.name == self.project_name:
@@ -16,7 +17,7 @@ class DemoProject:
         return not not project
 
     def get_existing_project(self):
-        projects = get_all_projects()
+        projects = get_all_projects(apikey=self.apikey)
         project = None
         for p in projects:
             if p.name == self.project_name:
@@ -179,7 +180,7 @@ class DemoProject:
     # Support methods
 
     def _make_template_table(self):
-        template_list = get_all_templates()
+        template_list = get_all_templates(apikey=self.apikey)
         table = {}
         for template in template_list:
             table[template.id] = template
@@ -193,7 +194,7 @@ class DemoProject:
         return found_id
 
     def _get_or_create_project(self, project_name, project_description):
-        projects = get_all_projects()
+        projects = get_all_projects(apikey=self.apikey)
         project = None
         for p in projects:
             if p.name == project_name:
@@ -201,7 +202,9 @@ class DemoProject:
         if not project:
             project = create_project(
                 name=project_name,
-                description=project_description)
+                description=project_description,
+                apikey=self.apikey
+            )
         return project
 
     def _get_or_create_experiment(self, project, experiment_name, experiment_description):

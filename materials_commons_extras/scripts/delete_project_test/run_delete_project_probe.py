@@ -11,19 +11,21 @@ import materials_commons_extras.demo_project.demo_project as demo
 
 # noinspection SpellCheckingInspection
 TABLES = ['access', 'best_measure_history', 'comments', 'datadir2datafile', 'datadirs',
-          'datafiles', 'dataset2datafile', 'dataset2experimentnote', 'dataset2process',
-          'dataset2sample', 'datasets', 'deletedprocesses', 'elements', 'events',
-          'experiment2datafile', 'experiment2dataset', 'experiment2experimentnote',
-          'experiment2experimenttask', 'experiment2process', 'experiment2sample',
-          'experiment_etl_metadata', 'experimentnotes', 'experiments', 'experimenttask2process',
-          'experimenttasks', 'machines', 'measurement2datafile',
+          'datafiles', 'dataset2datafile', 'dataset2process',
+          'dataset2sample', 'datasets', 'deletedprocesses', 'events',
+          'experiment2datafile', 'experiment2dataset',
+          'experiment2process', 'experiment2sample',
+          'experiment_etl_metadata', 'experimentnotes', 'experiments',
+          'experimenttasks', 'measurement2datafile',
           'measurements', 'note2item', 'notes', 'process2file', 'process2measurement',
           'process2sample', 'process2setup', 'process2setupfile', 'processes',
           'project2datadir', 'project2datafile', 'project2dataset', 'project2experiment',
           'project2process', 'project2sample', 'projects', 'properties', 'property2measurement',
-          'propertyset2property', 'propertysets', 'review2item', 'reviews', 'runs',
-          'sample2datafile', 'sample2propertyset', 'sample2sample', 'samples',
-          'setupproperties', 'setups', 'shares', 'tag2item', 'tags']
+          'propertyset2property', 'propertysets',
+          'sample2datafile', 'sample2propertyset', 'samples',
+          'setupproperties', 'setups', 'tag2item', 'tags']
+EXCLUDED = ['account_requests', 'background_process', 'file_loads', 'globus_auth_info',
+            'globus_uploads', 'templates', 'uploads', 'users']
 
 # NOTE: 'globus_auth_info' does not exist in current test env
 # Check: project2dataset
@@ -39,22 +41,28 @@ TABLES = ['access', 'best_measure_history', 'comments', 'datadir2datafile', 'dat
 
 
 class DeleteProjectProbe:
-    def __init__(self, db_port):
+    def __init__(self, db_port, apikey):
         self.conn = r.connect('localhost', db_port, db='materialscommons')
+        self.apikey = apikey
         self.pre_condition = {}
         self.post_condition = {}
 
     def doit(self):
-        # tables = r.table_list().run(self.conn)
-        # print(tables)
+        if not self._env_ok():
+            return
+        tables = r.table_list().run(self.conn)
+        error = False
+        for table in tables:
+            if (not table in TABLES) and (not table in EXCLUDED):
+                print("Warning: table is database but not in code = {}".format(table))
+        for table in TABLES:
+            if not table in tables:
+                print("Warning: table in code but not in database - {}".format(table))
+                error = True
+        if error:
+            print("Found problems - fix and retry")
+            return
         tables = TABLES
-        # for table in tables:
-        #     results = r.table(table).pluck('owner').run(self.conn)
-        #     if results:
-        #         results = list(results)
-        #         if len(results) > 0 and results[0]:
-        #             results = results[0]
-        #     print("{} --> {}".format(table, results))
         for table in tables:
             results = r.table(table).count().run(self.conn)
             self.pre_condition[table] = results
@@ -69,23 +77,29 @@ class DeleteProjectProbe:
             self.post_condition[table] = results
         for key in tables:
             if not self.pre_condition[key] == self.post_condition[key]:
-                mark = "<--" if not self.pre_condition[key] == self.post_condition[key] else ""
-                print("{} - {} - {}  {}".format(key, self.pre_condition[key], self.post_condition[key], mark))
-                # print("{} -- {}".format(key, self.postcondition[key]))
+                print("{} - {} - {}".format(key, self.pre_condition[key], self.post_condition[key]))
 
     def _build_project(self):
         project_name = self._fake_name("ProjectDeleteTest")
-        # print("")
-        # print("Project name: " + project_name)
+        print("Project name: " + project_name)
 
         self.test_project_name = project_name
 
-        builder = demo.DemoProject(self._make_test_dir_path())
+        builder = demo.DemoProject(self._make_test_dir_path(), self.apikey)
 
         project = builder.build_project()
         project = project.rename(project_name)
 
         return project
+
+    @staticmethod
+    def _env_ok():
+        ok = True
+        probe = environ['TEST_DATA_DIR'] if 'TEST_DATA_DIR' in environ else None
+        if not probe:
+            ok = False
+            print("Missing env var: TEST_DATA_DIR")
+        return ok
 
     @staticmethod
     def _make_test_dir_path():
@@ -101,11 +115,16 @@ class DeleteProjectProbe:
 
 if __name__ == "__main__":
     parser = OptionParser()
-    parser.add_option("-P", "--port", dest="port", type="int", help="rethinkdb port", default=30815)
+    parser.add_option("-P", "--port", dest="port", type="int", help="rethinkdb port", default=None)
+    parser.add_option("-K", "--apikey", dest="apikey", type="string", help="apikey", default=None)
 
     (options, args) = parser.parse_args()
 
-    port = options.port
+    env_port = environ['MCDB_PORT'] if 'MCDB_PORT' in environ else None
+    port = options.port or env_port or 30815
     print("Using database port = {}".format(port))
 
-    DeleteProjectProbe(port).doit()
+    apikey = options.apikey or "totally-bogus"
+    print("Using apikey = {}".format(apikey))
+
+    DeleteProjectProbe(port, apikey).doit()
