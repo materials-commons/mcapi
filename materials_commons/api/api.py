@@ -790,8 +790,9 @@ def get_doi_link(project_id, experiment_id, dataset_id, remote=None, apikey=None
     return get(remote.make_url_v2(api_url), remote)
 
 
-def get_apikey(email, password):
-    remote = mcorg()
+def get_apikey(email, password, remote=None):
+    if not remote:
+        remote = mcorg()
     api_url = "user/"+email+"/apikey"
     data = {
         "password": password
