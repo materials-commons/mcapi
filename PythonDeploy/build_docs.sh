@@ -2,6 +2,8 @@
 
 source ./setup_env.sh
 
+./deploy.sh docs
+
 rm -rf ${VENV}
 mkdir ${VENV}
 cd ${VENV}

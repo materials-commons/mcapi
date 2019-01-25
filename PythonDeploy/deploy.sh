@@ -23,7 +23,9 @@ rm -rf build dist
 python setup.py sdist bdist_wheel
 
 if [[ $# -gt 0 ]]; then
-    twine upload dist/*
+    if [[ $1 == "p" ]]; then
+        twine upload dist/*
+    fi
 else
     twine upload dist/* -r pypitest
 fi
