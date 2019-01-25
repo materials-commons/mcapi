@@ -106,7 +106,8 @@ class Experiment(MCObject):
         experiment = self
         if not description:
             description = self.description
-        results = api.rename_experiment(project.id, experiment.id, name, description, apikey=project._apikey)
+        results = api.rename_experiment(project.id, experiment.id, name, description, apikey=project._apikey,
+                                        remote=self.project.remote)
         if results:
             self.name = results['name']
             self.description = results['description']
@@ -133,7 +134,7 @@ class Experiment(MCObject):
         :return: the id of the deleted experiment
 
         """
-        api.delete_experiment(self.project.id, self.id, apikey=self.project._apikey)
+        api.delete_experiment(self.project.id, self.id, apikey=self.project._apikey, remote=self.project.remote)
         return self.id
 
     # Experiment - Process-related methods
@@ -157,7 +158,8 @@ class Experiment(MCObject):
         """
         project = self.project
         experiment = self
-        results = api.create_process_from_template(project.id, experiment.id, template_id, apikey=project._apikey)
+        results = api.create_process_from_template(project.id, experiment.id, template_id, apikey=project._apikey,
+                                                   remote=self.project.remote)
         process = make_object(results)
         process.project = project
         process.experiment = experiment
@@ -173,7 +175,8 @@ class Experiment(MCObject):
         """
         project = self.project
         experiment = self
-        results = api.get_experiment_process_by_id(project.id, experiment.id, process_id, apikey=project._apikey)
+        results = api.get_experiment_process_by_id(project.id, experiment.id, process_id, apikey=project._apikey,
+                                                   remote=self.project.remote)
         process = make_object(results)
         process.project = project
         process.experiment = experiment
@@ -187,7 +190,8 @@ class Experiment(MCObject):
         :return: the list of :class:`mcapi.Process` instances
 
         """
-        process_list = api.fetch_experiment_processes(self.project.id, self.id, apikey=self.project._apikey)
+        process_list = api.fetch_experiment_processes(self.project.id, self.id, apikey=self.project._apikey,
+                                                      remote=self.project.remote)
         processes = [make_object(x) for x in process_list]
         processes = [_decorate_object_with(x, 'project', self.project) for x in processes]
         processes = [_decorate_object_with(x, 'experiment', self) for x in processes]
@@ -224,7 +228,8 @@ class Experiment(MCObject):
         :return: the list of :class:`mcapi.Sample` instances
 
         """
-        samples_list = api.fetch_experiment_samples(self.project.id, self.id, apikey=self.project._apikey)
+        samples_list = api.fetch_experiment_samples(self.project.id, self.id, apikey=self.project._apikey,
+                                                    remote=self.project.remote)
         samples = [make_object(x) for x in samples_list]
         samples = [_decorate_object_with(x, 'project', self.project) for x in samples]
         samples = [_decorate_object_with(x, 'experiment', self) for x in samples]
