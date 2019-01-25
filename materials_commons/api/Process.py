@@ -185,7 +185,8 @@ class Process(MCObject):
         :return: the updated :class:`mcapi.Process`
 
         """
-        results = api.push_name_for_process(self.project.id, self.id, process_name, apikey=self.project._apikey)
+        results = api.push_name_for_process(self.project.id, self.id, process_name, apikey=self.project._apikey,
+                                            remote=self.project.remote)
         process = make_object(results)
         process.project = self.project
         process.experiment = self.experiment
@@ -211,7 +212,8 @@ class Process(MCObject):
 
         results = None
         try:
-            results = api.delete_process(self.project.id, self.id, apikey=self.project._apikey)
+            results = api.delete_process(self.project.id, self.id, apikey=self.project._apikey,
+                                         remote=self.project.remote)
             if 'error' in results:
                 results = None
             else:
@@ -237,7 +239,8 @@ class Process(MCObject):
     # Process - additional basic methods
     def set_notes(self, note_text):
         note_text = "<p>" + note_text + "</p>"
-        results = api.set_notes_for_process(self.project.id, self.id, note_text, apikey=self.project._apikey)
+        results = api.set_notes_for_process(self.project.id, self.id, note_text, apikey=self.project._apikey,
+                                            remote=self.project.remote)
         process = make_object(results)
         process.project = self.project
         process.experiment = self.experiment
@@ -247,7 +250,8 @@ class Process(MCObject):
 
     def add_to_notes(self, note_text):
         note_text = self.notes + "\n<p>" + note_text + "</p>"
-        results = api.set_notes_for_process(self.project.id, self.id, note_text, apikey=self.project._apikey)
+        results = api.set_notes_for_process(self.project.id, self.id, note_text, apikey=self.project._apikey,
+                                            remote=self.project.remote)
         process = make_object(results)
         process.project = self.project
         process.experiment = self.experiment
@@ -335,7 +339,8 @@ class Process(MCObject):
         project = self.project
         experiment = self.experiment
         process = self
-        results = api.get_all_files_for_process(project.id, experiment.id, process.id, apikey=self.project._apikey)
+        results = api.get_all_files_for_process(project.id, experiment.id, process.id, apikey=self.project._apikey,
+                                                remote=self.project.remote)
         file_list = [make_object(x) for x in results]
         return file_list
 
@@ -481,7 +486,8 @@ class Process(MCObject):
             args.append(e)
         if args:
             ret = api.update_additional_properties_in_process(
-                self.project.id, self.experiment.id, self.id, args, apikey=self.project._apikey)
+                self.project.id, self.experiment.id, self.id, args, apikey=self.project._apikey,
+                remote=self.project.remote)
             updated = make_object(ret['val'])
             self.setup = updated.setup
         return self
@@ -836,7 +842,7 @@ class Process(MCObject):
         success_flag = api.set_measurement_for_process_samples(
             project_id, experiment_id, process_id,
             samples_parameter, measurement_property, measurement_parameter,
-            apikey=self.project._apikey)
+            apikey=self.project._apikey, remote=self.project.remote)
         if not success_flag:
             print("mcapi.mc._set_measurement_for_process_samples - unexpectedly failed")
             return None
@@ -851,7 +857,8 @@ class Process(MCObject):
             for ap in arg_list:
                 ap['transform'] = transform
         results = api.add_samples_to_process(
-            project.id, experiment.id, process.id, process.template_id, arg_list, apikey=self.project._apikey)
+            project.id, experiment.id, process.id, process.template_id, arg_list, apikey=self.project._apikey,
+            remote=self.project.remote)
         new_process = make_object(results)
         for sample in new_process.input_samples:
             sample.experiment = experiment
@@ -874,7 +881,7 @@ class Process(MCObject):
         file_ids = [file.id for file in file_list]
         results = api.add_files_to_process(
             project.id, experiment.id, process.id, process.template_id,
-            file_ids, direction, apikey=self.project._apikey)
+            file_ids, direction, apikey=self.project._apikey, remote=self.project.remote)
         process = make_object(results)
         process.project = project
         process.experiment = experiment
@@ -886,7 +893,7 @@ class Process(MCObject):
         experiment = self.experiment
         process = self
         results = api.update_process_setup_properties(
-            project.id, experiment.id, process, prop_list, apikey=self.project._apikey)
+            project.id, experiment.id, process, prop_list, apikey=self.project._apikey, remote=self.project.remote)
         process = make_object(results)
         process.project = project
         process.experiment = experiment
@@ -897,7 +904,7 @@ class Process(MCObject):
         project = self.project
         process = self
         samples_array_dict = api.create_samples_in_project(
-            project.id, process.id, sample_names, apikey=self.project._apikey)
+            project.id, process.id, sample_names, apikey=self.project._apikey, remote=self.project.remote)
         samples_array = samples_array_dict['samples']
         # NOTE: in this case, for this version of API, for the call implemented, the
         # returned object is very sparse; hence the samples need to be re-fetched...
@@ -919,5 +926,6 @@ class Process(MCObject):
                     sample_in_experiment = s
             if not sample_in_experiment:
                 process.experiment.samples.append(sample)
-        api.add_samples_to_experiment(project.id, process.experiment.id, samples_id_list, apikey=self.project._apikey)
+        api.add_samples_to_experiment(project.id, process.experiment.id, samples_id_list, apikey=self.project._apikey,
+                                      remote=self.project.remote)
         return samples

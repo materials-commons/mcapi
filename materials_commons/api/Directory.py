@@ -61,7 +61,8 @@ class Directory(MCObject):
         :param new_name: string
         :return: updated directory
         """
-        dir_data = api.directory_rename(self._project.id, self.id, new_name, apikey=self._project._apikey)
+        dir_data = api.directory_rename(self._project.id, self.id, new_name, apikey=self._project._apikey,
+                                        remote=self._project.remote)
         updated_directory = make_object(dir_data)
         updated_directory._project = self._project
         return updated_directory
@@ -76,7 +77,8 @@ class Directory(MCObject):
         """
         project_id = self._project.id
         new_directory_id = new_parent_directory.id
-        results = api.directory_move(project_id, self.id, new_parent_directory.id, apikey=self._project._apikey)
+        results = api.directory_move(project_id, self.id, new_parent_directory.id, apikey=self._project._apikey,
+                                     remote=self._project.remote)
         updated_directory = make_object(results)
         updated_directory._project = self._project
         if not updated_directory._parent_id:
@@ -117,7 +119,8 @@ class Directory(MCObject):
 
         """
         from .File import File
-        results = api.directory_by_id(self._project.id, self.id, apikey=self._project._apikey)
+        results = api.directory_by_id(self._project.id, self.id, apikey=self._project._apikey,
+                                      remote=self._project.remote)
         ret = []
         for dir_or_file in results['children']:
             its_type = dir_or_file['otype']
@@ -140,7 +143,7 @@ class Directory(MCObject):
         :return: a list of :class:`mcapi.Directory` instances
         """
         results = api.create_fetch_all_directories_on_path(
-            self._project.id, self.id, path, apikey=self._project._apikey)
+            self._project.id, self.id, path, apikey=self._project._apikey, remote=self._project.remote)
         dir_list = []
         parent = self
         for dir_data in results['dirs']:

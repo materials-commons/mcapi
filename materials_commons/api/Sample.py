@@ -139,7 +139,8 @@ class Sample(MCObject):
             results = None
         else:
             results = api.delete_sample_created_by_process(
-                self.project.id, proc_id, self.id, property_set_id, apikey=self.project._apikey)
+                self.project.id, proc_id, self.id, property_set_id, apikey=self.project._apikey,
+                remote=self.project.remote)
 
         return results
 
@@ -154,7 +155,8 @@ class Sample(MCObject):
         id_list = []
         for file in file_list:
             id_list.append(file.id)
-        api.link_files_to_sample(self.project.id, self.id, id_list, apikey=self.project._apikey)
+        api.link_files_to_sample(self.project.id, self.id, id_list, apikey=self.project._apikey,
+                                 remote=self.project.remote)
         return self.update_with_details()
 
     def update_with_details(self):
@@ -164,6 +166,7 @@ class Sample(MCObject):
         return updated_sample
 
     def decorate_with_processes(self):
-        filled_in_sample = make_object(api.fetch_sample_details(self.project.id, self.id, apikey=self.project._apikey))
+        filled_in_sample = make_object(
+            api.fetch_sample_details(self.project.id, self.id, apikey=self.project._apikey, remote=self.project.remote))
         self.processes = filled_in_sample.processes
         return self
