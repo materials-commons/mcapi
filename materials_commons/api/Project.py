@@ -21,13 +21,14 @@ class Project(MCObject):
 
     """
 
-    def __init__(self, name="", description="", remote_url="", data=None, apikey=None):
+    def __init__(self, name="", description="", remote_url="", data=None, apikey=None, remote=None):
         # normally, from the data base
         self.id = ""  #: project id - string (from database)
         self.name = ""  #: project name - string (from database)
         self.description = ""  #: project description - string (from database)
         self.size = 0
         self.mediatypes = {}
+        self.remote = remote
 
         self.__all_db_Fields__ = ['id', 'name', 'description', 'birthtime', 'mtime', 'otype', 'owner',
                                   'size', 'mediatypes']
@@ -63,8 +64,6 @@ class Project(MCObject):
 
         # "local_path" to where Project files have been downloaded on local machine
         self.local_path = None
-        # Remote instance, where Project is saved. Similar to source
-        self.remote = None
 
     def pretty_print(self, shift=0, indent=2, out=sys.stdout):
         """
@@ -102,10 +101,10 @@ class Project(MCObject):
         """
         if not description:
             description = self.description
-        results = api.update_project(self.id, name, description, apikey=self._apikey)
+        results = api.update_project(self.id, name, description, apikey=self._apikey, remote=self.remote)
         project_id = results['id']
         from .top_level_api_functions import get_project_by_id
-        project = get_project_by_id(project_id, apikey=self._apikey)
+        project = get_project_by_id(project_id, apikey=self._apikey, remote=self.remote)
         return project
 
     def put(self):
@@ -129,7 +128,7 @@ class Project(MCObject):
         """
         results = None
         try:
-            results = api.delete_project(self.id, apikey=self._apikey)
+            results = api.delete_project(self.id, apikey=self._apikey, remote=self.remote)
             results = results['project_id']
         except MCGenericException:
             print("Delete of project failed: ", self.name, "(" + self.id + ")")
@@ -152,7 +151,8 @@ class Project(MCObject):
         >>> experiment = project.create_experiment("Experiment 1", "Test Procedures")
 
         """
-        experiment_json_dict = api.create_experiment(self.id, name, description, apikey=self._apikey)
+        experiment_json_dict = api.create_experiment(self.id, name, description, apikey=self._apikey,
+                                                     remote=self.remote)
         experiment = make_object(experiment_json_dict)
         experiment.project = self
         return experiment
@@ -182,7 +182,7 @@ class Project(MCObject):
         >>>     print(experiment.id, experiment.name)
 
         """
-        list_results = api.fetch_experiments(self.id, apikey=self._apikey)
+        list_results = api.fetch_experiments(self.id, apikey=self._apikey, remote=self.remote)
         experiments = [make_object(o) for o in list_results]
         experiments = [_decorate_object_with(x, 'project', self) for x in experiments]
         return experiments
@@ -214,7 +214,7 @@ class Project(MCObject):
 
         """
 
-        results = api.directory_by_id(self.id, directory_id, apikey=self._apikey)
+        results = api.directory_by_id(self.id, directory_id, apikey=self._apikey, remote=self.remote)
         directory = make_object(results)
         directory._project = self
         directory.shallow = False
@@ -235,7 +235,7 @@ class Project(MCObject):
 
         """
 
-        results = api.directory_by_id(self.id, "all", apikey=self._apikey)
+        results = api.directory_by_id(self.id, "all", apikey=self._apikey, remote=self.remote)
         directories = []
         for item in results:
             item['otype'] = 'directory'
@@ -261,7 +261,7 @@ class Project(MCObject):
 
         """
         if not self._top:
-            results = api.directory_by_id(self.id, "top", apikey=self._apikey)
+            results = api.directory_by_id(self.id, "top", apikey=self._apikey, remote=self.remote)
             directory = make_object(results)
             directory._project = self
             self._set_top_directory(directory)
@@ -398,7 +398,7 @@ class Project(MCObject):
                 path = "/" + path
             new_path_list.append(path)
         results = api.directory_create_subdirectories_from_path_list(
-            self.id, base_directory.id, new_path_list, apikey=self._apikey)
+            self.id, base_directory.id, new_path_list, apikey=self._apikey, remote=self.remote)
         data = results['val']
         table = {}
         project_name = self.name
@@ -435,7 +435,8 @@ class Project(MCObject):
             print("uploading:", os_path.relpath(local_path, getcwd()), " as:", file_name)
         project_id = self.id
         directory_id = directory.id
-        results = api.file_upload(project_id, directory_id, file_name, local_path, apikey=self._apikey)
+        results = api.file_upload(project_id, directory_id, file_name, local_path, apikey=self._apikey,
+                                  remote=self.remote)
         uploaded_file = make_object(results)
         uploaded_file._project = self
         uploaded_file._directory = directory
@@ -590,7 +591,7 @@ class Project(MCObject):
         >>>     print(process.name)
 
         """
-        process_list = api.get_project_processes(self.id, self.remote, apikey=self._apikey)
+        process_list = api.get_project_processes(self.id, apikey=self._apikey, remote=self.remote)
         processes = [make_object(x) for x in process_list]
         processes = [_decorate_object_with(x, 'project', self) for x in processes]
         return processes
@@ -608,7 +609,7 @@ class Project(MCObject):
         >>> process = project.get_process_by_id(process.id)
 
         """
-        results = api.get_process_by_id(self.id, process_id, apikey=self._apikey)
+        results = api.get_process_by_id(self.id, process_id, apikey=self._apikey, remote=self.remote)
         process = make_object(results)
         process.project = self
         process._update_project_experiment()
@@ -630,7 +631,7 @@ class Project(MCObject):
         >>>     print(sample.name)
 
         """
-        samples_list = api.get_project_samples(self.id, self.remote, apikey=self._apikey)
+        samples_list = api.get_project_samples(self.id, apikey=self._apikey, remote=self.remote)
         samples = [make_object(x) for x in samples_list]
         samples = [_decorate_object_with(x, 'project', self) for x in samples]
         return samples
@@ -651,7 +652,7 @@ class Project(MCObject):
         ..todo:: determine and document the difference between mcapi.fetch_sample_by_id and mcapi.get_sample_by_id
 
         """
-        sample_json_dict = api.get_project_sample_by_id(self.id, sample_id, apikey=self._apikey)
+        sample_json_dict = api.get_project_sample_by_id(self.id, sample_id, apikey=self._apikey, remote=self.remote)
         sample = make_object(sample_json_dict)
         sample.project = self
         return sample
@@ -672,7 +673,7 @@ class Project(MCObject):
         ..todo:: determine and document the difference between mcapi.fetch_sample_by_id and mcapi.get_sample_by_id
 
         """
-        results = api.get_sample_by_id(self.id, sample_id, apikey=self._apikey)
+        results = api.get_sample_by_id(self.id, sample_id, apikey=self._apikey, remote=self.remote)
         sample = make_object(results)
         sample.project = self
         return sample
@@ -685,12 +686,12 @@ class Project(MCObject):
         :return: a list of string - the id/email of each user with access
 
         >>> from materials_commons.api import get_project_by_id
-        >>> project_id = "somthing here"
+        >>> project_id = "something here"
         >>> project = get_project_by_id(project_id)
         >>> user_id_list = project.get_access_list()
 
         """
-        results = api.users_with_access_to_project(self.id, apikey=self._apikey)
+        results = api.users_with_access_to_project(self.id, apikey=self._apikey, remote=self.remote)
         user_list = []
         if results['val']:
             for record in results['val']:
@@ -705,7 +706,7 @@ class Project(MCObject):
         :param new_user: the user_id of the user to add
         :return: string - the user_id, if added; otherwise error message
         """
-        results = api.add_user_access_to_project(self.id, new_user, apikey=self._apikey)
+        results = api.add_user_access_to_project(self.id, new_user, apikey=self._apikey, remote=self.remote)
         if 'error' in results:
             return results['error']
         return results['val']
@@ -718,25 +719,25 @@ class Project(MCObject):
         :param user_to_remote: the user_id of the user to the user to remove
         :return: string - the user_id (in any case)
         """
-        results = api.remove_user_access_to_project(self.id, user_to_remote, apikey=self._apikey)
+        results = api.remove_user_access_to_project(self.id, user_to_remote, apikey=self._apikey, remote=self.remote)
         if 'error' in results:
             return results['error']
         return results['val']
 
     # Project - globus
     def create_globus_upload_request(self):
-        results = api.create_globus_upload_request(self.id, apikey=self._apikey)
+        results = api.create_globus_upload_request(self.id, apikey=self._apikey, remote=self.remote)
         ret = GlobusUploadRequest(results)
         return ret
 
     def get_globus_upload_status_list(self):
-        results = api.get_globus_upload_status_list(self.id, apikey=self._apikey)
+        results = api.get_globus_upload_status_list(self.id, apikey=self._apikey, remote=self.remote)
         status_list = []
         if results['value']:
-            status_list = [GlobusUploadStatus(x) for x in results["value"] ]
+            status_list = [GlobusUploadStatus(x) for x in results["value"]]
         return status_list
 
     def create_globus_download_request(self):
-        results = api.create_globus_download_request(self.id, apikey=self._apikey)
+        results = api.create_globus_download_request(self.id, apikey=self._apikey, remote=self.remote)
         ret = GlobusDownloadRequest(results)
         return ret
