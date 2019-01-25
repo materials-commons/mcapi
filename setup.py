@@ -7,7 +7,7 @@ try:
     with open('materials_commons/VERSION.txt') as f:
         version = f.read().strip()
 except IOError:
-    version = '0.7.6u'
+    version = '0.9.0'
 
 
 setup(
