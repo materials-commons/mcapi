@@ -295,8 +295,7 @@ class Process(MCObject):
 
         """
         # TODO: Process.get_sample_by_id(id)
-        message = "Process.get_sample_by_id({}) is not implemented".format(process_id)
-        raise NotImplementedError(message)
+        raise NotImplementedError("Process.get_sample_by_id({}) is not implemented".format(sample_id))
         pass
 
     def get_all_samples(self):

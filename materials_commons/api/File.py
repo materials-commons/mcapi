@@ -136,8 +136,7 @@ class File(MCObject):
         :return: the parent :class:`mcapi.Directory` instance
         """
         # TODO File.get_parent()
-        message = "File.get_parent() is not implemented - previous implemation was incorrect"
-        raise NotImplementedError(message)
+        raise NotImplementedError("File.get_parent() is not implemented - previous implementation was incorrect")
         # Note: this was discovered to be working incorrectly - Terry - March 2018
         # return self._project.get_directory_by_id(self._directory_id)
 
