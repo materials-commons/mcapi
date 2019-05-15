@@ -304,6 +304,19 @@ def push_name_for_process(project_id, process_id, name, remote=None, apikey=None
     return put(remote.make_url_v2(api_url), data, remote)
 
 
+def update_name_of_process(project_id, process_id, name, remote=None, apikey=None):
+    return push_name_for_process(project_id, process_id, name, remote, apikey)
+
+
+def update_ptype_of_process(project_id, process_id, ptype, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
+    data = {
+        "ptype": ptype
+    }
+    api_url = "projects/" + project_id + "/processes/" + process_id
+    return put(remote.make_url_v2(api_url), data, remote)
+
+
 def delete_process(project_id, process_id, remote=None, apikey=None):
     remote = configure_remote(remote, apikey)
     api_url = "projects/" + project_id + "/processes/" + process_id
