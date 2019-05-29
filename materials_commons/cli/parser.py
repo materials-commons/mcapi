@@ -5,7 +5,8 @@ import argparse
 from ..api import _Config
 from .remote import remote_subcommand
 from .proj import ProjSubcommand
-from .expt import expt_subcommand
+from .dataset import DatasetSubcommand
+from .expt import ExptSubcommand
 from .init import init_subcommand
 from .clone import clone_subcommand
 from .ls import ls_subcommand
@@ -23,7 +24,8 @@ class CommonsCLIParser(object):
     standard_usage = [
         {'name': 'remote', 'desc': 'List servers', 'subcommand': remote_subcommand},
         {'name': 'proj', 'desc': 'List projects', 'subcommand': ProjSubcommand()},
-        {'name': 'expt', 'desc': 'List, create, delete, and modify experiments', 'subcommand': expt_subcommand},
+        {'name': 'dataset', 'desc': 'List datasets', 'subcommand': DatasetSubcommand()},
+        {'name': 'expt', 'desc': 'List, create, delete, and modify experiments', 'subcommand': ExptSubcommand()},
         {'name': 'init', 'desc': 'Initialize a new project', 'subcommand': init_subcommand},
         {'name': 'clone', 'desc': 'Clone an existing project', 'subcommand': clone_subcommand},
         {'name': 'ls', 'desc': 'List local and remote directory contents', 'subcommand': ls_subcommand},

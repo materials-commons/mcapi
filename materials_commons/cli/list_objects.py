@@ -31,21 +31,31 @@ class ListObjects(object):
     Base class to create an 'mc X' command for listing objects of type X.
 
     Expects derived class members:
-        get_all_from_experiment(self, expt)
-        get_all_from_project(self, proj)
+        get_all_from_experiment(self, expt), if expt_member
+        get_all_from_project(self, proj), if proj_member
+        get_all(self), if non_proj_member
         list_data(self, obj)
 
     Optional derived class members:
-        create(self, args)
-        add_create_options(self, parser)
+        create(self, args), should be implemented if type is createable
+        delete(self, objects, dry_run, out=sys.stdout), should be implemented if type is createable
+        add_create_options(self, parser), called if exists in derived class
+        add_custom_options(self, parser), called if exists in derived class
+
+    Custom derived class actions should have the form:
+        <name>(self, args, out=sys.stdout)
+
+    Custom derived class "selection" actions should have the form:
+        <name>(self, objects, args, out=sys.stdout)
 
     See ProcSubcommand for an example.
 
     """
 
     def __init__(self, cmdname, typename, typename_plural, desc=None, requires_project=True,
-                 proj_member=True, expt_member=True, list_columns=None, headers=None,
-                 deletable=False, has_owner=True, creatable=False, custom_options=False):
+                 non_proj_member=False, proj_member=True, expt_member=True, list_columns=None, headers=None,
+                 deletable=False, dry_runable=False, has_owner=True, creatable=False,
+                 custom_actions=[], custom_selection_actions=[]):
         """
 
         Arguments:
@@ -59,8 +69,11 @@ class ListObjects(object):
                 Used for help command description
             requires_project: bool
                 If True and not in current project, raise Exception
+            non_proj_member: bool
+                If non_proj_member and proj_member, enable --proj option to restrict queries to the
+                current project.
             proj_member: bool
-                Restrict queries to current project
+                Restrict queries to current project by default
             expt_member: bool
                 Include --expt option to restrict queries to current experiment
             list_columns: List[str]
@@ -68,11 +81,19 @@ class ListObjects(object):
             headers: List[str]
                 List of column header names, use list_columns if None
             deletable: bool
-                If true, enable --delete and --dry-run
+                If true, enable --delete
+            dry_runable: bool
+                If true, enable --dry-run
             has_owner: bool
                 If true, enable --owner
             creatable: bool
                 If true, object can be created via derived class 'create' function
+            custom_actions: List of str
+                Custom action names which are called via:
+                    `<name>(self, args, outout=sys.stdout)`
+            custom_selection_actions: List of str
+                Custom action names which are called via:
+                    `<name>(self, objects, args, outout=sys.stdout)`
 
         """
         if list_columns is None:
@@ -82,6 +103,7 @@ class ListObjects(object):
         self.typename_plural = typename_plural
         self.desc = desc
         self.requires_project = requires_project
+        self.non_proj_member = non_proj_member
         self.proj_member = proj_member
         self.expt_member = expt_member
         self.list_columns = list_columns
@@ -91,22 +113,26 @@ class ListObjects(object):
         self.deletable = deletable
         self.has_owner = has_owner
         self.creatable = creatable
+        self.dry_runable = dry_runable
+        self.custom_actions = custom_actions
+        self.custom_selection_actions = custom_selection_actions
 
     def __call__(self, argv):
         """
         List Materials Commons Objects.
 
-        mc proc [--expt] [--details | --json] [--id] [<name> ...]
+        mc proc [--proj] [--expt] [--details | --json] [--id] [<name> ...]
 
         """
 
         expr_help = 'select ' + self.typename_plural + ' that match the given regex (default uses name)'
         id_help = 'match by id instead of name'
         owner_help = 'match by owner instead of name'
-        details_help = 'print() detailed information'
+        details_help = 'print detailed information'
         sort_by_help = 'columns to sort by'
-        json_help = 'print()JSON data'
-        expt_help = 'restrict to ' + self.typename_plural + ' in the current experiment, rather than entire project'
+        json_help = 'print JSON data'
+        proj_help = 'restrict to ' + self.typename_plural + ' in the current project'
+        expt_help = 'restrict to ' + self.typename_plural + ' in the current experiment'
         output_help = 'output to file'
         force_help = 'force overwrite of existing output file'
         create_help = 'create a ' + self.typename
@@ -135,70 +161,105 @@ class ListObjects(object):
         parser.add_argument('--json', action="store_true", default=False, help=json_help)
         parser.add_argument('-o', '--output', nargs=1, default=None, help=output_help)
         parser.add_argument('-f', '--force', action="store_true", default=False, help=force_help)
+        if self.non_proj_member and self.proj_member:
+            parser.add_argument('--proj', action="store_true", default=False, help=proj_help)
         if self.expt_member:
             parser.add_argument('--expt', action="store_true", default=False, help=expt_help)
         if self.creatable:
             parser.add_argument('--create', action="store_true", default=False, help=create_help)
-            self.add_create_options(parser)
         if self.deletable:
             parser.add_argument('--delete', action="store_true", default=False, help=delete_help)
+        if self.dry_runable:
             parser.add_argument('-n', '--dry-run', action="store_true", default=False, help=dry_run_help)
+
+        if hasattr(self, 'add_create_options'):
+            self.add_create_options(parser)
+        if hasattr(self, 'add_custom_options'):
+            self.add_custom_options(parser)
 
         # ignore 'mc proc'
         args = parser.parse_args(argv[2:])
+
+        if not self.dry_runable:
+            args.dry_run = False
 
         output = None
         if args.output:
             output = args.output[0]
 
-        if hasattr(args, 'create') and args.create:
-            with output_method(output, args.force) as out:
-                # interfaces 'mc casm monte --create ...'
-                self.create(args, out=out)
-        else:
-            # list
-            with output_method(output, args.force) as out:
-                if self.deletable and args.delete:
-                    objects = self.get_all_objects(args)
+        # check for --create, or other custom primiary option command --<name>
+        for name in ['create'] + self.custom_actions:
+            if hasattr(args, name) and getattr(args, name) == True:
+                with output_method(output, args.force) as out:
+                    # interfaces 'mc casm monte --create ...'
+                    getattr(self, name)(args, out=out)
+                return
 
-                    if not args.force:
-                        self.output(out, args, objects)
-                        if args.dry_run:
-                            print("** Dry run **")
-                        msg = "Are you sure you want to permanently delete these? ('Yes'/'No'): "
-                        input = raw_input(msg)
-                        if input != 'Yes':
-                            print("Aborting")
-                            return
-                        else:
-                            self.delete(objects, args.dry_run, out=out)
+        # otherwise, perform a 'selection' action
+        with output_method(output, args.force) as out:
+            objects = self.get_all_objects(args)
+            if not len(objects):
+                out.write("No " + self.typename_plural + " found matching specified criteria\n")
+                return
+
+            # if --delete
+            if self.deletable and args.delete:
+
+                if not args.force:
+                    self.output(objects, args, out)
+                    if args.dry_run:
+                        out.write("** Dry run **\n")
+                    msg = "Are you sure you want to permanently delete these? ('Yes'/'No'): "
+                    input_str = input(msg)
+                    if input_str != 'Yes':
+                        out.write("Aborting\n")
+                        return
                     else:
-                        if args.dry_run:
-                            print("** Dry run **")
-                        self.delete(objects, args.dry_run, out=out)
-
+                        self.delete(objects, dry_run=args.dry_run, out=out)
                 else:
-                    objects = self.get_all_objects(args)
-                    self.output(out, args, objects)
-            return
+                    if args.dry_run:
+                        out.write("** Dry run **\n")
+                    self.output(objects, args, out)
+                    out.write("Permanently deleting with --force...\n")
+                    self.delete(objects, dry_run=args.dry_run, out=out)
+                return
+
+            else:
+
+                # default action is to output a list of objects
+                name = 'output'
+
+                # check for if a custom selection actions has been requested, via --<name>
+                for _name in self.custom_selection_actions:
+                    if hasattr(args, _name) and getattr(args, _name) == True:
+                        name = _name
+                        break
+                getattr(self, name)(objects, args, out)
+                return
 
     def get_all_objects(self, args):
 
         if self.requires_project and _proj_path() is None:
             raise Exception("Not in any Materials Commons project directory")
 
-        if not self.proj_member:
+        if hasattr(args, 'expt') and args.expt:
+            proj = make_local_project()
+            expt = make_local_expt(proj)
+            data = self.get_all_from_experiment(expt)
+        elif hasattr(args, 'proj') and args.proj:
+            proj = make_local_project()
+            data = self.get_all_from_project(proj)
+        elif self.non_proj_member:
             data = self.get_all()
         else:
             proj = make_local_project()
+            data = self.get_all_from_project(proj)
 
-            if self.expt_member and args.expt:
-                expt = make_local_expt(proj)
-                data = self.get_all_from_experiment(expt)
+        def _any_match(obj, attrname):
+            if isinstance(obj, dict):
+                value = obj[attrname]
             else:
-                data = self.get_all_from_project(proj)
-
-        def _any_match(value):
+                value = getattr(obj, attrname)
             for n in args.expr:
                 if re.match(n, value):
                     return True
@@ -206,27 +267,39 @@ class ListObjects(object):
 
         if args.expr:
             if args.id:
-                objects = [d for d in data if _any_match(d.id)]
+                objects = [d for d in data if _any_match(d, 'id')]
             elif self.has_owner and args.owner:
-                objects = [d for d in data if _any_match(d.owner)]
+                objects = [d for d in data if _any_match(d, 'owner')]
             else:
-                objects = [d for d in data if _any_match(d.name)]
+                objects = [d for d in data if _any_match(d, 'name')]
         else:
             objects = data
 
         return objects
 
-    def output(self, out, args, objects):
+    def output(self, objects, args, out=sys.stdout):
         if not len(objects):
             out.write("No " + self.typename_plural + " found matching specified criteria\n")
             return
         if args.details:
             for obj in objects:
-                obj.pretty_print(shift=0, indent=2, out=out)
-                out.write("\n")
+                if isinstance(obj, dict):
+                    out.write("--details not currently possible for this type of object\n")
+                    break
+                else:
+                    obj.pretty_print(shift=0, indent=2, out=out)
+                    out.write("\n")
         elif args.json:
-            out.write(json.dumps([obj.input_data for obj in objects], indent=2))
-            out.write("\n")
+            for obj in objects:
+                if hasattr(obj, 'input_data'):
+                    out.write(json.dumps(obj.input_data, indent=2))
+                    out.write("\n")
+                elif isinstance(obj, dict):
+                    out.write(json.dumps(obj, indent=2))
+                    out.write("\n")
+                else:
+                    out.write("--json not currently possible for this type of object\n")
+                    break
         else:
             data = []
             for obj in objects:

@@ -9,7 +9,7 @@ class ProjSubcommand(ListObjects):
     def __init__(self):
         super(ProjSubcommand, self).__init__(
             ["proj"], "Project", "Projects",
-            requires_project=False, proj_member=False, expt_member=False,
+            requires_project=False, non_proj_member=True, proj_member=False, expt_member=False,
             list_columns=['current', 'name', 'owner', 'id', 'mtime'],
             headers=['', 'name', 'owner', 'id', 'mtime'],
             deletable=True
@@ -46,9 +46,13 @@ class ProjSubcommand(ListObjects):
         }
 
     def delete(self, objects, dry_run, out=sys.stdout):
+        if dry_run:
+            out.write('Dry-run is not yet possible when deleting projects.\n')
+            out.write('Aborting\n')
+            return
         for obj in objects:
-            obj.delete(dry_run=dry_run)
-            out.write('Deleted project: ' + obj.name + ' ' + obj.id + '\n')
-            for key, val in obj.delete_tally.__dict__.items():
-                out.write(str(key) + ' ' + str(val) + '\n')
+            obj.delete()
+            # out.write('Deleted project: ' + obj.name + ' ' + obj.id + '\n')
+            # for key, val in obj.delete_tally.__dict__.items():
+            #     out.write(str(key) + ' ' + str(val) + '\n')
             out.write('\n')

@@ -13,6 +13,13 @@ import requests
 import hashlib
 
 
+def _trunc(s, size=40):
+    _s = str(s)
+    if len(_s) > size:
+        _s = _s[:size-3] + '...'
+    return _s
+
+
 def _trunc_name(obj, size=40):
     _name = obj.name
     if len(_name) > size:
@@ -27,33 +34,33 @@ def _trunc_desc(obj, size=100):
     return _desc
 
 
-def _experiments(project_id, remote=Remote()):
-    """
-    get experiments data for specified project
-
-    Returns
-    ----------
-      results: List[dict()]
-
-    """
-    # TODO: needs to be refactored - there is a method in the Project that gets all the experiments
-    return mc_raw_api.get(remote.make_url_v2('projects/' + project_id + '/experiments'), remote=remote)
-
-
-# mc.py - project object
-def _get_experiments(proj):
-    """
-    get List[materials_commons_api.Experiment] for project
-    NOTE: this is not the way to do this - there is a method in the project that gets all the experiments.
-    """
-    # TODO: needs to be refactored - there is a method in the Project that gets all the experiments
-    results = _experiments(proj.id, proj.remote)
-    ret = []
-    for data in results:
-        expt = _make_object(data)
-        expt.project = proj
-        ret.append(expt)
-    return ret
+# def _experiments(project_id, remote=Remote()):
+#     """
+#     get experiments data for specified project
+#
+#     Returns
+#     ----------
+#       results: List[dict()]
+#
+#     """
+#     # TODO: needs to be refactored - there is a method in the Project that gets all the experiments
+#     return mc_raw_api.get(remote.make_url_v2('projects/' + project_id + '/experiments'), remote=remote)
+#
+#
+# # mc.py - project object
+# def _get_experiments(proj):
+#     """
+#     get List[materials_commons_api.Experiment] for project
+#     NOTE: this is not the way to do this - there is a method in the project that gets all the experiments.
+#     """
+#     # TODO: needs to be refactored - there is a method in the Project that gets all the experiments
+#     results = _experiments(proj.id, proj.remote)
+#     ret = []
+#     for data in results:
+#         expt = _make_object(data)
+#         expt.project = proj
+#         ret.append(expt)
+#     return ret
 
 
 # maybe another file for CLI support
@@ -208,11 +215,14 @@ def _proj_config(path=None):
         return None
     return os.path.join(dirpath, '.mc', 'config.json')
 
-
-def make_local_project(path=None):
+def local_project_config(path=None):
     # get config
     with open(_proj_config(path)) as f:
         j = json.load(f)
+    return j
+
+def make_local_project(path=None):
+    j = local_project_config(path)
 
     # get remote
     remotes = _mc_remotes()
@@ -233,20 +243,26 @@ def make_local_project(path=None):
 
 
 def make_local_expt(proj):
-    with open(_proj_config(proj.local_path)) as f:
-        j = json.load(f)
+    j = local_project_config(proj.local_path)
 
-    for expt in _get_experiments(proj):
+    for expt in proj.get_all_experiments():
         if expt.id == j['experiment_id']:
             return expt
 
     return None
 
+def current_experiment_id(proj):
+    j = local_project_config(proj.local_path)
+    return j.get('experiment_id', None)
 
-def set_current_experiment(proj, expt):
+def set_current_experiment(proj, expt=None):
     config_path = _proj_config(proj.local_path)
     with open(config_path, 'r') as f:
         data = json.load(f)
-    data['experiment_id'] = expt.id
+    if expt is None:
+        if 'experiment_id' in data:
+            del data['experiment_id']
+    else:
+        data['experiment_id'] = expt.id
     with open(config_path, 'w') as f:
         json.dump(data, f)

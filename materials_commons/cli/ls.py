@@ -52,10 +52,11 @@ def _ls_group(proj, paths, files_only=True, checksum=False, json=False, id=False
 
     """
     path_data = []
-    columns = [
-        'l_mtime', 'l_size', 'l_type',
-        'r_mtime', 'r_size', 'r_type',
-        'eq', 'name', 'id']
+
+    if checksum:
+        columns = ['l_mtime', 'l_size', 'l_type', 'r_mtime', 'r_size', 'r_type', 'eq', 'name', 'id']
+    else:
+        columns = ['l_mtime', 'l_size', 'l_type', 'r_mtime', 'r_size', 'r_type', 'name', 'id']
     data_init = {k: '-' for k in columns}
     files = SortedSet(key=_name_key)
     dirs = SortedSet(key=_name_key)
@@ -95,7 +96,7 @@ def _ls_group(proj, paths, files_only=True, checksum=False, json=False, id=False
                 remotes.add(obj)
             elif isinstance(obj, Directory):
                 if obj.mtime:
-                    data['r_mtime'] = obj.time.strftime("%b %Y %d %H:%M:%S")
+                    data['r_mtime'] = obj.mtime.strftime("%b %Y %d %H:%M:%S")
                 data['r_type'] = 'dir'
                 dirs.add(path)
                 if not files_only:
@@ -129,7 +130,7 @@ def ls_subcommand(argv=sys.argv):
         prog='mc ls')
     parser.add_argument('paths', nargs='*', default=[os.getcwd()], help='Files or directories')
     parser.add_argument('--checksum', action="store_true", default=False, help='Calculate MD5 checksum for local files')
-    parser.add_argument('--json', action="store_true", default=False, help='Print() JSON exactly')
+    parser.add_argument('--json', action="store_true", default=False, help='Print JSON exactly')
 
     # ignore 'mc ls'
     args = parser.parse_args(argv[2:])
