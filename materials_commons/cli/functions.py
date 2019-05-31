@@ -77,6 +77,10 @@ def _format_mtime(mtime):
         return time.strftime("%b %Y %d %H:%M:%S", time.gmtime(mtime))
     elif isinstance(mtime, datetime.datetime):
         return mtime.strftime("%b %Y %d %H:%M:%S")
+    elif isinstance(mtime, dict) and ('epoch_time' in mtime):
+        return _format_mtime(mtime['epoch_time'])
+    elif mtime is None:
+        return '-'
     else:
         return str(type(mtime))
 
