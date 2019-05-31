@@ -610,6 +610,13 @@ def directory_move(project_id, directory_id, new_directory_id, remote=None, apik
     return put(remote.make_url_v2(api_url), data, remote)
 
 
+def directory_delete(project_id, directory_id, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
+    api_url = "projects/" + project_id + \
+              "/directories/" + directory_id
+    return delete(remote.make_url_v2(api_url), data, remote)
+
+
 def directory_create_subdirectories_from_path_list(project_id, directory_id, path_list, remote=None, apikey=None):
     remote = configure_remote(remote, apikey)
     data = {
@@ -690,6 +697,13 @@ def file_move(project_id, old_directory_id, new_directory_id, file_id, remote=No
     api_url = "projects/" + project_id + \
               "/files/" + file_id
     return put(remote.make_url_v2(api_url), data, remote)
+
+
+def file_delete(project_id, file_id, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
+    api_url = "projects/" + project_id + \
+              "/files/" + file_id
+    return delete(remote.make_url_v2(api_url), data, remote)
 
 
 # for testing only - datasets

@@ -2,10 +2,9 @@ from os import listdir
 import os.path as os_path
 
 from . import api
-from .base import MCObject
+from .base import MCObject, MCGenericException
 from .base import _has_key
 from .mc_object_utility import make_object
-
 
 class Directory(MCObject):
     """
@@ -104,12 +103,17 @@ class Directory(MCObject):
 
         :return: None
 
-        .. note:: Currently not implemented
-
         """
-        # TODO Directory.delete() ?? only when empty
-        raise NotImplementedError("Directory.delete() is not implemented")
-        pass
+        project_id = self._project.id
+        results = api.directory_delete(project_id, self.id, apikey=self._project._apikey,
+                                     remote=self._project.remote)
+        status = results.get('status', None)
+        if status != "Directory deleted":
+            if status is None:
+                status = results
+            raise MCGenericException("Directory not deleted: '" + str(status) + "'")
+        return None
+
 
     def get_children(self):
         """

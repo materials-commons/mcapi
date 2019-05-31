@@ -104,18 +104,24 @@ class File(MCObject):
         raise NotImplementedError("File.put() is not implemented")
         pass
 
+
     def delete(self):
         """
         Delete this file from the database.
 
         :return: None
 
-        .. note:: Currently not implemented
-
         """
-        # TODO File.delete()
-        raise NotImplementedError("File.delete() is not implemented")
-        pass
+        project_id = self._project.id
+        results = api.file_delete(project_id, self.id, apikey=self._project._apikey,
+                                     remote=self._project.remote)
+        status = results.get('status', None)
+        if status != "Directory deleted":
+            if status is None:
+                status = results
+            raise MCGenericException("Directory not deleted: '" + str(status) + "'")
+        return None
+
 
     # File - additional methods
     def download_file_content(self, local_download_file_path):
