@@ -64,11 +64,15 @@ def local_endpoint_id():
     if local_endpoint.endpoint_id:
         return local_endpoint.endpoint_id
     else:
-        print('No local globus endpoint id found')
-        print('Globus personal endpoint UUIDs can be detected automatically and if installed need not be set.')
-        print('Globus public endpoint UUIDs can be found from: https://app.globus.org/endpoints')
-        print("Please set your globus endpoint UUID with `mc config --set-globus-endpoint-id <ID>`")
-        exit(1)
+        config = mcapi.Config()
+        if not config.globus.endpoint_id:
+            print('No local globus endpoint id found')
+            print('Globus personal endpoint UUIDs can be detected automatically and if installed need not be set.')
+            print('Globus public endpoint UUIDs can be found from: https://app.globus.org/endpoints')
+            print("Please set your globus endpoint UUID with `mc config --set-globus-endpoint-id <ID>`")
+            exit(1)
+        else:
+            return config.globus.endpoint_id
 
 
 def create_all_directories_on_path(req, path):

@@ -17,7 +17,7 @@ def config_subcommand(argv=sys.argv):
     parser = argparse.ArgumentParser(
         description='Configure `mc`',
         prog='mc config')
-    parser.add_argument('--set-globus-endpoint-id', type=str, default='', help='Set local globus endpoint ID')
+    parser.add_argument('--set-globus-endpoint-id', type=str, help='Set local globus endpoint ID')
     parser.add_argument('--clear-globus-endpoint-id', action="store_true", default=False, help='Clear local globus endpoint ID')
 
     # ignore 'mc init'
@@ -25,7 +25,7 @@ def config_subcommand(argv=sys.argv):
 
     if args.set_globus_endpoint_id:
         config = mcapi.Config()
-        config.globus.endpoint_id = args.set_globus_endpoint_id[0]
+        config.globus.endpoint_id = args.set_globus_endpoint_id
         config.save()
 
     elif args.clear_globus_endpoint_id:
