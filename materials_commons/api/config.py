@@ -149,5 +149,10 @@ class Config(object):
             'developer_mode': self.developer_mode,
             'REST_logging': self.REST_logging
         }
+        if not os.path.exists(self.config_file):
+            user = getpass.getuser()
+            config_file_path = join(os.path.expanduser('~' + user), '.materialscommons')
+            if not os.path.exists(config_file_path):
+                os.path.mkdir(config_file_path)
         with open(self.config_file, 'w') as f:
             f.write(json.dumps(config, indent=2))
