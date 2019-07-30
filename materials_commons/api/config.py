@@ -135,7 +135,7 @@ class Config(object):
 
         self.interfaces = [InterfaceConfig(**kwargs) for kwargs in config.get('interfaces',[])]
 
-        self.globus = GlobusConfig(**config.get('globus'))
+        self.globus = GlobusConfig(**config.get('globus', {}))
 
         self.developer_mode = config.get('developer_mode', False)
         self.REST_logging = config.get('REST_logging', False)
