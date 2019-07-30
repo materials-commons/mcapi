@@ -2,11 +2,12 @@ import sys
 
 import hashlib
 import os.path as os_path
+import re
 from os import getcwd
 
 from . import api
 from .File import File
-from .base import MCObject, PrettyPrint, _decorate_object_with, MCGenericException
+from .base import MCObject, PrettyPrint, _decorate_object_with, MCGenericException, MCNotFoundException
 from .mc_object_utility import make_object
 from .GlobusUploadRequest import GlobusUploadRequest
 from .GlobusUploadStatus import GlobusUploadStatus
@@ -215,6 +216,10 @@ class Project(MCObject):
         """
 
         results = api.directory_by_id(self.id, directory_id, apikey=self._apikey, remote=self.remote)
+        if "error" in results:
+            msg = results.get("error")
+            if re.match("No such directory in project", msg):
+                raise MCNotFoundException(msg)
         directory = make_object(results)
         directory._project = self
         directory.shallow = False

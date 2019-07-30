@@ -102,6 +102,12 @@ class PrettyPrint(object):
             result = "'" + result + "'"
         return result
 
+    @staticmethod
+    def str_or_None(value):
+        if isinstance(value, str) and not value:
+            return 'None'
+        return PrettyPrint.str(value)
+
     def write(self, s):
         self.out.write(" " * self.shift + " " * self.indent * self.n_indent + s + "\n")
 
@@ -135,11 +141,30 @@ class PrettyPrint(object):
                     out=self.out)
             self.n_indent -= 1
 
+def print_authors(authors_data, shift=0, indent=2, out=sys.stdout, pp=None, singleline=True):
+
+    if pp is None:
+        pp = PrettyPrint(shift=shift, indent=indent, out=out)
+
+    pp.write("authors:")
+    pp.n_indent += 1
+    for author in authors_data:
+        if singleline:
+            pp.write('{0} {1}, {2}'.format(author.get('firstname', ''), author.get('lastname', ''), author.get('affiliation','')))
+        else:
+            pp.n_indent += 1
+            pp.write('firstname: ' + author.get('firstname', ''))
+            pp.write('lastname: ' + author.get('lastname', ''))
+            pp.write('affiliation: ' + author.get('affiliation', ''))
+            pp.n_indent += 1
+    pp.n_indent -= 1
 
 # A general package Exceptions
 class MCGenericException(BaseException):
     pass
 
-
 class MCConfigurationException(MCGenericException):
+    pass
+
+class MCNotFoundException(MCGenericException):
     pass
