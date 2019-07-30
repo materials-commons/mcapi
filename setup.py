@@ -71,5 +71,7 @@ setup(
         "pandas>=0.21.0",
         "tabulate>=0.8.1",
         "sortedcontainers>=1.5.7",
+        "globus-sdk==1.7.1",
+        "globus-cli==1.10.1"
     ]
 )
