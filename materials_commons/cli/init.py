@@ -2,52 +2,58 @@ import sys
 import os
 import json
 import argparse
-from ..api import create_project
-from .functions import _mc_remotes, _print_projects, _proj_config, \
-    make_local_project
+
+import materials_commons.api as mcapi
+import materials_commons.cli.functions as clifuncs
 
 
 def init_subcommand(argv=sys.argv):
-        """
-        Initialize a new project
+    """
+    Initialize a new project
 
-        mc init [--remote <remote>] [--desc <description>]
+    mc init [--remote <remote>] [--desc <description>]
 
-        """
-        parser = argparse.ArgumentParser(
-            description='Initialize current working directory as a new project',
-            prog='mc init')
-        parser.add_argument('--remote', type=str, default='origin', help='Remote name')
-        parser.add_argument('--desc', type=str, default='', help='Project description')
+    """
+    parser = argparse.ArgumentParser(
+        description='Initialize current working directory as a new project',
+        prog='mc init')
+    clifuncs.add_remote_option(parser, 'Remote to create project at')
+    parser.add_argument('--desc', type=str, default='', help='Project description')
 
-        # ignore 'mc init'
-        args = parser.parse_args(argv[2:])
+    # ignore 'mc init'
+    args = parser.parse_args(argv[2:])
 
-        remotes = _mc_remotes()
-        if args.remote not in remotes:
-            print("unrecognized remote:", args.remote)
-            parser.print_help()
-            exit(1)
-        remote = remotes[args.remote]
+    proj_path = os.getcwd()
+    pconfig = clifuncs.read_project_config(proj_path)
 
-        if os.path.exists(".mc"):
-            try:
-                proj = make_local_project()
-                print("Already in project.  name:", proj.name, "  id:", proj.id)
-                return
-            except Exception:
-                raise Exception(".mc directory exists, but could not find existing project")
+    # if .mc directory already exists, print error message
+    if pconfig:
+        try:
+            proj = clifuncs.make_local_project(proj_path)
+        except mcapi.MCNotFoundException as e:
+            print(e)
+            print("A .mc directory already exists, but could not find existing project.")
+            print("This may mean the project was deleted.")
+            print("If you wish to create a new project here, first delete the .mc directory.")
+            return
 
-        name = os.path.basename(os.getcwd())
+        print("Already in project.  name:", proj.name, "  id:", proj.id)
+        return
 
-        project = create_project(name, args.desc)
+    # get remote, from command line option or default
+    remote = clifuncs.optional_remote(args)
 
-        print("Created new project at:", remote.config.mcurl)
-        _print_projects([project], project)
+    # create new project
+    name = os.path.basename(proj_path)
+    proj = clifuncs.create_project_or_exit(name, args.desc, remote=remote)
+    proj.local_path = proj_path
+    proj.remote = remote
 
-        if not os.path.exists('.mc'):
-            os.mkdir('.mc')
-        with open(_proj_config(), 'w') as f:
-            # set a default current experiment?
-            data = {'remote_url': remote.config.mcurl, 'project_id': project.id, 'experiment_id': None}
-            json.dump(data, f)
+    print("Created new project at:", remote.config.mcurl)
+    clifuncs.print_projects([proj], proj)
+
+    # create project config directory and file
+    pconfig = clifuncs.ProjectConfig(proj.local_path)
+    pconfig.remote = proj.remote.config
+    pconfig.project_id = proj.id
+    pconfig.save()

@@ -1,9 +1,10 @@
-import sys
-import os
-import json
 import argparse
-from ..api import _set_remote, get_project_by_id
-from .functions import _proj_path, _proj_config, _print_projects, _mc_remotes
+import json
+import os
+import sys
+
+import materials_commons.api as mcapi
+import materials_commons.cli.functions as clifuncs
 
 
 def clone_subcommand(argv=sys.argv):
@@ -18,34 +19,40 @@ def clone_subcommand(argv=sys.argv):
         description='Clone an existing project',
         prog='mc clone')
     parser.add_argument('id', help='Project id')
-    parser.add_argument('--remote', type=str, default='origin', help='Remote name')
+    clifuncs.add_remote_option(parser, 'Remote to clone project from')
 
     # ignore 'mc clone'
     args = parser.parse_args(argv[2:])
 
-    remotes = _mc_remotes()
-    if args.remote not in remotes:
-        print("unrecognized remote:", args.remote)
-        exit(1)
-    remote = remotes[args.remote]
+    # get remote, from command line option or default
+    remote = clifuncs.optional_remote(args)
 
-    _set_remote(remote)
-
-    project = get_project_by_id(args.id)
-
-    dest = os.path.join(os.getcwd(), project.name)
-
-    if _proj_path(dest) is not None:
-        print("mc project already exists at", _proj_path(dest))
+    # check if in a project directory
+    if clifuncs.project_exists():
+        print("mc project already exists at", clifuncs.project_path())
         exit(1)
 
-    if not os.path.exists(dest):
-        os.mkdir(dest)
-    os.mkdir(os.path.join(dest, '.mc'))
-    with open(_proj_config(dest), 'w') as f:
-        # set a default current experiment?
-        data = {'remote_url': remote.config.mcurl, 'project_id': args.id, 'experiment_id': None}
-        json.dump(data, f)
+    # get Project
+    proj = clifuncs.get_project_by_id_or_exit(args.id, remote=remote)
 
+    # check if project already exists
+    dest = os.path.join(os.getcwd(), proj.name)
+    if clifuncs.project_path(dest):
+        print("mc project already exists at", clifuncs.project_path(dest))
+        exit(1)
+
+    proj.local_path = dest
+    proj.remote = remote
+
+    # create project directory
+    if not os.path.exists(proj.local_path):
+        os.mkdir(proj.local_path)
+
+    pconfig = clifuncs.ProjectConfig(proj.local_path)
+    pconfig.remote = proj.remote.config
+    pconfig.project_id = proj.id
+    pconfig.save()
+
+    # done
     print("Cloned project from", remote.config.mcurl, "to", dest)
-    _print_projects([project])
+    clifuncs.print_projects([proj])

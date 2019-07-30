@@ -1,0 +1,3 @@
+
+class MCCLIException(BaseException):
+    pass

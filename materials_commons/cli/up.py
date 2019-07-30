@@ -1,23 +1,12 @@
-import sys
-import os
 import argparse
-from .functions import make_local_project
+import os
+import sys
+import time
 
-
-def _local_to_remote_relpath(proj, local_path):
-    """
-    Arguments:
-        proj: mcapi.Project, with proj.local_path indicating local project location
-        local_path: path to file or directory in local tree
-
-    Returns:
-        remote_path: relative path from the 'top' directory
-    """
-    remote_relpath = os.path.relpath(local_path, proj.local_path)
-    if remote_relpath == ".":
-        remote_relpath = "/"
-    return remote_relpath
-
+import materials_commons.cli.functions as clifuncs
+import materials_commons.cli.globus as cliglobus
+import materials_commons.cli.tree_functions as treefuncs
+from materials_commons.cli.treedb import LocalTree, RemoteTree
 
 def up_subcommand(argv=sys.argv):
     """
@@ -34,42 +23,33 @@ def up_subcommand(argv=sys.argv):
                         help='Upload directory contents recursively')
     parser.add_argument('--limit', nargs=1, type=float, default=[50],
                         help='File size upload limit (MB). Default=50MB.')
+    parser.add_argument('-g', '--globus', action="store_true", default=False,
+                        help='Use globus to upload files.')
+    parser.add_argument('--label', nargs=1, type=str,
+                        help='Globus transfer label to make finding tasks simpler.')
+    # parser.add_argument('--batchsize', nargs=1, type=int, default=[50],
+    #                     help='Maximum number of files per globus transfer. Default=0 (all files).')
 
     # ignore 'mc up'
     args = parser.parse_args(argv[2:])
 
-    limit = args.limit[0]
-    proj = make_local_project()
+    proj = clifuncs.make_local_project()
 
-    local_abspaths = set([os.path.abspath(p) for p in args.paths])
-    if not args.recursive:
-        dirs = [p for p in local_abspaths if os.path.isdir(p)]
-        for d in dirs:
-            local_abspaths.remove(d)
-            files = [os.path.join(d, f) for f in os.listdir(d) if os.path.isfile(os.path.join(d, f))]
-            local_abspaths.update(files)
+    pconfig = clifuncs.read_project_config(proj.local_path)
+    remotetree = None
+    if pconfig.remote_updatetime:
+        remotetree = RemoteTree(proj, pconfig.remote_updatetime)
 
-    if args.recursive and proj.local_path in local_abspaths:
-        # treat upload of everything specially
-        local_abspaths = set([os.path.join(proj.local_path, f) for f in os.listdir(proj.local_path) if f != ".mc"])
+    paths = treefuncs.clipaths_to_mcpaths(proj.local_path, args.paths)
 
-    for p in local_abspaths:
-        if os.path.isfile(p):
-            # print("uploading:", p)
-            try:
-                result = proj.add_file_by_local_path(p, verbose=True, limit=limit)
-            except Exception as e:
-                print("Could not upload:", p)
-                print("Error:")
-                print(e)
+    if args.globus:
+        label = proj.name
+        if args.label:
+            label = args.label[0]
 
-        elif os.path.isdir(p) and args.recursive:
-            # print("uploading:", p)
-            result, error = proj.add_directory_tree_by_local_path(p, verbose=True, limit=limit)
-            if len(error):
-                for file in error:
-                    print("Could not upload:", file)
-                    print("Error:")
-                    print(error[file])
+        cliglobus.globus_upload_v0(proj, paths, recursive=args.recursive, label=label)
+
+    else:
+        treefuncs.standard_upload(proj, paths, recursive=args.recursive, limit=args.limit[0], remotetree=remotetree)
 
     return

@@ -6,7 +6,8 @@ import json
 import re
 from tabulate import tabulate
 from pandas import DataFrame
-from .functions import make_local_project, make_local_expt, _proj_path
+
+import materials_commons.cli.functions as clifuncs
 
 
 @contextlib.contextmanager
@@ -32,9 +33,11 @@ class ListObjects(object):
 
     Expects derived class members:
         get_all_from_experiment(self, expt), if expt_member
+        get_all_from_dataset(self, dataset), if dataset_member
         get_all_from_project(self, proj), if proj_member
         get_all(self), if non_proj_member
         list_data(self, obj)
+        print_details(self, obj, out=sys.stdout)
 
     Optional derived class members:
         create(self, args), should be implemented if type is createable
@@ -53,7 +56,9 @@ class ListObjects(object):
     """
 
     def __init__(self, cmdname, typename, typename_plural, desc=None, requires_project=True,
-                 non_proj_member=False, proj_member=True, expt_member=True, list_columns=None, headers=None,
+                 non_proj_member=False, proj_member=True, expt_member=True, dataset_member=False,
+                 remote_help='Select remote',
+                 list_columns=None, headers=None,
                  deletable=False, dry_runable=False, has_owner=True, creatable=False,
                  custom_actions=[], custom_selection_actions=[]):
         """
@@ -70,12 +75,16 @@ class ListObjects(object):
             requires_project: bool
                 If True and not in current project, raise Exception
             non_proj_member: bool
-                If non_proj_member and proj_member, enable --proj option to restrict queries to the
-                current project.
+                Enable get_all_from_remote. If non_proj_member and proj_member, enable --proj
+                option to restrict queries to the current project.
             proj_member: bool
-                Restrict queries to current project by default
+                Enable get_all_from_project. Restrict queries to current project by default
             expt_member: bool
-                Include --expt option to restrict queries to current experiment
+                Enable get_all_from_experiment. Include --expt option to restrict queries to
+                current experiment
+            dataset_member: bool
+                Enable get_all_from_dataset. Includes --dataset option to restrict queries to
+                specified dataset
             list_columns: List[str]
                 List of column names
             headers: List[str]
@@ -106,6 +115,8 @@ class ListObjects(object):
         self.non_proj_member = non_proj_member
         self.proj_member = proj_member
         self.expt_member = expt_member
+        self.dataset_member = dataset_member
+        self.remote_help = remote_help
         self.list_columns = list_columns
         if headers is None:
             headers = list_columns
@@ -121,7 +132,7 @@ class ListObjects(object):
         """
         List Materials Commons Objects.
 
-        mc proc [--proj] [--expt] [--details | --json] [--id] [<name> ...]
+        mc proc [--proj] [--expt] [--dataset] [--details | --json] [--id] [<name> ...]
 
         """
 
@@ -129,10 +140,12 @@ class ListObjects(object):
         id_help = 'match by id instead of name'
         owner_help = 'match by owner instead of name'
         details_help = 'print detailed information'
+        regxsearch_help = 'use regular expression search instead of match'
         sort_by_help = 'columns to sort by'
         json_help = 'print JSON data'
         proj_help = 'restrict to ' + self.typename_plural + ' in the current project'
         expt_help = 'restrict to ' + self.typename_plural + ' in the current experiment'
+        dataset_help = 'restrict to ' + self.typename_plural + ' in the specified (by id) dataset'
         output_help = 'output to file'
         force_help = 'force overwrite of existing output file'
         create_help = 'create a ' + self.typename
@@ -157,14 +170,19 @@ class ListObjects(object):
         if self.has_owner:
             parser.add_argument('--owner', action="store_true", default=False, help=owner_help)
         parser.add_argument('-d', '--details', action="store_true", default=False, help=details_help)
+        parser.add_argument('--regxsearch', action="store_true", default=False, help=regxsearch_help)
         parser.add_argument('--sort-by', nargs='*', default=['name'], help=sort_by_help)
         parser.add_argument('--json', action="store_true", default=False, help=json_help)
         parser.add_argument('-o', '--output', nargs=1, default=None, help=output_help)
         parser.add_argument('-f', '--force', action="store_true", default=False, help=force_help)
+        if self.non_proj_member:
+            clifuncs.add_remote_option(parser, self.remote_help)
         if self.non_proj_member and self.proj_member:
             parser.add_argument('--proj', action="store_true", default=False, help=proj_help)
         if self.expt_member:
             parser.add_argument('--expt', action="store_true", default=False, help=expt_help)
+        if self.dataset_member:
+            parser.add_argument('--dataset', nargs=1, default=None, metavar='DATASET_ID', help=dataset_help)
         if self.creatable:
             parser.add_argument('--create', action="store_true", default=False, help=create_help)
         if self.deletable:
@@ -189,7 +207,7 @@ class ListObjects(object):
 
         # check for --create, or other custom primiary option command --<name>
         for name in ['create'] + self.custom_actions:
-            if hasattr(args, name) and getattr(args, name) == True:
+            if hasattr(args, name) and getattr(args, name):
                 with output_method(output, args.force) as out:
                     # interfaces 'mc casm monte --create ...'
                     getattr(self, name)(args, out=out)
@@ -197,9 +215,8 @@ class ListObjects(object):
 
         # otherwise, perform a 'selection' action
         with output_method(output, args.force) as out:
-            objects = self.get_all_objects(args)
+            objects = self.get_all_objects(args, out)
             if not len(objects):
-                out.write("No " + self.typename_plural + " found matching specified criteria\n")
                 return
 
             # if --delete
@@ -215,13 +232,13 @@ class ListObjects(object):
                         out.write("Aborting\n")
                         return
                     else:
-                        self.delete(objects, dry_run=args.dry_run, out=out)
+                        self.delete(objects, args, dry_run=args.dry_run, out=out)
                 else:
                     if args.dry_run:
                         out.write("** Dry run **\n")
                     self.output(objects, args, out)
                     out.write("Permanently deleting with --force...\n")
-                    self.delete(objects, dry_run=args.dry_run, out=out)
+                    self.delete(objects, args, dry_run=args.dry_run, out=out)
                 return
 
             else:
@@ -231,49 +248,88 @@ class ListObjects(object):
 
                 # check for if a custom selection actions has been requested, via --<name>
                 for _name in self.custom_selection_actions:
-                    if hasattr(args, _name) and getattr(args, _name) == True:
+                    if hasattr(args, _name) and getattr(args, _name):
                         name = _name
                         break
                 getattr(self, name)(objects, args, out)
                 return
 
-    def get_all_objects(self, args):
+    def get_remote(self, args):
+        default_remote = None
+        if clifuncs.project_exists():
+            default_remote = clifuncs.make_local_project_remote()
+        return clifuncs.optional_remote(args, default_remote=default_remote)
 
-        if self.requires_project and _proj_path() is None:
-            raise Exception("Not in any Materials Commons project directory")
+    def get_all_objects(self, args, out=sys.stdout):
+
+        if self.requires_project and not clifuncs.project_exists():
+            print("Not a Materials Commons project (or any of the parent directories)")
+            exit(1)
 
         if hasattr(args, 'expt') and args.expt:
-            proj = make_local_project()
-            expt = make_local_expt(proj)
+            proj = clifuncs.make_local_project()
+            expt = clifuncs.make_local_expt(proj)
             data = self.get_all_from_experiment(expt)
-        elif hasattr(args, 'proj') and args.proj:
-            proj = make_local_project()
-            data = self.get_all_from_project(proj)
-        elif self.non_proj_member:
-            data = self.get_all()
-        else:
-            proj = make_local_project()
-            data = self.get_all_from_project(proj)
-
-        def _any_match(obj, attrname):
-            if isinstance(obj, dict):
-                value = obj[attrname]
+            if not len(data):
+                out.write("No " + self.typename_plural + " found in experiment\n")
+                return []
+        if hasattr(args, 'dataset') and args.dataset:
+            # if in project
+            if clifuncs.project_exists():
+                proj = clifuncs.make_local_project()
+                dataset = clifuncs.get_dataset(proj.id, args.dataset[0], remote=proj.remote)
+                data = self.get_all_from_dataset(dataset)
             else:
-                value = getattr(obj, attrname)
+                remote = self.get_remote(args)
+                dataset = clifuncs.get_published_dataset(args.dataset[0], remote=remote)
+                data = self.get_all_from_dataset(dataset)
+            if not len(data):
+                out.write("No " + self.typename_plural + " found in dataset\n")
+                return []
+        elif hasattr(args, 'proj') and args.proj:
+            proj = clifuncs.make_local_project()
+            data = self.get_all_from_project(proj)
+            if not len(data):
+                out.write("No " + self.typename_plural + " found in project\n")
+                return []
+        elif self.non_proj_member:
+            remote = self.get_remote(args)
+            data = self.get_all_from_remote(remote=remote)
+            if not len(data):
+                out.write("No " + self.typename_plural + " found at " + remote.config.mcurl + "\n")
+                return []
+        else:
+            proj = clifuncs.make_local_project()
+            data = self.get_all_from_project(proj)
+            if not len(data):
+                out.write("No " + self.typename_plural + " found in project\n")
+                return []
+
+        def _any_match(obj, attrname, remethod):
+            value = clifuncs.getit(obj, attrname)
             for n in args.expr:
-                if re.match(n, value):
+                if remethod(n, value):
                     return True
             return False
 
         if args.expr:
-            if args.id:
-                objects = [d for d in data if _any_match(d, 'id')]
-            elif self.has_owner and args.owner:
-                objects = [d for d in data if _any_match(d, 'owner')]
+
+            if args.regxsearch:
+                remethod = re.search
             else:
-                objects = [d for d in data if _any_match(d, 'name')]
+                remethod = re.match
+
+            if args.id:
+                objects = [d for d in data if _any_match(d, 'id', remethod)]
+            elif self.has_owner and args.owner:
+                objects = [d for d in data if _any_match(d, 'owner', remethod)]
+            else:
+                objects = [d for d in data if _any_match(d, 'name', remethod)]
         else:
             objects = data
+
+        if not len(objects):
+            out.write("No " + self.typename_plural + " found matching specified criteria\n")
 
         return objects
 
@@ -282,13 +338,12 @@ class ListObjects(object):
             out.write("No " + self.typename_plural + " found matching specified criteria\n")
             return
         if args.details:
+            if not hasattr(self, 'print_details'):
+                out.write("--details not currently possible for this type of object\n")
+                return
             for obj in objects:
-                if isinstance(obj, dict):
-                    out.write("--details not currently possible for this type of object\n")
-                    break
-                else:
-                    obj.pretty_print(shift=0, indent=2, out=out)
-                    out.write("\n")
+                self.print_details(obj, out=out)
+                out.write("\n")
         elif args.json:
             for obj in objects:
                 if hasattr(obj, 'input_data'):

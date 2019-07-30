@@ -1,15 +1,17 @@
-import sys
-import os
 import argparse
-from .functions import make_local_project, _format_mtime
-from materials_commons.api import File, Directory
 import copy
+import os
+import sys
 import time
-import hashlib
-import pandas
-from tabulate import tabulate
-from sortedcontainers import SortedSet
 
+import pandas
+from sortedcontainers import SortedSet
+from tabulate import tabulate
+
+import materials_commons.api as mcapi
+import materials_commons.cli.functions as clifuncs
+import materials_commons.cli.tree_functions as treefuncs
+from materials_commons.cli.treedb import LocalTree, RemoteTree
 
 #  Want to print() something like:
 #
@@ -31,90 +33,98 @@ from sortedcontainers import SortedSet
 #  remote_owner           -          - remote_mtime remote_size file2
 #
 
-
-def _ls_group(proj, paths, files_only=True, checksum=False, json=False, id=False):
+def _make_printing_df(proj, data, refpath=None, checksum=False):
     """
     Construct DataFrame with 'mc ls' results for paths. Also outputs
     the sets of paths that are files or directories (either local or remote).
 
-    Arguments:
-        files_only: If True, only include files in output DataFrame
-        checksum: If True, calculate MD5 checksum of local files and compared to remote
+    Arguments
+    ---------
+    proj: mcapi.Project
+        Project instance with proj.local_path indicating local project location
 
-    Results:
-        (df, files, dirs, remotes):
+    data: dict
+        Output from `materials_commons.cli.tree_functions.ls_data`
 
-        df: pandas.DataFrame containing:
-            'l_mtime', 'l_size', 'l_type', 'r_mtime', 'r_size', 'r_type', 'eq', 'name'
-        files: set of local and remote paths that are files
-        dirs: set of local and remote paths that are directories
-        remotes: set of remote File and Directory objects
+    refpath: str or None
+        Local absolute path that names are printed relative to. If None, uses os.getcwd().
 
+    checksum: bool (optional, default=False)
+        If True, include 'eq' in the output data.
+
+    Returns
+    -------
+    df: pandas.DataFrame containing:
+        'l_mtime', 'l_size', 'l_type', 'r_mtime', 'r_size', 'r_type', 'eq' (optionally), 'name', 'id'
     """
     path_data = []
+
+    # import json
+    # for record in data:
+    #     print(json.dumps(record, indent=2))
+    #     print("-------------------")
 
     if checksum:
         columns = ['l_mtime', 'l_size', 'l_type', 'r_mtime', 'r_size', 'r_type', 'eq', 'name', 'id']
     else:
         columns = ['l_mtime', 'l_size', 'l_type', 'r_mtime', 'r_size', 'r_type', 'name', 'id']
-    data_init = {k: '-' for k in columns}
-    files = SortedSet(key=_name_key)
-    dirs = SortedSet(key=_name_key)
-    remotes = SortedSet(key=_name_key)
 
-    for path in paths:
+    record_init = {k: '-' for k in columns}
+    if refpath is None:
+        refpath = os.getcwd()
 
-        data = copy.deepcopy(data_init)
-        data['name'] = os.path.relpath(path, os.getcwd())
-        l_checksum = None
+    def _get_name(path):
+        from os.path import abspath, dirname, join, relpath
+        local_abspath=abspath(join(dirname(proj.local_path), path))
+        return relpath(local_abspath, refpath)
 
-        # locals
-        if os.path.exists(path):
-            data['l_mtime'] = time.strftime("%b %Y %d %H:%M:%S", time.localtime(os.path.getmtime(path)))
-            data['l_size'] = _humanize(os.path.getsize(path))
-            if os.path.isfile(path):
-                data['l_type'] = 'file'
-                if checksum:
-                    with open(path, 'rb') as f:
-                        l_checksum = hashlib.md5(f.read()).hexdigest()
-                files.add(path)
-            elif os.path.isdir(path):
-                data['l_type'] = 'dir'
-                dirs.add(path)
+    for path in sorted(data.keys()):
+        record = copy.deepcopy(record_init)
+        rec = data[path]
 
-        # remotes
-        obj = proj.get_by_local_path(path)
-        if obj is not None:
-            data['r_size'] = _humanize(obj.size)
-            if isinstance(obj, File):
-                data['r_mtime'] = _format_mtime(obj.mtime)
-                data['r_type'] = 'file'
-                if checksum and l_checksum is not None:
-                    data['eq'] = (obj.checksum == l_checksum)
-                files.add(path)
-                remotes.add(obj)
-            elif isinstance(obj, Directory):
-                data['r_mtime'] = _format_mtime(obj.mtime)
-                data['r_type'] = 'dir'
-                dirs.add(path)
-                if not files_only:
-                    remotes.add(obj)
-            data['id'] = obj.id
+        if not rec['l_type'] and not rec['r_type']:
+            continue
 
-        if not files_only or ('file' in [data['l_type'], data['r_type']]):
-            path_data.append(data)
+        if rec['l_mtime'] is not None:
+            record['l_mtime'] = clifuncs.format_time(rec['l_mtime'])
+        if rec['l_size'] is not None:
+            record['l_size'] = clifuncs.humanize(rec['l_size'])
+        if rec['l_type'] is not None:
+            record['l_type'] = rec['l_type']
+        if rec['r_mtime'] is not None:
+            record['r_mtime'] = clifuncs.format_time(rec['r_mtime'])
+        if rec['r_size'] is not None:
+            record['r_size'] = clifuncs.humanize(rec['r_size'])
+        if rec['r_type'] is not None:
+            record['r_type'] = rec['r_type']
+        if 'eq' in rec and rec['eq'] is not None:
+            record['eq'] = rec['eq']
+        record['name'] = _get_name(path)
+        if 'id' in rec and rec['id'] is not None:
+            record['id'] = rec['id']
 
-    return pandas.DataFrame.from_records(path_data, columns=columns) \
-        .sort_values(by='name'), files, dirs, remotes
+        path_data.append(record)
 
+    return pandas.DataFrame(path_data, columns=columns).sort_values(by='name')
 
-def _humanize(file_size_bytes):
-    abbrev = [("B", 0), ("K", 10), ("M", 20), ("G", 30), ("T", 40)]
-    for key, val in abbrev:
-        _size = (file_size_bytes >> val)
-        if _size < 1000 or key == "T":
-            return str(_size) + key
+def _ls_print(proj, data, refpath=None, printjson=False, checksum=False):
+    """Print treecompare output for a set of files, or directory children"""
 
+    # print warnings for type mismatches
+    treefuncs.warn_for_type_mismatches(data)
+
+    if printjson:
+        for path, record in data.items():
+            if record['r_obj']:
+                print(record['r_obj'].input_data)
+    else:
+        df = _make_printing_df(proj, data, refpath=refpath, checksum=checksum)
+        if refpath:
+            print(os.path.relpath(refpath, os.getcwd()) + ":")
+        if df.shape[0]:
+            #print(df.to_string(index=False))
+            print(tabulate(df, showindex=False, headers=df.columns, tablefmt="plain"))
+            print("")
 
 def ls_subcommand(argv=sys.argv):
     """
@@ -132,67 +142,46 @@ def ls_subcommand(argv=sys.argv):
 
     # ignore 'mc ls'
     args = parser.parse_args(argv[2:])
+    updatetime = time.time()
 
-    local_abspaths = [os.path.abspath(p) for p in args.paths]
+    proj = clifuncs.make_local_project()
+    pconfig = clifuncs.read_project_config()
 
-    proj = make_local_project()
+    # convert cli input to materials commons path convention: <projectname>/path/to/file_or_dir
+    refpath = os.path.dirname(proj.local_path)
+    paths = [os.path.relpath(os.path.abspath(p), refpath) for p in args.paths]
 
-    # act on local paths
-    (df, files, dirs, remotes) = _ls_group(proj, local_abspaths,
-                                           files_only=True, checksum=args.checksum, json=args.json)
-
-    # print() warnings for type mismatches
-    for file in files:
-        if file in dirs and os.path.isfile(file):
-            print("warning!", file, "is a local file and remote directory!")
-        if file in dirs and os.path.isdir(file):
-            print("warning!", file, "is a local directory and remote file!")
+    if args.checksum:
+        localtree = LocalTree(proj)
+    else:
+        localtree = None
 
     if args.json:
-        for r in remotes:
-            print(r.input_data)
+        remotetree = None
     else:
-        if df.shape[0]:
-            print(df.to_string(index=False))
-            print("")
+        remotetree = RemoteTree(proj, pconfig.remote_updatetime)
 
-    for d in dirs:
+    # compare local and remote tree
+    files_data, dirs_data, child_data, not_existing = treefuncs.treecompare(
+        proj, paths, checksum=args.checksum,
+        localtree=localtree, remotetree=remotetree)
 
-        _locals = []
-        if os.path.exists(d):
-            _locals = [os.path.join(d, f) for f in os.listdir(d)]
+    if pconfig.remote_updatetime:
+        print("** Fetch lock ON at:", clifuncs.format_time(pconfig.remote_updatetime), "**")
 
-        if os.path.abspath(d) == proj.local_path:
-            remote_dir = proj.get_top_directory()
-        else:
-            remote_dir = proj.get_by_local_path(d)
+    if not_existing:
+        for path in not_existing:
+            local_abspath = os.path.join(refpath, path)
+            print(os.path.relpath(local_abspath) + ": No such file or directory")
+        print("")
 
-        _remotes = []
-        if remote_dir is not None:
-            _remotes = [os.path.join(d, child.name) for child in remote_dir.get_children()]
+    # print files
+    _ls_print(proj, files_data, refpath=None, printjson=args.json, checksum=args.checksum)
 
-        _local_abspaths = SortedSet(_locals + _remotes)
+    # print directory children
+    for d in child_data:
+        local_dirpath = os.path.join(refpath, d)
+        _ls_print(proj, child_data[d], refpath=local_dirpath, printjson=args.json, checksum=args.checksum)
 
-        (df, files, dirs, remotes) = _ls_group(
-            proj, _local_abspaths,
-            files_only=False, checksum=args.checksum, json=args.json
-        )
-
-        if args.json:
-            for r in remotes:
-                print(r.input_data)
-        else:
-            if df.shape[0]:
-                print(os.path.relpath(d, os.getcwd()) + ":")
-                # print(df.to_string(index=False)
-                print(tabulate(df, showindex=False, headers=df.columns, tablefmt="plain"))
-                print("")
 
     return
-
-
-def _name_key(obj):
-    try:
-        return obj.name
-    except Exception:
-        return ""

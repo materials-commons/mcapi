@@ -1,13 +1,15 @@
 import sys
-from .list_objects import ListObjects
-from .functions import _trunc_name, _format_mtime
+
+from materials_commons.cli.list_objects import ListObjects
+import materials_commons.cli.functions as clifuncs
+from materials_commons.api.mc_object_utility import make_object
 
 
 class SampSubcommand(ListObjects):
     def __init__(self):
         super(SampSubcommand, self).__init__(
             ["samp"], "Sample", "Samples",
-            expt_member=True,
+            expt_member=True, dataset_member=True,
             list_columns=['name', 'owner', 'id', 'mtime'],
             deletable=True
         )
@@ -18,13 +20,19 @@ class SampSubcommand(ListObjects):
     def get_all_from_project(self, proj):
         return proj.get_all_samples()
 
+    def get_all_from_dataset(self, dataset):
+        return dataset.get_all_samples()
+
     def list_data(self, obj):
         return {
-            'name': _trunc_name(obj),
+            'name': clifuncs.trunc(obj.name, 40),
             'owner': obj.owner,
             'id': obj.id,
-            'mtime': _format_mtime(obj.mtime)
+            'mtime': clifuncs.format_time(obj.mtime)
         }
+
+    def print_details(self, obj, out=sys.stdout):
+        obj.pretty_print(shift=0, indent=2, out=out)
 
     def delete(self, objects, dry_run, out=sys.stdout):
         if dry_run:

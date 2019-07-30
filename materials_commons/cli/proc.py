@@ -1,6 +1,7 @@
 import sys
-from .list_objects import ListObjects
-from .functions import _trunc_name, _format_mtime
+
+from materials_commons.cli.list_objects import ListObjects
+import materials_commons.cli.functions as clifuncs
 
 
 class ProcSubcommand(ListObjects):
@@ -20,14 +21,17 @@ class ProcSubcommand(ListObjects):
 
     def list_data(self, obj):
         return {
-            'name': _trunc_name(obj),
+            'name': clifuncs.trunc(obj.name, 40),
             'owner': obj.owner,
             'template_name': obj.template_name,
             'id': obj.id,
-            'mtime': _format_mtime(obj.mtime)
+            'mtime': clifuncs.format_time(obj.mtime)
         }
 
-    def delete(self, objects, dry_run, out=sys.stdout):
+    def print_details(self, obj, out=sys.stdout):
+        obj.pretty_print(shift=0, indent=2, out=out)
+
+    def delete(self, objects, args, dry_run, out=sys.stdout):
         if dry_run:
             out.write('Dry-run is not yet possible when deleting processes.\n')
             out.write('Aborting\n')
