@@ -10,17 +10,13 @@ class GlobusDownloadRequest:
 
     def __init__(self, data):
         self.id = ""
-        self.url = None
         self.input_data = data
         self.globus_url = None
         self.globus_endpoint_id = None
         self.globus_endpoint_path = None
-        attr = ['id', 'url']
+        attr = ['id', 'globus_url', 'globus_endpoint_id', 'globus_endpoint_path']
         for a in attr:
             setattr(self, a, data.get(a, None))
-        if self.url:
-            self.globus_url = self.url
-            self._parse_parts_from_url()
 
     def get_cli_transfer_source(self):
         """
@@ -41,8 +37,3 @@ class GlobusDownloadRequest:
             source unspecified, and the destination set to the target to Materials Commons
         """
         return self.globus_url
-
-    def _parse_parts_from_url(self):
-        url_args = self.url.split("?")[1].split('&')
-        self.globus_endpoint_id = url_args[0].split("=")[1]
-        self.globus_endpoint_path = url_unquote(url_args[1].split("=")[1])
