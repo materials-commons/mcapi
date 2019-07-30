@@ -19,8 +19,9 @@ class RemoteConfig(object):
         return {'apikey': self.mcapikey}
 
 class GlobusConfig(object):
-    def __init__(self, transfer_rt=None):
+    def __init__(self, transfer_rt=None, endpoint_id=None):
         self.transfer_rt = transfer_rt
+        self.endpoint_id = endpoint_id
 
 class InterfaceConfig(object):
     def __init__(self, name=None, module=None, subcommand=None, desc=None):

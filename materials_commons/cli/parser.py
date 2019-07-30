@@ -9,6 +9,7 @@ from io import StringIO
 import materials_commons.api as mcapi
 from .actions import ActionsSubcommand
 from .clone import clone_subcommand
+from .config import config_subcommand
 from .dataset import DatasetSubcommand
 from .diff import diff_subcommand
 from .down import down_subcommand
@@ -49,7 +50,8 @@ class CommonsCLIParser(object):
         {'name': 'versions', 'desc': 'List file versions', 'subcommand': versions_subcommand},
         {'name': 'templates', 'desc': 'List process templates', 'subcommand': TemplatesSubcommand()},
         {'name': 'proc', 'desc': 'List processes', 'subcommand': ProcSubcommand()},
-        {'name': 'samp', 'desc': 'List samples', 'subcommand': SampSubcommand()}
+        {'name': 'samp', 'desc': 'List samples', 'subcommand': SampSubcommand()},
+        {'name': 'config', 'desc': 'Configure `mc`', 'subcommand': config_subcommand}
     ]
 
     developer_usage = [
