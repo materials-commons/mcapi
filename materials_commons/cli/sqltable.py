@@ -150,7 +150,7 @@ class SqlTable(object):
                 return
 
         # if table not found, create it
-        print("Creating table:", "CREATE TABLE " + self.tablename() + " " + self._sql_create_table_str(self.tablecolumns()))
+        # print("Creating table:", "CREATE TABLE " + self.tablename() + " " + self._sql_create_table_str(self.tablecolumns()))
         self.curs.execute("CREATE TABLE " + self.tablename() + " " + self._sql_create_table_str(self.tablecolumns()))
         self.conn.commit()
         self.close()

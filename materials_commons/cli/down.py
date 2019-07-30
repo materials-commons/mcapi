@@ -67,8 +67,6 @@ def _download(proj, dir, dirpath=None, recursive=False, force=False):
     return results
 
 def standard_download(proj, path, force=False, output=None, recursive=False, no_compare=False, localtree=None, remotetree=None):
-    print("begin standard_download:", path)
-
     refpath = os.path.dirname(proj.local_path)
     local_abspath = os.path.join(refpath, path)
     printpath = os.path.relpath(local_abspath)
@@ -84,7 +82,6 @@ def standard_download(proj, path, force=False, output=None, recursive=False, no_
 
     # if remote file:
     if path in files_data and files_data[path]['r_type'] == 'file':
-        print("is a remote file")
 
         if files_data[path]['l_type'] == 'directory':
             print(printpath + ": is local directory and remote file")
@@ -102,7 +99,6 @@ def standard_download(proj, path, force=False, output=None, recursive=False, no_
 
     # if directory:
     elif path in dirs_data and dirs_data[path]['r_type'] == 'directory':
-        print("is a remote directory")
 
         if not recursive:
             print(printpath + ": is a directory")
@@ -112,7 +108,6 @@ def standard_download(proj, path, force=False, output=None, recursive=False, no_
             print(printpath + ": is local file and remote directory")
             return False
 
-        print("begin recursive downloading:\n", child_data[path])
         success = True
         for childpath, record in child_data[path].items():
             print(childpath, record)
