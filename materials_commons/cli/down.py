@@ -186,7 +186,8 @@ def down_subcommand(argv=sys.argv):
         if args.label:
             label = args.label[0]
 
-        cliglobus.globus_download_v0(proj, paths, recursive=args.recursive, label=label)
+        globus_ops = cliglobus.GlobusOperations()
+        globus_ops.download_v0(proj, paths, recursive=args.recursive, label=label)
 
     elif args.print:
 

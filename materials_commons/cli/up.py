@@ -47,7 +47,8 @@ def up_subcommand(argv=sys.argv):
         if args.label:
             label = args.label[0]
 
-        cliglobus.globus_upload_v0(proj, paths, recursive=args.recursive, label=label)
+        globus_ops = cliglobus.GlobusOperations()
+        globus_ops.upload_v0(proj, paths, recursive=args.recursive, label=label)
 
     else:
         treefuncs.standard_upload(proj, paths, recursive=args.recursive, limit=args.limit[0], remotetree=remotetree)
