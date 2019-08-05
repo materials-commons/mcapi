@@ -48,6 +48,68 @@ def download_dataset_zipfile(dataset_id, output_file_path, remote=None):
 
     return output_file_path
 
+def create_dataset(project_id, title, description, remote=None):
+    result = clifuncs.post_v3(
+        "createDataset",
+        {
+            'project_id': project_id,
+            'title': title,
+            'description': description
+        },
+        remote=remote)['data']
+    return mcapi.Dataset(result)
+
+def delete_dataset(project_id, dataset_id, remote=None):
+    result = clifuncs.post_v3(
+        "deleteDataset",
+        {
+            'project_id': project_id,
+            'dataset_id': dataset_id
+        },
+        remote=remote)['data']
+    return result['success']
+
+def unpublish_dataset(project_id, dataset_id, remote=None):
+    """Unpublish a dataset
+
+    Returns
+    -------
+    dataset: mcapi.Dataset
+    """
+    result = clifuncs.post_v3(
+        "unpublishDataset",
+        {
+            'project_id': project_id,
+            'dataset_id': dataset_id
+        },
+        remote=remote)
+    return mcapi.Dataset(result['data'])
+
+def publish_dataset(project_id, dataset_id, remote=None):
+    """Publish a dataset
+
+    Returns
+    -------
+    dataset: mcapi.Dataset
+    """
+    result = clifuncs.post_v3(
+        "publishDataset",
+        {
+            'project_id': project_id,
+            'dataset_id': dataset_id
+        },
+        remote=remote)
+    return mcapi.Dataset(result['data'])
+
+def publish_private_dataset(project_id, dataset_id, remote=None):
+    result = clifuncs.post_v3(
+        "publishPrivateDataset",
+        {
+            'project_id': project_id,
+            'dataset_id': dataset_id
+        },
+        remote=remote)
+    return mcapi.Dataset(result['data'])
 
 class DatasetSubcommand(ListObjects):
 
@@ -59,8 +121,12 @@ class DatasetSubcommand(ListObjects):
             requires_project=False, non_proj_member=True, proj_member=True, expt_member=False,
             remote_help='Remote to get datasets from',
             list_columns=['name', 'owner', 'id', 'mtime', 'zip_size', 'published'],
-            deletable=False,
-            custom_selection_actions=['down']
+            deletable=True,
+            creatable=True,
+            custom_selection_actions=['down', 'unpublish', 'publish', 'publish_private'],
+            request_confirmation_actions={
+                'publish': 'Are you sure you want to publicly publish these datasets?'
+            }
         )
 
     def get_all_from_experiment(self, expt):
@@ -79,8 +145,8 @@ class DatasetSubcommand(ListObjects):
             if 'zip' in obj and 'size' in obj['zip']:
                 zip_size = clifuncs.humanize(obj['zip']['size'])
         else:
-            if obj.zip_size:
-                zip_size = clifuncs.humanize(obj.zip_size)
+            if obj.zip_status.size:
+                zip_size = clifuncs.humanize(obj.zip_status.size)
 
         published = "no"
         if isinstance(obj, dict):
@@ -113,6 +179,9 @@ class DatasetSubcommand(ListObjects):
 
         # for --create, add experiment description
         parser.add_argument('--down', action="store_true", default=False, help='Download dataset zipfile')
+        parser.add_argument('--unpublish', action="store_true", default=False, help='Unpublish a dataset')
+        parser.add_argument('--publish', action="store_true", default=False, help='Publish a public dataset. Makes it available for public download.')
+        parser.add_argument('--publish-private', action="store_true", default=False, help='Publish a private dataset. Makes it available for globus download by project collaborators.')
         # parser.add_argument('--publish-public', action="store_true", default=False, help='Publish public dataset. Makes it available for public download.')
         # parser.add_argument('--publish-private', action="store_true", default=False, help='Publish private dataset. Makes it available for globus download.')
         # parser.add_argument('--unpublish', action="store_true", default=False, help='Download dataset zipfile')
@@ -126,9 +195,121 @@ class DatasetSubcommand(ListObjects):
             out.write("Title: " + obj['title'] + "\n")
             out.write("ID: " + obj['id'] + "\n")
             out.write("Downloading...\n")
-            download_dataset_zipfile(obj['id'], obj['id']+".zip")
+            download_dataset_zipfile(obj['id'], obj['id']+".zip", proj.remote)
             out.write("DONE\n\n")
         return
+
+    def create(self, args):
+        """Create new dataset
+
+        Using `mc dataset <dataset_name> [--desc <dataset description>]
+        """
+        proj = clifuncs.make_local_project()
+
+        if len(args.expr) != 1:
+            print('create one dataset at a time')
+            print('example: mc dataset DatasetName --create --desc "dataset description"')
+            parser.print_help()
+            exit(1)
+        for name in args.expr:
+            if name not in expt_names:
+                dataset = create_dataset(name, args.desc, proj.remote)
+                print('Created dataset:', dataset.id)
+            else:
+                print('experiment: \'' + name + '\' already exists')
+        return
+
+    def delete(self, objects, args, dry_run, out=sys.stdout):
+        """Create new dataset
+
+        Using:
+            mc dataset --id <dataset_id> --proj --delete
+            mc dataset <dataset_name_search> --proj --delete
+        """
+        if dry_run:
+            out.write('Dry-run is not yet possible when deleting datasets.\n')
+            out.write('Aborting\n')
+            return
+
+        proj = clifuncs.make_local_project()
+
+        for obj in objects:
+            try:
+                delete_dataset(proj.id, obj.id, proj.remote)
+            except requests.exceptions.HTTPError as e:
+                try:
+                    print(e.response.json()["error"])
+                except:
+                    print("  FAILED, for unknown reason")
+                return False
+        return
+
+    def unpublish(self, objects, args, out=sys.stdout):
+        """Unpublish dataset
+
+        Using:
+            mc dataset --id <dataset_id> --proj --unpublish
+            mc dataset <dataset_name_search> --proj --unpublish
+        """
+        proj = clifuncs.make_local_project()
+
+        resulting_objects = []
+        for obj in objects:
+            try:
+                resulting_objects.append(unpublish_dataset(proj.id, obj.id, proj.remote))
+            except requests.exceptions.HTTPError as e:
+                try:
+                    print(e.response.json()["error"])
+                except:
+                    print("  FAILED, for unknown reason")
+                return False
+        self.output(resulting_objects, args, out=out)
+        return
+
+    def publish(self, objects, args, out=sys.stdout):
+        """Publish public dataset
+
+        Using:
+            mc dataset --id <dataset_id> --proj --publish
+            mc dataset <dataset_name_search> --proj --publish
+        """
+        proj = clifuncs.make_local_project()
+
+        resulting_objects = []
+        for obj in objects:
+            try:
+                resulting_objects.append(publish_dataset(proj.id, obj.id, proj.remote))
+            except requests.exceptions.HTTPError as e:
+                try:
+                    print(e.response.json()["error"])
+                except:
+                    print("  FAILED, for unknown reason")
+                return False
+        self.output(resulting_objects, args, out=out)
+        return
+
+    def publish_private(self, objects, args, out=sys.stdout):
+        """Publish private dataset
+
+        Using:
+            mc dataset --id <dataset_id> --proj --publish-private
+            mc dataset <dataset_name_search> --proj --publish-private
+        """
+        proj = clifuncs.make_local_project()
+
+        resulting_objects = []
+        for obj in objects:
+            try:
+                resulting_objects.append(publish_private_dataset(proj.id, obj.id, proj.remote))
+            except requests.exceptions.HTTPError as e:
+                try:
+                    print(e.response.json()["error"])
+                except:
+                    print("  FAILED, for unknown reason")
+                return False
+        self.output(resulting_objects, args, out=out)
+        return
+
 
     # def publish_public(self, objects, args, out=sys.stdout):
     #     """Public publish dataset
