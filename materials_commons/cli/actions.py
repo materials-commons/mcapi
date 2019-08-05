@@ -1,5 +1,6 @@
 import json
 import os.path
+import requests
 import sys
 import materials_commons.api as mcapi
 from ..api import __api as mc_raw_api
@@ -97,10 +98,20 @@ class ActionsSubcommand(ListObjects):
             default_remote = mcapi.Remote(rconfig_with_apikey)
         remote = clifuncs.optional_remote(args, default_remote=default_remote)
 
-        if args.v4:
-            result = clifuncs.post_v4(name, params, remote)
-        else:
-            result = clifuncs.post_v3(name, params, remote)
+        try:
+            if args.v4:
+                result = clifuncs.post_v4(name, params, remote)
+            else:
+                result = clifuncs.post_v3(name, params, remote)
+        except requests.exceptions.HTTPError as e:
+            try:
+                print(e.response.json()["error"])
+            except:
+                try:
+                    print(json.dumps(e.response.json(), indent=2))
+                except:
+                    print("  FAILED, for unknown reason")
+            return
 
         out.write(json.dumps(result, indent=2))
         out.write("\n")
