@@ -36,7 +36,7 @@ from .bulk_file_uploader import BulkFileUploader
 from .api import set_remote_config_url, get_remote_config_url
 from .api import set_remote, unset_remote, use_remote
 
-from .base import MCGenericException, MCConfigurationException, MCNotFoundException
+from .base import print_table, MCGenericException, MCConfigurationException, MCNotFoundException
 
 # for testing only!
 from .config import Config as _Config
