@@ -4,10 +4,6 @@ import os
 import sys
 import time
 
-import pandas
-from sortedcontainers import SortedSet
-from tabulate import tabulate
-
 import materials_commons.api as mcapi
 import materials_commons.cli.functions as clifuncs
 import materials_commons.cli.tree_functions as treefuncs
@@ -33,10 +29,8 @@ from materials_commons.cli.treedb import LocalTree, RemoteTree
 #  remote_owner           -          - remote_mtime remote_size file2
 #
 
-def _make_printing_df(proj, data, refpath=None, checksum=False):
-    """
-    Construct DataFrame with 'mc ls' results for paths. Also outputs
-    the sets of paths that are files or directories (either local or remote).
+def _format_path_data(proj, data, columns, refpath=None, checksum=False):
+    """Format list of dict for 'mc ls'.
 
     Arguments
     ---------
@@ -46,6 +40,9 @@ def _make_printing_df(proj, data, refpath=None, checksum=False):
     data: dict
         Output from `materials_commons.cli.tree_functions.ls_data`
 
+    columns: list of str
+        Columns to collect. Expects ['l_mtime', 'l_size', 'l_type', 'r_mtime', 'r_size', 'r_type', 'eq' (optionally), 'name', 'id']
+
     refpath: str or None
         Local absolute path that names are printed relative to. If None, uses os.getcwd().
 
@@ -54,7 +51,7 @@ def _make_printing_df(proj, data, refpath=None, checksum=False):
 
     Returns
     -------
-    df: pandas.DataFrame containing:
+    path_data: list of dict, Sorted by name and containing
         'l_mtime', 'l_size', 'l_type', 'r_mtime', 'r_size', 'r_type', 'eq' (optionally), 'name', 'id'
     """
     path_data = []
@@ -63,11 +60,6 @@ def _make_printing_df(proj, data, refpath=None, checksum=False):
     # for record in data:
     #     print(json.dumps(record, indent=2))
     #     print("-------------------")
-
-    if checksum:
-        columns = ['l_mtime', 'l_size', 'l_type', 'r_mtime', 'r_size', 'r_type', 'eq', 'name', 'id']
-    else:
-        columns = ['l_mtime', 'l_size', 'l_type', 'r_mtime', 'r_size', 'r_type', 'name', 'id']
 
     record_init = {k: '-' for k in columns}
     if refpath is None:
@@ -105,7 +97,7 @@ def _make_printing_df(proj, data, refpath=None, checksum=False):
 
         path_data.append(record)
 
-    return pandas.DataFrame(path_data, columns=columns).sort_values(by='name')
+    return sorted(path_data, key=lambda k: k['name'])
 
 def _ls_print(proj, data, refpath=None, printjson=False, checksum=False):
     """Print treecompare output for a set of files, or directory children"""
@@ -113,17 +105,21 @@ def _ls_print(proj, data, refpath=None, printjson=False, checksum=False):
     # print warnings for type mismatches
     treefuncs.warn_for_type_mismatches(data)
 
+    if checksum:
+        columns = ['l_mtime', 'l_size', 'l_type', 'r_mtime', 'r_size', 'r_type', 'eq', 'name', 'id']
+    else:
+        columns = ['l_mtime', 'l_size', 'l_type', 'r_mtime', 'r_size', 'r_type', 'name', 'id']
+
     if printjson:
         for path, record in data.items():
             if record['r_obj']:
                 print(record['r_obj'].input_data)
     else:
-        df = _make_printing_df(proj, data, refpath=refpath, checksum=checksum)
+        path_data = _format_path_data(proj, data, columns, refpath=refpath, checksum=checksum)
         if refpath:
             print(os.path.relpath(refpath, os.getcwd()) + ":")
-        if df.shape[0]:
-            #print(df.to_string(index=False))
-            print(tabulate(df, showindex=False, headers=df.columns, tablefmt="plain"))
+        if len(path_data):
+            mcapi.print_table(path_data, columns=columns, headers=columns)
             print("")
 
 def ls_subcommand(argv=sys.argv):

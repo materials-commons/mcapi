@@ -9,7 +9,7 @@ def set_current_experiment(proj, expt=None):
     if expt is None:
         pconfig.experiment_id = None
     else:
-        pconfig.experimend_it = expt.id
+        pconfig.experiment_id = expt.id
     pconfig.save()
 
 class ExptSubcommand(ListObjects):
@@ -82,7 +82,8 @@ class ExptSubcommand(ListObjects):
             out.write('Aborting\n')
             return
 
-        current_id = clifuncs.current_experiment_id(obj.project)
+        proj = clifuncs.make_local_project()
+        current_id = clifuncs.current_experiment_id(proj)
 
         for obj in objects:
             if obj.id == current_id:

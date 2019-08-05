@@ -1,12 +1,7 @@
 import argparse
-import copy
 import os
 import sys
 import time
-
-import pandas
-from sortedcontainers import SortedSet
-from tabulate import tabulate
 
 import materials_commons.api as mcapi
 import materials_commons.cli.functions as clifuncs

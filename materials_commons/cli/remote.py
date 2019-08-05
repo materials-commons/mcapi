@@ -1,6 +1,5 @@
 import argparse
 import getpass
-import pandas
 import re
 import requests
 import sys

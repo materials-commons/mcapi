@@ -3,8 +3,6 @@ requests
 rethinkdb
 pathlib2
 pathlib
-numpy
-pandas
 tabulate
 sortedcontainers
 openpyxl

@@ -4,9 +4,8 @@ import argparse
 import contextlib
 import json
 import re
-from tabulate import tabulate
-from pandas import DataFrame
 
+import materials_commons.api as mcapi
 import materials_commons.cli.functions as clifuncs
 
 
@@ -26,10 +25,9 @@ def output_method(file=None, force=False):
         if out is not sys.stdout:
             out.close()
 
-
 class ListObjects(object):
     """
-    Base class to create an 'mc X' command for listing objects of type X.
+    Base class to create an 'mc X' CLI command for listing objects of type X.
 
     Expects derived class members:
         get_all_from_experiment(self, expt), if expt_member
@@ -60,7 +58,7 @@ class ListObjects(object):
                  remote_help='Select remote',
                  list_columns=None, headers=None,
                  deletable=False, dry_runable=False, has_owner=True, creatable=False,
-                 custom_actions=[], custom_selection_actions=[]):
+                 custom_actions=[], custom_selection_actions=[], request_confirmation_actions={}):
         """
 
         Arguments:
@@ -103,6 +101,10 @@ class ListObjects(object):
             custom_selection_actions: List of str
                 Custom action names which are called via:
                     `<name>(self, objects, args, outout=sys.stdout)`
+            request_confirmation_actions: Dict of name:msg
+                Dictionary of names of custom_selection_actions which require prompting the user
+                for confirmation before executing. The value is the message shown at the prompt.
+                Delete is always confirmed and is not included here.
 
         """
         if list_columns is None:
@@ -127,6 +129,7 @@ class ListObjects(object):
         self.dry_runable = dry_runable
         self.custom_actions = custom_actions
         self.custom_selection_actions = custom_selection_actions
+        self.request_confirmation_actions = request_confirmation_actions
 
     def __call__(self, argv):
         """
@@ -251,7 +254,18 @@ class ListObjects(object):
                     if hasattr(args, _name) and getattr(args, _name):
                         name = _name
                         break
-                getattr(self, name)(objects, args, out)
+
+                # check if user confirmation is required
+                if name in self.request_confirmation_actions and not args.force:
+                    self.output(objects, args, out)
+                    if clifuncs.request_confirmation(self.request_confirmation_actions[name]):
+                        getattr(self, name)(objects, args, out)
+                    else:
+                        out.write("Aborting\n")
+                        return
+                else:
+                    getattr(self, name)(objects, args, out)
+
                 return
 
     def get_remote(self, args):
@@ -273,19 +287,19 @@ class ListObjects(object):
             if not len(data):
                 out.write("No " + self.typename_plural + " found in experiment\n")
                 return []
-        if hasattr(args, 'dataset') and args.dataset:
-            # if in project
-            if clifuncs.project_exists():
-                proj = clifuncs.make_local_project()
-                dataset = clifuncs.get_dataset(proj.id, args.dataset[0], remote=proj.remote)
-                data = self.get_all_from_dataset(dataset)
-            else:
-                remote = self.get_remote(args)
-                dataset = clifuncs.get_published_dataset(args.dataset[0], remote=remote)
-                data = self.get_all_from_dataset(dataset)
-            if not len(data):
-                out.write("No " + self.typename_plural + " found in dataset\n")
-                return []
+        # elif hasattr(args, 'dataset') and args.dataset:
+        #     # if in project
+        #     if clifuncs.project_exists():
+        #         proj = clifuncs.make_local_project()
+        #         dataset = clifuncs.get_dataset(proj.id, args.dataset[0], remote=proj.remote)
+        #         data = self.get_all_from_dataset(dataset)
+        #     else:
+        #         remote = self.get_remote(args)
+        #         dataset = clifuncs.get_published_dataset(args.dataset[0], remote=remote)
+        #         data = self.get_all_from_dataset(dataset)
+        #     if not len(data):
+        #         out.write("No " + self.typename_plural + " found in dataset\n")
+        #         return []
         elif hasattr(args, 'proj') and args.proj:
             proj = clifuncs.make_local_project()
             data = self.get_all_from_project(proj)
@@ -359,7 +373,8 @@ class ListObjects(object):
             data = []
             for obj in objects:
                 data.append(self.list_data(obj))
-                df = DataFrame.from_records(data, columns=self.list_columns)
-                df.sort_values(inplace=True, by=args.sort_by)
-            out.write(tabulate(df, showindex=False, headers=self.headers))
+
+            for col in reversed(args.sort_by):
+                data = sorted(data, key=lambda k: k[col])
+            mcapi.print_table(data, columns=self.list_columns, headers=self.headers, out=out)
             out.write("\n")

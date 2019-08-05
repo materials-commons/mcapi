@@ -1,6 +1,6 @@
 import copy
 import datetime
-import dateutil
+import dateutil.parser
 import getpass
 import json
 import hashlib
@@ -11,10 +11,7 @@ import string
 import sys
 import time
 
-import pandas
 import requests
-from sortedcontainers import SortedSet
-from tabulate import tabulate
 
 import materials_commons.api as mcapi
 from .print_formatter import PrintFormatter, trunc
@@ -46,7 +43,7 @@ def post_v3(name, params={}, remote=None):
             if 'apikey' in _params:
                 del _params['apikey']
             print("POST:", remote.make_url_v3(name), _params)
-        r = requests.post(remote.make_url_v3(name), params=params, verify=False)
+        r = requests.post(remote.make_url_v3(name), json=params, verify=False)
         r.raise_for_status()
         return r.json()
     except requests.exceptions.ConnectionError as e:
@@ -64,7 +61,7 @@ def post_v4(name, params={}, remote=None):
             if 'apikey' in _params:
                 del _params['apikey']
             print("POSTv4:", remote.make_url_v4(name), _params)
-        r = requests.post(remote.make_url_v4(name), params=params, verify=False)
+        r = requests.post(remote.make_url_v4(name), json=params, verify=False)
         r.raise_for_status()
         return r.json()
     except requests.exceptions.ConnectionError as e:
@@ -77,7 +74,6 @@ def get_project_by_id_v3(project_id, remote=None):
 
 def get_project_by_id_or_exit(project_id, remote=None):
     try:
-        #return mcapi.get_project_by_id(project_id, remote=remote)
         return get_project_by_id_v3(project_id, remote=remote)
     except requests.exceptions.ConnectionError as e:
         print("Could not connect to " + remote.config.mcurl)
@@ -117,7 +113,6 @@ def get_dataset(project_id, dataset_id, remote=None):
             return None
         else:
             raise e
-    # print(json.dumps(result['data'], indent=2))
     return mcapi.Dataset(data=result['data'])
 
 def get_published_dataset(dataset_id, remote=None):
@@ -222,8 +217,6 @@ def get_children(dir):
     if hasattr(self, 'input_data') and 'children' in self.input_data:
         results = self.input_data
     else:
-        # results = api.directory_by_id(self._project.id, self.id, apikey=self._project._apikey,
-        #                           remote=self._project.remote)
         results = post_v3(
             "getDirectoryForProject",
             {"project_id": self._project.id, "directory_id": self.id},
@@ -357,14 +350,9 @@ def print_projects(projects, current=None):
             'mtime': format_time(p.mtime)
         })
 
-    df = pandas.DataFrame.from_records(
-        data,
-        columns=['current', 'name', 'owner', 'id', 'mtime']
-    )
-
-    # print(df.to_string())
-    print(tabulate(df, showindex=False, headers=['', 'name', 'owner', 'id', 'mtime']))
-
+    columns=['current', 'name', 'owner', 'id', 'mtime']
+    headers=['', 'name', 'owner', 'id', 'mtime']
+    mcapi.print_table(data, columns=columns, headers=headers)
 
 def print_experiments(experiments, current=None):
     """
@@ -390,13 +378,9 @@ def print_experiments(experiments, current=None):
             'mtime': e.mtime.strftime("%b %Y %d %H:%M:%S")
         })
 
-    df = pandas.DataFrame.from_records(
-        data,
-        columns=['current', 'name', 'description', 'owner', 'id', 'mtime']
-    )
-
-    # print(df.to_string())
-    print(tabulate(df, showindex=False, headers=['', 'name', 'description', 'owner', 'id', 'mtime']))
+    columns = ['current', 'name', 'description', 'owner', 'id', 'mtime']
+    headers = ['', 'name', 'description', 'owner', 'id', 'mtime']
+    mcapi.print_table(data, columns=columns, headers=headers)
 
 def _proj_path(path=None):
     """Find project path if .mc directory already exists, else return None"""
@@ -634,6 +618,10 @@ def make_local_project(path=None):
         except requests.exceptions.ConnectionError as e:
             print("Could not connect to " + remote.config.mcurl)
             exit(1)
+        except requests.exceptions.HTTPError as e:
+            # raise mcapi.MCNotFoundException(e.response.json()['error'])
+            print(e.response.json()['error'])
+            exit(1)
 
         record = {
             'id': pconfig.project_id,
@@ -659,12 +647,6 @@ def make_local_expt(proj):
             if expt.id == pconfig.experiment_id:
                 return expt
 
-    # j = read_project_config(proj.local_path)
-    #
-    # for expt in proj.get_all_experiments():
-    #     if expt.id == j['experiment_id']:
-    #         return expt
-
     return None
 
 def current_experiment_id(proj):
@@ -681,6 +663,36 @@ def humanize(file_size_bytes):
         _size = (file_size_bytes >> val)
         if _size < 1000 or key == "T":
             return str(_size) + key
+
+def request_confirmation(msg, force=False):
+    """Request user confirmation
+
+    Arguments
+    ---------
+    msg: str
+        Ex: "Are you sure you want to permanently delete these?", will prompt user with:
+
+            "Are you sure you want to permanently delete these? ('Yes'/'No'): "
+
+    force: bool
+        Proceed without user confirmation
+
+    Returns
+    -------
+    confirmation: bool
+        True if confirmed or forced, False if not confirmed.
+    """
+    if not force:
+        msg = msg + " ('Yes'/'No'): "
+        while True:
+            input_str = input(msg)
+            if input_str == 'No':
+                return False
+            elif input_str == 'Yes':
+                return True
+            print("Invalid input")
+    else:
+        return True
 
 def add_remote_option(parser, help):
     """Add --remote cli option"""
@@ -756,7 +768,3 @@ def print_remotes(config_remotes, show_apikey=False):
     pformatter.print_header()
     for record in data:
         pformatter.print(record)
-
-    # data = [{'email':email, 'url': rconfig.mcurl} for name, rconfig in remote_configs.items()]
-    # df = pandas.DataFrame.from_records(data, columns=['url', 'email'])
-    # print(df.to_string(index=False))
