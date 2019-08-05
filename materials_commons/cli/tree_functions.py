@@ -1,4 +1,5 @@
 import copy
+import json
 import os
 import requests
 import shutil
@@ -717,13 +718,23 @@ class _Remover(object):
     def _remove_remote_file(self, path, record):
         if self.dry_run:
             print("(dry run) rm remote:", path)
+            return True
         else:
             print("rm remote:", path)
             parent_id = record['parent_id']
             files_and_dirs = [
                 {'id': record['id'], 'otype': 'file'}
             ]
-            clifuncs.delete_files_and_directories(self.proj, parent_id, files_and_dirs)
+            try:
+                clifuncs.delete_files_and_directories(self.proj, parent_id, files_and_dirs)
+                return True
+            except requests.exceptions.HTTPError as e:
+                try:
+                    print(e.response.json()['error'])
+                except:
+                    print("  FAILED, for unknown reason")
+                return False
+
 
     def _remove_local_file(self, path):
         local_abspath = os.path.join(self.refpath, path)
@@ -758,11 +769,12 @@ class _Remover(object):
             return
 
         elif self.no_compare:
-            self._remove_remote_file(path, record)
-            self._remove_local_file(path)
-            if updatetree:
-                self._update_remote(parent_path)
-                self._update_local(parent_path)
+            res = self._remove_remote_file(path, record)
+            if res:
+                self._remove_local_file(path)
+                if updatetree:
+                    self._update_remote(parent_path)
+                    self._update_local(parent_path)
             return
 
         elif not record['eq']:
@@ -770,16 +782,18 @@ class _Remover(object):
             return
 
         else:
-            self._remove_remote_file(path, record)
-            self._remove_local_file(path)
-            if updatetree:
-                self._update_remote(parent_path)
-                self._update_local(parent_path)
+            res = self._remove_remote_file(path, record)
+            if res:
+                self._remove_local_file(path)
+                if updatetree:
+                    self._update_remote(parent_path)
+                    self._update_local(parent_path)
             return
 
     def _remove_remote_directory(self, path, record):
         if self.dry_run:
             print("(dry run) rm remote:", path)
+            return True
         else:
             print("rm remote:", path)
             parent_id = record['parent_id']
@@ -788,8 +802,13 @@ class _Remover(object):
             ]
             try:
                 clifuncs.delete_files_and_directories(self.proj, parent_id, file_and_dirs)
+                return True
             except requests.exceptions.HTTPError as e:
-                print("  FAILED, for unknown reason")
+                try:
+                    print(e.response.json()['error'])
+                except:
+                    print("  FAILED, for unknown reason")
+                return False
 
 
     def _remove_local_directory(self, path):
@@ -829,11 +848,12 @@ class _Remover(object):
             print(local_abspath + ": could not remove all local children (skipping)")
             return
 
-        self._remove_remote_directory(path, record)
-        self._remove_local_directory(path)
-        if updatetree:
-            self._update_remote(path)
-            self._update_local(path)
+        res = self._remove_remote_directory(path, record)
+        if res:
+            self._remove_local_directory(path)
+            if updatetree:
+                self._update_remote(path)
+                self._update_local(path)
 
     def __call__(self, path):
 
