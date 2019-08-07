@@ -182,9 +182,6 @@ class DatasetSubcommand(ListObjects):
         parser.add_argument('--unpublish', action="store_true", default=False, help='Unpublish a dataset')
         parser.add_argument('--publish', action="store_true", default=False, help='Publish a public dataset. Makes it available for public download.')
         parser.add_argument('--publish-private', action="store_true", default=False, help='Publish a private dataset. Makes it available for globus download by project collaborators.')
-        # parser.add_argument('--publish-public', action="store_true", default=False, help='Publish public dataset. Makes it available for public download.')
-        # parser.add_argument('--publish-private', action="store_true", default=False, help='Publish private dataset. Makes it available for globus download.')
-        # parser.add_argument('--unpublish', action="store_true", default=False, help='Download dataset zipfile')
 
     def down(self, objects, args, out=sys.stdout):
         """Download dataset zipfile, --down
@@ -309,17 +306,3 @@ class DatasetSubcommand(ListObjects):
                 return False
         self.output(resulting_objects, args, out=out)
         return
-
-
-    # def publish_public(self, objects, args, out=sys.stdout):
-    #     """Public publish dataset
-    #
-    #     .. note:: The downloaded dataset is named <dataset_id>.zip
-    #     """
-    #     for obj in objects:
-    #         out.write("Title: " + obj['title'] + "\n")
-    #         out.write("ID: " + obj['id'] + "\n")
-    #         out.write("Publishing for public...\n")
-    #         download_dataset_zipfile(obj['id'], obj['id']+".zip")
-    #         out.write("DONE\n\n")
-    #     return
