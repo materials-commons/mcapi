@@ -2,6 +2,7 @@ from collections import OrderedDict
 from .base import MCConfigurationException, MCNotFoundException
 from .remote import Remote, RemoteWithApikey
 from .config import Config
+import copy
 import requests
 import magic
 
@@ -52,6 +53,33 @@ def post(restpath, data, remote):
     r.raise_for_status()
     return r.json()
 
+def post_v3(name, params={}, remote=None):
+    """Inserts apikey if not present in params"""
+    remote = configure_remote(remote, None)
+    if 'apikey' not in params and remote.config.mcapikey:
+        params['apikey'] = remote.config.mcapikey
+    if _log:
+        _params = copy.deepcopy(params)
+        if 'apikey' in _params:
+            del _params['apikey']
+        print("POST:", remote.make_url_v3(name), _params)
+    r = requests.post(remote.make_url_v3(name), json=params, verify=False)
+    r.raise_for_status()
+    return r.json()
+
+def post_v4(name, params={}, remote=None):
+    """Inserts apikey if not present in params"""
+    remote = mc_raw_api.configure_remote(remote, None)
+    if 'apikey' not in params and remote.config.mcapikey:
+        params['apikey'] = remote.config.mcapikey
+    if _log:
+        _params = copy.deepcopy(params)
+        if 'apikey' in _params:
+            del _params['apikey']
+        print("POSTv4:", remote.make_url_v4(name), _params)
+    r = requests.post(remote.make_url_v4(name), json=params, verify=False)
+    r.raise_for_status()
+    return r.json()
 
 def put(restpath, data, remote):
     if _log:
