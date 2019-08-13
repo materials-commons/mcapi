@@ -1,6 +1,7 @@
 import os
 import sys
 
+from . import api
 from materials_commons.api.base import MCObject, PrettyPrint, humanize, MCGenericException
 from materials_commons.api.Author import Author, print_authors
 from materials_commons.api.mc_object_utility import make_object
@@ -462,3 +463,135 @@ class Dataset(MCObject):
             pp = PrettyPrint(shift=shift, indent=indent, out=out)
         self.pretty_print_metadata(pp=pp)
         self.pretty_print_description(pp=pp)
+
+
+def get_all_datasets_from_experiment(project_id, experiment_id, remote=None):
+    remote = api.configure_remote(remote, None)
+    api_url = "projects/" + project_id + "/experiments/" + experiment_id + "/datasets"
+    result = mc_raw_api.get(remote.make_url_v2(api_url), remote)
+    for r in result:
+        r['name'] = r['title']
+    # return result
+    return [Dataset(d) for d in result]
+
+def get_all_datasets_from_project(project_id, remote=None):
+    result = api.post_v3("listDatasets", {'project_id':project_id}, remote=remote)['data']
+    # print(json.dumps(result, indent=2))
+    for r in result:
+        r['name'] = r['title']
+    # return result
+    return [Dataset(d) for d in result]
+
+def get_all_datasets_from_remote(remote=None):
+    result = api.post_v3("getTopViewedPublishedDatasets", remote=remote)['data']
+    for r in result:
+        r['name'] = r['title']
+    # return result
+    return [Dataset(d) for d in result]
+
+def download_dataset_zipfile(dataset_id, output_file_path, remote=None):
+    remote = api.configure_remote(remote, None)
+    api_url = remote.make_url_v3("downloadDatasetZipfile")
+    params = {'apikey':remote.config.mcapikey, 'dataset_id':dataset_id}
+
+    with open(output_file_path, 'wb') as f:
+        r = requests.get(api_url, params=params, verify=False, stream=True)
+
+        if not r.ok:
+            r.raise_for_status()
+
+        for block in r.iter_content(8192):
+            if block:
+                f.write(block)
+
+    return output_file_path
+
+def get_dataset(project_id, dataset_id, remote=None):
+    result = api.post_v3(
+        "getDataset",
+        {
+            'project_id': project_id,
+            'dataset_id': dataset_id
+        },
+        remote=remote)['data']
+    return Dataset(result)
+
+def create_dataset(project_id, title, description="", remote=None):
+    result = api.post_v3(
+        "createDataset",
+        {
+            'project_id': project_id,
+            'title': title,
+            'description': description
+        },
+        remote=remote)['data']
+    return Dataset(result)
+
+def add_samples_to_dataset(project_id, dataset_id, sample_ids, remote=None):
+    result = api.post_v3(
+        "addDatasetSamples",
+        {
+            'project_id': project_id,
+            'dataset_id': dataset_id,
+            'samples': sample_ids
+        },
+        remote=remote)['data']
+    return Dataset(result)
+
+
+def delete_dataset(project_id, dataset_id, remote=None):
+    result = api.post_v3(
+        "deleteDataset",
+        {
+            'project_id': project_id,
+            'dataset_id': dataset_id
+        },
+        remote=remote)['data']
+    return result['success']
+
+def unpublish_dataset(project_id, dataset_id, remote=None):
+    """Unpublish a dataset
+
+    Returns
+    -------
+    dataset: mcapi.Dataset
+    """
+    result = api.post_v3(
+        "unpublishDataset",
+        {
+            'project_id': project_id,
+            'dataset_id': dataset_id
+        },
+        remote=remote)
+    if 'data' in result:
+        # unpublish a private dataset
+        return Dataset(result['data'])
+    else:
+        # unpublish a public dataset
+        return
+
+def publish_dataset(project_id, dataset_id, remote=None):
+    """Publish a dataset
+
+    Returns
+    -------
+    dataset: mcapi.Dataset
+    """
+    result = api.post_v3(
+        "publishDataset",
+        {
+            'project_id': project_id,
+            'dataset_id': dataset_id
+        },
+        remote=remote)
+    return Dataset(result['data'])
+
+def publish_private_dataset(project_id, dataset_id, remote=None):
+    result = api.post_v3(
+        "publishPrivateDataset",
+        {
+            'project_id': project_id,
+            'dataset_id': dataset_id
+        },
+        remote=remote)
+    return Dataset(result['data'])
