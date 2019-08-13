@@ -128,13 +128,13 @@ class ProcSubcommand(ListObjects):
     def add_custom_options(self, parser):
 
         # linking files
-        parser.add_argument('--link-files', nargs="*", help='List of files to link to selected process(es).')
-        parser.add_argument('--use-files', nargs="*", help='List of input files to link to selected process(es).')
-        parser.add_argument('--create-files', nargs="*", help='List of output files to link to selected process(es).')
-        parser.add_argument('--unlink-files', nargs="*", help='List of files to unlink from selected process(es).')
+        parser.add_argument('--link-files', nargs="*", help='List of files to link to selected processes.')
+        parser.add_argument('--use-files', nargs="*", help='List of input files to link to selected processes.')
+        parser.add_argument('--create-files', nargs="*", help='List of output files to link to selected processes.')
+        parser.add_argument('--unlink-files', nargs="*", help='List of files to unlink from selected processes.')
 
 
-    def _link_files(self, objects, args, direction=None, out=sys.stdout):
+    def _link_files(self, objects, args, files, direction=None, out=sys.stdout):
         """Link files to processes (any direction)"""
         if direction is None:
             print("Error using _link_files: no direction provided")
@@ -143,13 +143,13 @@ class ProcSubcommand(ListObjects):
 
         proj = clifuncs.make_local_project()
 
-        if not args.link_files:
+        if not files:
             print("No files")
             return
 
         # convert cli input to materials commons path convention: <projectname>/path/to/file_or_dir
         refpath = os.path.dirname(proj.local_path)
-        paths = [os.path.relpath(os.path.abspath(p), refpath) for p in args.link_files]
+        paths = [os.path.relpath(os.path.abspath(p), refpath) for p in files]
         files = [clifuncs.get_file_by_path(proj, p) for p in paths]
         file_ids = [file.id for file in files]
 
@@ -175,7 +175,7 @@ class ProcSubcommand(ListObjects):
             mc proc --id <proc_id> --link-files <file1> ...
             mc proc <process_name_search> --link-files <file1> ...
         """
-        self._link_files(objects, args, out, direction='')
+        self._link_files(objects, args, args.link_files, direction='', out=out)
 
     def use_files(self, objects, args, out=sys.stdout):
         """Link files 'used by' processes (direction == 'in')
@@ -184,7 +184,7 @@ class ProcSubcommand(ListObjects):
             mc proc --id <proc_id> --use-files <file1> ...
             mc proc <process_name_search> --use-files <file1> ...
         """
-        self._link_files(objects, args, out, direction='in')
+        self._link_files(objects, args, args.use_files, direction='in', out=out)
 
     def create_files(self, objects, args, out=sys.stdout):
         """Link files 'created by' processes (direction == 'out')
@@ -193,7 +193,7 @@ class ProcSubcommand(ListObjects):
             mc proc --id <proc_id> --create-files <file1> ...
             mc proc <process_name_search> --create-files <file1> ...
         """
-        self._link_files(objects, args, out, direction='out')
+        self._link_files(objects, args, args.create_files, direction='out', out=out)
 
     def unlink_files(self, objects, args, out=sys.stdout):
         """Unlink files to processes
