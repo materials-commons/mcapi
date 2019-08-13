@@ -58,7 +58,8 @@ class ListObjects(object):
                  remote_help='Select remote',
                  list_columns=None, headers=None,
                  deletable=False, dry_runable=False, has_owner=True, creatable=False,
-                 custom_actions=[], custom_selection_actions=[], request_confirmation_actions={}):
+                 custom_actions=[], custom_selection_actions=[], request_confirmation_actions={},
+                 has_view=False):
         """
 
         Arguments:
@@ -105,6 +106,8 @@ class ListObjects(object):
                 Dictionary of names of custom_selection_actions which require prompting the user
                 for confirmation before executing. The value is the message shown at the prompt.
                 Delete is always confirmed and is not included here.
+            has_view: bool
+                Include in view_state, list with view id. Optional, default=True
 
         """
         if list_columns is None:
@@ -130,6 +133,7 @@ class ListObjects(object):
         self.custom_actions = custom_actions
         self.custom_selection_actions = custom_selection_actions
         self.request_confirmation_actions = request_confirmation_actions
+        self.has_view = has_view
 
     def __call__(self, argv):
         """
@@ -373,8 +377,33 @@ class ListObjects(object):
             data = []
             for obj in objects:
                 data.append(self.list_data(obj))
+                if self.has_view:
+                    data[-1]['otype'] = clifuncs.getit(obj, 'otype')
 
             for col in reversed(args.sort_by):
                 data = sorted(data, key=lambda k: k[col])
-            mcapi.print_table(data, columns=self.list_columns, headers=self.headers, out=out)
+
+            columns = self.list_columns
+            headers = self.headers
+
+            if self.has_view:
+
+                index = 0
+                for record in data:
+                    record['index'] = clifuncs.view_otype(record['otype']) + ":" + str(index)
+                    index += 1
+                try:
+                    if clifuncs.project_exists():
+                        viewstate = {}
+                        for record in data:
+                            viewstate[record['index']] = record['id']
+                        clifuncs.write_view_state(viewstate)
+                except:
+                    print("Warning: Could not save view state")
+                    raise
+
+                columns = ['index'] + columns
+                headers = ['view_id'] + headers
+
+            mcapi.print_table(data, columns=columns, headers=headers, out=out)
             out.write("\n")

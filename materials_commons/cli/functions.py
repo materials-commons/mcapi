@@ -34,36 +34,48 @@ def turn_REST_logging_off():
 
 def post_v3(name, params={}, remote=None):
     """Inserts apikey if not present in params"""
-    remote = mc_raw_api.configure_remote(remote, None)
-    if 'apikey' not in params and remote.config.mcapikey:
-        params['apikey'] = remote.config.mcapikey
+    # remote = mc_raw_api.configure_remote(remote, None)
+    # if 'apikey' not in params and remote.config.mcapikey:
+    #     params['apikey'] = remote.config.mcapikey
+    # try:
+    #     if _log:
+    #         _params = copy.deepcopy(params)
+    #         if 'apikey' in _params:
+    #             del _params['apikey']
+    #         print("POST:", remote.make_url_v3(name), _params)
+    #     r = requests.post(remote.make_url_v3(name), json=params, verify=False)
+    #     r.raise_for_status()
+    #     return r.json()
+    # except requests.exceptions.ConnectionError as e:
+    #     print("Could not connect to " + remote.config.mcurl)
+    #     exit(1)
+
     try:
-        if _log:
-            _params = copy.deepcopy(params)
-            if 'apikey' in _params:
-                del _params['apikey']
-            print("POST:", remote.make_url_v3(name), _params)
-        r = requests.post(remote.make_url_v3(name), json=params, verify=False)
-        r.raise_for_status()
-        return r.json()
+        return mc_raw_api.post_v3(name, params=params, remote=remote)
     except requests.exceptions.ConnectionError as e:
         print("Could not connect to " + remote.config.mcurl)
         exit(1)
 
 def post_v4(name, params={}, remote=None):
     """Inserts apikey if not present in params"""
-    remote = mc_raw_api.configure_remote(remote, None)
-    if 'apikey' not in params and remote.config.mcapikey:
-        params['apikey'] = remote.config.mcapikey
+    # remote = mc_raw_api.configure_remote(remote, None)
+    # if 'apikey' not in params and remote.config.mcapikey:
+    #     params['apikey'] = remote.config.mcapikey
+    # try:
+    #     if _log:
+    #         _params = copy.deepcopy(params)
+    #         if 'apikey' in _params:
+    #             del _params['apikey']
+    #         print("POSTv4:", remote.make_url_v4(name), _params)
+    #     r = requests.post(remote.make_url_v4(name), json=params, verify=False)
+    #     r.raise_for_status()
+    #     return r.json()
+    # except requests.exceptions.ConnectionError as e:
+    #     print("Could not connect to " + remote.config.mcurl)
+    #     exit(1)
+
     try:
-        if _log:
-            _params = copy.deepcopy(params)
-            if 'apikey' in _params:
-                del _params['apikey']
-            print("POSTv4:", remote.make_url_v4(name), _params)
-        r = requests.post(remote.make_url_v4(name), json=params, verify=False)
-        r.raise_for_status()
-        return r.json()
+        return mc_raw_api.post_v4(name, params=params, remote=remote)
     except requests.exceptions.ConnectionError as e:
         print("Could not connect to " + remote.config.mcurl)
         exit(1)
@@ -409,6 +421,14 @@ def project_exists(path=None):
         return True
     return False
 
+def _mcdir(path=None):
+    """Find project .mc directory path if it already exists, else return None"""
+    dirpath = _proj_path(path)
+    if dirpath is None:
+        return None
+    return os.path.join(dirpath, '.mc')
+
+
 def _proj_config(path=None):
     """Find project config path if .mc directory already exists, else return None"""
     dirpath = _proj_path(path)
@@ -496,6 +516,44 @@ def read_project_config(path=None):
     else:
         return None
 
+VIEW_OTYPE = {
+  "process": "proc",
+  "sample": "samp",
+  "dataset": "dset",
+  "project": "proj",
+  "attribute": "attr",
+  "measurement": "val",
+  "attribute_set": "aset",
+  "file": "file",
+  "directory": "dir",
+  "experiment": "expt",
+  "action": "act"
+}
+
+def view_otype(otype):
+    return VIEW_OTYPE[otype]
+
+def read_view_state(path=None):
+    mcdirpath = _mcdir(path)
+    if not mcdirpath:
+        print("No .mc directory. Exiting...")
+        exit(1)
+    viewstatepath = os.path.join(mcdirpath, 'view_state.json')
+    if not os.path.exists(viewstatepath):
+        return None
+    with open(viewstatepath, 'w') as f:
+        data = json.load(f)
+    return data
+
+def write_view_state(data, path=None):
+    mcdirpath = _mcdir(path)
+    if not mcdirpath:
+        print("No .mc directory. Exiting...")
+        exit(1)
+    viewstatepath = os.path.join(mcdirpath, 'view_state.json')
+    with open(viewstatepath, 'w') as f:
+        json.dump(data, f)
+    return
 
 # def write_project_config(proj, experiment_id=None):
 #     """Write <project>/.mc/config.json file

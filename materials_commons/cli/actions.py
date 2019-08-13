@@ -22,7 +22,8 @@ class ActionsSubcommand(ListObjects):
             list_columns=['name', 'version', 'description'],
             headers=['name', 'version', 'description'],
             custom_actions=['post'],
-            deletable=False
+            deletable=False,
+            has_view=False
         )
 
     def get_all_from_experiment(self, expt):
@@ -41,6 +42,7 @@ class ActionsSubcommand(ListObjects):
 
     def list_data(self, obj):
         return {
+            'otype': 'action',
             'name': obj['name'],
             'version': obj['version'],
             'description': clifuncs.trunc(obj['description'], 80),
