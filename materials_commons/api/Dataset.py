@@ -516,13 +516,75 @@ def get_dataset(project_id, dataset_id, remote=None):
         remote=remote)['data']
     return Dataset(result)
 
-def create_dataset(project_id, title, description="", remote=None):
+def create_dataset(project_id, title, description="", sample_ids=[], file_selection=None, remote=None):
+    if file_selection is None:
+        file_selection = {
+            'include_dirs': [],
+            'exclude_dirs': [],
+            'include_files': [],
+            'exclude_files': []
+        }
     result = api.post_v3(
         "createDataset",
         {
             'project_id': project_id,
             'title': title,
-            'description': description
+            'description': description,
+            'samples': sample_ids
+        },
+        remote=remote)['data']
+    return Dataset(result)
+
+def _check_file_selection_dirs(path, file_selection, orig_path=None):
+    if path == orig_path:
+        selected_by = "(self)"
+    else:
+        selected_by = path
+    if path in file_selection['include_dirs']:
+        return (True, selected_by)
+    elif path in file_selection['exclude_dirs']:
+        return (False, selected_by)
+    else:
+        parent = os.path.dirname(path)
+        if parent:
+            return _check_file_selection_dirs(parent, file_selection, orig_path=orig_path)
+        else:
+            return (False, None)
+
+def check_file_selection(path, file_selection):
+    """Check if a file or directory is included/excluded/neither in a file_selection, and why
+
+    :returns: (selected, selected_by)
+        selected: True if included, False otherwise
+        selected_by: One of "(self)" if included/excluded explicitly, <path> if included/explicitly by a higher level directory, None if selected==None
+    """
+    if path in file_selection['include_files']:
+        return (True, "(self)")
+    elif path in file_selection['exclude_files']:
+        return (False, "(self)")
+    else:
+        return _check_file_selection_dirs(path, file_selection, orig_path=path)
+
+
+def update_dataset_file_selection(project_id, dataset_id, file_selection, remote=None):
+    """
+    :param project_id: str, Project ID
+    :param dataset_id: str, Dataset ID
+    :param file_selection: dict,
+        Format:
+            file_selection = {
+                'include_dirs': [<list of included dirs>],
+                'exclude_dirs': [<list of excluded dirs>],
+                'include_files': [<list of included files>],
+                'exclude_files': [<list of excluded files>]
+            }
+    """
+    result = api.post_v3(
+        "updateDatasetFileSelection",
+        {
+            'project_id': project_id,
+            'dataset_id': dataset_id,
+            'file_selection': file_selection
         },
         remote=remote)['data']
     return Dataset(result)
@@ -534,6 +596,29 @@ def add_samples_to_dataset(project_id, dataset_id, sample_ids, remote=None):
             'project_id': project_id,
             'dataset_id': dataset_id,
             'samples': sample_ids
+        },
+        remote=remote)['data']
+    return Dataset(result)
+
+def remove_samples_from_dataset(project_id, dataset_id, sample_ids, remote=None):
+    result = api.post_v3(
+        "deleteDatasetSamples",
+        {
+            'project_id': project_id,
+            'dataset_id': dataset_id,
+            'samples': sample_ids
+        },
+        remote=remote)['data']
+    return Dataset(result)
+
+def remove_processes_from_dataset(project_id, dataset_id, process_ids, remote=None):
+    import json, requests
+    result = api.post_v3(
+        "deleteProcessesFromDatasetSample",
+        {
+            'project_id': project_id,
+            'dataset_id': dataset_id,
+            'processes': process_ids
         },
         remote=remote)['data']
     return Dataset(result)

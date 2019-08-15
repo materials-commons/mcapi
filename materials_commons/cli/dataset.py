@@ -20,11 +20,12 @@ class DatasetSubcommand(ListObjects):
             list_columns=['name', 'owner', 'id', 'mtime', 'zip_size', 'published'],
             deletable=True,
             creatable=True,
-            custom_selection_actions=['down', 'unpublish', 'publish', 'publish_private'],
+            custom_selection_actions=['down', 'unpublish', 'publish', 'publish_private', 'clone'],
             request_confirmation_actions={
                 'publish': 'Are you sure you want to publicly publish these datasets?',
                 'unpublish': 'Are you sure you want to unpublish these datasets?',
-                'publish_private': 'Are you sure you want to privately publish these datasets?'
+                'publish_private': 'Are you sure you want to privately publish these datasets?',
+                'clone': 'Are you sure you want to clone this dataset?'
             }
         )
 
@@ -76,10 +77,20 @@ class DatasetSubcommand(ListObjects):
 
     def add_custom_options(self, parser):
 
-        # for --create, add dataset description
-        parser.add_argument('--desc', type=str, default="", help='Dataset description')
+        # note: add samples via `mc samp`, processes via `mc proc`, files via `mc ls`
 
+        # for --create and --clone, set dataset name, description
+        parser.add_argument('--desc', type=str, default="", help='Dataset description, for use with --create or --clone.')
+        parser.add_argument('--name', type=str, default="", help='New dataset name / title, for use with --create or --clone.')
+
+        # --clone
+        parser.add_argument('--clone', action="store_true", default=False, help='Clone the selected dataset. Only allowed with --proj and only for a single dataset.')
+        parser.add_argument('--refresh-processes', action="store_true", default=False, help='For use with --clone. If provided, the new dataset will be constructed such that the samples in the original dataset determine which processes are included in the new dataset.')
+
+        # --down
         parser.add_argument('--down', action="store_true", default=False, help='Download dataset zipfile')
+
+        # --publish, --publish-private, --unpublish
         parser.add_argument('--unpublish', action="store_true", default=False, help='Unpublish a dataset')
         parser.add_argument('--publish', action="store_true", default=False, help='Publish a public dataset. Makes it available for public download.')
         parser.add_argument('--publish-private', action="store_true", default=False, help='Publish a private dataset. Makes it available for globus download by project collaborators.')
@@ -106,14 +117,20 @@ class DatasetSubcommand(ListObjects):
         """
         proj = clifuncs.make_local_project()
 
-        if len(args.expr) != 1:
+        in_names = []
+        if args.expr:
+            in_names += args.expr
+        if args.name:
+            in_names += [args.name]
+
+        if len(in_names) != 1:
             print('create one dataset at a time')
             print('example: mc dataset DatasetName --create --desc "dataset description"')
             parser.print_help()
             exit(1)
 
         resulting_objects = []
-        for name in args.expr:
+        for name in in_names:
             dataset = mcapi.create_dataset(proj.id, name, description=args.desc, remote=proj.remote)
             print('Created dataset:', dataset.id)
             resulting_objects.append(dataset)
@@ -214,4 +231,53 @@ class DatasetSubcommand(ListObjects):
                     print("  FAILED, for unknown reason")
                 return False
         self.output(resulting_objects, args, out=out)
+        return
+
+    def clone(self, objects, args, out=sys.stdout):
+        """Create a dataset with the selected samples and file selection
+
+        If the --refresh-processes option is included, then the new dataset will be constructed such that the samples in the original dataset determine which processes are included in the new dataset.
+
+        If the --refresh-processes option is not included, then the new dataset will be constructed identically to the original dataset. The current backend does not currently support this option.
+
+        """
+
+        if len(objects) != 1 or not args.proj:
+            print("--clone requires the --proj option and 1 and only 1 project dataset to be selected. Exiting...")
+            exit(1)
+
+        if not args.refresh_processes:
+            print("--clone is currently only available with the --refresh-processes option.")
+            exit(1)
+
+        proj = clifuncs.make_local_project()
+
+        orig = objects[0]
+
+        dataset_name = orig.name
+        if args.name:
+            dataset_name = args.name
+
+        dataset_desc = orig.description
+        if args.desc:
+            dataset_desc = args.desc
+
+        if 'samples' not in orig.input_data:
+            print("Error reading samples from original dataset data.")
+            exit(1)
+        sample_ids = [samp['id'] for samp in orig.input_data['samples']]
+
+        # remove duplicates:
+        sample_ids = list(set(sample_ids))
+
+        if 'file_selection' not in orig.input_data:
+            print("Error reading file_selection from original dataset data.")
+            exit(1)
+        file_selection = orig.input_data['file_selection']
+
+        dataset = mcapi.create_dataset(proj.id, dataset_name, dataset_desc, sample_ids=sample_ids, file_selection=file_selection, remote=proj.remote)
+
+        print('Created dataset:', dataset.id)
+        self.output([dataset], args, out=out)
+
         return

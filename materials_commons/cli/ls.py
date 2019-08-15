@@ -41,7 +41,7 @@ def _format_path_data(proj, data, columns, refpath=None, checksum=False):
         Output from `materials_commons.cli.tree_functions.ls_data`
 
     columns: list of str
-        Columns to collect. Expects ['l_mtime', 'l_size', 'l_type', 'r_mtime', 'r_size', 'r_type', 'eq' (optionally), 'name', 'id']
+        Columns to collect. Expects ['l_mtime', 'l_size', 'l_type', 'r_mtime', 'r_size', 'r_type', 'eq' (optionally), 'name', 'id', 'selected' (optionally)]
 
     refpath: str or None
         Local absolute path that names are printed relative to. If None, uses os.getcwd().
@@ -94,12 +94,16 @@ def _format_path_data(proj, data, columns, refpath=None, checksum=False):
         record['name'] = _get_name(path)
         if 'id' in rec and rec['id'] is not None:
             record['id'] = rec['id']
+        if 'selected' in rec and rec['selected'] is not None:
+            record['selected'] = rec['selected']
+        if 'selected_by' in rec and rec['selected_by'] is not None:
+            record['selected_by'] = rec['selected_by']
 
         path_data.append(record)
 
     return sorted(path_data, key=lambda k: k['name'])
 
-def _ls_print(proj, data, refpath=None, printjson=False, checksum=False):
+def _ls_print(proj, data, refpath=None, printjson=False, checksum=False, checkdset=False):
     """Print treecompare output for a set of files, or directory children"""
 
     # print warnings for type mismatches
@@ -109,6 +113,9 @@ def _ls_print(proj, data, refpath=None, printjson=False, checksum=False):
         columns = ['l_mtime', 'l_size', 'l_type', 'r_mtime', 'r_size', 'r_type', 'eq', 'name', 'id']
     else:
         columns = ['l_mtime', 'l_size', 'l_type', 'r_mtime', 'r_size', 'r_type', 'name', 'id']
+
+    if checkdset:
+        columns += ['selected', 'selected_by']
 
     if printjson:
         for path, record in data.items():
@@ -136,6 +143,14 @@ def ls_subcommand(argv=sys.argv):
     parser.add_argument('--checksum', action="store_true", default=False, help='Calculate MD5 checksum for local files')
     parser.add_argument('--json', action="store_true", default=False, help='Print JSON exactly')
 
+    # --include-files file_or_dir
+    # --exclude-files file_or_dir
+    # --clear-files file_or_dir
+    parser.add_argument('--dataset', type=str, default="", metavar='DATASET_ID', help='Specify a dataset to act on.')
+    parser.add_argument('--include', action="store_true", default=False, help='Include files and directories in the specified dataset. Including a directory includes all files and sub-directories recursively, unless prevented by --exclude-files.')
+    parser.add_argument('--exclude', action="store_true", default=False, help='Exclude file and directories from the specified dataset. Excluding prevents inclusion of files and directories that would otherwise be included due to a higher-level directory being included.')
+    parser.add_argument('--clear', action="store_true", default=False, help='Clear files and directories from the include/exclude selection lists of the specified dataset. A file or directory may still be included in or excluded from the dataset afterwards if a higher level directory is included or excluded')
+
     # ignore 'mc ls'
     args = parser.parse_args(argv[2:])
     updatetime = time.time()
@@ -162,6 +177,10 @@ def ls_subcommand(argv=sys.argv):
         proj, paths, checksum=args.checksum,
         localtree=localtree, remotetree=remotetree)
 
+    for p in paths:
+        if treefuncs.is_type_mismatch(p, files_data, dirs_data):
+            print("** WARNING: ", p, "local and remote types do not match! **")
+
     if pconfig.remote_updatetime:
         print("** Fetch lock ON at:", clifuncs.format_time(pconfig.remote_updatetime), "**")
 
@@ -171,13 +190,70 @@ def ls_subcommand(argv=sys.argv):
             print(os.path.relpath(local_abspath) + ": No such file or directory")
         print("")
 
+    if args.dataset:
+        dataset = mcapi.get_dataset(proj.id, args.dataset, remote=proj.remote)
+        file_selection = dataset.input_data['file_selection']
+        # print(json.dumps(file_selection, indent=2))
+
+        if args.include or args.exclude or args.clear:
+            for p in paths:
+
+                if treefuncs.is_type_mismatch(p, files_data, dirs_data) and not args.clear:
+                    print(p + ": Local and remote types do not match, skipping")
+                    continue
+
+                if args.include:
+                    if p in files_data:
+                        file_selection['include_files'].append(p)
+                        if p in file_selection['exclude_files']:
+                            file_selection['exclude_files'].remove(p)
+                    if p in dirs_data:
+                        file_selection['include_dirs'].append(p)
+                        if p in file_selection['exclude_dirs']:
+                            file_selection['exclude_dirs'].remove(p)
+                elif args.exclude:
+                    if p in files_data:
+                        file_selection['exclude_files'].append(p)
+                        if p in file_selection['include_files']:
+                            file_selection['include_files'].remove(p)
+                    elif p in dirs_data:
+                        file_selection['exclude_dirs'].append(p)
+                        if p in file_selection['include_dirs']:
+                            file_selection['include_dirs'].remove(p)
+                elif args.clear:
+                    for name in ['include_files', 'exclude_files', 'include_dirs', 'exclude_dirs']:
+                        if p in file_selection[name]:
+                            file_selection[name].remove(p)
+
+            # remove duplicates
+            for name in ['include_files', 'exclude_files', 'include_dirs', 'exclude_dirs']:
+                file_selection[name] = list(set(file_selection[name]))
+
+            dataset = mcapi.update_dataset_file_selection(proj.id, dataset.id, file_selection)
+            file_selection = dataset.input_data['file_selection']
+            # print("Updated dataset file selection:")
+            # print(json.dumps(file_selection, indent=2))
+
+        for f in files_data:
+            selected, selected_by = mcapi.check_file_selection(f, file_selection)
+            files_data[f]['selected'] = selected
+            if selected_by:
+                files_data[f]['selected_by'] = selected_by
+
+        for key, child_files_data in child_data.items():
+            for f in child_files_data:
+                selected, selected_by = mcapi.check_file_selection(f, file_selection)
+                child_files_data[f]['selected'] = selected
+                if selected_by:
+                    child_files_data[f]['selected_by'] = selected_by
+
     # print files
-    _ls_print(proj, files_data, refpath=None, printjson=args.json, checksum=args.checksum)
+    _ls_print(proj, files_data, refpath=None, printjson=args.json, checksum=args.checksum, checkdset=args.dataset)
 
     # print directory children
     for d in child_data:
         local_dirpath = os.path.join(refpath, d)
-        _ls_print(proj, child_data[d], refpath=local_dirpath, printjson=args.json, checksum=args.checksum)
+        _ls_print(proj, child_data[d], refpath=local_dirpath, printjson=args.json, checksum=args.checksum, checkdset=args.dataset)
 
 
     return

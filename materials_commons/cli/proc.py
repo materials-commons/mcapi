@@ -65,6 +65,18 @@ def remove_files_from_process(project_id, process_id, file_ids, remote=None):
     print(json.dumps(result['data'], indent=2))
     return mcapi.Process(result['data'])
 
+def get_related_samples(processes):
+    # get related samples and add those
+    samples_by_id = {}
+    for proc in processes:
+        for samp in proc.input_samples:
+            samples_by_id[samp.id] = samp
+        for samp in proc.output_samples:
+            samples_by_id[samp.id] = samp
+    samples = [value for key,value in samples_by_id.items()]
+    return samples
+
+
 class ProcSubcommand(ListObjects):
 
     def __init__(self):
@@ -72,7 +84,12 @@ class ProcSubcommand(ListObjects):
             ["proc"], "Process", "Processes", expt_member=True,
             list_columns=['name', 'owner', 'template_name', 'id', 'mtime'],
             deletable=True,
-            custom_selection_actions=['link_files', 'use_files', 'create_files', 'unlink_files']
+            custom_selection_actions=['link_files', 'use_files', 'create_files', 'unlink_files', 'add_to_dataset', 'remove_from_dataset', 'create_dataset'],
+            request_confirmation_actions={
+                'add_to_dataset': 'Are you sure you want to add these processes to the dataset?',
+                'remove_from_dataset': 'Are you sure you want to remove these processes from the dataset?',
+                'create_dataset': 'Create a new dataset with these processes?'
+            }
         )
 
     def get_all_from_experiment(self, expt):
@@ -133,6 +150,11 @@ class ProcSubcommand(ListObjects):
         parser.add_argument('--create-files', nargs="*", help='List of output files to link to selected processes.')
         parser.add_argument('--unlink-files', nargs="*", help='List of files to unlink from selected processes.')
 
+        # dataset operations
+        parser.add_argument('--add-to-dataset', type=str, default="", metavar='DATASET_ID', help='Add selected processes to the dataset with given ID.')
+        parser.add_argument('--remove-from-dataset', type=str, default="", metavar='DATASET_ID', help='Remove selected processes from the dataset with given ID.')
+        parser.add_argument('--create-dataset', type=str, default="", metavar='DATASET_NAME', help='Create a new dataset with the selected processes.')
+        parser.add_argument('--desc', type=str, default="", help='For use with --create-dataset, set dataset description')
 
     def _link_files(self, objects, args, files, direction=None, out=sys.stdout):
         """Link files to processes (any direction)"""
@@ -226,4 +248,68 @@ class ProcSubcommand(ListObjects):
                     print("  FAILED, for unknown reason")
                 return False
         self.output(resulting_objects, args, out=out)
+        return
+
+    def add_to_dataset(self, objects, args, out=sys.stdout):
+        """Add processes to a dataset
+
+        Currently, the backend only supports adding samples to a dataset. This function finds samples related to the selected processes and adds those.
+        """
+
+        proj = clifuncs.make_local_project()
+        dataset_id = args.add_to_dataset
+
+        print("\nCurrently, Materials Commons only supports adding samples to a dataset.")
+        print("Identifying related samples...")
+        samples = get_related_samples(objects)
+
+        if not args.force:
+
+            # use SampSubcommand to print related samples
+            from .samp import SampSubcommand
+            samp_command = SampSubcommand()
+            samp_command.output(samples, args, out=out)
+
+            msg = "Are you sure you want to add these samples to the dataset?"
+
+            print("")
+            if not clifuncs.request_confirmation(msg):
+                out.write("Aborting\n")
+                return
+
+        sample_ids = [samp.id for samp in samples]
+        dataset = mcapi.add_samples_to_dataset(proj.id, dataset_id, sample_ids=sample_ids, remote=proj.remote)
+
+        #TODO
+        print("Warning: Related processes are not currently being added to the dataset along with the samples.")
+        print("To clone a new dataset that updates the processes based on the current samples, use:")
+        print("    mc dataset --proj --id " + dataset.id + " --clone --refresh-processes")
+
+        return
+
+    def remove_from_dataset(self, objects, args, out=sys.stdout):
+        """Remove processes from a dataset"""
+
+        print("--remove-from-dataset is under construction")
+        exit(1)
+
+        # TODO: backend issue is causing this to fail
+        proj = clifuncs.make_local_project()
+        dataset_id = args.remove_from_dataset
+        dataset = mcapi.remove_processes_from_dataset(proj.id, dataset_id, [proc.id for proc in objects], remote=proj.remote)
+
+        return
+
+    def create_dataset(self, objects, args, out=sys.stdout):
+        """Create a dataset with the selected processes"""
+        print("--create-dataset is under construction")
+        exit(1)
+
+        proj = clifuncs.make_local_project()
+        dataset_name = args.create_dataset
+        dataset_desc = ""
+        if args.desc:
+            dataset_desc = args.desc
+        dataset = mcapi.create_dataset(proj.id, dataset_name, dataset_desc, sample_ids=[samp.id for samp in objects], remote=proj.remote)
+
         return

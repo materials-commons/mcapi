@@ -10,7 +10,7 @@ from .User import User
 from .Template import Template
 from .Directory import Directory
 from .Experiment import Experiment
-from .Dataset import Dataset, get_all_datasets_from_experiment, get_all_datasets_from_project, get_all_datasets_from_remote, download_dataset_zipfile, get_dataset, create_dataset, add_samples_to_dataset, delete_dataset, unpublish_dataset, publish_dataset, publish_private_dataset
+from .Dataset import Dataset, get_all_datasets_from_experiment, get_all_datasets_from_project, get_all_datasets_from_remote, download_dataset_zipfile, get_dataset, create_dataset, check_file_selection, update_dataset_file_selection, add_samples_to_dataset, remove_samples_from_dataset, remove_processes_from_dataset, delete_dataset, unpublish_dataset, publish_dataset, publish_private_dataset
 from .Process import Process
 from .EtlMetadata import EtlMetadata
 from .Sample import Sample

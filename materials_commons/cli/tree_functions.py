@@ -444,9 +444,20 @@ def treecompare(proj, paths, checksum=False, localtree=None, remotetree=None):
 
 def is_type_mismatch(path, files_data, dirs_data):
     """Use treecompare output to check for type mismatch"""
-    if path in files_data and files_data[path]['l_type'] != files_data[path]['r_type']:
-        return True
-    if path in dirs_data and dirs_data[path]['l_type'] != dirs_data[path]['r_type']:
+
+    l_type = None
+    if path in files_data and files_data[path]['l_type']:
+        l_type = files_data[path]['l_type']
+    if path in dirs_data and dirs_data[path]['l_type']:
+        l_type = dirs_data[path]['l_type']
+
+    r_type = None
+    if path in files_data and files_data[path]['r_type']:
+        r_type = files_data[path]['r_type']
+    if path in dirs_data and dirs_data[path]['r_type']:
+        r_type = dirs_data[path]['r_type']
+
+    if l_type and r_type and l_type != r_type:
         return True
     return False
 
