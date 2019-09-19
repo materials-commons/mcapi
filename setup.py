@@ -33,7 +33,7 @@ setup(
     include_package_data=True,
     packages=find_packages(),
     entry_points={
-        'console_scripts': ['mc=materials_commons.api.parser:main']
+        'console_scripts': ['mc=materials_commons.cli.parser:main']
     },
     classifiers=[
         # How mature is this project? Common values are
