@@ -121,3 +121,8 @@ class CommonsCLIParser(object):
             print('Unrecognized command')
             parser.print_help()
             exit(1)
+
+def main(argv=None):
+    if argv is None:
+        argv = sys.argv
+    cli = CommonsCLIParser(argv)

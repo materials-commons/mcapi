@@ -32,7 +32,9 @@ setup(
     package_data={'api': ['VERSION.txt']},
     include_package_data=True,
     packages=find_packages(),
-    scripts=['scripts/mc'],
+    entry_points={
+        'console_scripts': ['mc=materials_commons.api.parser:main']
+    },
     classifiers=[
         # How mature is this project? Common values are
         #   3 - Alpha
