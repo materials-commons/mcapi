@@ -113,7 +113,9 @@ class DatasetSubcommand(ListObjects):
     def create(self, args, out=sys.stdout):
         """Create new dataset
 
-        Using `mc dataset <dataset_name> [--desc <dataset description>]
+        Using:
+            mc dataset <dataset_name> [--desc <dataset description>] --create
+            mc dataset --name <dataset_name> [--desc <dataset description>] --create
         """
         proj = clifuncs.make_local_project()
 
