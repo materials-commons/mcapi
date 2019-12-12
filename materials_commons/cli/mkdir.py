@@ -40,7 +40,6 @@ def mkdir_subcommand(argv=sys.argv):
         remotetree = RemoteTree(proj, pconfig.remote_updatetime)
 
     for path in paths:
-        path = os.path.relpath(os.path.abspath(p), refpath)
         treefuncs.mkdir(proj, path, remote_only=args.remote_only, create_intermediates=args.p, remotetree=remotetree)
 
     return

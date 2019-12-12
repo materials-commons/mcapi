@@ -125,8 +125,4 @@ class CommonsCLIParser(object):
 def main(argv=None):
     if argv is None:
         argv = sys.argv
-    try:
-        cli = CommonsCLIParser(argv)
-    except Exception as e:
-        print(e)
-        exit(1)
+    cli = CommonsCLIParser(argv)
