@@ -59,6 +59,7 @@ setup(
     ],
     keywords='materials science mc lift prisms',
     install_requires=[
+        "python-dateutil",
         "python-magic",
         "requests",
         "rethinkdb",

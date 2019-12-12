@@ -133,11 +133,7 @@ def init_subcommand(argv=sys.argv):
     name = os.path.basename(proj_path)
     prefix = os.path.dirname(proj_path)
 
-    try:
-        proj = init_project(name, args.desc, prefix=prefix, remote=remote)
-    except mcapi.MCGenericException as e:
-        print(e)
-        exit(1)
+    proj = init_project(name, args.desc, prefix=prefix, remote=remote)
 
     print("Created new project at:", remote.config.mcurl)
     clifuncs.print_projects([proj], proj)

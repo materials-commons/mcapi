@@ -89,7 +89,7 @@ def _make_datetime(data):
 
 # -- printing --
 
-def print_table(data, columns=[], headers=[], out=sys.stdout):
+def print_table(data, columns=[], headers=[], out=None):
     """Print table from list of dict
 
     Arguments
@@ -100,6 +100,8 @@ def print_table(data, columns=[], headers=[], out=sys.stdout):
     out: stream, Output stream
     """
     tabulate_in = []
+    if out is None:
+        out = sys.stdout
     for record in data:
         tabulate_in.append([record[col] for col in columns])
     out.write(tabulate(tabulate_in, headers=headers))
