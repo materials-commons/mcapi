@@ -32,7 +32,9 @@ setup(
     package_data={'api': ['VERSION.txt']},
     include_package_data=True,
     packages=find_packages(),
-    scripts=['scripts/mc'],
+    entry_points={
+        'console_scripts': ['mc=materials_commons.cli.parser:main']
+    },
     classifiers=[
         # How mature is this project? Common values are
         #   3 - Alpha
@@ -57,19 +59,20 @@ setup(
     ],
     keywords='materials science mc lift prisms',
     install_requires=[
+        "python-dateutil",
         "python-magic",
         "requests",
         "rethinkdb",
         "pathlib>=1.0.1",
-        "numpy",
         "pathlib",
         "pathlib2",
         "openpyxl",
         "xlsxwriter",
         "urllib3",
         "requests",
-        "pandas>=0.21.0",
         "tabulate>=0.8.1",
         "sortedcontainers>=1.5.7",
+        "globus-sdk",
+        "globus-cli"
     ]
 )

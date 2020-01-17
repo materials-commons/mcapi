@@ -2,10 +2,9 @@ from os import listdir
 import os.path as os_path
 
 from . import api
-from .base import MCObject
+from .base import MCObject, MCGenericException, MCNotFoundException
 from .base import _has_key
 from .mc_object_utility import make_object
-
 
 class Directory(MCObject):
     """
@@ -104,12 +103,18 @@ class Directory(MCObject):
 
         :return: None
 
-        .. note:: Currently not implemented
-
         """
-        # TODO Directory.delete() ?? only when empty
-        raise NotImplementedError("Directory.delete() is not implemented")
-        pass
+        project_id = self._project.id
+        results = api.directory_delete(project_id, self.id, apikey=self._project._apikey,
+                                     remote=self._project.remote)
+        if "error" in results:
+            msg = results.get("error")
+            if re.match("No such directory in project", msg):
+                raise MCNotFoundException(msg)
+            else:
+                raise MCGenericException(msg)
+        return None
+
 
     def get_children(self):
         """
@@ -119,7 +124,11 @@ class Directory(MCObject):
 
         """
         from .File import File
-        results = api.directory_by_id(self._project.id, self.id, apikey=self._project._apikey,
+
+        if hasattr(self, 'input_data') and 'children' in self.input_data:
+            results = self.input_data
+        else:
+            results = api.directory_by_id(self._project.id, self.id, apikey=self._project._apikey,
                                       remote=self._project.remote)
         ret = []
         for dir_or_file in results['children']:

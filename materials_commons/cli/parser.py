@@ -1,40 +1,68 @@
 # temporary home before integrating else where
 from __future__ import unicode_literals
-import sys
-import argparse
-from ..api import _Config
-from .remote import remote_subcommand
-from .proj import ProjSubcommand
-from .expt import expt_subcommand
-from .init import init_subcommand
-from .clone import clone_subcommand
-from .ls import ls_subcommand
-from .up import up_subcommand
-from .down import down_subcommand
-from .templates import TemplatesSubcommand
-from .proc import ProcSubcommand
-from .samp import SampSubcommand
-from io import StringIO
-import imp
 
+import argparse
+import imp
+import sys
+from io import StringIO
+
+import materials_commons.api as mcapi
+from .actions import ActionsSubcommand
+from .clone import clone_subcommand
+from .config import config_subcommand
+from .dataset import DatasetSubcommand
+from .diff import diff_subcommand
+from .down import down_subcommand
+from .expt import ExptSubcommand
+from .fetch import fetch_subcommand
+from .init import init_subcommand
+from .ls import ls_subcommand
+from .mkdir import mkdir_subcommand
+from .mv import mv_subcommand
+from .proc import ProcSubcommand
+from .proj import ProjSubcommand
+from .remote import remote_subcommand
+from .rm import rm_subcommand
+from .samp import SampSubcommand
+from .templates import TemplatesSubcommand
+from .up import up_subcommand
+from .versions import versions_subcommand
+
+import materials_commons.cli.functions as clifuncs
 
 class CommonsCLIParser(object):
 
     standard_usage = [
         {'name': 'remote', 'desc': 'List servers', 'subcommand': remote_subcommand},
         {'name': 'proj', 'desc': 'List projects', 'subcommand': ProjSubcommand()},
-        {'name': 'expt', 'desc': 'List, create, delete, and modify experiments', 'subcommand': expt_subcommand},
+        {'name': 'dataset', 'desc': 'List datasets', 'subcommand': DatasetSubcommand()},
+        {'name': 'expt', 'desc': 'List, create, delete, and modify experiments', 'subcommand': ExptSubcommand()},
         {'name': 'init', 'desc': 'Initialize a new project', 'subcommand': init_subcommand},
         {'name': 'clone', 'desc': 'Clone an existing project', 'subcommand': clone_subcommand},
         {'name': 'ls', 'desc': 'List local and remote directory contents', 'subcommand': ls_subcommand},
+        {'name': 'mkdir', 'desc': 'Make remote directories', 'subcommand': mkdir_subcommand},
+        {'name': 'rm', 'desc': 'Remove files and directories', 'subcommand': rm_subcommand},
+        {'name': 'mv', 'desc': 'Move files', 'subcommand': mv_subcommand},
+        {'name': 'diff', 'desc': 'Compare local and remote files', 'subcommand': diff_subcommand},
+        {'name': 'fetch', 'desc': 'Remote data fetching and configuration', 'subcommand': fetch_subcommand},
         {'name': 'up', 'desc': 'Upload files', 'subcommand': up_subcommand},
         {'name': 'down', 'desc': 'Download files', 'subcommand': down_subcommand},
+        {'name': 'versions', 'desc': 'List file versions', 'subcommand': versions_subcommand},
         {'name': 'templates', 'desc': 'List process templates', 'subcommand': TemplatesSubcommand()},
         {'name': 'proc', 'desc': 'List processes', 'subcommand': ProcSubcommand()},
-        {'name': 'samp', 'desc': 'List samples', 'subcommand': SampSubcommand()}
+        {'name': 'samp', 'desc': 'List samples', 'subcommand': SampSubcommand()},
+        {'name': 'config', 'desc': 'Configure `mc`', 'subcommand': config_subcommand}
+    ]
+
+    developer_usage = [
+        {'name': 'actions', 'desc': 'List REST API actions', 'subcommand': ActionsSubcommand()}
     ]
 
     def __init__(self, argv):
+
+        config = mcapi.Config()
+        if config.REST_logging:
+            clifuncs.turn_REST_logging_on()
 
         usage_help = StringIO()
         usage_help.write("mc <command> [<args>]\n\n")
@@ -45,12 +73,18 @@ class CommonsCLIParser(object):
         standard_interfaces = {d['name']: d for d in CommonsCLIParser.standard_usage}
 
         # read custom interfaces from config file
-        config = _Config()
         custom_interfaces = {d['name']: d for d in config.interfaces}
         if len(config.interfaces):
             usage_help.write("\nSpecialized commands are:\n")
         for interface in config.interfaces:
             usage_help.write("  {:10} {:40}\n".format(interface['name'], interface['desc']))
+
+        # hide from most users
+        if config.developer_mode:
+            usage_help.write("\nDeveloper commands are:\n")
+            for interface in CommonsCLIParser.developer_usage:
+                usage_help.write("  {:10} {:40}\n".format(interface['name'], interface['desc']))
+            developer_interfaces = {d['name']: d for d in CommonsCLIParser.developer_usage}
 
         parser = argparse.ArgumentParser(
             description='Materials Commons command line interface',
@@ -80,8 +114,15 @@ class CommonsCLIParser(object):
             finally:
                 if f:
                     f.close()
+        elif config.developer_mode and args.command in developer_interfaces:
+            developer_interfaces[args.command]['subcommand'](argv)
 
         else:
             print('Unrecognized command')
             parser.print_help()
             exit(1)
+
+def main(argv=None):
+    if argv is None:
+        argv = sys.argv
+    cli = CommonsCLIParser(argv)

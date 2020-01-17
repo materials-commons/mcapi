@@ -1,5 +1,6 @@
 import datetime
 import sys
+from tabulate import tabulate
 
 
 class MCObject(object):
@@ -86,6 +87,24 @@ def _make_datetime(data):
     timestamp = int(data['epoch_time'])
     return datetime.datetime.utcfromtimestamp(timestamp)
 
+# -- printing --
+
+def print_table(data, columns=[], headers=[], out=None):
+    """Print table from list of dict
+
+    Arguments
+    ---------
+    data: list of dict, Data to print
+    columns: list of str, Keys of data to print, in order
+    headers: list of str, Header strings
+    out: stream, Output stream
+    """
+    tabulate_in = []
+    if out is None:
+        out = sys.stdout
+    for record in data:
+        tabulate_in.append([record[col] for col in columns])
+    out.write(tabulate(tabulate_in, headers=headers))
 
 # -- pretty printing --
 class PrettyPrint(object):
@@ -102,8 +121,21 @@ class PrettyPrint(object):
             result = "'" + result + "'"
         return result
 
-    def write(self, s):
-        self.out.write(" " * self.shift + " " * self.indent * self.n_indent + s + "\n")
+    @staticmethod
+    def str_else(value, default_value):
+        if isinstance(value, str) and not value:
+            return PrettyPrint.str(default_value)
+        return PrettyPrint.str(value)
+
+    @staticmethod
+    def str_or_None(value):
+        return PrettyPrint.str_else(value, None)
+        # if isinstance(value, str) and not value:
+        #     return 'None'
+        # return PrettyPrint.str(value)
+
+    def write(self, s, end='\n'):
+        self.out.write(" " * self.shift + " " * self.indent * self.n_indent + s + end)
 
     def write_objects(self, title, obj_list):
         if len(obj_list):
@@ -135,11 +167,20 @@ class PrettyPrint(object):
                     out=self.out)
             self.n_indent -= 1
 
+def humanize(file_size_bytes):
+    abbrev = [("B", 0), ("K", 10), ("M", 20), ("G", 30), ("T", 40)]
+    for key, val in abbrev:
+        _size = (file_size_bytes >> val)
+        if _size < 1000 or key == "T":
+            return str(_size) + key
+
 
 # A general package Exceptions
 class MCGenericException(BaseException):
     pass
 
-
 class MCConfigurationException(MCGenericException):
+    pass
+
+class MCNotFoundException(MCGenericException):
     pass

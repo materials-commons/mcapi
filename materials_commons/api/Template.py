@@ -1,9 +1,7 @@
 import sys
 from io import StringIO
-from pandas import DataFrame
-from tabulate import tabulate
 
-from .base import MCObject, PrettyPrint
+from .base import print_table, MCObject, PrettyPrint
 
 
 class Template(MCObject):
@@ -46,16 +44,18 @@ class Template(MCObject):
         pp.n_indent += 1
         value_list = ['description', 'id', 'category', 'process_type', 'destructive', 'does_transform']
         for k in value_list:
-            pp.write(k + ": " + pp.str(_data[k]))
+            pp.write(k + ": " + pp.str_or_None(_data.get(k, None)))
 
         # for 'create sample' processes
         measurements = _data['measurements']
         if len(measurements):
             pp.write("")
             pp.write("Create samples with attributes:\n")
-            df = DataFrame.from_records(measurements, columns=['name', 'attribute', 'otype', 'units'])
+
+            columns=['name', 'attribute', 'otype', 'units']
             strout = StringIO()
-            strout.write(tabulate(df, showindex=False, headers=['name', 'attribute', 'otype', 'units']))
+            print_table(measurements, columns=columns, headers=columns, out=strout)
+
             for line in strout.getvalue().splitlines():
                 pp.write(line)
 
@@ -68,8 +68,10 @@ class Template(MCObject):
             if len(properties):
                 pp.write("")
                 pp.write("Process attributes: " + s['name'] + "\n")
-                df = DataFrame.from_records(properties, columns=['name', 'attribute', 'otype', 'units'])
+
+                columns=['name', 'attribute', 'otype', 'units']
                 strout = StringIO()
-                strout.write(tabulate(df, showindex=False, headers=['name', 'attribute', 'otype', 'units']))
+                print_table(properties, columns=columns, headers=columns, out=strout)
+
                 for line in strout.getvalue().splitlines():
                     pp.write(line)

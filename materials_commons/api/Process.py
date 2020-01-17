@@ -203,24 +203,8 @@ class Process(MCObject):
         :return: id - the id of the process deleted or None (if the process was not deleted)
 
         """
-        process_with_outputs = self.decorate_with_output_samples()
-        process_create = \
-            (process_with_outputs.process_type == 'create'
-             or process_with_outputs.template_name == 'Sectioning')
-        if process_create and (len(process_with_outputs.output_samples) > 0):
-            return None
-
-        results = None
-        try:
-            results = api.delete_process(self.project.id, self.id, apikey=self.project._apikey,
+        results = api.delete_process(self.project.id, self.id, apikey=self.project._apikey,
                                          remote=self.project.remote)
-            if 'error' in results:
-                results = None
-            else:
-                results = results['id']
-        except BaseException:
-            pass
-
         return results
 
     def put(self):

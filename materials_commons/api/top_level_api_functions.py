@@ -99,6 +99,9 @@ def get_all_templates(apikey=None, remote=None):
 
     """
     templates_array = api.get_all_templates(apikey=apikey, remote=remote)
+    for template in templates_array:
+        if 'otype' not in template:
+            template['otype'] = 'template'
     templates = [make_object(t) for t in templates_array]
     return templates
 
