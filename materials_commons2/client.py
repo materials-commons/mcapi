@@ -14,11 +14,9 @@ class Client(object):
     def __init__(self, apikey, base_url="https://materialscommons.org/api"):
         self.apikey = apikey
         self.base_url = base_url
-        self.project_id = None
         self.headers = {"Authorization": "Bearer " + self.apikey}
 
-    def set_base_project(self, project_id):
-        self.project_id = project_id
+    # Projects
 
     def get_projects(self, params=None):
         return self.get("/projects", params)
@@ -26,30 +24,24 @@ class Client(object):
     def create_project(self, name, attrs={}):
         form = {"name": name}
         form = merge_dicts(form, attrs)
-        data = self.post("/projects", form)
-        self.set_base_project(data["data"]["id"])
-        return data
+        return self.post("/projects", form)
 
     def get_project(self, project_id, params=None):
-        data = self.get("/projects/" + str(project_id), params)
-        self.set_base_project(project_id)
-        return data
+        return self.get("/projects/" + str(project_id), params)
 
-    def delete_project(self, project_id=None):
-        project_id = self._get_project_id(project_id)
-        self.delete("/projects/" + str(project_id))
-        if project_id == self.project_id:
-            self.set_base_project(None)
+    def delete_project(self, project_id):
+        return self.delete("/projects/" + str(project_id))
 
-    def update_project(self, attrs, project_id=None):
-        project_id = self._get_project_id(project_id)
+    def update_project(self, attrs, project_id):
         return self.put("/projects" + str(project_id), attrs)
+
+    # Directories
 
     def get_directory(self, directory_id, params=None):
         return self.get("/directories/" + str(directory_id), params)
 
-    def create_directory(self, name, parent_id, attrs):
-        form = {"name": name, "directory_id": parent_id, "project_id": self.project_id}
+    def create_directory(self, project_id, name, parent_id, attrs):
+        form = {"name": name, "directory_id": parent_id, "project_id": project_id}
         form = merge_dicts(form, attrs)
         return self.post("/directories", form)
 
@@ -66,6 +58,8 @@ class Client(object):
 
     def update_directory(self, directory_id, attrs):
         return self.put("/directories/" + str(directory_id), attrs)
+
+    # Files
 
     def get_file(self, file_id, params):
         return self.get("/files/" + str(file_id), params)
@@ -84,10 +78,42 @@ class Client(object):
         form = {"name": name}
         return self.post("/files/" + str(file_id) + "/rename", form)
 
-    def _get_project_id(self, project_id):
-        if project_id is None:
-            return self.project_id
-        return project_id
+    def get_datasets(self, project_id, params=None):
+        return self.get("/projects/" + str(project_id) + "/datasets", params)
+
+    # Datasets
+
+    def get_dataset(self, project_id, dataset_id, params=None):
+        return self.get("/projects/" + str(project_id) + "/datasets/" + str(dataset_id), params)
+
+    def delete_dataset(self, project_id, dataset_id):
+        return self.delete("/projects/" + str(project_id) + "/datasets/" + str(dataset_id))
+
+    def update_dataset_file_selection(self, project_id, dataset_id, file_selection):
+        form = {"project_id": project_id}
+        form = merge_dicts(form, file_selection)
+        return self.put("/datasets/" + str(dataset_id) + "/selection", form)
+
+    def update_dataset_activities(self, project_id, dataset_id, activity_id):
+        form = {"project_id": project_id, "activity_id": activity_id}
+        return self.put("/datasets/" + str(dataset_id) + "/activities/selection", form)
+
+    def update_dataset_entities(self, project_id, dataset_id, entity_id):
+        form = {"project_id": project_id, "entity_id": entity_id}
+        return self.put("/datasets/" + str(dataset_id) + "/entities", form)
+
+    def update_dataset_workflows(self, project_id, dataset_id, workflow_id):
+        form = {"project_id": project_id, "workflow_id": workflow_id}
+        return self.put("/datasets/" + str(dataset_id) + "/workflows", form)
+
+    def publish_dataset(self, project_id, dataset_id):
+        return self.put("/datasets/" +str(project_id) + "/datasets/" + str(dataset_id) + "/publish", {})
+
+    def unpublish_dataset(self, project_id, dataset_id):
+        return self.put("/datasets/" + str(project_id) + "/datasets/" + str(dataset_id) + "/unpublish", {})
+
+    def create_dataset(self, project_id, name, attrs):
+        pass
 
     # def get_experiments(self):
     #     if self.project_id is None:
