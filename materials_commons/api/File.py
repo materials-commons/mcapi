@@ -1,6 +1,6 @@
 import os.path as os_path
 from . import api
-from .base import MCObject
+from .base import MCObject, MCGenericException, MCNotFoundException
 from .mc_object_utility import make_object
 
 
@@ -104,18 +104,25 @@ class File(MCObject):
         raise NotImplementedError("File.put() is not implemented")
         pass
 
+
     def delete(self):
         """
         Delete this file from the database.
 
         :return: None
 
-        .. note:: Currently not implemented
-
         """
-        # TODO File.delete()
-        raise NotImplementedError("File.delete() is not implemented")
-        pass
+        project_id = self._project.id
+        results = api.file_delete(project_id, self.id, apikey=self._project._apikey,
+                                     remote=self._project.remote)
+        if "error" in results:
+            msg = results.get("error")
+            if re.match("No such file in project", msg):
+                raise MCNotFoundException(msg)
+            else:
+                raise MCGenericException(msg)
+        return None
+
 
     # File - additional methods
     def download_file_content(self, local_download_file_path):

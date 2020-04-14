@@ -10,6 +10,7 @@ from .User import User
 from .Template import Template
 from .Directory import Directory
 from .Experiment import Experiment
+from .Dataset import Dataset, get_all_datasets_from_experiment, get_all_datasets_from_project, get_all_datasets_from_remote, download_dataset_zipfile, get_dataset, create_dataset, check_file_selection, update_dataset_file_selection, add_samples_to_dataset, remove_samples_from_dataset, remove_processes_from_dataset, delete_dataset, unpublish_dataset, publish_dataset, publish_private_dataset
 from .Process import Process
 from .EtlMetadata import EtlMetadata
 from .Sample import Sample
@@ -17,7 +18,7 @@ from .GlobusUploadRequest import GlobusUploadRequest
 from .GlobusDownloadRequest import GlobusDownloadRequest
 from .GlobusUploadStatus import GlobusUploadStatus
 
-from .config import Config
+from .config import RemoteConfig, GlobusConfig, InterfaceConfig, Config
 from .remote import Remote
 
 from .property import Property, MeasuredProperty, NumberProperty
@@ -33,7 +34,9 @@ from .measurement import Measurement, MeasurementComposition, MeasurementString,
 from .bulk_file_uploader import BulkFileUploader
 
 from .api import set_remote_config_url, get_remote_config_url
-from .api import set_remote
+from .api import set_remote, unset_remote, use_remote
+
+from .base import print_table, MCGenericException, MCConfigurationException, MCNotFoundException
 
 # for testing only!
 from .config import Config as _Config

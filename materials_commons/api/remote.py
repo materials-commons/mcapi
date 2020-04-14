@@ -3,11 +3,12 @@ from .base import MCConfigurationException
 
 
 class Remote(object):
-    def __init__(self, config=Config()):
-        if not config.mcurl:
-            raise MCConfigurationException(
-                "Remote not properly configured: mcurl is required")
-
+    def __init__(self, config=None):
+        # if not config.mcurl:
+        #     raise MCConfigurationException(
+        #         "Remote not properly configured: mcurl is required")
+        if config is None:
+            config = Config().default_remote
         self.config = config
 
     def make_url_v2(self, restpath):

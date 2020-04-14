@@ -34,7 +34,7 @@ also update it in the .materialscommons/config.jason file.
 For tests - Dependencies on materialscommons.org and specific database
 ---------------------------------------------------------------------
 
-Right the complete set of these tests will only run if you have set 
+Right the complete set of these tests will only run if you have set
 a "matching version" of materialscommons.org
 and have installed a test database that has two users: **another@test.mc** and **test@test.mc**.
 
@@ -49,7 +49,7 @@ Specifically, the environment variable **MCDB_FILE** needs either to be cleared 
 will indicate to materialscommons.org to use the default database) or set to the path of
 the zip file for that defaults: **materialscommons.org/backend/test_data/test_rethinkdb_dump.tar.gz**.
 where **materialscommons.org** is the path to the location of that cloned github repository.
- 
+
 In addition, the api key for that test user in that database must be in the configuration file
 located at **~/.materialscommons/config.json**; that api key is **totally-bogus**. Thus the
 content of the configuration file will have to be:
@@ -80,12 +80,6 @@ Libraries
 ```bash
   pip install --user python-magic
   pip install --user pathlib
-```
-
-If you plan to use the casm_mcapi module, you may need to install numpy to support
-the matrix representation used by _add_numpy_matrix_measurement
-```bash
-  pip install --user numpy
 ```
 
 The full set of libraries used in the project and test can also be
@@ -136,6 +130,6 @@ The resulting coverage information is in the directory **htmlcov**
 To Generate API docs
 ---------------------
 
-You will have to figure this out from example; see the script **scripts/build-python-api.sh** 
+You will have to figure this out from example; see the script **scripts/build-python-api.sh**
 in the project **https://github.com/materials-commons/materials-commons.github.io.git** for an
 example of building the API docs using Sphynx.

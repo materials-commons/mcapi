@@ -1,6 +1,8 @@
 from collections import OrderedDict
+from .base import MCConfigurationException, MCNotFoundException
 from .remote import Remote, RemoteWithApikey
 from .config import Config
+import copy
 import requests
 import magic
 
@@ -9,6 +11,7 @@ import magic
 # Defaults
 _mcorg = Remote()
 _current_remote = None
+_log = False
 
 
 def use_remote():
@@ -33,12 +36,16 @@ def mcorg():
 
 
 def get(restpath, remote):
+    if _log:
+        print("GET:", restpath)
     r = requests.get(restpath, params=remote.config.get_params(), verify=False)
     r.raise_for_status()
     return r.json()
 
 
 def post(restpath, data, remote):
+    if _log:
+        print("POST:", restpath)
     data = OrderedDict(data)
     r = requests.post(
         restpath, params=remote.config.get_params(), verify=False, json=data
@@ -46,8 +53,37 @@ def post(restpath, data, remote):
     r.raise_for_status()
     return r.json()
 
+def post_v3(name, params={}, remote=None):
+    """Inserts apikey if not present in params"""
+    remote = configure_remote(remote, None)
+    if 'apikey' not in params and remote.config.mcapikey:
+        params['apikey'] = remote.config.mcapikey
+    if _log:
+        _params = copy.deepcopy(params)
+        if 'apikey' in _params:
+            del _params['apikey']
+        print("POST:", remote.make_url_v3(name), _params)
+    r = requests.post(remote.make_url_v3(name), json=params, verify=False)
+    r.raise_for_status()
+    return r.json()
+
+def post_v4(name, params={}, remote=None):
+    """Inserts apikey if not present in params"""
+    remote = mc_raw_api.configure_remote(remote, None)
+    if 'apikey' not in params and remote.config.mcapikey:
+        params['apikey'] = remote.config.mcapikey
+    if _log:
+        _params = copy.deepcopy(params)
+        if 'apikey' in _params:
+            del _params['apikey']
+        print("POSTv4:", remote.make_url_v4(name), _params)
+    r = requests.post(remote.make_url_v4(name), json=params, verify=False)
+    r.raise_for_status()
+    return r.json()
 
 def put(restpath, data, remote):
+    if _log:
+        print("PUT:", restpath)
     r = requests.put(
         restpath, params=remote.config.get_params(), verify=False, json=data
     )
@@ -56,12 +92,16 @@ def put(restpath, data, remote):
 
 
 def delete(restpath, remote):
+    if _log:
+        print("DELETE:", restpath)
     r = requests.delete(restpath, params=remote.config.get_params(), verify=False)
     r.raise_for_status()
     return r.json()
 
 
 def delete_expect_empty(restpath, remote):
+    if _log:
+        print("DELETE EXPECT MANY:", restpath)
     r = requests.delete(restpath, params=remote.config.get_params(), verify=False)
     r.raise_for_status()
 
@@ -107,13 +147,68 @@ def get_remote_config_url():
 
 
 def configure_remote(remote, apikey):
+
+    # check for mcurl and mcapikey
+    if remote:
+        _remote_msg = 'remote provided as argument has no url.'
+        if not apikey and not remote.config.mcapikey:
+            _apikey_msg = 'remote provided as argument has no apikey.'
+    elif _current_remote is not None:
+        _remote_msg = 'current remote has no url. Set via `mc remote`.'
+        if not apikey and not _current_remote.config.mcapikey:
+            _apikey_msg = 'current remote has no apikey. Set via `mc remote`.'
+    else:
+        _remote_msg = 'default remote has no url. Set via `mc remote`.'
+        if not apikey and not _mcorg.config.mcapikey:
+            _apikey_msg = 'default remote has no apikey. Set via `mc remote`.'
+
+    # # check for url
+    # if remote:
+    #     if not remote.config.mcurl:
+    #         message = "materials_commons.api configuration exception: " \
+    #                 + "remote provided as argument has no url"
+    #         raise MCConfigurationException(message)
+    #     if not apikey and not remote.config.apikey:
+    #         message = "materials_commons.api configuration exception: " \
+    #                 + "remote provided as argument has no apikey"
+    #         raise MCConfigurationException(message)
+    # elif not remote:
+    #     if _current_remote is not None:
+    #         if not _current_remote.config.mcurl:
+    #             message = "materials_commons.api configuration exception: " \
+    #                     + "current remote has no url"
+    #             raise MCConfigurationException(message)
+    #         if not apikey and not _current_remote.config.apikey:
+    #             message = "materials_commons.api configuration exception: " \
+    #                     + "current remote has no apikey"
+    #             raise MCConfigurationException(message)
+    #     else:
+    #         if not _mcorg.config.mcurl:
+    #             message = "materials_commons.api configuration exception: " \
+    #                     + "default remote has no url. Set MC_API_URL or save default configuration via `mc config`."
+    #             raise MCConfigurationException(message)
+    #         if not apikey and not _mcorg.config.apikey:
+    #             message = "materials_commons.api configuration exception: " \
+    #                     + "default remote has no apikey. Set MC_API_KEY or save default configuration via `mc config`."
+    #             raise MCConfigurationException(message)
+
     if apikey and remote:
+        # use provided remote and apikey
         remote = RemoteWithApikey(apikey, config=remote.config)
     elif apikey:
+        # use default remote, with provided apikey
         remote = RemoteWithApikey(apikey)
 
     if not remote:
+        # use current remote, with its apikey
         remote = use_remote()
+
+    if not remote.config.mcurl:
+        message = "materials_commons.api configuration exception: " + _remote_msg
+        raise MCConfigurationException(message)
+    if not remote.config.mcapikey:
+        message = "materials_commons.api configuration exception: " + _apikey_msg
+        raise MCConfigurationException(message)
 
     return remote
 
@@ -137,7 +232,13 @@ def create_project(name, description, remote=None, apikey=None):
 def get_project_by_id(project_id, remote=None, apikey=None):
     remote = configure_remote(remote, apikey)
     api_url = "projects/" + project_id
-    return get(remote.make_url_v2(api_url), remote)
+    try:
+        return get(remote.make_url_v2(api_url), remote)
+    except requests.exceptions.HTTPError as e:
+        if e.response.text == "Unknown project":
+            raise MCNotFoundException("Project " + project_id + " not found at remote " + remote.config.mcurl)
+        else:
+            raise e
 
 
 def update_project(project_id, name, description, remote=None, apikey=None):
@@ -213,8 +314,8 @@ def get_globus_upload_status_list(project_id, remote=None, apikey=None):
     data = {
         "project_id": project_id,
     }
-    api_url = "etl/globus/upload/status"
-    return post(remote.make_url(api_url), data, remote)
+    api_url = "getUserGlobusUploadsStatusForProject"
+    return post(remote.make_url_v3(api_url), data, remote)
 
 
 def create_globus_download_request(project_id, remote=None, apikey=None):
@@ -222,8 +323,8 @@ def create_globus_download_request(project_id, remote=None, apikey=None):
     data = {
         "project_id": project_id,
     }
-    api_url = "etl/globus/transfer/download"
-    return post(remote.make_url(api_url), data, remote)
+    api_url = "createGlobusProjectDownload"
+    return post(remote.make_url_v4(api_url), data, remote)
 
 
 # Experiment
@@ -610,6 +711,13 @@ def directory_move(project_id, directory_id, new_directory_id, remote=None, apik
     return put(remote.make_url_v2(api_url), data, remote)
 
 
+def directory_delete(project_id, directory_id, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
+    api_url = "projects/" + project_id + \
+              "/directories/" + directory_id
+    return delete(remote.make_url_v2(api_url),remote)
+
+
 def directory_create_subdirectories_from_path_list(project_id, directory_id, path_list, remote=None, apikey=None):
     remote = configure_remote(remote, apikey)
     data = {
@@ -690,6 +798,13 @@ def file_move(project_id, old_directory_id, new_directory_id, file_id, remote=No
     api_url = "projects/" + project_id + \
               "/files/" + file_id
     return put(remote.make_url_v2(api_url), data, remote)
+
+
+def file_delete(project_id, file_id, remote=None, apikey=None):
+    remote = configure_remote(remote, apikey)
+    api_url = "projects/" + project_id + \
+              "/files/" + file_id
+    return delete(remote.make_url_v2(api_url), remote)
 
 
 # for testing only - datasets

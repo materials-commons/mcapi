@@ -1,5 +1,11 @@
 import unittest
-import numpy as np
+
+try:
+    import numpy as np
+    numpy_failed = False
+except:
+    numpy_failed = True
+
 from random import randint
 from materials_commons.api import create_project, Template
 
@@ -24,6 +30,10 @@ class TestAddMatrixMeasurements(unittest.TestCase):
             Template.primitive_crystal_structure)
         cls.sample_name = "pcs-sample-1"
         cls.sample = cls.process.create_samples(sample_names=[cls.sample_name])[0]
+
+    def setUp(self):
+        if numpy_failed:
+            self.skipTest("Import numpy failed. Skipping all tests in test_add_matrix_measurement.py")
 
     def test_is_setup_correctly(self):
         self.assertIsNotNone(self.project)
