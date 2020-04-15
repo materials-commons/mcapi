@@ -18,7 +18,7 @@ class Client(object):
 
     # Projects
 
-    def get_projects(self, params=None):
+    def list_projects(self, params=None):
         return self.get("/projects", params)
 
     def create_project(self, name, attrs={}):
@@ -78,10 +78,10 @@ class Client(object):
         form = {"name": name}
         return self.post("/files/" + str(file_id) + "/rename", form)
 
-    def get_datasets(self, project_id, params=None):
-        return self.get("/projects/" + str(project_id) + "/datasets", params)
-
     # Datasets
+
+    def list_datasets(self, project_id, params=None):
+        return self.get("/projects/" + str(project_id) + "/datasets", params)
 
     def get_dataset(self, project_id, dataset_id, params=None):
         return self.get("/projects/" + str(project_id) + "/datasets/" + str(dataset_id), params)
@@ -107,13 +107,20 @@ class Client(object):
         return self.put("/datasets/" + str(dataset_id) + "/workflows", form)
 
     def publish_dataset(self, project_id, dataset_id):
-        return self.put("/datasets/" +str(project_id) + "/datasets/" + str(dataset_id) + "/publish", {})
+        form = {"project_id": project_id}
+        return self.put("/datasets/" + str(dataset_id) + "/publish", form)
 
     def unpublish_dataset(self, project_id, dataset_id):
-        return self.put("/datasets/" + str(project_id) + "/datasets/" + str(dataset_id) + "/unpublish", {})
+        form = {"project_id": project_id}
+        return self.put("/datasets/" + str(dataset_id) + "/unpublish", form)
 
     def create_dataset(self, project_id, name, attrs):
-        pass
+        form = merge_dicts({"name": name, "project_id": project_id, "action": "ignore"}, attrs)
+        return self.post("/datasets", form)
+
+    def update_dataset(self, project_id, dataset_id, name, attrs):
+        form = merge_dicts({"name": name, "project_id": project_id, "action": "ignore"}, attrs)
+        return self.put("/datasets/" + str(dataset_id), form)
 
     # def get_experiments(self):
     #     if self.project_id is None:
