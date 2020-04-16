@@ -1,6 +1,7 @@
 from collections import OrderedDict
 
 import requests
+from .models import Project, Experiment, Dataset, Entity, Activity, Workflow, User, File
 
 
 def merge_dicts(dict1, dict2):
@@ -18,22 +19,22 @@ class Client(object):
 
     # Projects
 
-    def list_projects(self, params=None):
-        return self.get("/projects", params)
+    def get_all_projects(self, params=None):
+        return Project.from_list_attr(self.get("/projects", params), "data")
 
     def create_project(self, name, attrs={}):
         form = {"name": name}
         form = merge_dicts(form, attrs)
-        return self.post("/projects", form)
+        return Project(self.post("/projects", form)["data"])
 
     def get_project(self, project_id, params=None):
-        return self.get("/projects/" + str(project_id), params)
+        return Project(self.get("/projects/" + str(project_id), params)["data"])
 
     def delete_project(self, project_id):
         return self.delete("/projects/" + str(project_id))
 
     def update_project(self, attrs, project_id):
-        return self.put("/projects" + str(project_id), attrs)
+        return Project(self.put("/projects" + str(project_id), attrs)["data"])
 
     # Directories
 
