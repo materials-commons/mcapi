@@ -4,7 +4,7 @@ from .util import get_date
 def from_list(cls, data):
     if data is None:
         return []
-    return [cls(**d) for d in data]
+    return [cls(d) for d in data]
 
 
 class Common(object):
@@ -61,6 +61,14 @@ class Dataset(Common):
         self.activities = Activity.from_list_attr(data)
         self.entities = Entity.from_list_attr(data)
         self.files = File.from_list_attr(data)
+
+    @staticmethod
+    def from_list(data):
+        return from_list(Dataset, data)
+
+    @staticmethod
+    def from_list_attr(data, attr='datasets'):
+        return Dataset.from_list(data.get(attr, []))
 
 
 class Entity(Common):
