@@ -81,7 +81,7 @@ class Client(object):
 
     # Datasets
 
-    def list_datasets(self, project_id, params=None):
+    def get_all_datasets(self, project_id, params=None):
         return Dataset.from_list(self.get("/projects/" + str(project_id) + "/datasets", params))
 
     def get_dataset(self, project_id, dataset_id, params=None):
@@ -123,10 +123,8 @@ class Client(object):
         form = merge_dicts({"name": name, "project_id": project_id, "action": "ignore"}, attrs)
         return Dataset(self.put("/datasets/" + str(dataset_id), form))
 
-    # def get_experiments(self):
-    #     if self.project_id is None:
-    #         return None
-    #     return self.get("/projects/" + self.project_id + "/experiments")
+    def get_all_experiments(self, project_id, params=None):
+        return Experiment.from_list(self.get("/projects/" + str(project_id) + "/experiments", params))
 
     def get(self, urlpart, params):
         url = self.base_url + urlpart
