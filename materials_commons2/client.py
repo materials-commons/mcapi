@@ -1,6 +1,6 @@
 from collections import OrderedDict
 import requests
-from .models import Project, Experiment, Dataset, Entity, Activity, Workflow, User, File
+from .models import Project, Experiment, Dataset, Entity, Activity, Workflow, User, File, GlobusUpload, GlobusDownload
 from .query_params import QueryParams
 
 
@@ -18,7 +18,6 @@ class Client(object):
         self.headers = {"Authorization": "Bearer " + self.apikey}
 
     # Projects
-
     def get_all_projects(self, params=None):
         return Project.from_list(self.get("/projects", params))
 
@@ -33,11 +32,32 @@ class Client(object):
     def delete_project(self, project_id):
         return self.delete("/projects/" + str(project_id))
 
-    def update_project(self, attrs, project_id):
+    def update_project(self, project_id, attrs):
         return Project(self.put("/projects" + str(project_id), attrs))
 
-    # Directories
+    # Experiments
+    def get_all_experiments(self, project_id, params=None):
+        return Experiment.from_list(self.get("/projects/" + str(project_id) + "/experiments", params))
 
+    def get_experiment(self, project_id, experiment_id, params=None):
+        return Experiment(self.get("/projects/" + str(project_id) + "/experiments/" + str(experiment_id), params))
+
+    def update_experiment(self, project_id, experiment_id, attrs):
+        form = merge_dicts({"project_id": project_id}, attrs)
+        return Experiment(self.put("/experiments/" + str(experiment_id), form))
+
+    def delete_experiment(self, project_id, experiment_id):
+        return self.delete("/projects/" + str(project_id) + "/experiments/" + str(experiment_id))
+
+    def create_experiment(self, project_id, attrs):
+        form = merge_dicts({"project_id": project_id}, attrs)
+        return Experiment(self.post("/experiments", form))
+
+    def update_experiment_workflows(self, project_id, experiment_id, workflow_id):
+        form = {"project_id": project_id, "workflow_id": workflow_id}
+        return Experiment(self.put("/experiments/" + str(experiment_id) + "/workflows/selection", form))
+
+    # Directories
     def get_directory(self, directory_id, params=None):
         return File(self.get("/directories/" + str(directory_id), params))
 
@@ -61,7 +81,6 @@ class Client(object):
         return File(self.put("/directories/" + str(directory_id), attrs))
 
     # Files
-
     def get_file(self, file_id, params):
         return File(self.get("/files/" + str(file_id), params))
 
@@ -80,7 +99,6 @@ class Client(object):
         return File(self.post("/files/" + str(file_id) + "/rename", form))
 
     # Datasets
-
     def get_all_datasets(self, project_id, params=None):
         return Dataset.from_list(self.get("/projects/" + str(project_id) + "/datasets", params))
 
@@ -123,8 +141,35 @@ class Client(object):
         form = merge_dicts({"name": name, "project_id": project_id, "action": "ignore"}, attrs)
         return Dataset(self.put("/datasets/" + str(dataset_id), form))
 
-    def get_all_experiments(self, project_id, params=None):
-        return Experiment.from_list(self.get("/projects/" + str(project_id) + "/experiments", params))
+    # Globus
+    def create_globus_upload_request(self, project_id, name):
+        form = {"project_id": project_id, name: name}
+        return self.post("/globus/uploads", form)
+
+    def delete_globus_upload_request(self, project_id, globus_upload_id):
+        return self.delete("/projects/" + str(project_id) + "/globus/" + str(globus_upload_id) + "/uploads")
+
+    def finish_globus_upload_request(self, project_id, globus_upload_id):
+        form = {"project_id": project_id}
+        return GlobusUpload(self.put("/globus/" + str(globus_upload_id) + "/uploads/complete", form))
+
+    def get_all_globus_upload_requests(self, project_id):
+        return GlobusUpload.from_list(self.get("/projects/" + str(project_id) + "/globus/uploads"))
+
+    def create_globus_download_request(self, project_id, name):
+        form = {"project_id": project_id, "name": name}
+        return GlobusDownload(self.post("/globus/downloads", form))
+
+    def delete_globus_download_request(self, project_id, globus_download_id):
+        return self.delete("/projects/" + str(project_id) + "/globus/" + str(globus_download_id) + "/downloads")
+
+    def get_all_globus_download_requests(self, project_id):
+        return GlobusDownload.from_list(self.get("/projects/" + str(project_id) + "/globus/downloads"))
+
+    def get_globus_download_request(self, project_id, globus_download_id):
+        return GlobusDownload(self.get("/projects/" + str(project_id) + "/globus/downloads/" + str(globus_download_id)))
+
+    # request calls
 
     def get(self, urlpart, params):
         url = self.base_url + urlpart
