@@ -139,3 +139,37 @@ class Workflow(Common):
     @staticmethod
     def from_list_attr(data, attr='workflows'):
         return Workflow.from_list(data.get(attr, []))
+
+
+class GlobusUpload(Common):
+    def __init__(self, data={}):
+        super(GlobusUpload, self).__init__(data)
+        self.globus_endpoint_id = data.get('globus_endpoint_id', None)
+        self.globus_url = data.get('globus_url', None)
+        self.globus_path = data.get('globus_path', None)
+
+    @staticmethod
+    def from_list(data):
+        return from_list(GlobusUpload, data)
+
+    @staticmethod
+    def from_list_attr(data, attr="globus_uploads"):
+        return GlobusUpload.from_list(data.get(attr, []))
+
+
+class GlobusDownload(Common):
+    def __init__(self, data={}):
+        super(GlobusDownload, self).__init__(data)
+        self.globus_endpoint_id = data.get('globus_endpoint_id', None)
+        self.globus_url = data.get('globus_url', None)
+        self.globus_path = data.get('globus_path', None)
+        self.status = data.get('status', None)
+
+
+    @staticmethod
+    def from_list(data):
+        return from_list(GlobusDownload, data)
+
+    @staticmethod
+    def from_list_attr(data, attr="globus_uploads"):
+        return GlobusDownload.from_list(data.get(attr, []))
