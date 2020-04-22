@@ -105,6 +105,9 @@ class Experiment(Common):
 class File(Common):
     def __init__(self, data={}):
         super(File, self).__init__(data)
+        self.mime_type = data.get('mime_type', None)
+        self.path = data.get('path', None)
+        self.directory_id = data.get('directory_id', None)
 
     @staticmethod
     def from_list(data):

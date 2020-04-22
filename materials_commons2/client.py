@@ -58,30 +58,39 @@ class Client(object):
         return Experiment(self.put("/experiments/" + str(experiment_id) + "/workflows/selection", form))
 
     # Directories
-    def get_directory(self, directory_id, params=None):
-        return File(self.get("/directories/" + str(directory_id), params))
+    def get_directory(self, project_id, directory_id, params=None):
+        return File(self.get("/projects/" + str(project_id) + "/directories/" + str(directory_id), params))
+
+    def list_directory(self, project_id, directory_id, params=None):
+        return File.from_list(
+            self.get("/projects/" + str(project_id) + "/directories/" + str(directory_id) + "/list", params))
+
+    def list_directory_by_path(self, project_id, path, params):
+        path_param = {"path": path}
+        return File.from_list(self.get("/projects/" + str(project_id) + "/directories_by_path", params, path_param))
 
     def create_directory(self, project_id, name, parent_id, attrs):
         form = {"name": name, "directory_id": parent_id, "project_id": project_id}
         form = merge_dicts(form, attrs)
         return File(self.post("/directories", form))
 
-    def move_directory(self, directory_id, to_directory_id):
-        form = {"to_directory_id": to_directory_id}
+    def move_directory(self, project_id, directory_id, to_directory_id):
+        form = {"to_directory_id": to_directory_id, "project_id": project_id}
         return File(self.post("/directories/" + str(directory_id) + "/move", form))
 
-    def rename_directory(self, directory_id, name):
-        form = {"name": name}
+    def rename_directory(self, project_id, directory_id, name):
+        form = {"name": name, "project_id": project_id}
         return File(self.post("/directories/" + str(directory_id) + "/rename", form))
 
-    def delete_directory(self, directory_id):
-        return self.delete("/directories/" + str(directory_id))
+    def delete_directory(self, project_id, directory_id):
+        return self.delete("/projects/" + str(project_id) + "/directories/" + str(directory_id))
 
-    def update_directory(self, directory_id, attrs):
-        return File(self.put("/directories/" + str(directory_id), attrs))
+    def update_directory(self, project_id, directory_id, attrs):
+        form = merge_dicts({"project_id": project_id}, attrs)
+        return File(self.put("/directories/" + str(directory_id), form))
 
     # Files
-    def get_file(self, file_id, params):
+    def get_file(self, file_id, params=None):
         return File(self.get("/files/" + str(file_id), params))
 
     def update_file(self, file_id, attrs):
@@ -141,6 +150,12 @@ class Client(object):
         form = merge_dicts({"name": name, "project_id": project_id, "action": "ignore"}, attrs)
         return Dataset(self.put("/datasets/" + str(dataset_id), form))
 
+    # Activities
+    def get_all_activities(self, project_id):
+        pass
+
+    # Entities
+
     # Globus
     def create_globus_upload_request(self, project_id, name):
         form = {"project_id": project_id, name: name}
@@ -171,9 +186,10 @@ class Client(object):
 
     # request calls
 
-    def get(self, urlpart, params):
+    def get(self, urlpart, params, other_params=None):
         url = self.base_url + urlpart
-        r = requests.get(url, params=QueryParams.to_query_args(params), headers=self.headers)
+        params_to_use = merge_dicts(QueryParams.to_query_args(params), other_params)
+        r = requests.get(url, params=params_to_use, headers=self.headers)
         r.raise_for_status()
         return r.json()["data"]
 
