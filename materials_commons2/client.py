@@ -23,8 +23,12 @@ class Client(object):
         form = {"email": email, "password": password}
         r = requests.post(url, json=form, verify=False)
         r.raise_for_status()
-        data = r.json()["data"]
-        return Client(data["api_token"], base_url)
+        return r.json()["data"]
+
+    @staticmethod
+    def login(email, password, base_url="https://materialscommons.org/api"):
+        apikey = Client.get_apikey(email, password, base_url)
+        return Client(apikey, base_url)
 
     # Projects
     def get_all_projects(self, params=None):
