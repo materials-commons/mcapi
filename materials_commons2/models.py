@@ -13,6 +13,7 @@ class Common(object):
         self.uuid = data.get('uuid', None)
         self.name = data.get('name', None)
         self.description = data.get('description', None)
+        self.summary = data.get('summary', None)
         self.owner_id = data.get('owner_id', None)
         self.created_at = get_date('created_at', data)
         self.updated_at = get_date('updated_at', data)
@@ -43,6 +44,7 @@ class Activity(Common):
     def __init__(self, data={}):
         super(Activity, self).__init__(data)
         self.entities = Entity.from_list_attr(data)
+        self.files = File.from_list_attr(data)
 
     @staticmethod
     def from_list(data):
@@ -75,6 +77,7 @@ class Entity(Common):
     def __init__(self, data={}):
         super(Entity, self).__init__(data)
         self.activities = Activity.from_list_attr(data)
+        self.files = File.from_list_attr(data)
 
     @staticmethod
     def from_list(data):
@@ -167,7 +170,6 @@ class GlobusDownload(Common):
         self.globus_url = data.get('globus_url', None)
         self.globus_path = data.get('globus_path', None)
         self.status = data.get('status', None)
-
 
     @staticmethod
     def from_list(data):
