@@ -17,6 +17,15 @@ class Client(object):
         self.base_url = base_url
         self.headers = {"Authorization": "Bearer " + self.apikey}
 
+    @staticmethod
+    def get_apikey(email, password, base_url="https://materialscommons.org/api"):
+        url = base_url + "/get_apitoken"
+        form = {"email": email, "password": password}
+        r = requests.post(url, json=form, verify=False)
+        r.raise_for_status()
+        data = r.json()["data"]
+        return Client(data["api_token"], base_url)
+
     # Projects
     def get_all_projects(self, params=None):
         return Project.from_list(self.get("/projects", params))
@@ -186,7 +195,7 @@ class Client(object):
 
     # request calls
 
-    def get(self, urlpart, params, other_params=None):
+    def get(self, urlpart, params, other_params={}):
         url = self.base_url + urlpart
         params_to_use = merge_dicts(QueryParams.to_query_args(params), other_params)
         r = requests.get(url, params=params_to_use, headers=self.headers)
