@@ -120,6 +120,34 @@ class Client(object):
         form = {"name": name}
         return File(self.post("/files/" + str(file_id) + "/rename", form))
 
+    # Entities
+    def get_all_entities(self, project_id, params=None):
+        return Entity.from_list(self.get("/projects/" + str(project_id) + "/entities", params))
+
+    def get_entity(self, project_id, entity_id, params=None):
+        return Entity(self.get("/projects/" + str(project_id) + "/entities/" + str(entity_id), params))
+
+    def create_entity(self, project_id, attrs):
+        form = merge_dicts({"project_id": project_id}, attrs)
+        return Entity(self.post("/entities", form))
+
+    def delete_entity(self, project_id, entity_id):
+        return self.delete("/projects/" + str(project_id) + "/entities/" + str(entity_id))
+
+    # Activities
+    def get_all_activities(self, project_id, params=None):
+        return Activity.from_list(self.get("/projects/" + str(project_id) + "/activities", params))
+    
+    def get_activity(self, project_id, activity_id, params=None):
+        return Activity(self.get("/projects/" + str(project_id) + "/activies/" + str(activity_id), params))
+
+    def create_activity(self, project_id, attrs):
+        form = merge_dicts({"project_id": project_id}, attrs)
+        return Activity(self.post("/activies", form))
+
+    def delete_activity(self, project_id, activity_id):
+        return self.delete("/projects/" + str(project_id) + "/activies/" + str(activity_id))
+
     # Datasets
     def get_all_datasets(self, project_id, params=None):
         return Dataset.from_list(self.get("/projects/" + str(project_id) + "/datasets", params))
