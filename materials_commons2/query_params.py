@@ -46,5 +46,5 @@ class QueryParams(object):
     @staticmethod
     def to_query_args(params):
         if params is None:
-            return params
+            return {}
         return params.to_params()
