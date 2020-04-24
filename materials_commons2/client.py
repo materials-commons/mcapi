@@ -1,7 +1,13 @@
 from collections import OrderedDict
 import requests
+import logging
 from .models import Project, Experiment, Dataset, Entity, Activity, Workflow, User, File, GlobusUpload, GlobusDownload
 from .query_params import QueryParams
+try:
+    import http.client as http_client
+except ImportError:
+    # Python 2
+    import httplib as http_client
 
 
 def merge_dicts(dict1, dict2):
@@ -9,12 +15,35 @@ def merge_dicts(dict1, dict2):
     merged.update(dict2)
     return merged
 
+#import requests
+# import logging
+
+# These two lines enable debugging at httplib level (requests->urllib3->http.client)
+# You will see the REQUEST, including HEADERS and DATA, and RESPONSE with HEADERS but without DATA.
+# The only thing missing will be the response.body which is not logged.
+# try:
+#     import http.client as http_client
+# except ImportError:
+#     # Python 2
+#     import httplib as http_client
+# http_client.HTTPConnection.debuglevel = 1
+
+# You must initialize logging, otherwise you'll not see debug output.
+# logging.basicConfig()
+# logging.getLogger().setLevel(logging.DEBUG)
+# requests_log = logging.getLogger("requests.packages.urllib3")
+# requests_log.setLevel(logging.DEBUG)
+# requests_log.propagate = True
+#
+# requests.get('https://httpbin.org/headers')
+
 
 class Client(object):
 
     def __init__(self, apikey, base_url="https://materialscommons.org/api"):
         self.apikey = apikey
         self.base_url = base_url
+        self.log = False
         self.headers = {"Authorization": "Bearer " + self.apikey}
 
     @staticmethod
@@ -23,12 +52,29 @@ class Client(object):
         form = {"email": email, "password": password}
         r = requests.post(url, json=form, verify=False)
         r.raise_for_status()
-        return r.json()["data"]
+        return r.json()["data"]["api_token"]
 
     @staticmethod
     def login(email, password, base_url="https://materialscommons.org/api"):
         apikey = Client.get_apikey(email, password, base_url)
         return Client(apikey, base_url)
+
+    @staticmethod
+    def set_debug_on():
+        http_client.HTTPConnection.debuglevel = 1
+        logging.basicConfig()
+        logging.getLogger().setLevel(logging.DEBUG)
+        requests_log = logging.getLogger("requests.packages.urllib3")
+        requests_log.setLevel(logging.DEBUG)
+        requests_log.propagate = True
+
+    @staticmethod
+    def set_debug_off():
+        http_client.HTTPConnection.debuglevel = 0
+        logging.disable()
+        requests_log = logging.getLogger("requests.packages.urllib3")
+        requests_log.disabled = True
+        requests_log.propagate = False
 
     # Projects
     def get_all_projects(self, params=None):
@@ -229,6 +275,8 @@ class Client(object):
 
     def get(self, urlpart, params, other_params={}):
         url = self.base_url + urlpart
+        if self.log:
+            print("GET:", url)
         params_to_use = merge_dicts(QueryParams.to_query_args(params), other_params)
         r = requests.get(url, params=params_to_use, headers=self.headers)
         r.raise_for_status()
@@ -236,6 +284,8 @@ class Client(object):
 
     def post(self, urlpart, data):
         url = self.base_url + urlpart
+        if self.log:
+            print("POST:", url)
         data = OrderedDict(data)
         r = requests.post(url, json=data, verify=False, headers=self.headers)
         r.raise_for_status()
@@ -243,6 +293,8 @@ class Client(object):
 
     def put(self, urlpart, data):
         url = self.base_url + urlpart
+        if self.log:
+            print("PUT:", url)
         data = OrderedDict(data)
         r = requests.put(url, json=data, verify=False, headers=self.headers)
         r.raise_for_status()
@@ -250,5 +302,7 @@ class Client(object):
 
     def delete(self, urlpart):
         url = self.base_url + urlpart
+        if self.log:
+            print("DELETE:", url)
         r = requests.delete(url, verify=False, headers=self.headers)
         r.raise_for_status()
