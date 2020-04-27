@@ -260,7 +260,7 @@ class Client(object):
                     if chunk:
                         f.write(chunk)
 
-    def get(self, urlpart, params, other_params={}):
+    def get(self, urlpart, params={}, other_params={}):
         url = self.base_url + urlpart
         if self.log:
             print("GET:", url)
