@@ -222,12 +222,6 @@ class Client(object):
     def download_dataset_zipfile(self, dataset_id, to):
         self.download("/datasets/" + str(dataset_id) + "/download_zipfile", to)
 
-    # Activities
-    def get_all_activities(self, project_id):
-        pass
-
-    # Entities
-
     # Globus
     def create_globus_upload_request(self, project_id, name):
         form = {"project_id": project_id, name: name}
