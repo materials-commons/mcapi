@@ -3,6 +3,7 @@ import requests
 import logging
 from .models import Project, Experiment, Dataset, Entity, Activity, Workflow, User, File, GlobusUpload, GlobusDownload
 from .query_params import QueryParams
+
 try:
     import http.client as http_client
 except ImportError:
@@ -127,14 +128,14 @@ class Client(object):
         return File(self.put("/directories/" + str(directory_id), form))
 
     # Files
-    def get_file(self, file_id, params=None):
-        return File(self.get("/files/" + str(file_id), params))
+    def get_file(self, project_id, file_id, params=None):
+        return File(self.get("/project/" + "/files/" + str(file_id), params))
 
     def update_file(self, file_id, attrs):
         return File(self.put("/files/" + str(file_id), attrs))
 
-    def delete_file(self, file_id):
-        return self.delete("/files/" + str(file_id))
+    def delete_file(self, project_id, file_id):
+        return self.delete("/projects/" + str(project_id) + "/files/" + str(file_id))
 
     def move_file(self, file_id, to_directory_id):
         form = {"directory_id": to_directory_id}
@@ -143,6 +144,9 @@ class Client(object):
     def rename_file(self, file_id, name):
         form = {"name": name}
         return File(self.post("/files/" + str(file_id) + "/rename", form))
+
+    def download_file(self, project_id, file_id, to):
+        self.download("/projects/" + str(project_id) + "/files/" + str(file_id) + "/download", to)
 
     # Entities
     def get_all_entities(self, project_id, params=None):
@@ -161,7 +165,7 @@ class Client(object):
     # Activities
     def get_all_activities(self, project_id, params=None):
         return Activity.from_list(self.get("/projects/" + str(project_id) + "/activities", params))
-    
+
     def get_activity(self, project_id, activity_id, params=None):
         return Activity(self.get("/projects/" + str(project_id) + "/activies/" + str(activity_id), params))
 
@@ -215,6 +219,9 @@ class Client(object):
         form = merge_dicts({"name": name, "project_id": project_id, "action": "ignore"}, attrs)
         return Dataset(self.put("/datasets/" + str(dataset_id), form))
 
+    def download_dataset_zipfile(self, dataset_id, to):
+        self.download("/datasets/" + str(dataset_id) + "/download_zipfile", to)
+
     # Activities
     def get_all_activities(self, project_id):
         pass
@@ -250,6 +257,14 @@ class Client(object):
         return GlobusDownload(self.get("/projects/" + str(project_id) + "/globus/downloads/" + str(globus_download_id)))
 
     # request calls
+    def download(self, urlpart, to):
+        url = self.base_url + urlpart
+        with requests.get(url, stream=True) as r:
+            r.raise_for_status()
+            with open(to, 'wb') as f:
+                for chunk in r.iter_content(chunk_size=8192):
+                    if chunk:
+                        f.write(chunk)
 
     def get(self, urlpart, params, other_params={}):
         url = self.base_url + urlpart
