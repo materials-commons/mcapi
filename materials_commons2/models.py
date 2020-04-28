@@ -9,6 +9,7 @@ def from_list(cls, data):
 
 class Common(object):
     def __init__(self, data, has_project_id=True):
+        self._data = data.copy()
         self.id = data.get('id', None)
         self.uuid = data.get('uuid', None)
         self.name = data.get('name', None)
