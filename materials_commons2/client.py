@@ -131,6 +131,10 @@ class Client(object):
     def get_file(self, project_id, file_id, params=None):
         return File(self.get("/project/" + "/files/" + str(file_id), params))
 
+    def get_file_by_path(self, project_id, file_path):
+        form = {"path": file_path, "project_id": project_id}
+        return File(self.post("/files/by_path", form))
+
     def update_file(self, file_id, attrs):
         return File(self.put("/files/" + str(file_id), attrs))
 
@@ -147,6 +151,10 @@ class Client(object):
 
     def download_file(self, project_id, file_id, to):
         self.download("/projects/" + str(project_id) + "/files/" + str(file_id) + "/download", to)
+
+    def download_file_by_path(self, project_id, path, to):
+        file = self.get_file_by_path(project_id, path)
+        self.download_file(project_id, file.id, to)
 
     # Entities
     def get_all_entities(self, project_id, params=None):
