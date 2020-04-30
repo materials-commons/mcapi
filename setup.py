@@ -4,14 +4,14 @@ from setuptools import setup, find_packages
 
 
 try:
-    with open('materials_commons/VERSION.txt') as f:
+    with open('materials_commons2/VERSION.txt') as f:
         version = f.read().strip()
 except IOError:
     version = '0.9.0'
 
 
 setup(
-    name='materials_commons',
+    name='materials_commons2',
     version=version,
     description='The Materials Commons tool set',
     long_description="""This package contains two modules:
@@ -62,7 +62,6 @@ setup(
         "python-dateutil",
         "python-magic",
         "requests",
-        "rethinkdb",
         "pathlib>=1.0.1",
         "pathlib",
         "pathlib2",
