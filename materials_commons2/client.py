@@ -261,7 +261,7 @@ class Client(object):
     # request calls
     def download(self, urlpart, to):
         url = self.base_url + urlpart
-        with requests.get(url, stream=True) as r:
+        with requests.get(url, stream=True, verify=False) as r:
             r.raise_for_status()
             with open(to, 'wb') as f:
                 for chunk in r.iter_content(chunk_size=8192):
@@ -273,7 +273,7 @@ class Client(object):
         if self.log:
             print("GET:", url)
         params_to_use = merge_dicts(QueryParams.to_query_args(params), other_params)
-        r = requests.get(url, params=params_to_use, headers=self.headers)
+        r = requests.get(url, params=params_to_use, verify=False, headers=self.headers)
         r.raise_for_status()
         return r.json()["data"]
 
