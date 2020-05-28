@@ -16,6 +16,7 @@ pypif
 pip
 globus-cli
 globus-sdk
+pyyaml
 # these are for testing only
 pytest
 pytest-cov

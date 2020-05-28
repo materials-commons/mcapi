@@ -273,7 +273,7 @@ class Client(object):
         if self.log:
             print("GET:", url)
         params_to_use = merge_dicts(QueryParams.to_query_args(params), other_params)
-        r = requests.get(url, params=params_to_use, headers=self.headers)
+        r = requests.get(url, params=params_to_use, headers=self.headers, verify=False)
         r.raise_for_status()
         return r.json()["data"]
 
