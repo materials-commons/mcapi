@@ -23,8 +23,8 @@ from io import StringIO
 # from .mkdir import mkdir_subcommand
 # from .mv import mv_subcommand
 # from .proc import ProcSubcommand
-from .proj import ProjSubcommand
-# from .remote import remote_subcommand
+from .subcommands.proj import ProjSubcommand
+from .subcommands.remote import remote_subcommand
 # from .rm import rm_subcommand
 # from .samp import SampSubcommand
 # from .templates import TemplatesSubcommand
@@ -38,7 +38,7 @@ from .exceptions import MCCLIException
 class CommonsCLIParser(object):
 
     standard_usage = [
-        # {'name': 'remote', 'desc': 'List servers', 'subcommand': remote_subcommand},
+        {'name': 'remote', 'desc': 'List servers', 'subcommand': remote_subcommand},
         {'name': 'proj', 'desc': 'List projects', 'subcommand': ProjSubcommand()}
         # {'name': 'dataset', 'desc': 'List datasets', 'subcommand': DatasetSubcommand()},
         # {'name': 'expt', 'desc': 'List, create, delete, and modify experiments', 'subcommand': ExptSubcommand()},

@@ -18,6 +18,9 @@ def getit(obj, name, default=None):
     else:
         return getattr(obj, name, default)
 
+def as_is(value):
+    return value
+
 def format_time(mtime, fmt="%Y %b %d %H:%M:%S"):
     if isinstance(mtime, str): # expect ISO 8601 str
         return dateutil.parser.parse(mtime).strftime(fmt)
@@ -99,6 +102,38 @@ def optional_remote(args, default_client=None):
         else:
             return default_client
 
+def print_remotes(config_remotes, show_apikey=False):
+    """Print list of remotes
+
+    Arguments:
+        remote_configs: RemoteConfigs, grouped like: {<url>: {<email>: RemoteConfig, ...}, ...}
+    """
+    if not len(config_remotes):
+        print("No remotes")
+        return
+
+    from operator import itemgetter
+    data = sorted([vars(rconfig) for rconfig in config_remotes], key=itemgetter('mcurl', 'email'))
+
+    columns = ['url', 'email']
+    if show_apikey:
+        columns.append('apikey')
+
+    def width(col):
+        return max([len(str(record[col])) for record in data])
+
+    fmt = [
+        ('email', 'email', '<', width('email'), as_is),
+        ('mcurl', 'url', '<', width('mcurl'), as_is)
+    ]
+    if show_apikey:
+        fmt.append(('mcapikey', 'apikey', '<', width('mcapikey'), as_is))
+
+    pformatter = PrintFormatter(fmt)
+
+    pformatter.print_header()
+    for record in data:
+        pformatter.print(record)
 
 def make_local_project_client(path=None):
     project_config = read_project_config(path)
