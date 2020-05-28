@@ -11,9 +11,9 @@ from io import StringIO
 
 # import materials_commons.api as mcapi
 # from .actions import ActionsSubcommand
-# from .clone import clone_subcommand
+from .subcommands.clone import clone_subcommand
 # from .config import config_subcommand
-# from .dataset import DatasetSubcommand
+# from .subcommands.dataset import DatasetSubcommand
 # from .diff import diff_subcommand
 # from .down import down_subcommand
 # from .expt import ExptSubcommand
@@ -39,11 +39,11 @@ class CommonsCLIParser(object):
 
     standard_usage = [
         {'name': 'remote', 'desc': 'List servers', 'subcommand': remote_subcommand},
-        {'name': 'proj', 'desc': 'List projects', 'subcommand': ProjSubcommand()}
+        {'name': 'proj', 'desc': 'List projects', 'subcommand': ProjSubcommand()},
         # {'name': 'dataset', 'desc': 'List datasets', 'subcommand': DatasetSubcommand()},
         # {'name': 'expt', 'desc': 'List, create, delete, and modify experiments', 'subcommand': ExptSubcommand()},
         # {'name': 'init', 'desc': 'Initialize a new project', 'subcommand': init_subcommand},
-        # {'name': 'clone', 'desc': 'Clone an existing project', 'subcommand': clone_subcommand},
+        {'name': 'clone', 'desc': 'Clone an existing project', 'subcommand': clone_subcommand}
         # {'name': 'ls', 'desc': 'List local and remote directory contents', 'subcommand': ls_subcommand},
         # {'name': 'mkdir', 'desc': 'Make remote directories', 'subcommand': mkdir_subcommand},
         # {'name': 'rm', 'desc': 'Remove files and directories', 'subcommand': rm_subcommand},

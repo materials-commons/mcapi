@@ -1,6 +1,8 @@
 import datetime
 import dateutil
+import json
 import os
+import sys
 import time
 
 from tabulate import tabulate
@@ -51,6 +53,34 @@ def print_table(data, columns=[], headers=[], out=None):
     for record in data:
         tabulate_in.append([record[col] for col in columns])
     out.write(tabulate(tabulate_in, headers=headers))
+    out.write('\n')
+
+def print_projects(projects, current=None):
+    """
+    Print list of projects, include '*' for current project
+
+    Arguments:
+        projects: List[materials_commons2.model.Project]
+        current: materials_commons2.model.Project containing os.getcwd()
+    """
+    data = []
+    for p in projects:
+        _is_current = ' '
+        if current is not None and p.uuid == current.uuid:
+            _is_current = '*'
+
+        data.append({
+            'current': _is_current,
+            'name': trunc(p.name, 40),
+            'owner': p.owner_id,    # TODO: owner email
+            'id': p.id,
+            'uuid': p.uuid,
+            'mtime': format_time(p.updated_at)
+        })
+
+    columns=['current', 'name', 'owner', 'id', 'uuid', 'mtime']
+    headers=['', 'name', 'owner', 'id', 'uuid', 'mtime']
+    print_table(data, columns=columns, headers=headers)
 
 def print_remote_help():
     print("Add a remote with:")
@@ -64,6 +94,36 @@ def print_remote_help():
 def add_remote_option(parser, help):
     """Add --remote cli option"""
     parser.add_argument('--remote', nargs=2, metavar=('EMAIL', 'URL'), help=help)
+
+def optional_remote_config(args):
+    """Return RemoteConfig specified by cli option --remote, or default remote
+
+    Arguments:
+        args: argparse args, with attribute `remote`
+
+    Returns:
+        remote: RemoteConfig
+    """
+    config = Config()
+    if args.remote:
+        email = args.remote[0]
+        url = args.remote[1]
+
+        remote_config = RemoteConfig(mcurl=url, email=email)
+        if remote_config not in config.remotes:
+            print("Could not find remote: {0} {1}".format(remote_config.email, remote_config.mcurl))
+            print_remote_help()
+            exit(1)
+
+        return remote_config
+    else:
+        if not config.default_remote.mcurl or not config.default_remote.mcapikey:
+            print("Default remote not set")
+            print("Set the default remote with:")
+            print("    mc remote --set-default EMAIL URL")
+            print_remote_help()
+            exit(1)
+        return config.default_remote
 
 def optional_remote(args, default_client=None):
     """Return remote specified by cli option --remote, or default remote
@@ -342,14 +402,18 @@ class ProjectConfig(object):
                 "email": <email>
             },
             "project_id": <id>,
+            "project_uuid": <uuid>,
             "experiment_id": <id>,
+            "experiment_uuid": <uuid>,
             "remote_updatetime": <number>
         }
 
     Attributes
     ----------
-        project_id: str or None
-        experiment_id: str or None
+        project_id: int or None
+        project_uuid: str or None
+        experiment_id: int or None
+        experiment_uuid: str or None
         remote: RemoteConfig
         remote_updatetime: number or None
 
@@ -383,7 +447,9 @@ class ProjectConfig(object):
 
         self.remote = RemoteConfig(**data.get('remote', {}))
         self.project_id = data.get('project_id', None)
+        self.project_uuid = data.get('project_uuid', None)
         self.experiment_id = data.get('experiment_id', None)
+        self.experiment_uuid = data.get('experiment_uuid', None)
         self.remote_updatetime = data.get('remote_updatetime', None)
 
     def to_dict(self):
@@ -393,7 +459,9 @@ class ProjectConfig(object):
                 'email': self.remote.email
             },
             'project_id': self.project_id,
+            'project_uuid': self.project_uuid,
             'experiment_id': self.experiment_id,
+            'experiment_uuid': self.experiment_uuid,
             'remote_updatetime': self.remote_updatetime
         }
 
