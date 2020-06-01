@@ -267,69 +267,210 @@ class Client(object):
 
     # Files
     def get_file(self, project_id, file_id, params=None):
-        return File(self.get("/project/" + "/files/" + str(file_id), params))
+        """
+        Get file in project
+        :param int project_id: The id of the project containing the file
+        :param int file_id: The id of the file
+        :param params:
+        :return: The file
+        :rtype File
+        """
+        return File(self.get("/project/" + str(project_id) + "/files/" + str(file_id), params))
 
     def get_file_by_path(self, project_id, file_path):
+        """
+        Get file by path in project
+        :param int project_id: The id of the project containing the file
+        :param file_path: The path to the file
+        :return: The file
+        :rtype File
+        """
         form = {"path": file_path, "project_id": project_id}
         return File(self.post("/files/by_path", form))
 
-    def update_file(self, file_id, attrs):
-        return File(self.put("/files/" + str(file_id), attrs))
+    def update_file(self, project_id, file_id, attrs):
+        """
+        Update attributes of a file
+        :param project_id:
+        :param file_id:
+        :param UpdateFileRequest attrs: Attributes to update
+        :return: The updated file
+        :rtype File
+        """
+        form = merge_dicts({"project_id", project_id}, attrs.to_dict())
+        return File(self.put("/files/" + str(file_id), form))
 
     def delete_file(self, project_id, file_id):
+        """
+        Delete a file in a project
+        :param int project_id: The id of the project containing the file
+        :param int file_id: The id of the file to delete
+        :return: success or failure
+        """
         return self.delete("/projects/" + str(project_id) + "/files/" + str(file_id))
 
-    def move_file(self, file_id, to_directory_id):
-        form = {"directory_id": to_directory_id}
+    def move_file(self, project_id, file_id, to_directory_id):
+        """
+        Move file into a different directory
+        :param int project_id: The project id of the file and the destination directory
+        :param int file_id: The id of the file to move
+        :param int to_directory_id: The id of the destination directory
+        :return: The moved file
+        :rtype File
+        """
+        form = {"directory_id": to_directory_id, "project_id": project_id}
         return File(self.post("/files/" + str(file_id) + "/move", form))
 
-    def rename_file(self, file_id, name):
-        form = {"name": name}
+    def rename_file(self, project_id, file_id, name):
+        """
+        Rename a file
+        :param int project_id: The project id of the file to rename
+        :param int file_id: The id of the file to rename
+        :param str name: The files new name
+        :return: The rename file
+        :rtype File
+        """
+        form = {"name": name, "project_id": project_id}
         return File(self.post("/files/" + str(file_id) + "/rename", form))
 
     def download_file(self, project_id, file_id, to):
+        """
+        Download a file
+        :param int project_id: The project id containing the file to download
+        :param int file_id: The id of the file to download
+        :param str to: path including file name to download file to
+        """
         self.download("/projects/" + str(project_id) + "/files/" + str(file_id) + "/download", to)
 
     def download_file_by_path(self, project_id, path, to):
+        """
+        Download a file by path
+        :param int project_id: The project id containing the file to download
+        :param str path: The path in the project of the file
+        :param str to: path including file name to download file to
+        """
         file = self.get_file_by_path(project_id, path)
         self.download_file(project_id, file.id, to)
 
     # Entities
     def get_all_entities(self, project_id, params=None):
+        """
+        Get all entities in a project
+        :param int project_id: The id of the project
+        :param params:
+        :return: The list of entities
+        :rtype Entity[]
+        """
         return Entity.from_list(self.get("/projects/" + str(project_id) + "/entities", params))
 
     def get_entity(self, project_id, entity_id, params=None):
+        """
+        Get an entity
+        :param int project_id: The id of the project containing the entity
+        :param int entity_id: The id of the entity
+        :param params:
+        :return: The entity
+        :rtype Entity
+        """
         return Entity(self.get("/projects/" + str(project_id) + "/entities/" + str(entity_id), params))
 
-    def create_entity(self, project_id, attrs):
-        form = merge_dicts({"project_id": project_id}, attrs)
+    def create_entity(self, project_id, name, attrs=None):
+        """
+        Creates a new entity in the project
+        :param project_id: The id of the project to create entity in
+        :param str name: The entity name
+        :param CreateEntityRequest attrs: Attributes of the entity
+        :return: The created entity
+        :rtype Entity
+        """
+        if not attrs:
+            attrs = CreateEntityRequest()
+        form = merge_dicts({"name": name, "project_id": project_id}, attrs.to_dict())
         return Entity(self.post("/entities", form))
 
     def delete_entity(self, project_id, entity_id):
+        """
+        Delete an entity
+        :param int project_id: The id of the project containing the entity
+        :param int entity_id: The entity id
+        :return: success or failure
+        """
         return self.delete("/projects/" + str(project_id) + "/entities/" + str(entity_id))
 
     # Activities
     def get_all_activities(self, project_id, params=None):
+        """
+        Get all activities in a project
+        :param int project_id: The id of the project
+        :param params:
+        :return: List of activities
+        :rtype Activity[]
+        """
         return Activity.from_list(self.get("/projects/" + str(project_id) + "/activities", params))
 
     def get_activity(self, project_id, activity_id, params=None):
+        """
+        Get an activity
+        :param int project_id: The id of the project containing the activity
+        :param int activity_id: The id of the activity
+        :param params:
+        :return: The activity
+        :rtype Activity
+        """
         return Activity(self.get("/projects/" + str(project_id) + "/activies/" + str(activity_id), params))
 
-    def create_activity(self, project_id, attrs):
-        form = merge_dicts({"project_id": project_id}, attrs)
+    def create_activity(self, project_id, name, attrs=None):
+        """
+        Create a new activity in the project
+        :param project_id: The project to create the activity int
+        :param str name: Name of activity
+        :param CreateActivityRequest attrs: Attributes on the activity
+        :return: The activity to create
+        :rtype Activity
+        """
+        if not attrs:
+            attrs = CreateActivityRequest()
+        form = merge_dicts({"project_id": project_id, "name": name}, attrs.to_dict())
         return Activity(self.post("/activies", form))
 
     def delete_activity(self, project_id, activity_id):
+        """
+        Deletes an activity
+        :param project_id: The id of the project containing the activity
+        :param activity_id: The id of the activity to delete
+        :return: success or failure
+        """
         return self.delete("/projects/" + str(project_id) + "/activies/" + str(activity_id))
 
     # Datasets
     def get_all_datasets(self, project_id, params=None):
+        """
+        Get all datasets in a project
+        :param int project_id: The project id
+        :param params:
+        :return: The list of datasets
+        :rtype Dataset[]
+        """
         return Dataset.from_list(self.get("/projects/" + str(project_id) + "/datasets", params))
 
     def get_dataset(self, project_id, dataset_id, params=None):
+        """
+        Get dataset in a project
+        :param int project_id: The project id containing the dataset
+        :param int dataset_id: The dataset id
+        :param params:
+        :return: The dataset
+        :rtype Dataset
+        """
         return Dataset(self.get("/projects/" + str(project_id) + "/datasets/" + str(dataset_id), params))
 
     def delete_dataset(self, project_id, dataset_id):
+        """
+        Delete an unpublished dataset
+        :param int project_id: The project id containing the dataset
+        :param int dataset_id: The id of the dataset
+        :return: success or failure
+        """
         return self.delete("/projects/" + str(project_id) + "/datasets/" + str(dataset_id))
 
     def update_dataset_file_selection(self, project_id, dataset_id, file_selection):
@@ -350,54 +491,142 @@ class Client(object):
         return Dataset(self.put("/datasets/" + str(dataset_id) + "/workflows", form))
 
     def publish_dataset(self, project_id, dataset_id):
+        """
+        Publish a dataset
+        :param int project_id: The id of the project containing the dataset
+        :param int dataset_id: The dataset id
+        :return: The dataset
+        :rtype Dataset
+        """
         form = {"project_id": project_id}
         return Dataset(self.put("/datasets/" + str(dataset_id) + "/publish", form))
 
     def unpublish_dataset(self, project_id, dataset_id):
+        """
+        Unpublish an published dataset
+        :param int project_id: The id of the project containing the dataset
+        :param int dataset_id: The dataset id
+        :return: The dataset
+        :rtype Dataset
+        """
         form = {"project_id": project_id}
         return Dataset(self.put("/datasets/" + str(dataset_id) + "/unpublish", form))
 
     def create_dataset(self, project_id, name, attrs=None):
+        """
+        Create a new dataset in a project
+        :param int project_id: The project to create the dataset in
+        :param string name: The name of the dataset
+        :param CreateDatasetRequest attrs: Attributes of the dataset
+        :return: The created dataset
+        :rtype Dataset
+        """
         if not attrs:
             attrs = CreateDatasetRequest()
         form = merge_dicts({"name": name, "project_id": project_id, "action": "ignore"}, attrs.to_dict())
         return Dataset(self.post("/datasets", form))
 
     def update_dataset(self, project_id, dataset_id, name, attrs=None):
+        """
+        Update an existing dataset
+        :param int project_id: The project to create the dataset in
+        :param int dataset_id: The id of the dataset
+        :param str name: The name of the dataset (doesn't need to be different)
+        :param UpdateDatasetRequest attrs: The attributes to update
+        :return: The updated dataset
+        :rtype Dataset
+        """
         if not attrs:
             attrs = UpdateDatasetRequest()
         form = merge_dicts({"name": name, "project_id": project_id, "action": "ignore"}, attrs.to_dict())
         return Dataset(self.put("/datasets/" + str(dataset_id), form))
 
     def download_dataset_zipfile(self, dataset_id, to):
+        """
+        Download the zipfile for a published dataset
+        :param int dataset_id: The id of the published dataset
+        :param str to: The path including the file name to write the download to
+        """
         self.download("/datasets/" + str(dataset_id) + "/download_zipfile", to)
 
     # Globus
     def create_globus_upload_request(self, project_id, name):
+        """
+        Create a new globus request in the given project
+        :param int project_id: The project id for the upload
+        :param name: The name of the request
+        :return: The globus request
+        :rtype GlobusUpload
+        """
         form = {"project_id": project_id, name: name}
-        return self.post("/globus/uploads", form)
+        return GlobusUpload(self.post("/globus/uploads", form))
 
     def delete_globus_upload_request(self, project_id, globus_upload_id):
+        """
+        Delete an existing globus upload request
+        :param int project_id:
+        :param int globus_upload_id:
+        :return: success or failure
+        """
         return self.delete("/projects/" + str(project_id) + "/globus/" + str(globus_upload_id) + "/uploads")
 
     def finish_globus_upload_request(self, project_id, globus_upload_id):
+        """
+        Mark a globus upload request as finished
+        :param int project_id: The project id for the upload
+        :param int globus_upload_id: The id of the globus upload
+        :return: The globus upload
+        :rtype GlobusUpload
+        """
         form = {"project_id": project_id}
         return GlobusUpload(self.put("/globus/" + str(globus_upload_id) + "/uploads/complete", form))
 
     def get_all_globus_upload_requests(self, project_id):
+        """
+        Get all globus uploads in a project
+        :param int project_id: The project id
+        :return: List of globus uploads
+        :rtype GlobusUpload[]
+        """
         return GlobusUpload.from_list(self.get("/projects/" + str(project_id) + "/globus/uploads"))
 
     def create_globus_download_request(self, project_id, name):
+        """
+        Create a globus download request for a project
+        :param int project_id:
+        :param str name: The name of the download request
+        :return: The globus download
+        :rtype GlobusDownload
+        """
         form = {"project_id": project_id, "name": name}
         return GlobusDownload(self.post("/globus/downloads", form))
 
     def delete_globus_download_request(self, project_id, globus_download_id):
+        """
+        Delete an existing globus download request
+        :param int project_id: The id of the project containing the download request
+        :param int globus_download_id: The id of the globus download to delete
+        :return: success or failure
+        """
         return self.delete("/projects/" + str(project_id) + "/globus/" + str(globus_download_id) + "/downloads")
 
     def get_all_globus_download_requests(self, project_id):
+        """
+        Get all globus download requests for a project
+        :param int project_id: The project
+        :return: List of all globus downloads
+        :rtype GlobusDownload[]
+        """
         return GlobusDownload.from_list(self.get("/projects/" + str(project_id) + "/globus/downloads"))
 
     def get_globus_download_request(self, project_id, globus_download_id):
+        """
+        Get a globus download
+        :param int project_id: The id of the project containing the globus download
+        :param int globus_download_id: The globus download id
+        :return: The globus download
+        :rtype GlobusDownload
+        """
         return GlobusDownload(self.get("/projects/" + str(project_id) + "/globus/downloads/" + str(globus_download_id)))
 
     # request calls

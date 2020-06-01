@@ -50,12 +50,14 @@ class UpdateDatasetRequest(RequestCommon):
 # Experiment Requests
 class CreateExperimentRequest(RequestCommon):
     def __init__(self, description=None, summary=None):
+        super(CreateExperimentRequest, self).__init__()
         self.description = description
         self.summary = summary
 
 
 class UpdateExperimentRequest(RequestCommon):
     def __init__(self, name=None, description=None, summary=None):
+        super(UpdateExperimentRequest, self).__init__()
         self.name = name
         self.description = description
         self.summary = summary
@@ -64,20 +66,36 @@ class UpdateExperimentRequest(RequestCommon):
 # Directory Requests
 class CreateDirectoryRequest(RequestCommon):
     def __init__(self, description=None):
+        super(CreateDirectoryRequest, self).__init__()
         self.description = description
 
 
 class UpdateDirectoryRequest(RequestCommon):
     def __init__(self, description=None):
+        super(UpdateDirectoryRequest, self).__init__()
         self.description = description
 
 
 # File Requests
-class CreateFileRequest(RequestCommon):
-    def __init__(self):
-        pass
-
-
 class UpdateFileRequest(RequestCommon):
-    def __init__(self):
-        pass
+    def __init__(self, description=None, summary=None):
+        super(UpdateFileRequest, self).__init__()
+        self.description = description
+        self.summary = summary
+
+
+# Entity Requests
+class CreateEntityRequest(RequestCommon):
+    def __init__(self, description=None, summary=None, experiment_id=None):
+        super(CreateEntityRequest, self).__init__()
+        self.description = description
+        self.summary = summary
+        self.experiment_id = experiment_id
+
+
+# Activity Requests
+class CreateActivityRequest(RequestCommon):
+    def __init__(self, description=None, experiment_id=None):
+        super(CreateActivityRequest, self).__init__()
+        self.description = description
+        self.experiment_id = experiment_id
