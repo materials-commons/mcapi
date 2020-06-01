@@ -3,6 +3,7 @@ import requests
 import logging
 from .models import Project, Experiment, Dataset, Entity, Activity, Workflow, User, File, GlobusUpload, GlobusDownload
 from .query_params import QueryParams
+from .requests import *
 
 try:
     import http.client as http_client
@@ -57,38 +58,110 @@ class Client(object):
 
     # Projects
     def get_all_projects(self, params=None):
+        """
+        Returns a list of all the projects a user has access to
+        :param params:
+        :return: List of projects
+        :rtype Project[]
+        """
         return Project.from_list(self.get("/projects", params))
 
-    def create_project(self, name, attrs={}):
-        form = {"name": name}
-        form = merge_dicts(form, attrs)
+    def create_project(self, name, attrs=None):
+        """
+        Creates a new project for the authenticated user. Project name must be unique
+        :param str name: Name of project
+        :param CreateProjectRequest attrs: (optional) Additional attributes for the create request
+        :return: The create project
+        :rtype Project
+        """
+        if not attrs:
+            attrs = CreateProjectRequest()
+        form = merge_dicts({"name": name}, attrs.to_dict())
         return Project(self.post("/projects", form))
 
     def get_project(self, project_id, params=None):
+        """
+        Get a project by its id
+        :param int project_id: Project id for project
+        :param params:
+        :return: The project
+        :rtype Project
+        """
         return Project(self.get("/projects/" + str(project_id), params))
 
     def delete_project(self, project_id):
+        """
+        Deletes a project
+        :param int project_id: id of project to delete
+        :return: success or failure
+        """
         return self.delete("/projects/" + str(project_id))
 
     def update_project(self, project_id, attrs):
-        return Project(self.put("/projects" + str(project_id), attrs))
+        """
+        Updates the given project
+        :param int project_id: Id of project to update
+        :param UpdateProjectRequest attrs: The attributes to update on the project
+        :return: The updated project
+        :rtype Project
+        """
+        return Project(self.put("/projects" + str(project_id), attrs.to_dict()))
 
     # Experiments
     def get_all_experiments(self, project_id, params=None):
+        """
+        Get all experiments for a given project
+        :param int project_id: The project id
+        :param params:
+        :return: A list of experiments
+        :rtype Experiment[]
+        """
         return Experiment.from_list(self.get("/projects/" + str(project_id) + "/experiments", params))
 
     def get_experiment(self, project_id, experiment_id, params=None):
+        """
+        Get an experiment in a project
+        :param int project_id: The id of the project the experiment is in
+        :param int experiment_id: The experiment id
+        :param params:
+        :return: The experiment
+        :rtype Experiment
+        """
         return Experiment(self.get("/projects/" + str(project_id) + "/experiments/" + str(experiment_id), params))
 
     def update_experiment(self, project_id, experiment_id, attrs):
-        form = merge_dicts({"project_id": project_id}, attrs)
+        """
+        Update attributes of an experiment
+        :param int project_id: The id of the project the experiment is in
+        :param int experiment_id: The experiment id
+        :param UpdateExperimentRequest attrs: Attributes to update
+        :return: The updated experiment
+        :rtype Experiment
+        """
+        form = merge_dicts({"project_id": project_id}, attrs.to_dict())
         return Experiment(self.put("/experiments/" + str(experiment_id), form))
 
     def delete_experiment(self, project_id, experiment_id):
+        """
+        Delete experiment in project
+        :param int project_id: The id of the project the experiment is in
+        :param experiment_id: The experiment id
+        :return: success or failure
+        """
         return self.delete("/projects/" + str(project_id) + "/experiments/" + str(experiment_id))
 
-    def create_experiment(self, project_id, attrs):
-        form = merge_dicts({"project_id": project_id}, attrs)
+    def create_experiment(self, project_id, name, attrs=None):
+        """
+        Create a new experiment in a project
+        :param int project_id: The id of the project the experiment is in
+        :param str name: Name of experiment
+        :param CreateExperimentRequest attrs: Additional attributes on the experiment
+        :return: The created experiment
+        :rtype Experiment
+        """
+        if not attrs:
+            attrs = CreateExperimentRequest()
+        form = merge_dicts({"project_id": project_id, "name": name}, attrs.to_dict())
         return Experiment(self.post("/experiments", form))
 
     def update_experiment_workflows(self, project_id, experiment_id, workflow_id):
@@ -97,34 +170,99 @@ class Client(object):
 
     # Directories
     def get_directory(self, project_id, directory_id, params=None):
+        """
+        Get a directory in the project
+        :param int project_id: The id of the project the directory is in
+        :param int directory_id: The directory id
+        :param params:
+        :return: The directory
+        :rtype File
+        """
         return File(self.get("/projects/" + str(project_id) + "/directories/" + str(directory_id), params))
 
     def list_directory(self, project_id, directory_id, params=None):
+        """
+        Return a list of all the files and directories in a given directory
+        :param int project_id: The id of the project the directory is in
+        :param int directory_id: The directory id
+        :param params:
+        :return: A list of the files and directories in the given directory
+        :rtype File[]
+        """
         return File.from_list(
             self.get("/projects/" + str(project_id) + "/directories/" + str(directory_id) + "/list", params))
 
     def list_directory_by_path(self, project_id, path, params):
+        """
+        Return a list of all the files and directories at given path
+        :param int project_id: The id of the project the path is in
+        :param str path:
+        :param params:
+        :return: A list of th efiles and directories in the given path
+        :rtype File[]
+        """
         path_param = {"path": path}
         return File.from_list(self.get("/projects/" + str(project_id) + "/directories_by_path", params, path_param))
 
     def create_directory(self, project_id, name, parent_id, attrs):
+        """
+        Create a new directory in project in the given directory
+        :param int project_id: The id of the project the directory will be created in
+        :param str name: Name of directory
+        :param int parent_id: Parent directory id - The directory that this directory will be in
+        :param CreateDirectoryRequest attrs: Additional attributes on the directory
+        :return: The created directory
+        :rtype File
+        """
+        if not attrs:
+            attrs = CreateDirectoryRequest()
         form = {"name": name, "directory_id": parent_id, "project_id": project_id}
-        form = merge_dicts(form, attrs)
+        form = merge_dicts(form, attrs.to_dict())
         return File(self.post("/directories", form))
 
     def move_directory(self, project_id, directory_id, to_directory_id):
+        """
+        Moves a directory into another directory
+        :param int project_id: The project id that target and destination directories are in
+        :param int directory_id: Id of directory to move
+        :param int to_directory_id: Id of the destination directory
+        :return: The directory that was moved
+        :rtype File
+        """
         form = {"to_directory_id": to_directory_id, "project_id": project_id}
         return File(self.post("/directories/" + str(directory_id) + "/move", form))
 
     def rename_directory(self, project_id, directory_id, name):
+        """
+        Rename a given directory
+        :param int project_id: The project id that the directory is in
+        :param int directory_id: The id of the directory being renamed
+        :param name: The new name of the directory
+        :return: The directory that was renamed
+        :rtype File
+        """
         form = {"name": name, "project_id": project_id}
         return File(self.post("/directories/" + str(directory_id) + "/rename", form))
 
     def delete_directory(self, project_id, directory_id):
+        """
+        Should not be used yet: Delete a directory only if the directory is empty
+        :param int project_id: The project id containing the directory to delete
+        :param int directory_id: The id of the directory to delete
+        :return: success or failure
+        """
         return self.delete("/projects/" + str(project_id) + "/directories/" + str(directory_id))
 
     def update_directory(self, project_id, directory_id, attrs):
-        form = merge_dicts({"project_id": project_id}, attrs)
+        """
+        Update attributes on a directory
+        :param int project_id: The project id containing the directory
+        :param int directory_id: The id of the directory to update
+        :param attrs: Attributes to update
+        :return: The updated directory
+        :rtype File
+        """
+        form = merge_dicts({"project_id": project_id}, attrs.to_dict())
         return File(self.put("/directories/" + str(directory_id), form))
 
     # Files
@@ -219,12 +357,16 @@ class Client(object):
         form = {"project_id": project_id}
         return Dataset(self.put("/datasets/" + str(dataset_id) + "/unpublish", form))
 
-    def create_dataset(self, project_id, name, attrs):
-        form = merge_dicts({"name": name, "project_id": project_id, "action": "ignore"}, attrs)
+    def create_dataset(self, project_id, name, attrs=None):
+        if not attrs:
+            attrs = CreateDatasetRequest()
+        form = merge_dicts({"name": name, "project_id": project_id, "action": "ignore"}, attrs.to_dict())
         return Dataset(self.post("/datasets", form))
 
-    def update_dataset(self, project_id, dataset_id, name, attrs):
-        form = merge_dicts({"name": name, "project_id": project_id, "action": "ignore"}, attrs)
+    def update_dataset(self, project_id, dataset_id, name, attrs=None):
+        if not attrs:
+            attrs = UpdateDatasetRequest()
+        form = merge_dicts({"name": name, "project_id": project_id, "action": "ignore"}, attrs.to_dict())
         return Dataset(self.put("/datasets/" + str(dataset_id), form))
 
     def download_dataset_zipfile(self, dataset_id, to):
