@@ -11,6 +11,12 @@ except ImportError:
     # Python 2
     import httplib as http_client
 
+try:
+    import urllib3
+    urllib3.disable_warnings()
+except ImportError:
+    pass
+
 
 def merge_dicts(dict1, dict2):
     merged = dict1.copy()
@@ -632,7 +638,7 @@ class Client(object):
     # request calls
     def download(self, urlpart, to):
         url = self.base_url + urlpart
-        with requests.get(url, stream=True, verify=False) as r:
+        with requests.get(url, stream=True, verify=False, headers=self.headers) as r:
             r.raise_for_status()
             with open(to, 'wb') as f:
                 for chunk in r.iter_content(chunk_size=8192):
