@@ -3,6 +3,7 @@ import unittest
 import os
 from .cli_test_functions import captured_output, print_string_io
 from materials_commons2 import models
+import materials_commons2.requests as mcrequests
 from materials_commons2_cli.subcommands.proj import ProjSubcommand
 import materials_commons2_cli.user_config as user_config
 
@@ -67,11 +68,11 @@ class TestMCProj(unittest.TestCase):
         # test "update_project"
         for proj in result:
             if proj.name in project_names:
-                attrs = {
-                    "description": "<new description>"
-                }
-                tmp_proj = client.update_project(proj.id, attrs)
-                self.assertEqual(tmp_proj.description, attrs["description"])
+                update_request = mcrequests.UpdateProjectRequest(
+                    proj.name,
+                    description="<new description>")
+                tmp_proj = client.update_project(proj.id, update_request)
+                self.assertEqual(tmp_proj.description, "<new description>")
                 break
 
         # test "delete_project"

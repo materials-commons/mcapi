@@ -111,7 +111,7 @@ class Client(object):
         :return: The updated project
         :rtype Project
         """
-        return Project(self.put("/projects" + str(project_id), attrs.to_dict()))
+        return Project(self.put("/projects/" + str(project_id), attrs.to_dict()))
 
     # Experiments
     def get_all_experiments(self, project_id, params=None):
