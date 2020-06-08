@@ -48,7 +48,6 @@ class ProjSubcommand(ListObjects):
         description = None
         if obj.description:
             description = obj.description
-
         data = [
             {"name": obj.name},
             {"description": description},

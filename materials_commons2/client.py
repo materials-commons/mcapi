@@ -261,7 +261,7 @@ class Client(object):
     # request calls
     def download(self, urlpart, to):
         url = self.base_url + urlpart
-        with requests.get(url, stream=True) as r:
+        with requests.get(url, stream=True, verify=False) as r:
             r.raise_for_status()
             with open(to, 'wb') as f:
                 for chunk in r.iter_content(chunk_size=8192):

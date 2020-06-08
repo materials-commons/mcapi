@@ -217,6 +217,7 @@ class ProjectTable(SqlTable):
         return [
             ("name", "name", "<", 24, as_is),
             ("id", "id", "<", 36, as_is),
+            ("uuid", "uuid", "<", 36, as_is),
             ("checktime", "checktime", "<", 24, format_time)
         ]
 
@@ -224,7 +225,8 @@ class ProjectTable(SqlTable):
     def tablecolumns():
         """dict, column name as key, list of table creation args for value. Requires unique 'id'."""
         return {
-            "id": ["text", "UNIQUE"],
+            "id": ["integer", "UNIQUE"],
+            "uuid": ["text"],
             "name": ["text"],
             "data": ["text"],
             "checktime": ["real"]     # last time the remote data was queried (s since epoch)
@@ -268,11 +270,12 @@ def make_local_project(path=None):
     if len(results) > 1:
         raise MCCLIException("project db error: Found >1 project")
 
-    remote = make_local_project_remote(path)
+    client = make_local_project_client(path)
     if not results or not project_config.remote_updatetime or results[0]['checktime'] < project_config.remote_updatetime:
         checktime = time.time()
         try:
-            data = post_v3("getProject", {"project_id": project_config.project_id}, remote=remote)['data']
+            # data = post_v3("getProject", {"project_id": project_config.project_id}, remote=remote)['data']
+            proj = client.get_project(project_config.project_id)
         except requests.exceptions.ConnectionError as e:
             print("Could not connect to " + remote.config.mcurl)
             exit(1)
@@ -282,8 +285,9 @@ def make_local_project(path=None):
 
         record = {
             'id': project_config.project_id,
-            'name': data['name'],
-            'data': json.dumps(data),
+            'uuid': project_config.project_uuid,
+            'name': proj.name,
+            'data': json.dumps(proj._data),
             'checktime': checktime
         }
         project_table.connect()
@@ -292,8 +296,9 @@ def make_local_project(path=None):
     else:
         record = results[0]
 
-    proj = models.Project(data=json.loads(record['data']), remote=remote)
+    proj = models.Project(data=json.loads(record['data']))
     proj.local_path = proj_path
+    proj.remote = client
     return proj
 
 def make_local_expt(proj):

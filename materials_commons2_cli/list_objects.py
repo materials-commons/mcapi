@@ -129,12 +129,9 @@ class ListObjects(object):
         self.custom_selection_actions = custom_selection_actions
         self.request_confirmation_actions = request_confirmation_actions
 
-    def __call__(self, argv):
+    def parse_args(self, argv):
         """
-        List Materials Commons Objects.
-
-        mc proc [--proj] [--expt] [--dataset] [--details | --json] [--uuid] [<name> ...]
-
+        Parse CLI arguments, returning result of argparse.ArgumentParser.parse_args(argv)
         """
 
         expr_help = 'select ' + self.typename_plural + ' that match the given regex (default matches name)'
@@ -198,15 +195,24 @@ class ListObjects(object):
 
         # ignore 'mc proc'
         args = parser.parse_args(argv[2:])
-
         if not self.dry_runable:
             args.dry_run = False
+        return args
+
+    def __call__(self, argv):
+        """
+        Execute Materials Commons CLI command.
+
+        mc proc [--proj] [--expt] [--dataset] [--details | --json] [--uuid] [<name> ...]
+
+        """
+        args = self.parse_args(argv)
 
         output = None
         if args.output:
             output = args.output[0]
 
-        # check for --create, or other custom primiary option command --<name>
+        # check for --create and other custom actions
         for name in ['create'] + self.custom_actions:
             if hasattr(args, name) and getattr(args, name):
                 with output_method(output, args.force) as out:

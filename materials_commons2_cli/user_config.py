@@ -44,7 +44,7 @@ class Config(object):
 
     Order of precedence:
         1. override_config, variables set at runtime
-        2. environment variables
+        2. environment variables (both MC_API_URL and MC_API_KEY must be set)
         3. configuration file
         4. default configuration
 
@@ -87,19 +87,19 @@ class Config(object):
         globus: GlobusConfig, globus configuration settings
 
     Arguments:
-        config_file_path: str, path to config directory. Defaults to ~/.materialscommons.
+        config_dir_path: str, path to config directory. Defaults to ~/.materialscommons.
         config_file_name: str, name of config file. Defaults to "config.json".
         override_config: dict, config file-like dict, with settings to use instead of those in
             environment variables or the config file. Defaults to {}.
     """
 
-    def __init__(self, config_file_path=None, config_file_name="config.json", override_config={}):
+    def __init__(self, config_dir_path=None, config_file_name="config.json", override_config={}):
 
         # generate config file path
-        if not config_file_path:
+        if not config_dir_path:
             user = getpass.getuser()
-            config_file_path = join(os.path.expanduser('~' + user), '.materialscommons')
-        self.config_file = join(config_file_path, config_file_name)
+            config_dir_path = join(os.path.expanduser('~' + user), '.materialscommons')
+        self.config_file = join(config_dir_path, config_file_name)
 
         # read config file, or use default config
         if os.path.exists(self.config_file):
@@ -128,8 +128,8 @@ class Config(object):
         for key in override_config:
             config[key] = override_config[key]
 
-        # handle deprecated 'mcurl' and 'apikey'
-        if config.get('mcurl') and config.get('apikey') and 'default_remote' not in config:
+        # set default configuration
+        if (config.get('mcurl') and config.get('apikey')) or ('default_remote' not in config):
             config['default_remote'] = {
                 'mcurl': config.get('mcurl'),
                 'email': '__default__',
@@ -157,8 +157,8 @@ class Config(object):
         }
         if not os.path.exists(self.config_file):
             user = getpass.getuser()
-            config_file_path = join(os.path.expanduser('~' + user), '.materialscommons')
-            if not os.path.exists(config_file_path):
-                os.path.mkdir(config_file_path)
+            config_dir_path = join(os.path.expanduser('~' + user), '.materialscommons')
+            if not os.path.exists(config_dir_path):
+                os.path.mkdir(config_dir_path)
         with open(self.config_file, 'w') as f:
             f.write(json.dumps(config, indent=2))
