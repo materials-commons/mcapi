@@ -33,7 +33,8 @@ from .subcommands.remote import remote_subcommand
 
 import materials_commons2_cli.functions as clifuncs
 from .user_config import Config
-from .exceptions import MCCLIException, MissingRemoteException, MultipleRemoteException
+from .exceptions import MCCLIException, MissingRemoteException, MultipleRemoteException, \
+    NoDefaultRemoteException
 
 class CommonsCLIParser(object):
 

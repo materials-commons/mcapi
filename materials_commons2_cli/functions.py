@@ -159,11 +159,22 @@ def print_remotes(config_remotes, show_apikey=False):
     if not len(config_remotes):
         print("No remotes")
         return
+    default_remote = Config().default_remote
 
     from operator import itemgetter
-    data = sorted([vars(rconfig) for rconfig in config_remotes], key=itemgetter('mcurl', 'email'))
+    #data = sorted([vars(rconfig) for rconfig in config_remotes], key=itemgetter('mcurl', 'email'))
 
-    columns = ['url', 'email']
+    data = []
+    for remote_config in config_remotes:
+        values = vars(remote_config)
+        if remote_config == default_remote:
+            values['is_default'] = '(default)'
+        else:
+            values['is_default'] = ' '
+        data.append(values)
+    data = sorted(data, key=itemgetter('mcurl', 'email'))
+
+    columns = ['url', 'email', ' ']
     if show_apikey:
         columns.append('apikey')
 
@@ -171,6 +182,7 @@ def print_remotes(config_remotes, show_apikey=False):
         return max([len(str(record[col])) for record in data])
 
     fmt = [
+        ('is_default', ' ', '<', width('is_default'), as_is),
         ('email', 'email', '<', width('email'), as_is),
         ('mcurl', 'url', '<', width('mcurl'), as_is)
     ]
