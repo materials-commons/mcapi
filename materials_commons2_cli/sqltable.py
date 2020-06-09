@@ -6,6 +6,7 @@ import warnings
 from .print_formatter import PrintFormatter
 
 def dbpath(proj_local_path):
+    """Location of a sqlite database to cache project data locally"""
     return os.path.join(proj_local_path, ".mc", "project.db")
 
 def sql_iter(curs, fetchsize=1000):

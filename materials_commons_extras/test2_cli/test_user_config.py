@@ -112,14 +112,13 @@ class TestUserConfig(unittest.TestCase):
     def test_get_apikey(self):
         config = user_config.Config()
         remote = config.default_remote
-        email = "admin@admin.org"
-        password = "admin"
-        apikey = mcclient.Client.get_apikey(email, password, base_url=remote.mcurl)
-        self.assertEqual(apikey, "admintoken")
+        password = os.environ.get("MC_API_PASSWORD")
+        apikey = mcclient.Client.get_apikey(remote.email, password, base_url=remote.mcurl)
+        self.assertEqual(apikey, os.environ.get("MC_API_KEY"))
 
     def test_login(self):
-        email = "admin@admin.org"
-        password = "admin"
+        email = os.environ.get("MC_API_EMAIL")
+        password = os.environ.get("MC_API_PASSWORD")
         url = os.environ.get("MC_API_URL")
         client = mcclient.Client.login(email, password, base_url=url)
-        self.assertEqual(client.apikey, "admintoken")
+        self.assertEqual(client.apikey, os.environ.get("MC_API_KEY"))

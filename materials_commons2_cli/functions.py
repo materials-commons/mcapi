@@ -7,6 +7,7 @@ import time
 
 from tabulate import tabulate
 
+from .exceptions import MCCLIException
 from .print_formatter import PrintFormatter, trunc
 from .sqltable import SqlTable
 from .user_config import Config, RemoteConfig
@@ -202,7 +203,9 @@ def make_local_project_client(path=None):
 
     config = Config()
     remote_config = project_config.remote
-    if remote_config not in config.remotes:
+    if remote_config == config.default_remote:
+        return config.default_remote.make_client()
+    elif remote_config not in config.remotes:
         print("Could not make project Client, failed to find remote config: {0} {1}".format(remote_config.email, remote_config.mcurl))
         print_remote_help()
         exit(1)
@@ -210,6 +213,7 @@ def make_local_project_client(path=None):
     return remote_config_with_apikey.make_client()
 
 class ProjectTable(SqlTable):
+    """Cache some basic project data"""
 
     @staticmethod
     def default_print_fmt():
@@ -253,7 +257,15 @@ class ProjectTable(SqlTable):
         self.curs.execute("SELECT * FROM " + self.tablename())
         return self.curs.fetchall()
 
-def make_local_project(path=None):
+def make_local_project(path=None, data=None):
+    """Read local project config file and use to construct mcapi.Project
+
+    :param str path: Path inside local project directory
+    :param dict data: Optional Project data, if already present avoids an extra API call.
+
+    :note: Will read from local project.db cache if updated after fetch lock was set, else will
+        request data from Materials Commons.
+    """
 
     proj_path = project_path(path)
     if not proj_path:
@@ -262,6 +274,7 @@ def make_local_project(path=None):
 
     project_config = read_project_config(path)
 
+    # check for project data cached in sqlite ".mc/project.db"
     project_table = ProjectTable(proj_path)
     project_table.connect()
     results = project_table.select_all()
@@ -274,8 +287,10 @@ def make_local_project(path=None):
     if not results or not project_config.remote_updatetime or results[0]['checktime'] < project_config.remote_updatetime:
         checktime = time.time()
         try:
-            # data = post_v3("getProject", {"project_id": project_config.project_id}, remote=remote)['data']
-            proj = client.get_project(project_config.project_id)
+            if data is None:
+                proj = client.get_project(project_config.project_id)
+            else:
+                proj = models.Project(data=data)
         except requests.exceptions.ConnectionError as e:
             print("Could not connect to " + remote.config.mcurl)
             exit(1)
@@ -295,8 +310,8 @@ def make_local_project(path=None):
         project_table.close()
     else:
         record = results[0]
+        proj = models.Project(data=json.loads(record['data']))
 
-    proj = models.Project(data=json.loads(record['data']))
     proj.local_path = proj_path
     proj.remote = client
     return proj
@@ -485,3 +500,35 @@ def read_project_config(path=None):
         return ProjectConfig(project_path(path))
     else:
         return None
+
+def clone_project(remote_config, project_id, parent_dest):
+    """Clone a remote project to a local directory
+
+    :param user_config.RemoteConfig remote_config: Configuration for the materials commons instance
+        where the project exists
+    :param mcapi.Project project_id: ID of the project to clone
+    :param str parent_dest: Path to a local directory which will become the parent of the cloned project
+        directory.
+    :return: The cloned project
+    :rtype: Project
+    """
+    # get Project
+    client = remote_config.make_client()
+    proj = client.get_project(project_id)
+
+    # check if project already exists
+    dest = os.path.join(parent_dest, proj.name)
+    if project_path(dest):
+        raise MCCLIException("Project already exists at:", project_path(dest))
+
+    # create project directory
+    if not os.path.exists(dest):
+        os.mkdir(dest)
+
+    project_config = ProjectConfig(dest)
+    project_config.remote = remote_config
+    project_config.project_id = proj.id
+    project_config.project_uuid = proj.uuid
+    project_config.save()
+
+    return make_local_project(dest, proj._data)

@@ -1,11 +1,17 @@
 import argparse
+import pytest
 import unittest
 import os
-from .cli_test_functions import captured_output, print_string_io
-from materials_commons2 import models
-import materials_commons2.requests as mcrequests
+
+import materials_commons2 as mcapi
+
+from materials_commons2_cli.exceptions import MCCLIException
 from materials_commons2_cli.subcommands.proj import ProjSubcommand
+import materials_commons2_cli.functions as clifuncs
 import materials_commons2_cli.user_config as user_config
+
+from .cli_test_functions import captured_output, print_string_io
+from .cli_test_project import test_project_directory, basic_project_1, rmdir_if, remove_hidden_project_files
 
 
 class TestMCProj(unittest.TestCase):
@@ -38,55 +44,6 @@ class TestMCProj(unittest.TestCase):
             except:
                 pass
 
-    def test_project_api(self):
-        # test the basis api project commands independently of the ProjSubcommand
-
-        # test "get_all_projects"
-        client = user_config.Config().default_remote.make_client()
-        result = client.get_all_projects()
-        init_project_ids = [proj.id for proj in result]
-        n_projects_init = len(init_project_ids)
-        self.assertEqual(len(result) - n_projects_init, 0)
-
-        project_names = [
-            "__clitest__test_project_api_1",
-            "__clitest__test_project_api_2",
-            "__clitest__test_project_api_3"]
-
-        # test "create_project"
-        for name in project_names:
-            client.create_project(name)
-        result = client.get_all_projects()
-        self.assertEqual(len(result) - n_projects_init, 3)
-
-        # test "get_project"
-        for proj in result:
-            tmp_proj = client.get_project(proj.id)
-            self.assertEqual(isinstance(tmp_proj, models.Project), True)
-            self.assertEqual(tmp_proj._data, proj._data)
-
-        # test "update_project"
-        for proj in result:
-            if proj.name in project_names:
-                update_request = mcrequests.UpdateProjectRequest(
-                    proj.name,
-                    description="<new description>")
-                tmp_proj = client.update_project(proj.id, update_request)
-                self.assertEqual(tmp_proj.description, "<new description>")
-                break
-
-        # test "delete_project"
-        for proj in result:
-            if proj.name in project_names:
-                try:
-                    client.delete_project(proj.id)
-                except:
-                    # print("can't delete:", proj.id)
-                    pass
-
-        result = client.get_all_projects()
-        self.assertEqual(len(result) - n_projects_init, 0)
-
     def test_parse_args(self):
         testargs = ['mc', 'proj']
         args = self.proj_subcommand.parse_args(testargs)
@@ -103,13 +60,17 @@ class TestMCProj(unittest.TestCase):
         #     result = self.proj_subcommand.get_all_from_experiment(expt)
 
     def test_get_all_from_project(self):
-        print(os.getcwd())
-        self.assertEqual(1, 1)
+        # create and clone a project, try to get_all_from_project with that proj, raise error
+        remote_config = user_config.Config().default_remote
+        client = remote_config.make_client()
+        project_id = client.create_project("__clitest__get_all_from_project").id
+        proj = clifuncs.clone_project(remote_config, project_id, test_project_directory())
+        with pytest.raises(MCCLIException):
+            result = self.proj_subcommand.get_all_from_project(proj)
 
-        # TODO:
-        # proj = clifuncs.make_local_project()
-        # with pytest.raises(MCCLIException):
-        #     result = self.proj_subcommand.get_all_from_project(proj)
+        # clean
+        remove_hidden_project_files(proj.local_path)
+        rmdir_if(proj.local_path)
 
     def test_get_all_from_remote(self):
         """Get all from remote should succeed and not require an existing local project"""
@@ -121,7 +82,7 @@ class TestMCProj(unittest.TestCase):
         result = self.proj_subcommand.get_all_from_remote(client)
         self.assertEqual(isinstance(result, list), True)
         for obj in result:
-            self.assertEqual(isinstance(obj, models.Project), True)
+            self.assertEqual(isinstance(obj, mcapi.Project), True)
 
     def test_mc_proj_output(self):
         testargs = ['mc', 'proj']

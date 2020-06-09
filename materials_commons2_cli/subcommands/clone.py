@@ -6,7 +6,6 @@ import sys
 import materials_commons2 as mcapi
 import materials_commons2_cli.functions as clifuncs
 
-
 def clone_subcommand(argv=sys.argv):
     """
     'Clone' a project, i.e. set the local directory tree where files should
@@ -26,35 +25,15 @@ def clone_subcommand(argv=sys.argv):
 
     # get remote, from command line option or default
     remote_config = clifuncs.optional_remote_config(args)
-    remote = remote_config.make_client()
 
-    # check if in a project directory
-    if clifuncs.project_exists():
-        print("mc project already exists at", clifuncs.project_path())
+    try:
+        project_id = args.id
+        parent_dest = os.getcwd()
+        proj = clifuncs.clone_project(remote_config, project_id, parent_dest)
+    except MCCLIException as e:
+        print(e)
         exit(1)
-
-    # get Project
-    proj = remote.get_project(args.id)
-
-    # check if project already exists
-    dest = os.path.join(os.getcwd(), proj.name)
-    if clifuncs.project_path(dest):
-        print("mc project already exists at", clifuncs.project_path(dest))
-        exit(1)
-
-    proj.local_path = dest
-    proj.remote = remote
-
-    # create project directory
-    if not os.path.exists(proj.local_path):
-        os.mkdir(proj.local_path)
-
-    project_config = clifuncs.ProjectConfig(proj.local_path)
-    project_config.remote = remote_config
-    project_config.project_id = proj.id
-    project_config.project_uuid = proj.uuid
-    project_config.save()
 
     # done
-    print("Cloned project from", remote_config.mcurl, "to", dest)
+    print("Cloned project from", remote_config.mcurl, "to", proj.local_path)
     clifuncs.print_projects([proj])

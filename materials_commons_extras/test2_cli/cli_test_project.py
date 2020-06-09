@@ -94,6 +94,12 @@ class TestProject(object):
         for dir in reversed(self.dirs):
             rmdir_if(dir)
 
+
+def remove_hidden_project_files(project_path):
+    remove_if(os.path.join(project_path, ".mc", "config.json"))
+    remove_if(os.path.join(project_path, ".mc", "project.db"))
+    rmdir_if(os.path.join(project_path, ".mc"))
+
 # def init_remote_only_test_project(test_project):
 #     """Create a remote-only test project
 #
@@ -117,9 +123,7 @@ class TestProject(object):
 #         up_subcommand(testargs)
 #
 #     self.remove_test_files()
-#     remove_if(os.path.join(test_project.path, ".mc", "config.json"))
-#     remove_if(os.path.join(test_project.path, ".mc", "project.db"))
-#     remove_if(os.path.join(test_project.path, ".mc"))
+#     remove_hidden_project_files(test_project.path)
 #     rmdir_if(test_project.path)
 
 # def clean_test_project(cls):

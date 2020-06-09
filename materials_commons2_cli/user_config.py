@@ -110,6 +110,7 @@ class Config(object):
             config = {
                 'apikey': None,
                 'mcurl': None,
+                'email': None,
                 'remotes': {},
                 'interfaces': {},
                 'globus': {}
@@ -118,23 +119,35 @@ class Config(object):
         # check for recognized environment variables
         env_apikey = os.environ.get("MC_API_KEY")
         env_mcurl = os.environ.get("MC_API_URL")
+        env_email = os.environ.get("MC_API_EMAIL")
 
         if env_apikey:
             config['apikey'] = env_apikey
         if env_mcurl:
             config['mcurl'] = env_mcurl
+        if env_mcurl:
+            config['email'] = env_email
 
         # override with runtime config
         for key in override_config:
             config[key] = override_config[key]
 
         # set default configuration
-        if (config.get('mcurl') and config.get('apikey')) or ('default_remote' not in config):
-            config['default_remote'] = {
+        if config.get('mcurl') and config.get('apikey') and config.get('email'):
+            _default_remote = {
+                'mcurl': config.get('mcurl'),
+                'email': config.get('email'),
+                'mcapikey': config.get('apikey'),
+            }
+            config['default_remote'] = _default_remote
+        elif 'default_remote' not in config:
+            _default_remote = {
                 'mcurl': config.get('mcurl'),
                 'email': '__default__',
                 'mcapikey': config.get('apikey')
             }
+            config['default_remote'] = _default_remote
+
 
         self.remotes = [RemoteConfig(**kwargs) for kwargs in config.get('remotes',[])]
         self.default_remote = RemoteConfig(**config.get('default_remote',{}))
