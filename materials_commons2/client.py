@@ -124,27 +124,25 @@ class Client(object):
         """
         return Experiment.from_list(self.get("/projects/" + str(project_id) + "/experiments", params))
 
-    def get_experiment(self, project_id, experiment_id, params=None):
+    def get_experiment(self, experiment_id, params=None):
         """
-        Get an experiment in a project
-        :param int project_id: The id of the project the experiment is in
+        Get an experiment
         :param int experiment_id: The experiment id
         :param params:
         :return: The experiment
         :rtype Experiment
         """
-        return Experiment(self.get("/projects/" + str(project_id) + "/experiments/" + str(experiment_id), params))
+        return Experiment(self.get("/experiments/" + str(experiment_id), params))
 
-    def update_experiment(self, project_id, experiment_id, attrs):
+    def update_experiment(self, experiment_id, attrs):
         """
         Update attributes of an experiment
-        :param int project_id: The id of the project the experiment is in
         :param int experiment_id: The experiment id
         :param UpdateExperimentRequest attrs: Attributes to update
         :return: The updated experiment
         :rtype Experiment
         """
-        form = merge_dicts({"project_id": project_id}, attrs.to_dict())
+        form = merge_dicts({"experiment_id": experiment_id}, attrs.to_dict())
         return Experiment(self.put("/experiments/" + str(experiment_id), form))
 
     def delete_experiment(self, project_id, experiment_id):
