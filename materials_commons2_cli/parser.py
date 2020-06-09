@@ -33,7 +33,7 @@ from .subcommands.remote import remote_subcommand
 
 import materials_commons2_cli.functions as clifuncs
 from .user_config import Config
-from .exceptions import MCCLIException
+from .exceptions import MCCLIException, MissingRemoteException, MultipleRemoteException
 
 class CommonsCLIParser(object):
 
@@ -133,5 +133,21 @@ def main(argv=None):
         argv = sys.argv
     try:
         cli = CommonsCLIParser(argv)
+    except MissingRemoteException as e:
+        print("Error:", e)
+        print_remote_help()
+        exit(1)
+    except MultipleRemoteException as e:
+        print("Error:", e)
+        print('** Please edit .mc/config.json to include `"remote":{"mcurl": "' + data['remote_url']
+            + '", "email": "YOUR_EMAIL_HERE"}` **')
+        exit(1)
+    except NoDefaultRemoteException as e:
+        print("Error:", e)
+        print("Set the default remote with:")
+        print("    mc remote --set-default EMAIL URL")
+        print_remote_help()
+        exit(1)
     except MCCLIException as e:
         print("Error:", e)
+        exit(1)

@@ -26,13 +26,9 @@ def clone_subcommand(argv=sys.argv):
     # get remote, from command line option or default
     remote_config = clifuncs.optional_remote_config(args)
 
-    try:
-        project_id = args.id
-        parent_dest = os.getcwd()
-        proj = clifuncs.clone_project(remote_config, project_id, parent_dest)
-    except MCCLIException as e:
-        print(e)
-        exit(1)
+    project_id = args.id
+    parent_dest = os.getcwd()
+    proj = clifuncs.clone_project(remote_config, project_id, parent_dest)
 
     # done
     print("Cloned project from", remote_config.mcurl, "to", proj.local_path)

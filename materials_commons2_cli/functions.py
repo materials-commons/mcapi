@@ -7,7 +7,8 @@ import time
 
 from tabulate import tabulate
 
-from .exceptions import MCCLIException
+from .exceptions import MCCLIException, MissingRemoteException, MultipleRemoteException, \
+    NoDefaultRemoteException
 from .print_formatter import PrintFormatter, trunc
 from .sqltable import SqlTable
 from .user_config import Config, RemoteConfig
@@ -112,18 +113,11 @@ def optional_remote_config(args):
 
         remote_config = RemoteConfig(mcurl=url, email=email)
         if remote_config not in config.remotes:
-            print("Could not find remote: {0} {1}".format(remote_config.email, remote_config.mcurl))
-            print_remote_help()
-            exit(1)
-
+            raise MissingRemoteException("Could not find remote: {0} {1}".format(remote_config.email, remote_config.mcurl))
         return remote_config
     else:
         if not config.default_remote.mcurl or not config.default_remote.mcapikey:
-            print("Default remote not set")
-            print("Set the default remote with:")
-            print("    mc remote --set-default EMAIL URL")
-            print_remote_help()
-            exit(1)
+            raise NoDefaultRemoteException("Default remote not set")
         return config.default_remote
 
 def optional_remote(args, default_client=None):
@@ -144,21 +138,14 @@ def optional_remote(args, default_client=None):
 
         remote_config = RemoteConfig(mcurl=url, email=email)
         if remote_config not in config.remotes:
-            print("Could not find remote: {0} {1}".format(remote_config.email, remote_config.mcurl))
-            print_remote_help()
-            exit(1)
+            raise MissingRemoteException("Could not find remote: {0} {1}".format(remote_config.email, remote_config.mcurl))
 
         return config.remotes[config.remotes.index(remote_config)].make_client()
     else:
 
         if default_client is None:
             if not config.default_remote.mcurl or not config.default_remote.mcapikey:
-                print("Default remote not set")
-                print("Set the default remote with:")
-                print("    mc remote --set-default EMAIL URL")
-                print_remote_help()
-                exit(1)
-
+                raise NoDefaultRemoteException("Default remote not set")
             return config.default_remote.make_client()
         else:
             return default_client
@@ -206,9 +193,7 @@ def make_local_project_client(path=None):
     if remote_config == config.default_remote:
         return config.default_remote.make_client()
     elif remote_config not in config.remotes:
-        print("Could not make project Client, failed to find remote config: {0} {1}".format(remote_config.email, remote_config.mcurl))
-        print_remote_help()
-        exit(1)
+        raise MissingRemoteException("Could not make project Client, failed to find remote config: {0} {1}".format(remote_config.email, remote_config.mcurl))
     remote_config_with_apikey = config.remotes[config.remotes.index(remote_config)]
     return remote_config_with_apikey.make_client()
 
@@ -269,8 +254,7 @@ def make_local_project(path=None, data=None):
 
     proj_path = project_path(path)
     if not proj_path:
-        print("Not a Materials Commons project (or any of the parent directories)")
-        exit(1)
+        raise MCCLIException("No Materials Commons project found at " + path))
 
     project_config = read_project_config(path)
 
@@ -281,7 +265,7 @@ def make_local_project(path=None, data=None):
     project_table.close()
 
     if len(results) > 1:
-        raise MCCLIException("project db error: Found >1 project")
+        raise MCCLIException("Project db error: Found >1 project")
 
     client = make_local_project_client(path)
     if not results or not project_config.remote_updatetime or results[0]['checktime'] < project_config.remote_updatetime:
@@ -292,11 +276,9 @@ def make_local_project(path=None, data=None):
             else:
                 proj = models.Project(data=data)
         except requests.exceptions.ConnectionError as e:
-            print("Could not connect to " + remote.config.mcurl)
-            exit(1)
+            raise MCCLIException("Could not connect to " + remote.config.mcurl)
         except requests.exceptions.HTTPError as e:
-            print(e.response.json()['error'])
-            exit(1)
+            raise MCCLIException("HTTPError: " + e.response.json()['error'])
 
         record = {
             'id': project_config.project_id,
@@ -453,13 +435,9 @@ class ProjectConfig(object):
             config = Config()
             matching = [remote_config for remote_config in config.remotes if remote_config.mcurl == data['remote_url']]
             if len(matching) == 0:
-                print("Could not make local project, failed to find remote with url: {0}".format(data['remote_url']))
-                print_remote_help()
-                exit(1)
+                raise MissingRemoteException("Could not get project data. Failed to find remote with url: {0}".format(data['remote_url']))
             elif len(matching) > 1:
-                print("Could not make local project, found multiple remote accounts for url: {0}".format(data['remote_url']))
-                print('** Please edit .mc/config.json to include `"remote":{"mcurl": "' + data['remote_url'] + '", "email": "YOUR_EMAIL_HERE"}` **')
-                exit(1)
+                raise MultipleRemoteException("Could not get project data. Found multiple remote accounts for url: {0}".format(data['remote_url']))
             else:
                 data['remote'] = dict()
                 data['remote']['mcurl'] = matching[0].mcurl
