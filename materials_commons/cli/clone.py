@@ -51,6 +51,7 @@ def clone_subcommand(argv=sys.argv):
     pconfig = clifuncs.ProjectConfig(proj.local_path)
     pconfig.remote = proj.remote.config
     pconfig.project_id = proj.id
+    pconfig.project_uuid = proj.uuid
     pconfig.save()
 
     # done
