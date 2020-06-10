@@ -135,6 +135,7 @@ class ListObjects(object):
         """
 
         expr_help = 'select ' + self.typename_plural + ' that match the given regex (default matches name)'
+        id_help = 'match id instead of name'
         uuid_help = 'match uuid instead of name'
         owner_help = 'match owner instead of name'
         details_help = 'print detailed information'
@@ -164,6 +165,7 @@ class ListObjects(object):
             description=self.desc,
             prog=cmd)
         parser.add_argument('expr', nargs='*', default=None, help=expr_help)
+        parser.add_argument('--id', action="store_true", default=False, help=id_help)
         parser.add_argument('--uuid', action="store_true", default=False, help=uuid_help)
         if self.has_owner:
             parser.add_argument('--owner', action="store_true", default=False, help=owner_help)
@@ -203,7 +205,7 @@ class ListObjects(object):
         """
         Execute Materials Commons CLI command.
 
-        mc proc [--proj] [--expt] [--dataset] [--details | --json] [--uuid] [<name> ...]
+        mc proc [--proj] [--expt] [--dataset] [--details | --json] [--id] [--uuid] [<name> ...]
 
         """
         args = self.parse_args(argv)
@@ -281,7 +283,8 @@ class ListObjects(object):
     def get_all_objects(self, args, out=sys.stdout):
 
         if self.requires_project and not clifuncs.project_exists():
-            print("Not a Materials Commons project (or any of the parent directories)")
+            out.write("Not in a Materials Commons project directory.\n")
+            out.write("Aborting\n")
             exit(1)
 
         if hasattr(args, 'expt') and args.expt:
@@ -337,7 +340,9 @@ class ListObjects(object):
             else:
                 remethod = re.match
 
-            if args.uuid:
+            if args.id:
+                objects = [d for d in data if _any_match(d, 'id', remethod)]
+            elif args.uuid:
                 objects = [d for d in data if _any_match(d, 'uuid', remethod)]
             elif self.has_owner and args.owner:
                 objects = [d for d in data if _any_match(d, 'owner_id', remethod)]
