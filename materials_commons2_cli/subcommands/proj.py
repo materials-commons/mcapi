@@ -6,7 +6,8 @@ from collections import OrderedDict
 import materials_commons2.models as models
 from materials_commons2_cli.exceptions import MCCLIException
 from materials_commons2_cli.list_objects import ListObjects
-from materials_commons2_cli.functions import read_project_config, getit, trunc, format_time
+from materials_commons2_cli.functions import read_project_config, getit, trunc, format_time, \
+    remove_hidden_project_files
 
 
 class ProjSubcommand(ListObjects):
@@ -71,8 +72,9 @@ class ProjSubcommand(ListObjects):
                 # result = clifuncs.post_v3("deleteProject", params, remote=remote)
                 project_id = getit(obj, 'id')
                 result = remote.delete_project(project_id)
-                out.write(result)
-                msg = result['data']['success']
-                out.write("Deleted project: ", getit(obj, 'name'), "(" + getit(obj, 'id') + ")")
-            except MCCLIException:
-                out.write("Delete of project failed: ", getit(obj, 'name'), "(" + getit(obj, 'id') + ")")
+                # TODO: check return value
+                out.write('Deleted project: ' + obj.name + ' ' + str(obj.id) + '\n')
+                out.write('Note that this only deletes the project remotely and does not delete any '
+                    'local files.\n')
+            except:
+                out.write('Delete of project failed: ' + obj.name + ' ' + str(obj.id) + '\n')
