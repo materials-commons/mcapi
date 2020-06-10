@@ -33,7 +33,7 @@ setup(
     include_package_data=True,
     packages=find_packages(),
     entry_points={
-        'console_scripts': ['mc=materials_commons.cli.parser:main']
+        'console_scripts': ['mc=materials_commons2_cli.parser:main']
     },
     classifiers=[
         # How mature is this project? Common values are
@@ -72,6 +72,7 @@ setup(
         "tabulate>=0.8.1",
         "sortedcontainers>=1.5.7",
         "globus-sdk",
-        "globus-cli"
+        "globus-cli",
+        "pyyaml"
     ]
 )
