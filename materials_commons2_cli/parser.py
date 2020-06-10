@@ -16,7 +16,7 @@ from .subcommands.clone import clone_subcommand
 from .subcommands.dataset import DatasetSubcommand
 # from .diff import diff_subcommand
 # from .down import down_subcommand
-# from .expt import ExptSubcommand
+from .subcommands.expt import ExptSubcommand
 # from .fetch import fetch_subcommand
 # from .init import init_subcommand
 # from .ls import ls_subcommand
@@ -42,7 +42,7 @@ class CommonsCLIParser(object):
         {'name': 'remote', 'desc': 'List servers', 'subcommand': remote_subcommand},
         {'name': 'proj', 'desc': 'List projects', 'subcommand': ProjSubcommand()},
         {'name': 'dataset', 'desc': 'List datasets', 'subcommand': DatasetSubcommand()},
-        # {'name': 'expt', 'desc': 'List, create, delete, and modify experiments', 'subcommand': ExptSubcommand()},
+        {'name': 'expt', 'desc': 'List, create, delete, and modify experiments', 'subcommand': ExptSubcommand()},
         # {'name': 'init', 'desc': 'Initialize a new project', 'subcommand': init_subcommand},
         {'name': 'clone', 'desc': 'Clone an existing project', 'subcommand': clone_subcommand}
         # {'name': 'ls', 'desc': 'List local and remote directory contents', 'subcommand': ls_subcommand},
@@ -68,7 +68,8 @@ class CommonsCLIParser(object):
 
         config = Config()
         if config.REST_logging:
-            # TODO: client.set_debug_on()
+            import materials_commons2 as mcapi
+            mcapi.Client.set_debug_on()
             pass
 
         usage_help = StringIO()
