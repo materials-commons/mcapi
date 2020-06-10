@@ -56,7 +56,7 @@ class ProjSubcommand(ListObjects):
             {"owner": obj.owner_id}
         ]
         for d in data:
-            print(yaml.dump(d, width=70, indent=4), end='')
+            out.write(yaml.dump(d, width=70, indent=4))
 
     def delete(self, objects, args, dry_run, out=sys.stdout):
         # TODO: this needs testing
@@ -71,8 +71,8 @@ class ProjSubcommand(ListObjects):
                 # result = clifuncs.post_v3("deleteProject", params, remote=remote)
                 project_id = getit(obj, 'id')
                 result = remote.delete_project(project_id)
-                print(result)
+                out.write(result)
                 msg = result['data']['success']
-                print("Deleted project: ", getit(obj, 'name'), "(" + getit(obj, 'id') + ")")
+                out.write("Deleted project: ", getit(obj, 'name'), "(" + getit(obj, 'id') + ")")
             except MCCLIException:
-                print("Delete of project failed: ", getit(obj, 'name'), "(" + getit(obj, 'id') + ")")
+                out.write("Delete of project failed: ", getit(obj, 'name'), "(" + getit(obj, 'id') + ")")
