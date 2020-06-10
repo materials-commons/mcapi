@@ -2,6 +2,7 @@ import datetime
 import dateutil
 import json
 import os
+import requests
 import sys
 import time
 
@@ -15,6 +16,27 @@ from .user_config import Config, RemoteConfig
 import materials_commons2.models as models
 
 # TODO: mcapi.Config, mcapi.Remote, mcapi.RemoteConfig
+
+def mkdir_if(path):
+    if not os.path.exists(path):
+        os.mkdir(path)
+
+def remove_if(path):
+    if os.path.exists(path):
+        os.remove(path)
+
+def rmdir_if(path):
+    if os.path.exists(path):
+        os.rmdir(path)
+
+def make_file(path, text):
+    with open(path, 'w') as f:
+        f.write(text)
+
+def remove_hidden_project_files(project_path):
+    remove_if(os.path.join(project_path, ".mc", "config.json"))
+    remove_if(os.path.join(project_path, ".mc", "project.db"))
+    rmdir_if(os.path.join(project_path, ".mc"))
 
 def getit(obj, name, default=None):
     if isinstance(obj, dict):
@@ -290,7 +312,7 @@ def make_local_project(path=None, data=None):
         except requests.exceptions.ConnectionError as e:
             raise MCCLIException("Could not connect to " + remote.config.mcurl)
         except requests.exceptions.HTTPError as e:
-            raise MCCLIException("HTTPError: " + e.response.json()['error'])
+            raise MCCLIException("HTTPError: " + str(e))
 
         record = {
             'id': project_config.project_id,
