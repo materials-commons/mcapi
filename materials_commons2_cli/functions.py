@@ -314,19 +314,11 @@ def make_local_expt(proj):
     project_config = read_project_config(proj.local_path)
 
     if project_config:
-        for expt in proj.get_all_experiments():
-            if expt.id == project_config.experiment_id:
-                return expt
+        expt = proj.remote.get_experiment(project_config.experiment_id)
+        expt.project = proj
+        return expt
 
     return None
-
-def current_experiment_id(proj):
-    """Return current experiment id, else None"""
-    project_config = read_project_config(proj.local_path)
-    if project_config:
-        return project_config.experiment_id
-    else:
-        return None
 
 def humanize(file_size_bytes):
     abbrev = [("B", 0), ("K", 10), ("M", 20), ("G", 30), ("T", 40)]
