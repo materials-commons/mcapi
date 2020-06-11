@@ -13,6 +13,7 @@ except ImportError:
 
 try:
     import urllib3
+
     urllib3.disable_warnings()
 except ImportError:
     pass
@@ -112,6 +113,12 @@ class Client(object):
         :rtype Project
         """
         return Project(self.put("/projects/" + str(project_id), attrs.to_dict()))
+
+    def add_user_to_project(self, project_id, user_id):
+        return Project(self.put("/projects/" + str(project_id) + "/add-user/" + str(user_id), {}))
+
+    def remove_user_from_project(self, project_id, user_id):
+        self.delete("/projects/" + str(project_id) + "/remove-user/" + str(user_id))
 
     # Experiments
     def get_all_experiments(self, project_id, params=None):
@@ -355,6 +362,9 @@ class Client(object):
         """
         file = self.get_file_by_path(project_id, path)
         self.download_file(project_id, file.id, to)
+
+    def upload_file(self, project_id, directory_id, file_path):
+        self.upload("/projects/" + str(project_id) + "/files/" + str(directory_id) + "/upload", file_path)
 
     # Entities
     def get_all_entities(self, project_id, params=None):
@@ -633,6 +643,13 @@ class Client(object):
         """
         return GlobusDownload(self.get("/projects/" + str(project_id) + "/globus/downloads/" + str(globus_download_id)))
 
+    # Users
+    def get_user_by_email(self, email):
+        return User(self.get("/users/by-email/" + email))
+
+    def list_users(self):
+        return User.from_list(self.get("/users"))
+
     # request calls
     def download(self, urlpart, to):
         url = self.base_url + urlpart
@@ -642,6 +659,13 @@ class Client(object):
                 for chunk in r.iter_content(chunk_size=8192):
                     if chunk:
                         f.write(chunk)
+
+    def upload(self, urlpart, file_path):
+        url = self.base_url + urlpart
+        with open(file_path, 'rb') as f:
+            files = [('files[]', f)]
+            r = requests.post(url, verify=False, headers=self.headers, files=files)
+            r.raise_for_status()
 
     def get(self, urlpart, params={}, other_params={}):
         url = self.base_url + urlpart
@@ -676,3 +700,11 @@ class Client(object):
             print("DELETE:", url)
         r = requests.delete(url, verify=False, headers=self.headers)
         r.raise_for_status()
+
+    def delete_with_value(self, urlpart):
+        url = self.base_url + urlpart
+        if self.log:
+            print("DELETE:", url)
+        r = requests.delete(url, verify=False, headers=self.headers)
+        r.raise_for_status()
+        return r.json()["data"]

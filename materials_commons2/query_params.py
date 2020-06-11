@@ -47,4 +47,6 @@ class QueryParams(object):
     def to_query_args(params):
         if params is None:
             return {}
+        if type(params) is dict:
+            return params
         return params.to_params()
