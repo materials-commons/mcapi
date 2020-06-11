@@ -286,7 +286,7 @@ class Client(object):
         :return: The file
         :rtype File
         """
-        return File(self.get("/project/" + str(project_id) + "/files/" + str(file_id), params))
+        return File(self.get("/projects/" + str(project_id) + "/files/" + str(file_id), params))
 
     def get_file_by_path(self, project_id, file_path):
         """
