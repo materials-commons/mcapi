@@ -578,6 +578,30 @@ class Client(object):
         """
         self.download("/datasets/" + str(dataset_id) + "/download_zipfile", to)
 
+    def check_file_in_dataset(self, project_id, dataset_id, file_id):
+        """
+        Check if file is in the dataset selection
+        :param int project_id: project dataset and file are in
+        :param int dataset_id: dataset to check file_selection against
+        :param int file_id: file to check
+        :return: {'in_dataset': True} or {'in_dataset': False}
+        """
+        return self.get("/projects/" + str(project_id) + "/datasets/" + str(dataset_id) + "/files/" + str(
+            file_id) + "/check_selection")
+
+    def check_file_by_path_in_dataset(self, project_id, dataset_id, file_path):
+        """
+        Check if file path is in the dataset selection. Throws an error if the file_path isn't in the project.
+        :param int project_id: project dataset and file_path are in
+        :param int dataset_id: data to check file_selection against
+        :param str file_path: file_path to check against dataset file_selection
+        :return: {'in_dataset': True} or {'in_dataset': False}
+        :exception if file_path doesn't exist in project
+        """
+        form = {"file_path": file_path}
+        return self.post("/projects/" + str(project_id) + "/datasets/" + str(dataset_id) + "/check_select_by_path",
+                         form)
+
     # Globus
     def create_globus_upload_request(self, project_id, name):
         """
