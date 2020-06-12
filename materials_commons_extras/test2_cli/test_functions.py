@@ -2,7 +2,7 @@ import os
 import time
 import unittest
 
-from .cli_test_project import test_project_directory, basic_project_1, rmdir_if, remove_hidden_project_files
+from .cli_test_project import test_project_directory, rmdir_if, remove_hidden_project_files
 import materials_commons2_cli.functions as clifuncs
 import materials_commons2_cli.user_config as user_config
 
