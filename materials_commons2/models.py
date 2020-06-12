@@ -122,9 +122,17 @@ class File(Common):
         return File.from_list(data.get(attr, []))
 
 
-class User(Common):
+class User(object):
     def __init__(self, data={}):
-        super(User, self).__init__(data)
+        self._data = data.copy()
+        self.id = data.get('id', None)
+        self.uuid = data.get('uuid', None)
+        self.name = data.get('name', None)
+        self.email = data.get('email', None)
+        self.description = data.get('description', None)
+        self.affiliation = data.get('affiliation', None)
+        self.created_at = get_date('created_at', data)
+        self.updated_at = get_date('updated_at', data)
 
     @staticmethod
     def from_list(data):
