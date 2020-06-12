@@ -215,7 +215,7 @@ class Client(object):
         path_param = {"path": path}
         return File.from_list(self.get("/projects/" + str(project_id) + "/directories_by_path", params, path_param))
 
-    def create_directory(self, project_id, name, parent_id, attrs):
+    def create_directory(self, project_id, name, parent_id, attrs=None):
         """
         Create a new directory in project in the given directory
         :param int project_id: The id of the project the directory will be created in
