@@ -364,6 +364,12 @@ class Client(object):
         self.download_file(project_id, file.id, to)
 
     def upload_file(self, project_id, directory_id, file_path):
+        """
+        Uploads a file to a project
+        :param int project_id: The project to upload file to
+        :param int directory_id: The directory in the project to upload the file into
+        :param str file_path: path of file to upload
+        """
         self.upload("/projects/" + str(project_id) + "/files/" + str(directory_id) + "/upload", file_path)
 
     # Entities
@@ -467,6 +473,15 @@ class Client(object):
         """
         return Dataset.from_list(self.get("/projects/" + str(project_id) + "/datasets", params))
 
+    def get_all_published_datasets(self, params=None):
+        """
+        Get all published datasets
+        :param params:
+        :return: The list of published datasets
+        :rtype Dataset[]
+        """
+        return Dataset.from_list(self.get("/datasets/published", params))
+
     def get_dataset(self, project_id, dataset_id, params=None):
         """
         Get dataset in a project
@@ -537,8 +552,8 @@ class Client(object):
         """
         if not attrs:
             attrs = CreateDatasetRequest()
-        form = merge_dicts({"name": name, "project_id": project_id, "action": "ignore"}, attrs.to_dict())
-        return Dataset(self.post("/datasets", form))
+        form = merge_dicts({"name": name}, attrs.to_dict())
+        return Dataset(self.post("/projects/" + str(project_id) + "/datasets", form))
 
     def update_dataset(self, project_id, dataset_id, name, attrs=None):
         """
@@ -552,8 +567,8 @@ class Client(object):
         """
         if not attrs:
             attrs = UpdateDatasetRequest()
-        form = merge_dicts({"name": name, "project_id": project_id, "action": "ignore"}, attrs.to_dict())
-        return Dataset(self.put("/datasets/" + str(dataset_id), form))
+        form = merge_dicts({"name": name}, attrs.to_dict())
+        return Dataset(self.put("/projects/" + str(project_id) + "/datasets/" + str(dataset_id), form))
 
     def download_dataset_zipfile(self, dataset_id, to):
         """
