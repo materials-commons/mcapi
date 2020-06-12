@@ -29,7 +29,7 @@ def test_project_directory():
         raise Exception("No MC_TEST_DATA_DIR environment variable")
     return os.environ['MC_TEST_DATA_DIR']
 
-def basic_project_1(path):
+def make_basic_project_1(path):
     """Construct a basic TestProject, example #1 (two levels of directories, each with two files)
 
     Arguments
@@ -74,10 +74,7 @@ class TestProject(object):
 
     def clean_files(self):
         self.remove_test_files()
-        mc = os.path.join(self.path, ".mc")
-        config = os.path.join(mc, "config.json")
-        remove_if(config)
-        rmdir_if(mc)
+        remove_hidden_project_files(self.path)
         rmdir_if(self.path)
 
     def make_test_files(self):
