@@ -182,7 +182,7 @@ class Client(object):
         :return: The directory
         :rtype File
         """
-        return File(self.get("/projects/" + str(project_id) + "/directories/" + str(directory_id), params))
+        return File(self.get("/project/" + str(project_id) + "/directories/" + str(directory_id), params))
 
     def list_directory(self, project_id, directory_id, params=None):
         """
@@ -196,7 +196,7 @@ class Client(object):
         return File.from_list(
             self.get("/projects/" + str(project_id) + "/directories/" + str(directory_id) + "/list", params))
 
-    def list_directory_by_path(self, project_id, path, params):
+    def list_directory_by_path(self, project_id, path, params=None):
         """
         Return a list of all the files and directories at given path
         :param int project_id: The id of the project the path is in
