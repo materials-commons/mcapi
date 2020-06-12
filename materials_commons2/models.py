@@ -112,6 +112,8 @@ class File(Common):
         self.mime_type = data.get('mime_type', None)
         self.path = data.get('path', None)
         self.directory_id = data.get('directory_id', None)
+        self.size = data.get('size', None)
+        self.checksum = data.get('checksum', None)
 
     @staticmethod
     def from_list(data):
