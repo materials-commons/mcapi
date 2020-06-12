@@ -3,19 +3,26 @@ import os
 
 import materials_commons2 as mcapi
 
+# The purpose of this test to check expected server and api behavior independently of cli code
+# Restrict use of CLI functions to configuration and only very basic functions
 import materials_commons2_cli.user_config as user_config
+from materials_commons2_cli.file_functions import isfile, isdir
+from materials_commons2_cli.functions import checksum
+
+from .cli_test_project import make_basic_project_1, test_project_directory, remove_if
 
 class TestAPI(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        client = user_config.Config().default_remote.make_client()
-        result = client.get_all_projects()
-        for proj in result:
-            try:
-                client.delete_project(proj.id)
-            except:
-                pass
+        pass
+        # client = user_config.Config().default_remote.make_client()
+        # result = client.get_all_projects()
+        # for proj in result:
+        #     try:
+        #         client.delete_project(proj.id)
+        #     except:
+        #         pass
 
     def test_project_api(self):
         """Test the basic API project commands independently of the CLI"""
@@ -110,3 +117,173 @@ class TestAPI(unittest.TestCase):
 
         all_experiments = client.get_all_experiments(proj.id)
         self.assertEqual(len(all_experiments), 0)
+
+    def test_file_api(self):
+        """Test the API files and directories commands independently of the CLI"""
+        mcurl = os.environ.get("MC_API_URL")
+        email = os.environ.get("MC_API_EMAIL")
+        password = os.environ.get("MC_API_PASSWORD")
+        client = mcapi.Client.login(email, password, base_url=mcurl)
+
+        proj = client.create_project("__clitest__file_api")
+        print("project", proj._data, "\n")
+
+        ### test empty directory api commands ###
+
+        # get root directory by path (get_file_by_path gets files and directories)
+        result = client.get_file_by_path(proj.id, "/")
+        self.assertEqual(isdir(result), True)
+        root_directory_id = result.id
+
+        # get root directory by id
+        result = client.get_directory(proj.id, root_directory_id)
+        self.assertEqual(isdir(result), True)
+        self.assertEqual(result.id, root_directory_id)
+
+        # get root directory contents by id (should be empty)
+        result = client.list_directory(proj.id, root_directory_id)
+        self.assertEqual(result, list())
+
+        # get root directory contents by path (should be empty)
+        result = client.list_directory_by_path(proj.id, "/")
+        self.assertEqual(result, list())
+
+        # create directory
+        result = client.create_directory(proj.id, "example_dir", root_directory_id)
+        print("create example_dir directory", result._data, "\n")
+        self.assertEqual(isdir(result), True)
+        self.assertEqual(result.name, "example_dir")
+        self.assertEqual(result.path, "/example_dir")
+        example_dir_id = result.id
+
+        # get root directory contents by id (should have example_dir)
+        result = client.list_directory(proj.id, root_directory_id)
+        self.assertEqual(len(result), 1)
+        self.assertEqual(isdir(result[0]), True)
+        self.assertEqual(result[0].name, "example_dir")
+        self.assertEqual(result[0].id, example_dir_id)
+
+        # get example_dir by id
+        result = client.get_directory(proj.id, example_dir_id)
+        self.assertEqual(isdir(result), True)
+        self.assertEqual(result.name, "example_dir")
+        self.assertEqual(result.id, example_dir_id)
+
+        # get example_dir by path (get_file_by_path gets files and directories)
+        result = client.get_file_by_path(proj.id, "/example_dir")
+        self.assertEqual(isdir(result), True)
+        self.assertEqual(result.name, "example_dir")
+        self.assertEqual(result.id, example_dir_id)
+
+        # rename example_dir -> example_dir_new_name
+        result = client.rename_directory(proj.id, example_dir_id, "example_dir_new_name")
+        self.assertEqual(isdir(result), True)
+        self.assertEqual(result.name, "example_dir_new_name")
+        self.assertEqual(result.id, example_dir_id)
+        self.assertEqual(result.path, "/example_dir_new_name")
+
+        # move /example_dir_new_name -> /other_dir/example_dir_new_name
+        result = client.create_directory(proj.id, "other_dir", root_directory_id)
+        print("create other_dir directory", result._data, "\n")
+        self.assertEqual(isdir(result), True)
+        other_dir_id = result.id
+        result = client.move_directory(proj.id, example_dir_id, other_dir_id)
+        print("move_directory", result._data, "\n")
+        self.assertEqual(isdir(result), True)
+        self.assertEqual(result.name, "example_dir_new_name")
+        self.assertEqual(result.id, example_dir_id)
+        self.assertEqual(result.path, "/other_dir/example_dir_new_name")
+
+        # delete directories
+        result = client.delete_directory(proj.id, example_dir_id)
+        result = client.delete_directory(proj.id, other_dir_id)
+        self.assertEqual(result, True)
+
+        # check that root directory is now empty
+        result = client.list_directory(proj.id, root_directory_id)
+        self.assertEqual(len(result), 0)
+
+        ### create local project and test upload / download of files ###
+
+        # write local project files and directories locally
+        proj_path = os.path.join(test_project_directory(), proj.name)
+        basic_project_1 = make_basic_project_1(proj_path)
+        self.assertEqual(os.path.isdir(proj_path), True)
+
+        # upload file
+        filepath = os.path.join(proj_path, "file_A.txt")
+        local_checksum = checksum(filepath)
+        local_size = os.path.getsize(filepath)
+        result = client.upload_file(proj.id, root_directory_id, filepath)
+        self.assertEqual(isfile(result), True)
+        self.assertEqual(result.name, "file_A.txt")
+        self.assertEqual(result.directory_id, root_directory_id)
+        self.assertEqual(result.path, None)
+        self.assertEqual(result.checksum, local_checksum)
+        self.assertEqual(result.size, local_size)
+        file_id = result.id
+
+        # get file by id
+        result = client.get_file(proj.id, file_id)
+        self.assertEqual(isfile(result), True)
+        self.assertEqual(result.name, "file_A.txt")
+        self.assertEqual(result.id, file_id)
+
+        # get file by path
+        result = client.get_file(proj.id, "/file_A.txt")
+        self.assertEqual(isfile(result), True)
+        self.assertEqual(result.name, "file_A.txt")
+        self.assertEqual(result.id, file_id)
+
+        # rename file
+        result = client.rename_file(proj.id, file_id, "file_A_new_name.txt")
+        self.assertEqual(isfile(result), True)
+        self.assertEqual(result.name, "file_A_new_name.txt")
+        self.assertEqual(result.id, file_id)
+
+        # download file by id
+        orig_filepath = os.path.join(proj_path, "file_A.txt")
+        new_filepath = os.path.join(proj_path, "file_A_new_name.txt")
+        result = client.get_file(proj.id, file_id)
+
+        self.assertEqual(os.path.exists(new_filepath), False)
+        client.download_file(proj.id, file_id, new_filepath)
+        self.assertEqual(os.path.exists(new_filepath), True)
+        self.assertEqual(os.path.isfile(new_filepath), True)
+
+        orig_checksum = checksum(orig_filepath)
+        orig_size = os.path.getsize(orig_filepath)
+        new_checksum = checksum(new_filepath)
+        new_size = os.path.getsize(new_filepath)
+        self.assertEqual(result.checksum, orig_checksum)
+        self.assertEqual(result.checksum, new_checksum)
+        self.assertEqual(result.size, orig_size)
+        self.assertEqual(result.size, new_size)
+
+        remove_if(new_filepath)
+
+        # move file
+        result = client.create_directory(proj.id, "example_dir", root_directory_id)
+        self.assertEqual(isdir(result), True)
+        example_dir_id = result.id
+        result = client.move_file(proj.id, file_id, example_dir_id)
+        self.assertEqual(isfile(result), True)
+        self.assertEqual(result.name, "file_A_new_name.txt")
+        self.assertEqual(result.id, file_id)
+        self.assertEqual(result.directory_id, example_dir_id)
+        self.assertEqual(result.path, "/example_dir/file_A_new_name.txt")
+        result = client.list_directory(proj.id, example_dir_id)
+        self.assertEqual(len(result), 1)
+
+        # delete file
+        result = client.delete_file(proj.id, file_id)
+        self.assertEqual(result, True)
+        result = client.list_directory(proj.id, example_dir_id)
+        self.assertEqual(len(result), 0)
+
+        result = client.delete_directory(proj.id, example_dir_id)
+        self.assertEqual(result, True)
+
+        # clean up
+        test_project_1.clean_files()
+        client.delete_project(proj.id)

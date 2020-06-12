@@ -1,5 +1,6 @@
 import datetime
 import dateutil
+import hashlib
 import json
 import os
 import requests
@@ -47,6 +48,20 @@ def getit(obj, name, default=None):
 def as_is(value):
     return value
 
+def epoch_time(mtime):
+    if isinstance(mtime, str): # expect ISO 8601 str
+        return time.mktime(dateutil.parser.parse(mtime).timetuple())
+    elif isinstance(mtime, (float, int)):
+        return mtime
+    elif isinstance(mtime, datetime.datetime):
+        return time.mktime(mtime.timetuple())
+    elif isinstance(mtime, dict) and ('epoch_time' in mtime):
+        return mtime['epoch_time']
+    elif mtime is None:
+        return None
+    else:
+        return str(type(mtime))
+
 def format_time(mtime, fmt="%Y %b %d %H:%M:%S"):
     if isinstance(mtime, str): # expect ISO 8601 str
         return dateutil.parser.parse(mtime).strftime(fmt)
@@ -60,6 +75,10 @@ def format_time(mtime, fmt="%Y %b %d %H:%M:%S"):
         return '-'
     else:
         return str(type(mtime))
+
+def checksum(path):
+    with open(path, 'rb') as f:
+        return hashlib.md5(f.read()).hexdigest()
 
 def print_table(data, columns=[], headers=[], out=None):
     """Print table from list of dict
