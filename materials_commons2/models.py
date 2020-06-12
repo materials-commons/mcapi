@@ -64,6 +64,8 @@ class Dataset(Common):
         self.activities = Activity.from_list_attr(data)
         self.entities = Entity.from_list_attr(data)
         self.files = File.from_list_attr(data)
+        self.published_at = data.get('published_at', None)
+        self.zipfile_size = data.get('zipfile_size', None)
 
     @staticmethod
     def from_list(data):
