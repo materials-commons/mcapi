@@ -189,7 +189,7 @@ class Client(object):
         :return: The directory
         :rtype File
         """
-        return File(self.get("/project/" + str(project_id) + "/directories/" + str(directory_id), params))
+        return File(self.get("/projects/" + str(project_id) + "/directories/" + str(directory_id), params))
 
     def list_directory(self, project_id, directory_id, params=None):
         """
