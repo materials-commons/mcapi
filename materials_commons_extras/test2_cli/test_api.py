@@ -76,8 +76,7 @@ class TestAPI(unittest.TestCase):
         # test "delete_project"
         for proj in result:
             if proj.name in project_names:
-                result = client.delete_project(proj.id)
-                self.assertEqual(result, True)
+                client.delete_project(proj.id)
 
         result = client.get_all_projects()
         self.assertEqual(len(result) - n_projects_init, 0)
@@ -113,8 +112,7 @@ class TestAPI(unittest.TestCase):
             experiment_request = mcapi.CreateExperimentRequest(description="<new description>")
             updated_expt = client.update_experiment(expt.id, experiment_request)
             self.assertEqual(updated_expt.description, "<new description>")
-            success = client.delete_experiment(proj.id, expt.id)
-            self.assertEqual(success, True)
+            client.delete_experiment(proj.id, expt.id)
 
         all_experiments = client.get_all_experiments(proj.id)
         self.assertEqual(len(all_experiments), 0)
@@ -201,10 +199,8 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(result.path, "/other_dir/example_dir_new_name")
 
         # delete directories
-        result = client.delete_directory(proj.id, example_dir_id)
-        self.assertEqual(result, True)
-        result = client.delete_directory(proj.id, other_dir_id)
-        self.assertEqual(result, True)
+        client.delete_directory(proj.id, example_dir_id)
+        client.delete_directory(proj.id, other_dir_id)
 
         # check that root directory is now empty
         result = client.list_directory(proj.id, root_directory_id)
@@ -302,8 +298,7 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(len(result), 1)
 
         # delete file
-        result = client.delete_file(proj.id, file_id)
-        self.assertEqual(result, True)
+        client.delete_file(proj.id, file_id)
         result = client.list_directory(proj.id, example_dir_id)
         self.assertEqual(len(result), 0)
 
