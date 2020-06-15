@@ -7,6 +7,7 @@ import time
 import materials_commons2 as mcapi
 import materials_commons2_cli.functions as clifuncs
 import materials_commons2_cli.tree_functions as treefuncs
+import materials_commons2_cli.file_functions as filefuncs
 from materials_commons2_cli.treedb import LocalTree, RemoteTree
 
 #  Want to print() something like:
@@ -65,9 +66,9 @@ def _format_path_data(proj, data, columns, refpath=None, checksum=False):
     if refpath is None:
         refpath = os.getcwd()
 
-    def _get_name(path):
+    def _get_name(mcpath):
         from os.path import abspath, dirname, join, relpath
-        local_abspath=abspath(join(dirname(proj.local_path), path))
+        local_abspath = filefuncs.make_local_abspath(proj.local_path, mcpath)
         return relpath(local_abspath, refpath)
 
     for path in sorted(data.keys()):
@@ -160,7 +161,6 @@ def ls_subcommand(argv=sys.argv):
     pconfig = clifuncs.read_project_config()
 
     # convert cli input to materials commons path convention: /path/to/file_or_dir
-    refpath = os.path.dirname(proj.local_path)
     mcpaths = treefuncs.clipaths_to_mcpaths(proj.local_path, args.paths)
 
     if args.checksum:
@@ -174,6 +174,8 @@ def ls_subcommand(argv=sys.argv):
         remotetree = RemoteTree(proj, pconfig.remote_updatetime)
 
     # compare local and remote tree
+    print("begin treecompare")
+    print("mcpaths:", mcpaths)
     files_data, dirs_data, child_data, not_existing = treefuncs.treecompare(
         proj, mcpaths, checksum=args.checksum,
         localtree=localtree, remotetree=remotetree)
@@ -192,7 +194,7 @@ def ls_subcommand(argv=sys.argv):
 
     if not_existing:
         for path in not_existing:
-            local_abspath = os.path.join(refpath, path)
+            local_abspath = filefuncs.make_local_abspath(proj.local_path, path)
             print(os.path.relpath(local_abspath) + ": No such file or directory")
         print("")
 
@@ -262,7 +264,7 @@ def ls_subcommand(argv=sys.argv):
 
     # print directory children
     for d in child_data:
-        local_dirpath = os.path.join(refpath, d)
+        local_dirpath = filefuncs.make_local_abspath(proj.local_path, d)
         _ls_print(proj, child_data[d], refpath=local_dirpath, printjson=args.json, checksum=args.checksum, checkdset=args.dataset)
 
 

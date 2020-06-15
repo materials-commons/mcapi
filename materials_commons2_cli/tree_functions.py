@@ -26,7 +26,6 @@ def clipaths_to_mcpaths(proj_local_path, clipaths, workdir=None):
         List Materials Commons paths (does not include project top directory, starts with "/") to
         upload, excluding the `.mc` directory.
     """
-    refpath = proj_local_path
     if workdir is None:
         workdir = os.getcwd()
     if not os.path.isabs(workdir):
@@ -35,15 +34,7 @@ def clipaths_to_mcpaths(proj_local_path, clipaths, workdir=None):
     for p in clipaths:
         if not os.path.isabs(p):
             p = os.path.join(workdir, p)
-        filepath = os.path.normpath(os.path.abspath(p))
-        relpath = os.path.relpath(filepath, refpath)
-        if relpath == ".":
-            mcpath = "/"
-        else:
-            mcpath = os.path.join("/", relpath)
-        print("filepath:", filepath)
-        print("relpath:", relpath)
-        print("mcpath:", mcpath)
+        mcpath = filefuncs.make_mcpath(proj_local_path, p)
         mcpaths.append(mcpath)
     return mcpaths
 
@@ -80,15 +71,13 @@ def make_paths_for_upload(proj_local_path, paths):
 
 def standard_upload(proj, paths, recursive=False, limit=50, remotetree=None):
 
-    refpath = os.path.dirname(proj.local_path)
     paths = make_paths_for_upload(proj.local_path, paths)
 
     for path in paths:
-        local_abspath = os.path.join(refpath, path)
+        local_abspath = filefuncs.make_local_abspath(proj.local_path, path)
         printpath = os.path.relpath(local_abspath)
 
         if os.path.isfile(local_abspath):
-            # print("uploading:", p)
             try:
                 # TODO: update file upload
                 # result = proj.remote.upload_file_by_local_path(proj.id, remote_path, local_abspath, verbose=True, limit=limit)
@@ -149,7 +138,6 @@ class _TreeCompare(object):
     """
     def __init__(self, proj, localtree=None, remotetree=None):
         self.proj = proj
-        self.refpath = os.path.dirname(proj.local_path)
         self.localtree = localtree
         self.remotetree = remotetree
 
@@ -175,7 +163,7 @@ class _TreeCompare(object):
 
     def _update_local(self, path, checksum=False):
         """Get local file or directory (and children) information"""
-        local_abspath = os.path.join(self.refpath, path)
+        local_abspath = filefuncs.make_local_abspath(self.proj.local_path, path)
 
         if not os.path.exists(local_abspath):
             return
@@ -227,8 +215,7 @@ class _TreeCompare(object):
 
     def _update_remote(self, path):
         """Get remote file or directory (and children) information"""
-        # TODO
-        obj = clifuncs.get_by_path(self.proj, path)
+        obj = filefuncs.get_by_path_if_exists(self.proj.remote, self.proj.id, path)
         if obj is not None:
             if filefuncs.isfile(obj):
                 if path not in self.files_data:
@@ -494,7 +481,6 @@ class _Mover(object):
     """Helper for the move function"""
     def __init__(self, proj, remote_only=False, localtree=None, remotetree=None):
         self.proj = proj
-        self.refpath = os.path.dirname(proj.local_path)
         self.remote_only = remote_only
         self.localtree = localtree
         self.remotetree = remotetree
@@ -577,13 +563,13 @@ class _Mover(object):
     def _move_local(self, path, to_directory_path, name=None):
         if name is None:
             name = os.path.basename(path)
-        src = os.path.join(self.refpath, path)
-        dest = os.path.join(self.refpath, to_directory_path, name)
+        src = filefuncs.make_local_abspath(self.proj.local_path, path)
+        dest = filefuncs.make_local_abspath(self.proj.local_path, os.path.join(to_directory_path, name))
         shutil.move(src, dest)
 
     def _validate_usage(self, paths):
         dest_path = paths[-1]
-        dest_local_abspath = os.path.join(self.refpath, dest_path)
+        dest_local_abspath = filefuncs.make_local_abspath(self.proj.local_path, dest_path)
         dest_printpath = os.path.relpath(dest_local_abspath)
 
         dest_remote_type = None
@@ -616,11 +602,11 @@ class _Mover(object):
         if name is None:
             name = os.path.basename(path)
 
-        local_abspath = os.path.join(self.refpath, path)
+        local_abspath = filefuncs.make_local_abspath(self.proj.local_path, path)
         printpath = os.path.relpath(local_abspath)
 
         dest_path = os.path.join(to_directory_path, name)
-        dest_local_abspath = os.path.join(self.refpath, dest_path)
+        dest_local_abspath = filefuncs.make_local_abspath(self.proj.local_path, dest_path)
         dest_printpath = os.path.relpath(dest_local_abspath)
 
         # check source exists
@@ -722,7 +708,6 @@ class _Remover(object):
     """Helper for the remove function"""
     def __init__(self, proj, recursive=False, no_compare=False, remote_only=False, localtree=None, remotetree=None):
         self.proj = proj
-        self.refpath = os.path.dirname(proj.local_path)
         self.recursive = recursive
         self.no_compare = no_compare
         self.remote_only = remote_only
@@ -731,7 +716,6 @@ class _Remover(object):
         self.remotetree = remotetree
 
     def _update_remote(self, path):
-        # print("_update_remote:", path)
         if not self.remotetree:
             return
 
@@ -771,7 +755,7 @@ class _Remover(object):
 
 
     def _remove_local_file(self, path):
-        local_abspath = os.path.join(self.refpath, path)
+        local_abspath = filefuncs.make_local_abspath(self.proj.local_path, path)
         if self.dry_run:
             print("(dry run) rm local:", local_abspath)
         else:
@@ -847,7 +831,7 @@ class _Remover(object):
 
 
     def _remove_local_directory(self, path):
-        local_abspath = os.path.join(self.refpath, path)
+        local_abspath = filefuncs.make_local_abspath(self.proj.local_path, path)
         if not os.path.exists(local_abspath):
             return
         if self.dry_run:
@@ -869,7 +853,7 @@ class _Remover(object):
                 self._update_remote(path)
             return
 
-        local_abspath = os.path.join(self.refpath, path)
+        local_abspath = filefuncs.make_local_abspath(self.proj.local_path, path)
         if self.localtree:
             self._update_local(path)
             self.localtree.connect()
@@ -914,7 +898,7 @@ class _Remover(object):
         # if path does not exist, do nothing
         if not_existing:
             for path in not_existing:
-                local_abspath = os.path.join(self.refpath, path)
+                local_abspath = filefuncs.make_local_abspath(self.proj.local_path, path)
                 print(os.path.relpath(local_abspath) + ": No such file or directory")
 
         # if path is a file, attempt to remove it
@@ -1010,11 +994,9 @@ def mkdir(proj, path, remote_only=False, create_intermediates=False, remotetree=
         True if successful, False otherwise
 
     """
-    refpath = os.path.dirname(proj.local_path)
-    local_abspath = os.path.join(refpath, path)
+    local_abspath = filefuncs.make_local_abspath(self.proj.local_path, path)
     parent_path = os.path.dirname(path)
-    #TODO
-    parent = clifuncs.get_directory_by_path(proj, parent_path)
+    parent = filefuncs.get_by_path_if_exists(proj.remote, proj.id, parent_path)
 
     files_data, dirs_data, child_data, non_existing = treecompare(proj, [path], remotetree=remotetree)
 
@@ -1025,10 +1007,9 @@ def mkdir(proj, path, remote_only=False, create_intermediates=False, remotetree=
 
     if parent is None:
         if create_intermediates:
-            if not add_directory(proj, parent_path, create_intermediates=True):
+            if not mkdir(proj, parent_path, create_intermediates=True):
                 return False
-            #TODO
-            parent = clifuncs.get_directory_by_path(proj, parent_path)
+            parent = filefuncs.get_by_path_if_exists(proj.remote, proj.id, parent_path)
             if parent is None:
                 raise cliexcept.MCCLIException("No such directory: " + parent_path)
         else:
@@ -1041,11 +1022,7 @@ def mkdir(proj, path, remote_only=False, create_intermediates=False, remotetree=
         "path": os.path.basename(path)
     }
 
-    #TODO
-    result = clifuncs.post_v3(
-        "createDirectoryInProject",
-        params,
-        remote=proj.remote)['data']
+    result = proj.remote.create_directory(proj.id, os.path.basename(path), parent.id)
 
     if remotetree:
         remotetree.connect()

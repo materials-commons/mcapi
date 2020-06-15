@@ -390,9 +390,11 @@ class RemoteTree(TreeTable):
         record = {}
         for key in self.tablecolumns():
             if key == "id":
-                record["id"] = str(file_or_dir.id)
+                if file_or_dir.id:
+                    record["id"] = str(file_or_dir.id)
             elif key == "parent_id":
-                record["parent_id"] = str(file_or_dir.directory_id)
+                if file_or_dir.directory_id:
+                    record["parent_id"] = str(file_or_dir.directory_id)
             elif key == "checktime":
                 record["checktime"] = checktime
             elif key == "mtime":
@@ -400,11 +402,9 @@ class RemoteTree(TreeTable):
             elif key == "path":
                 record["path"] = file_or_dir.path
             elif key == "parent_path":
-                print("file_or_dir.path:", file_or_dir.path)
                 parent_path = os.path.dirname(file_or_dir.path)
-                if not parent_path:
-                    parent_path = None
-                record["parent_path"] = parent_path
+                if parent_path != file_or_dir.path:
+                    record["parent_path"] = parent_path
             elif key == "otype":
                 if filefuncs.isfile(file_or_dir):
                     record["otype"] = "file"
@@ -452,16 +452,12 @@ class RemoteTree(TreeTable):
         if isinstance(path, str):
             try:
 
-                file_or_dir_obj = proj.remote.get_file_by_path(proj.id, path)
-                if file_or_dir_obj.path is None:
-                    file_or_dir_obj.path = path
-                print("file_or_dir_obj._data:", file_or_dir_obj._data)
-
+                file_or_dir_obj = filefuncs.get_by_path_if_exists(proj.remote, proj.id, path)
                 if file_or_dir_obj is None:
                     return (file_or_dir, children)
-
+                if file_or_dir_obj.path is None:
+                    file_or_dir_obj.path = path
                 file_or_dir = self._make_record(file_or_dir_obj, checktime)
-                print("file_or_dir:", file_or_dir)
             except cliexcept.MCCLIException:
                 pass
         else:
@@ -471,14 +467,12 @@ class RemoteTree(TreeTable):
             children = []
             if file_or_dir_obj is not None and filefuncs.isdir(file_or_dir_obj):
                 for child in proj.remote.list_directory(proj.id, file_or_dir_obj.id):
-                    print("type(child):", type(child))
                     _checktime = checktime
                     if filefuncs.isdir(child):
                         _checktime = None
                     if filefuncs.isfile(child):
                         child.path = os.path.join(path, child.name)
                     children.append(self._make_record(child, _checktime))
-            print("children:", children)
 
         return (file_or_dir, children)
 
@@ -525,7 +519,7 @@ class LocalTree(TreeTable):
 
     def __init__(self, proj):
         super(LocalTree, self).__init__(proj)
-        self.refpath = os.path.dirname(proj.local_path)
+        self.proj_local_path = proj.local_path
 
     def needs_update(self, existing):
         path = existing['path']
@@ -560,7 +554,7 @@ class LocalTree(TreeTable):
         else:
             raise cliexcept.MCCLIException("LocalTree._make_record error: 'local_abspath'='" + local_abspath + "' is not a file or directory.")
         record['id'] = None
-        record['path'] = os.path.relpath(local_abspath, self.refpath)
+        record['path'] = make_mcpath(self.proj_local_path, local_abspath)
         record['name'] = os.path.basename(record['path'])
         record['mtime'] = os.path.getmtime(local_abspath)
         record['size'] = os.path.getsize(local_abspath)
@@ -594,8 +588,7 @@ class LocalTree(TreeTable):
         """
         file_or_dir = None
         children = None
-        refpath = os.path.dirname(proj.local_path)
-        local_abspath = os.path.join(refpath, path)
+        local_abspath = make_local_abspath(proj.local_path, path)
 
         if checktime is None:
             checktime = time.time()
