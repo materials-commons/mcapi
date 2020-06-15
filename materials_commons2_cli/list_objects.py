@@ -317,7 +317,7 @@ class ListObjects(object):
             remote = self.get_remote(args)
             data = self.get_all_from_remote(remote=remote)
             if not len(data):
-                out.write("No " + self.typename_plural + " found at " + remote.config.mcurl + "\n")
+                out.write("No " + self.typename_plural + " found at " + remote.base_url + "\n")
                 return []
         else:
             proj = clifuncs.make_local_project()
