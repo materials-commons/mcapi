@@ -34,6 +34,8 @@ class Client(object):
         self.headers = {"Authorization": "Bearer " + self.apikey}
         self.rate_limit = 0
         self.rate_limit_remaining = 0
+        self.rate_limit_reset = None
+        self.retry_after = None
 
     @staticmethod
     def get_apikey(email, password, base_url="https://materialscommons.org/api"):
@@ -697,8 +699,8 @@ class Client(object):
     def download(self, urlpart, to):
         url = self.base_url + urlpart
         with requests.get(url, stream=True, verify=False, headers=self.headers) as r:
-            r.raise_for_status()
             self._update_rate_limits_from_request(r)
+            r.raise_for_status()
             with open(to, 'wb') as f:
                 for chunk in r.iter_content(chunk_size=8192):
                     if chunk:
@@ -709,8 +711,8 @@ class Client(object):
         with open(file_path, 'rb') as f:
             files = [('files[]', f)]
             r = requests.post(url, verify=False, headers=self.headers, files=files)
-            r.raise_for_status()
             self._update_rate_limits_from_request(r)
+            r.raise_for_status()
             return r.json()["data"]
 
     def get(self, urlpart, params={}, other_params={}):
@@ -719,8 +721,8 @@ class Client(object):
             print("GET:", url)
         params_to_use = merge_dicts(QueryParams.to_query_args(params), other_params)
         r = requests.get(url, params=params_to_use, verify=False, headers=self.headers)
-        r.raise_for_status()
         self._update_rate_limits_from_request(r)
+        r.raise_for_status()
         return r.json()["data"]
 
     def post(self, urlpart, data):
@@ -729,8 +731,8 @@ class Client(object):
             print("POST:", url)
         data = OrderedDict(data)
         r = requests.post(url, json=data, verify=False, headers=self.headers)
-        r.raise_for_status()
         self._update_rate_limits_from_request(r)
+        r.raise_for_status()
         return r.json()["data"]
 
     def put(self, urlpart, data):
@@ -739,8 +741,8 @@ class Client(object):
             print("PUT:", url)
         data = OrderedDict(data)
         r = requests.put(url, json=data, verify=False, headers=self.headers)
-        r.raise_for_status()
         self._update_rate_limits_from_request(r)
+        r.raise_for_status()
         return r.json()["data"]
 
     def delete(self, urlpart):
@@ -748,18 +750,20 @@ class Client(object):
         if self.log:
             print("DELETE:", url)
         r = requests.delete(url, verify=False, headers=self.headers)
-        r.raise_for_status()
         self._update_rate_limits_from_request(r)
+        r.raise_for_status()
 
     def delete_with_value(self, urlpart):
         url = self.base_url + urlpart
         if self.log:
             print("DELETE:", url)
         r = requests.delete(url, verify=False, headers=self.headers)
-        r.raise_for_status()
         self._update_rate_limits_from_request(r)
+        r.raise_for_status()
         return r.json()["data"]
 
     def _update_rate_limits_from_request(self, r):
-        self.rate_limit = int(r.headers.get('x-ratelimit-limit'))
-        self.rate_limit_remaining = int(r.headers.get('x-ratelimit-remaining'))
+        self.rate_limit = int(r.headers.get('x-ratelimit-limit', self.rate_limit))
+        self.rate_limit_remaining = int(r.headers.get('x-ratelimit-remaining', self.rate_limit_remaining))
+        self.rate_limit_reset = r.headers.get('x-ratelimit-reset', None)
+        self.retry_after = r.headers.get('retry-after', None)
