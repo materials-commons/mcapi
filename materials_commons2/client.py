@@ -739,6 +739,7 @@ class Client(object):
             print("DELETE:", url)
         r = requests.delete(url, verify=False, headers=self.headers)
         r.raise_for_status()
+        return True
 
     def delete_with_value(self, urlpart):
         url = self.base_url + urlpart
