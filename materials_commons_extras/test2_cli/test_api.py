@@ -1,5 +1,7 @@
-import unittest
 import os
+import time
+import unittest
+
 
 import materials_commons2 as mcapi
 
@@ -41,11 +43,7 @@ class TestAPI(unittest.TestCase):
         result = client.get_all_projects()
         for proj in result:
             if proj.name in project_names:
-                try:
-                    client.delete_project(proj.id)
-                except:
-                    # print("can't delete:", proj.id)
-                    pass
+                client.delete_project(proj.id)
 
         # get currently existing projects
         result = client.get_all_projects()
@@ -78,11 +76,8 @@ class TestAPI(unittest.TestCase):
         # test "delete_project"
         for proj in result:
             if proj.name in project_names:
-                try:
-                    client.delete_project(proj.id)
-                except:
-                    # print("can't delete:", proj.id)
-                    pass
+                result = client.delete_project(proj.id)
+                self.assertEqual(result, True)
 
         result = client.get_all_projects()
         self.assertEqual(len(result) - n_projects_init, 0)
@@ -94,6 +89,12 @@ class TestAPI(unittest.TestCase):
         email = os.environ.get("MC_API_EMAIL")
         password = os.environ.get("MC_API_PASSWORD")
         client = mcapi.Client.login(email, password, base_url=mcurl)
+
+        # make sure test project does not already exist
+        result = client.get_all_projects()
+        for proj in result:
+            if proj.name == "__clitest__experiment_api":
+                client.delete_project(proj.id)
 
         proj = client.create_project("__clitest__experiment_api")
         experiment_request = mcapi.CreateExperimentRequest(description="<experiment description>")
@@ -113,20 +114,28 @@ class TestAPI(unittest.TestCase):
             updated_expt = client.update_experiment(expt.id, experiment_request)
             self.assertEqual(updated_expt.description, "<new description>")
             success = client.delete_experiment(proj.id, expt.id)
-            self.assertEqual(success, None) # TODO: update, expecting bool from docs
+            self.assertEqual(success, True)
 
         all_experiments = client.get_all_experiments(proj.id)
         self.assertEqual(len(all_experiments), 0)
+        client.delete_project(proj.id)
+
 
     def test_file_api(self):
         """Test the API files and directories commands independently of the CLI"""
+
         mcurl = os.environ.get("MC_API_URL")
         email = os.environ.get("MC_API_EMAIL")
         password = os.environ.get("MC_API_PASSWORD")
         client = mcapi.Client.login(email, password, base_url=mcurl)
 
+        # make sure test project does not already exist
+        all_projects = client.get_all_projects()
+        for proj in all_projects:
+            if proj.name == "__clitest__file_api":
+                client.delete_project(proj.id)
+
         proj = client.create_project("__clitest__file_api")
-        print("project", proj._data, "\n")
 
         ### test empty directory api commands ###
 
@@ -150,7 +159,6 @@ class TestAPI(unittest.TestCase):
 
         # create directory
         result = client.create_directory(proj.id, "example_dir", root_directory_id)
-        print("create example_dir directory", result._data, "\n")
         self.assertEqual(isdir(result), True)
         self.assertEqual(result.name, "example_dir")
         self.assertEqual(result.path, "/example_dir")
@@ -184,11 +192,9 @@ class TestAPI(unittest.TestCase):
 
         # move /example_dir_new_name -> /other_dir/example_dir_new_name
         result = client.create_directory(proj.id, "other_dir", root_directory_id)
-        print("create other_dir directory", result._data, "\n")
         self.assertEqual(isdir(result), True)
         other_dir_id = result.id
         result = client.move_directory(proj.id, example_dir_id, other_dir_id)
-        print("move_directory", result._data, "\n")
         self.assertEqual(isdir(result), True)
         self.assertEqual(result.name, "example_dir_new_name")
         self.assertEqual(result.id, example_dir_id)
@@ -196,6 +202,7 @@ class TestAPI(unittest.TestCase):
 
         # delete directories
         result = client.delete_directory(proj.id, example_dir_id)
+        self.assertEqual(result, True)
         result = client.delete_directory(proj.id, other_dir_id)
         self.assertEqual(result, True)
 
@@ -214,13 +221,14 @@ class TestAPI(unittest.TestCase):
         filepath = os.path.join(proj_path, "file_A.txt")
         local_checksum = checksum(filepath)
         local_size = os.path.getsize(filepath)
-        result = client.upload_file(proj.id, root_directory_id, filepath)
+        client.upload_file(proj.id, root_directory_id, filepath)
+        result = client.get_file_by_path(proj.id, "/file_A.txt") # TODO: return File from upload_file?
         self.assertEqual(isfile(result), True)
         self.assertEqual(result.name, "file_A.txt")
-        self.assertEqual(result.directory_id, root_directory_id)
+        self.assertEqual(int(result.directory_id), root_directory_id) # TODO: no cast
         self.assertEqual(result.path, None)
         self.assertEqual(result.checksum, local_checksum)
-        self.assertEqual(result.size, local_size)
+        self.assertEqual(int(result.size), local_size) # TODO: no cast
         file_id = result.id
 
         # get file by id
@@ -230,10 +238,29 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(result.id, file_id)
 
         # get file by path
-        result = client.get_file(proj.id, "/file_A.txt")
+        result = client.get_file_by_path(proj.id, "/file_A.txt")
         self.assertEqual(isfile(result), True)
         self.assertEqual(result.name, "file_A.txt")
         self.assertEqual(result.id, file_id)
+
+        # download file by id
+        filepath = os.path.join(proj_path, "file_A.txt")
+        orig_checksum = checksum(filepath)
+        orig_size = os.path.getsize(filepath)
+        remove_if(filepath)
+        result = client.get_file(proj.id, file_id)
+
+        self.assertEqual(os.path.exists(filepath), False)
+        client.download_file(proj.id, file_id, filepath)
+        self.assertEqual(os.path.exists(filepath), True)
+        self.assertEqual(os.path.isfile(filepath), True)
+
+        new_checksum = checksum(filepath)
+        new_size = os.path.getsize(filepath)
+        self.assertEqual(result.checksum, orig_checksum)
+        self.assertEqual(result.checksum, new_checksum)
+        self.assertEqual(int(result.size), orig_size) # TODO: no cast
+        self.assertEqual(int(result.size), new_size) # TODO: no cast
 
         # rename file
         result = client.rename_file(proj.id, file_id, "file_A_new_name.txt")
@@ -241,7 +268,7 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(result.name, "file_A_new_name.txt")
         self.assertEqual(result.id, file_id)
 
-        # download file by id
+        # download file by id (after renaming)
         orig_filepath = os.path.join(proj_path, "file_A.txt")
         new_filepath = os.path.join(proj_path, "file_A_new_name.txt")
         result = client.get_file(proj.id, file_id)
@@ -257,8 +284,8 @@ class TestAPI(unittest.TestCase):
         new_size = os.path.getsize(new_filepath)
         self.assertEqual(result.checksum, orig_checksum)
         self.assertEqual(result.checksum, new_checksum)
-        self.assertEqual(result.size, orig_size)
-        self.assertEqual(result.size, new_size)
+        self.assertEqual(int(result.size), orig_size) # TODO: no cast
+        self.assertEqual(int(result.size), new_size) # TODO: no cast
 
         remove_if(new_filepath)
 
@@ -270,8 +297,7 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(isfile(result), True)
         self.assertEqual(result.name, "file_A_new_name.txt")
         self.assertEqual(result.id, file_id)
-        self.assertEqual(result.directory_id, example_dir_id)
-        self.assertEqual(result.path, "/example_dir/file_A_new_name.txt")
+        self.assertEqual(int(result.directory_id), example_dir_id) # TODO: no cast
         result = client.list_directory(proj.id, example_dir_id)
         self.assertEqual(len(result), 1)
 
@@ -281,9 +307,6 @@ class TestAPI(unittest.TestCase):
         result = client.list_directory(proj.id, example_dir_id)
         self.assertEqual(len(result), 0)
 
-        result = client.delete_directory(proj.id, example_dir_id)
-        self.assertEqual(result, True)
-
         # clean up
-        test_project_1.clean_files()
+        basic_project_1.clean_files()
         client.delete_project(proj.id)
