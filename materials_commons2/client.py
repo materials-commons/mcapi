@@ -370,7 +370,9 @@ class Client(object):
         :param int directory_id: The directory in the project to upload the file into
         :param str file_path: path of file to upload
         """
-        self.upload("/projects/" + str(project_id) + "/files/" + str(directory_id) + "/upload", file_path)
+        files = File.from_list(
+            self.upload("/projects/" + str(project_id) + "/files/" + str(directory_id) + "/upload", file_path))
+        return files[0]
 
     # Entities
     def get_all_entities(self, project_id, params=None):
@@ -705,6 +707,7 @@ class Client(object):
             files = [('files[]', f)]
             r = requests.post(url, verify=False, headers=self.headers, files=files)
             r.raise_for_status()
+            return r.json()["data"]
 
     def get(self, urlpart, params={}, other_params={}):
         url = self.base_url + urlpart
