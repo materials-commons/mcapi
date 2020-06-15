@@ -31,7 +31,10 @@ class Project(Common):
         self.experiments = Experiment.from_list_attr(data)
         self.activities = Activity.from_list_attr(data)
         self.entities = Entity.from_list_attr(data)
-        self.root_dir = File(data["rootDir"])
+        self.root_dir = None
+        root_dir = data.get('rootDir', None)
+        if root_dir:
+            self.root_dir = File(root_dir)
 
     @staticmethod
     def from_list(data):
