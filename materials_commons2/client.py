@@ -33,6 +33,11 @@ class Client(object):
         self.base_url = base_url
         self.log = False
         self.headers = {"Authorization": "Bearer " + self.apikey}
+        self.rate_limit = 0
+        self.rate_limit_remaining = 0
+        self.rate_limit_reset = None
+        self.retry_after = None
+        self.r = None
         self._throttle_s = 1.1  # TODO: remove
 
     @staticmethod
@@ -372,7 +377,9 @@ class Client(object):
         :param int directory_id: The directory in the project to upload the file into
         :param str file_path: path of file to upload
         """
-        self.upload("/projects/" + str(project_id) + "/files/" + str(directory_id) + "/upload", file_path)
+        files = File.from_list(
+            self.upload("/projects/" + str(project_id) + "/files/" + str(directory_id) + "/upload", file_path))
+        return files[0]
 
     # Entities
     def get_all_entities(self, project_id, params=None):
@@ -700,7 +707,7 @@ class Client(object):
         self._throttle()
         url = self.base_url + urlpart
         with requests.get(url, stream=True, verify=False, headers=self.headers) as r:
-            r.raise_for_status()
+            self._handle(r)
             with open(to, 'wb') as f:
                 for chunk in r.iter_content(chunk_size=8192):
                     if chunk:
@@ -712,7 +719,7 @@ class Client(object):
         with open(file_path, 'rb') as f:
             files = [('files[]', f)]
             r = requests.post(url, verify=False, headers=self.headers, files=files)
-            r.raise_for_status()
+            return self._handle_with_json(r)
 
     def get(self, urlpart, params={}, other_params={}):
         self._throttle()
@@ -721,8 +728,7 @@ class Client(object):
             print("GET:", url)
         params_to_use = merge_dicts(QueryParams.to_query_args(params), other_params)
         r = requests.get(url, params=params_to_use, verify=False, headers=self.headers)
-        r.raise_for_status()
-        return r.json()["data"]
+        return self._handle_with_json(r)
 
     def post(self, urlpart, data):
         self._throttle()
@@ -731,8 +737,7 @@ class Client(object):
             print("POST:", url)
         data = OrderedDict(data)
         r = requests.post(url, json=data, verify=False, headers=self.headers)
-        r.raise_for_status()
-        return r.json()["data"]
+        return self._handle_with_json(r)
 
     def put(self, urlpart, data):
         self._throttle()
@@ -741,8 +746,7 @@ class Client(object):
             print("PUT:", url)
         data = OrderedDict(data)
         r = requests.put(url, json=data, verify=False, headers=self.headers)
-        r.raise_for_status()
-        return r.json()["data"]
+        return self._handle_with_json(r)
 
     def delete(self, urlpart):
         self._throttle()
@@ -750,8 +754,7 @@ class Client(object):
         if self.log:
             print("DELETE:", url)
         r = requests.delete(url, verify=False, headers=self.headers)
-        r.raise_for_status()
-        return True
+        self._handle(r)
 
     def delete_with_value(self, urlpart):
         self._throttle()
@@ -759,5 +762,19 @@ class Client(object):
         if self.log:
             print("DELETE:", url)
         r = requests.delete(url, verify=False, headers=self.headers)
+        return self._handle_with_json(r)
+
+    def _handle(self, r):
+        self.r = r
+        self._update_rate_limits_from_request(r)
         r.raise_for_status()
+
+    def _handle_with_json(self, r):
+        self._handle(r)
         return r.json()["data"]
+
+    def _update_rate_limits_from_request(self, r):
+        self.rate_limit = int(r.headers.get('x-ratelimit-limit', self.rate_limit))
+        self.rate_limit_remaining = int(r.headers.get('x-ratelimit-remaining', self.rate_limit_remaining))
+        self.rate_limit_reset = r.headers.get('x-ratelimit-reset', None)
+        self.retry_after = r.headers.get('retry-after', None)
