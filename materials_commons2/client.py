@@ -1,5 +1,6 @@
 from collections import OrderedDict
 import requests
+import time
 import logging
 from .models import Project, Experiment, Dataset, Entity, Activity, Workflow, User, File, GlobusUpload, GlobusDownload
 from .query_params import QueryParams
@@ -32,6 +33,7 @@ class Client(object):
         self.base_url = base_url
         self.log = False
         self.headers = {"Authorization": "Bearer " + self.apikey}
+        self._throttle_s = 1.1  # TODO: remove
 
     @staticmethod
     def get_apikey(email, password, base_url="https://materialscommons.org/api"):
@@ -689,8 +691,13 @@ class Client(object):
     def list_users(self):
         return User.from_list(self.get("/users"))
 
+    def _throttle(self):
+        if self._throttle_s:
+            time.sleep(self._throttle_s)
+
     # request calls
     def download(self, urlpart, to):
+        self._throttle()
         url = self.base_url + urlpart
         with requests.get(url, stream=True, verify=False, headers=self.headers) as r:
             r.raise_for_status()
@@ -700,6 +707,7 @@ class Client(object):
                         f.write(chunk)
 
     def upload(self, urlpart, file_path):
+        self._throttle()
         url = self.base_url + urlpart
         with open(file_path, 'rb') as f:
             files = [('files[]', f)]
@@ -707,6 +715,7 @@ class Client(object):
             r.raise_for_status()
 
     def get(self, urlpart, params={}, other_params={}):
+        self._throttle()
         url = self.base_url + urlpart
         if self.log:
             print("GET:", url)
@@ -716,6 +725,7 @@ class Client(object):
         return r.json()["data"]
 
     def post(self, urlpart, data):
+        self._throttle()
         url = self.base_url + urlpart
         if self.log:
             print("POST:", url)
@@ -725,6 +735,7 @@ class Client(object):
         return r.json()["data"]
 
     def put(self, urlpart, data):
+        self._throttle()
         url = self.base_url + urlpart
         if self.log:
             print("PUT:", url)
@@ -734,6 +745,7 @@ class Client(object):
         return r.json()["data"]
 
     def delete(self, urlpart):
+        self._throttle()
         url = self.base_url + urlpart
         if self.log:
             print("DELETE:", url)
@@ -742,6 +754,7 @@ class Client(object):
         return True
 
     def delete_with_value(self, urlpart):
+        self._throttle()
         url = self.base_url + urlpart
         if self.log:
             print("DELETE:", url)
