@@ -162,6 +162,15 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(result.path, "/example_dir")
         example_dir_id = result.id
 
+        # check list_directory w/ existing directory
+        result = client.list_directory(proj.id, root_directory_id)
+        print(result[0]._data)
+        self.assertEqual(isdir(result[0]), True)
+        self.assertEqual(isinstance(result[0].size, int), True)
+        self.assertEqual(result[0].size, 0)
+        self.assertEqual(isinstance(result[0].checksum, str), True)
+        self.assertEqual(result[0].checksum, '')
+
         # get root directory contents by id (should have example_dir)
         result = client.list_directory(proj.id, root_directory_id)
         self.assertEqual(len(result), 1)
@@ -226,6 +235,13 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(result.checksum, local_checksum)
         self.assertEqual(int(result.size), local_size) # TODO: no cast
         file_id = result.id
+
+        # check list_directory w/ existing file
+        result = client.list_directory(proj.id, root_directory_id)
+        print(result[0]._data)
+        self.assertEqual(isfile(result[0]), True)
+        self.assertEqual(isinstance(result[0].size, int), True)
+        self.assertEqual(isinstance(result[0].checksum, str), True)
 
         # get file by id
         result = client.get_file(proj.id, file_id)
