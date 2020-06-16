@@ -230,7 +230,7 @@ class _TreeCompare(object):
                 # children
                 if path not in self.child_data:
                     self.child_data[path] = {}
-                for child in clifuncs.get_children(obj): #TODO
+                for child in self.proj.remote.list_directory(self.proj.id, obj.id):
                     childpath = os.path.join(path, child.name)
                     if childpath not in self.child_data[path]:
                         self.child_data[path][childpath] = copy.deepcopy(self.record_init)

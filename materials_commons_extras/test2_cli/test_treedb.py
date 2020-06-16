@@ -100,7 +100,7 @@ class TestTreeTable(unittest.TestCase):
         project_path = os.path.join(test_project_directory(), project_name)
         basic_project_1 = make_basic_project_1(project_path)
 
-        # initialize a Materials Commons Project
+        # initialize a Materials Commons Client
         mcurl = os.environ.get("MC_API_URL")
         email = os.environ.get("MC_API_EMAIL")
         password = os.environ.get("MC_API_PASSWORD")

@@ -3,6 +3,7 @@ import os
 import re
 from .cli_test_functions import captured_output
 from .cli_test_exceptions import MCCLITestException
+from materials_commons2_cli.file_functions import isfile, isdir, make_local_abspath
 
 
 def mkdir_if(path):
@@ -97,6 +98,42 @@ def remove_hidden_project_files(project_path):
     remove_if(os.path.join(project_path, ".mc", "config.json"))
     remove_if(os.path.join(project_path, ".mc", "project.db"))
     rmdir_if(os.path.join(project_path, ".mc"))
+
+def upload_project_files(mc_project, test_project, test_instance):
+    """
+    Arguments
+    ---------
+    mc_project: mcapi.Project,
+        Materials Commons Project instance, with client
+    test_project: TestProject, Test project to create locally, init mc project, upload files, then
+        delete local files and sub-directories, so that a test can begin as if the local project
+        does not exist.
+    test_instance: unittest.TestCase, Testing class to be used for asserting directories and
+        files have been created.
+
+    """
+    test_instance.assertEqual(test_project.path, mc_project.local_path)
+    directory_objects_by_path = {}
+    directory_objects_by_path[test_project.path] = mc_project.root_dir
+
+    client = mc_project.remote
+
+    for dir in test_project.dirs:
+        parent_path = os.path.dirname(dir)
+        name = os.path.basename(dir)
+        parent = directory_objects_by_path[parent_path]
+        result = client.create_directory(mc_project.id, name, parent.id)
+        test_instance.assertEqual(isdir(result), True)
+        directory_objects_by_path[make_local_abspath(mc_project.local_path, result.path)] = result
+
+    for file_and_contents in test_project.files:
+        file = file_and_contents[0]
+        parent_path = os.path.dirname(file)
+        name = os.path.basename(file)
+        parent = directory_objects_by_path[parent_path]
+        result = client.upload_file(mc_project.id, parent.id, file)
+        test_instance.assertEqual(isfile(result), True)
+
 
 # def init_remote_only_test_project(test_project):
 #     """Create a remote-only test project
