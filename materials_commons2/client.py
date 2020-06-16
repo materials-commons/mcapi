@@ -38,7 +38,7 @@ class Client(object):
         self.rate_limit_reset = None
         self.retry_after = None
         self.r = None
-        self._throttle_s = 1.1  # TODO: remove
+        self._throttle_s = 0.0
 
     @staticmethod
     def get_apikey(email, password, base_url="https://materialscommons.org/api"):
@@ -778,3 +778,8 @@ class Client(object):
         self.rate_limit_remaining = int(r.headers.get('x-ratelimit-remaining', self.rate_limit_remaining))
         self.rate_limit_reset = r.headers.get('x-ratelimit-reset', None)
         self.retry_after = r.headers.get('retry-after', None)
+
+        if self.rate_limit_remaining < 10:
+            self._throttle_s = 60./(self.rate_limit_remaining-1.)
+        else:
+            self._throttle_s = 0.0
