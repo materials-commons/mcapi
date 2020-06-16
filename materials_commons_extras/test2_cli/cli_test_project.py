@@ -79,6 +79,7 @@ class TestProject(object):
 
     def make_test_files(self):
         """Make local files and directories listed in self.files and self.dirs"""
+        mkdir_if(os.path.join(self.path, ".mc"))
         for dir in self.dirs:
             mkdir_if(dir)
         for val in self.files:

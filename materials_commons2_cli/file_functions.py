@@ -19,7 +19,7 @@ def get_parent_id(file_or_dir):
         raise MCCLIException("file_or_dir is missing attribute directory_id")
 
 def make_local_abspath(proj_local_path, mcpath):
-    return os.path.join(proj_local_path, os.path.relpath(mcpath, "/"))
+    return os.path.normpath(os.path.join(proj_local_path, os.path.relpath(mcpath, "/")))
 
 def make_mcpath(proj_local_path, local_abspath):
     """

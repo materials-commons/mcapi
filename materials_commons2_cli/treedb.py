@@ -50,7 +50,7 @@ class TreeTable(SqlTable):
         - @staticmethod treename(): str, tree label for printing ('remote', 'local')
         - @staticmethod tablename(): str, tree table name in sqlite database ('remotetree', 'localtree')
         - needs_update(self, existing): bool, check if record needs updating
-        - _check(self, proj, path, get_children=True, parent_path=None): (dir, children), see an example
+        - _check(self, path, get_children=True, parent_path=None): (dir, children), see an example
 
     Values:
         path: str, path including project directory
@@ -84,19 +84,15 @@ class TreeTable(SqlTable):
             "checktime": ["real"]     # last time the remote data was queried (s since epoch)
         }
 
-    def __init__(self, proj):
+    def __init__(self, proj_local_path):
         """
 
         Arguments:
-            proj: materials_commons.api.Project
-            default_fmt: List of tuple
-                Specifies format for PrintFormatter
+            proj_local_path: str
+                Path to Materials Commons project directory, for storing sqlite db file
 
         """
-        if not hasattr(proj, 'local_path') or proj.local_path is None:
-            raise cliexcept.MCCLIException("Error constructing TreeTable: no 'local_path' attribute in 'proj'. Use `materials_commons.cli.functions.make_local_project` to construct 'proj'.")
-        self.proj = proj
-        super(TreeTable, self).__init__(proj.local_path)
+        super(TreeTable, self).__init__(proj_local_path)
 
     def _delete_one_by_path(self, path, verbose=False):
         """Delete one record by path"""
@@ -121,7 +117,7 @@ class TreeTable(SqlTable):
 
         Arguments:
             path: str
-                The path of the file_or_dir to delete
+                The Materials Commons path of the file_or_dir to delete.
             recurs: bool
                 If True, delete children recursively
             verbose: bool
@@ -133,11 +129,11 @@ class TreeTable(SqlTable):
             self._delete_one_by_path(path, verbose=verbose)
 
     def update(self, path, get_children=True, recurs=False, verbose=False, force=False):
-        """Update tree table to accurately reflect the server for a particular directory
+        """Update tree table to accurately reflect a particular directory
 
         Arguments:
             path: str
-                Path to the directory to update (includes project directory).
+                Materials Commons path to the directory to update (includes project directory).
             get_children: bool
                 If True, also update children files and directories.
             recurs: bool
@@ -160,7 +156,7 @@ class TreeTable(SqlTable):
             raise cliexcept.MCCLIException("Error in TableTree.update: >1 record for path")
 
         checktime = time.time()
-        file_or_dir, children  = self._check(self.proj, path, checktime=checktime, get_children=get_children)
+        file_or_dir, children  = self._check(path, checktime=checktime, get_children=get_children)
 
         if verbose:
             if file_or_dir is None:
@@ -169,7 +165,7 @@ class TreeTable(SqlTable):
                 print(' -> Found')
 
         # insert / replace / remove
-        # if the file or directory does not exist remotely, remove it recursively
+        # if the file or directory does not exist anymore, remove it recursively
         if file_or_dir is None:
             if existing:
                 self.delete_by_path(existing['path'], recurs=True, verbose=verbose)
@@ -185,7 +181,7 @@ class TreeTable(SqlTable):
         if get_children:
 
             # children that only exist in the database must be deleted,
-            # those that exist remotely should be inserted or replaced
+            # those that exist outside the database should be inserted or replaced
             all_children = {}
             def _insert_child(child, category):
                 if child['path'] not in all_children:
@@ -344,8 +340,9 @@ class RemoteTree(TreeTable):
         return "remotetree"
 
     def __init__(self, proj, updatetime):
-        super(RemoteTree, self).__init__(proj)
+        super(RemoteTree, self).__init__(proj.local_path)
         self.updatetime = updatetime
+        self.proj = proj
 
     def needs_update(self, existing):
         if not existing['checktime']:
@@ -422,11 +419,10 @@ class RemoteTree(TreeTable):
                 record[key] = file_or_dir._data[key]
         return record
 
-    def _check(self, proj, path, checktime=None, get_children=True):
+    def _check(self, path, checktime=None, get_children=True):
         """Get current status of file or directory at path
 
         Arguments:
-            proj: mcapi.Project
             path: str
                 Materials Commons path to update.
             get_children: boolean
@@ -452,7 +448,7 @@ class RemoteTree(TreeTable):
         if isinstance(path, str):
             try:
 
-                file_or_dir_obj = filefuncs.get_by_path_if_exists(proj.remote, proj.id, path)
+                file_or_dir_obj = filefuncs.get_by_path_if_exists(self.proj.remote, self.proj.id, path)
                 if file_or_dir_obj is None:
                     return (file_or_dir, children)
                 if file_or_dir_obj.path is None:
@@ -466,11 +462,14 @@ class RemoteTree(TreeTable):
         if get_children:
             children = []
             if file_or_dir_obj is not None and filefuncs.isdir(file_or_dir_obj):
-                for child in proj.remote.list_directory(proj.id, file_or_dir_obj.id):
+                for child in self.proj.remote.list_directory(self.proj.id, file_or_dir_obj.id):
+                    # TODO: child does not have 'size' or 'checksum'
                     _checktime = checktime
                     if filefuncs.isdir(child):
+                        child = self.proj.remote.get_directory(self.proj.id, child.id) # TODO: remove this
                         _checktime = None
                     if filefuncs.isfile(child):
+                        child = self.proj.remote.get_file(self.proj.id, child.id) # TODO: remove this
                         child.path = os.path.join(path, child.name)
                     children.append(self._make_record(child, _checktime))
 
@@ -517,9 +516,9 @@ class LocalTree(TreeTable):
     def tablename():
         return "localtree"
 
-    def __init__(self, proj):
-        super(LocalTree, self).__init__(proj)
-        self.proj_local_path = proj.local_path
+    def __init__(self, proj_local_path):
+        super(LocalTree, self).__init__(proj_local_path)
+        self.proj_local_path = proj_local_path
 
     def needs_update(self, existing):
         path = existing['path']
@@ -534,7 +533,7 @@ class LocalTree(TreeTable):
         return
 
     def _make_record(self, local_abspath, checktime):
-        """Make a record dict from a File or Directory instance
+        """Make a record dict for a local path
 
         Arguments:
             local_abspath: str
@@ -551,25 +550,27 @@ class LocalTree(TreeTable):
         elif os.path.isfile(local_abspath):
             record['otype'] = 'file'
             record['checksum'] = clifuncs.checksum(local_abspath)
+            record['size'] = os.path.getsize(local_abspath)
         else:
             raise cliexcept.MCCLIException("LocalTree._make_record error: 'local_abspath'='" + local_abspath + "' is not a file or directory.")
-        record['id'] = None
-        record['path'] = make_mcpath(self.proj_local_path, local_abspath)
-        record['name'] = os.path.basename(record['path'])
-        record['mtime'] = os.path.getmtime(local_abspath)
-        record['size'] = os.path.getsize(local_abspath)
-        if local_abspath == self.proj.local_path:
+
+        record['path'] = filefuncs.make_mcpath(self.proj_local_path, local_abspath)
+        if local_abspath == self.proj_local_path:
             record['parent_path'] = None
+            record['name'] = "/"
         else:
             record['parent_path'] = os.path.dirname(record['path'])
+            record['name'] = os.path.basename(record['path'])
+
+        record['mtime'] = os.path.getmtime(local_abspath)
         record['checktime'] = checktime
+
         return record
 
-    def _check(self, proj, path, checktime=None, get_children=True):
+    def _check(self, path, checktime=None, get_children=True):
         """Get current status of a directory
 
         Arguments:
-            proj: materials_commons.api.Project
             path: str
                 Materials Commons path to update.
             checktime: float
@@ -588,7 +589,7 @@ class LocalTree(TreeTable):
         """
         file_or_dir = None
         children = None
-        local_abspath = make_local_abspath(proj.local_path, path)
+        local_abspath = filefuncs.make_local_abspath(self.proj_local_path, path)
 
         if checktime is None:
             checktime = time.time()
