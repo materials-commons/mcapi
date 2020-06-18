@@ -20,15 +20,15 @@ from .subcommands.expt import ExptSubcommand
 # from .fetch import fetch_subcommand
 from .subcommands.init import init_subcommand
 from .subcommands.ls import ls_subcommand
-# from .mkdir import mkdir_subcommand
-# from .mv import mv_subcommand
+from .subcommands.mkdir import mkdir_subcommand
+from .subcommands.mv import mv_subcommand
 # from .proc import ProcSubcommand
 from .subcommands.proj import ProjSubcommand
 from .subcommands.remote import remote_subcommand
 # from .rm import rm_subcommand
 # from .samp import SampSubcommand
 # from .templates import TemplatesSubcommand
-# from .up import up_subcommand
+from .subcommands.up import up_subcommand
 # from .versions import versions_subcommand
 
 import materials_commons2_cli.functions as clifuncs
@@ -46,12 +46,12 @@ class CommonsCLIParser(object):
         {'name': 'init', 'desc': 'Initialize a new project', 'subcommand': init_subcommand},
         {'name': 'clone', 'desc': 'Clone an existing project', 'subcommand': clone_subcommand},
         {'name': 'ls', 'desc': 'List local and remote directory contents', 'subcommand': ls_subcommand},
-        # {'name': 'mkdir', 'desc': 'Make remote directories', 'subcommand': mkdir_subcommand},
+        {'name': 'mkdir', 'desc': 'Make remote directories', 'subcommand': mkdir_subcommand},
         # {'name': 'rm', 'desc': 'Remove files and directories', 'subcommand': rm_subcommand},
-        # {'name': 'mv', 'desc': 'Move files', 'subcommand': mv_subcommand},
+        {'name': 'mv', 'desc': 'Move files', 'subcommand': mv_subcommand},
         # {'name': 'diff', 'desc': 'Compare local and remote files', 'subcommand': diff_subcommand},
         # {'name': 'fetch', 'desc': 'Remote data fetching and configuration', 'subcommand': fetch_subcommand},
-        # {'name': 'up', 'desc': 'Upload files', 'subcommand': up_subcommand},
+        {'name': 'up', 'desc': 'Upload files', 'subcommand': up_subcommand}
         # {'name': 'down', 'desc': 'Download files', 'subcommand': down_subcommand},
         # {'name': 'versions', 'desc': 'List file versions', 'subcommand': versions_subcommand},
         # {'name': 'templates', 'desc': 'List process templates', 'subcommand': TemplatesSubcommand()},
