@@ -38,7 +38,7 @@ def get_by_path_if_exists(client, project_id, file_path):
     """
     Get file (or directory) by path in project, if it exists.
     :param int project_id: The id of the project containing the file or directory
-    :param file_path: The path to the file or directory
+    :param file_path: The Materials Commons path to the file or directory
     :return: The file or None
     :rtype File or None
     """

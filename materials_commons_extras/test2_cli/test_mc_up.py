@@ -5,7 +5,7 @@ import materials_commons2 as mcapi
 
 import materials_commons2_cli.tree_functions as treefuncs
 from materials_commons2_cli.file_functions import isfile, isdir
-from .cli_test_project import make_basic_project_1, test_project_directory
+from .cli_test_project import make_basic_project_1, test_project_directory, make_file, remove_if
 
 class TestStandardUpload(unittest.TestCase):
 
@@ -101,12 +101,26 @@ class TestStandardUpload(unittest.TestCase):
             "/level_1/level_2/file_A.txt",
             "/level_1/level_2/file_B.txt"]
         paths = ["/"]
+        mc_dir_local_path = os.path.join(self.proj.local_path, ".mc")
+        tmp_file_local_path = os.path.join(mc_dir_local_path, "tmp.txt")
+        make_file(tmp_file_local_path, "this is tmp.txt")
         files_data, errors_data = treefuncs.standard_upload(
             self.proj, paths, recursive=True, limit=50, remotetree=None)
-        self.assertEqual(os.path.exists(os.path.join(self.proj.local_path, ".mc")), True)
+
+        # check that .mc directory and contents are not uploaded
+        self.assertEqual(os.path.exists(mc_dir_local_path), True)
+        self.assertEqual(os.path.exists(tmp_file_local_path), True)
+        result = self.client.list_directory(self.proj.id, self.proj.root_dir.id)
+        for child in result:
+            self.assertEqual(child.name != ".mc", True)
+
+        # check expected uploads
         self.assertEqual(len(files_data), len(expected_paths))
         for path in expected_paths:
             self.assertEqual(path in files_data, True)
             self.assertEqual(isfile(files_data[path]), True)
             self.assertEqual(files_data[path].name, os.path.basename(path))
         self.assertEqual(len(errors_data), 0)
+
+        # clean up
+        remove_if(tmp_file_local_path)

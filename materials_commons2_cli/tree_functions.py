@@ -56,15 +56,13 @@ def make_paths_for_upload(proj_local_path, paths):
         paths: List of str, Materials Commons paths, filtered as described above.
 
     """
-    proj_name = os.path.basename(proj_local_path)
-
     _paths = []
     for path in paths:
-        if path == proj_name:
+        if path == "/":
             for child in os.listdir(proj_local_path):
                 if child == ".mc":
                     continue
-            _paths.append(os.path.join(proj_name, child))
+                _paths.append(os.path.join("/", child))
         else:
             _paths.append(path)
     return _paths
@@ -102,7 +100,6 @@ def standard_upload(proj, paths, recursive=False, limit=50, remotetree=None):
             Error messages for unsuccessful file uploads
 
     """
-
     paths = make_paths_for_upload(proj.local_path, paths)
     file_data = {}
     error_data = {}
@@ -143,6 +140,7 @@ def standard_upload(proj, paths, recursive=False, limit=50, remotetree=None):
 
             elif os.path.isdir(local_abspath):
                 if recursive:
+                    proj.remote.create_directory(proj.id, os.path.basename(path), parent.id)
                     child_paths = [os.path.join(path, name) for name in os.listdir(local_abspath)]
                     file_data_tmp, error_data_tmp = standard_upload(
                         proj, child_paths, recursive=recursive, limit=limit, remotetree=remotetree)
