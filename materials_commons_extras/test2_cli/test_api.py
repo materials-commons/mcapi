@@ -164,8 +164,10 @@ class TestAPI(unittest.TestCase):
 
         # check list_directory w/ existing directory
         result = client.list_directory(proj.id, root_directory_id)
-        print(result[0]._data)
         self.assertEqual(isdir(result[0]), True)
+        self.assertEqual(result[0].name, "example_dir")
+        self.assertEqual(result[0].id, example_dir_id)
+        self.assertEqual(result[0].path, "/example_dir")
         self.assertEqual(isinstance(result[0].size, int), True)
         self.assertEqual(result[0].size, 0)
         self.assertEqual(isinstance(result[0].checksum, str), True)
@@ -177,18 +179,21 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(isdir(result[0]), True)
         self.assertEqual(result[0].name, "example_dir")
         self.assertEqual(result[0].id, example_dir_id)
+        self.assertEqual(result[0].path, "/example_dir")
 
         # get example_dir by id
         result = client.get_directory(proj.id, example_dir_id)
         self.assertEqual(isdir(result), True)
         self.assertEqual(result.name, "example_dir")
         self.assertEqual(result.id, example_dir_id)
+        self.assertEqual(result.path, "/example_dir")
 
         # get example_dir by path (get_file_by_path gets files and directories)
         result = client.get_file_by_path(proj.id, "/example_dir")
         self.assertEqual(isdir(result), True)
         self.assertEqual(result.name, "example_dir")
         self.assertEqual(result.id, example_dir_id)
+        self.assertEqual(result.path, "/example_dir")
 
         # rename example_dir -> example_dir_new_name
         result = client.rename_directory(proj.id, example_dir_id, "example_dir_new_name")
@@ -238,8 +243,10 @@ class TestAPI(unittest.TestCase):
 
         # check list_directory w/ existing file
         result = client.list_directory(proj.id, root_directory_id)
-        print(result[0]._data)
         self.assertEqual(isfile(result[0]), True)
+        self.assertEqual(result[0].name, "file_A.txt")
+        self.assertEqual(result[0].id, file_id)
+        self.assertEqual(result[0].path, None)
         self.assertEqual(isinstance(result[0].size, int), True)
         self.assertEqual(isinstance(result[0].checksum, str), True)
 
@@ -248,12 +255,14 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(isfile(result), True)
         self.assertEqual(result.name, "file_A.txt")
         self.assertEqual(result.id, file_id)
+        self.assertEqual(result.path, None)
 
         # get file by path
         result = client.get_file_by_path(proj.id, "/file_A.txt")
         self.assertEqual(isfile(result), True)
         self.assertEqual(result.name, "file_A.txt")
         self.assertEqual(result.id, file_id)
+        self.assertEqual(result.path, None)
 
         # download file by id
         filepath = os.path.join(proj_path, "file_A.txt")
@@ -279,6 +288,7 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(isfile(result), True)
         self.assertEqual(result.name, "file_A_new_name.txt")
         self.assertEqual(result.id, file_id)
+        self.assertEqual(result.path, None)
 
         # download file by id (after renaming)
         orig_filepath = os.path.join(proj_path, "file_A.txt")
@@ -309,6 +319,7 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(isfile(result), True)
         self.assertEqual(result.name, "file_A_new_name.txt")
         self.assertEqual(result.id, file_id)
+        self.assertEqual(result.path, None)
         self.assertEqual(int(result.directory_id), example_dir_id) # TODO: no cast
         result = client.list_directory(proj.id, example_dir_id)
         self.assertEqual(len(result), 1)
