@@ -124,11 +124,15 @@ def _ls_print(proj, data, refpath=None, printjson=False, checksum=False, checkds
                 print(record['r_obj'].input_data)
     else:
         path_data = _format_path_data(proj, data, columns, refpath=refpath, checksum=checksum)
-        if refpath:
-            print(os.path.relpath(refpath, os.getcwd()) + ":")
         if len(path_data):
+            if refpath:
+                print(os.path.relpath(refpath, os.getcwd()) + ":")
             clifuncs.print_table(path_data, columns=columns, headers=columns)
             print("")
+        else:
+            if refpath:
+                print(os.path.relpath(refpath, os.getcwd()) + ": no contents")
+
 
 def ls_subcommand(argv=sys.argv):
     """
@@ -164,7 +168,7 @@ def ls_subcommand(argv=sys.argv):
     mcpaths = treefuncs.clipaths_to_mcpaths(proj.local_path, args.paths)
 
     if args.checksum:
-        localtree = LocalTree(proj)
+        localtree = LocalTree(proj.local_path)
     else:
         localtree = None
 
@@ -174,16 +178,9 @@ def ls_subcommand(argv=sys.argv):
         remotetree = RemoteTree(proj, pconfig.remote_updatetime)
 
     # compare local and remote tree
-    print("begin treecompare")
-    print("mcpaths:", mcpaths)
     files_data, dirs_data, child_data, not_existing = treefuncs.treecompare(
         proj, mcpaths, checksum=args.checksum,
         localtree=localtree, remotetree=remotetree)
-
-    print("files_data:", files_data)
-    print("dirs_data:", dirs_data)
-    print("child_data:", child_data)
-    print("not_existing:", not_existing)
 
     for p in mcpaths:
         if treefuncs.is_type_mismatch(p, files_data, dirs_data):
@@ -199,7 +196,7 @@ def ls_subcommand(argv=sys.argv):
         print("")
 
     if args.dataset:
-        raise MCCLIException("dataset actions are not yet implemented") #TODO w/datasets
+        raise MCCLIException("dataset actions are not yet implemented") #TODO datasets
         dataset = mcapi.get_dataset(proj.id, args.dataset, remote=proj.remote)
         file_selection = dataset.input_data['file_selection']
         # print(json.dumps(file_selection, indent=2))
