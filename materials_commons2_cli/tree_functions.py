@@ -70,52 +70,104 @@ def make_paths_for_upload(proj_local_path, paths):
     return _paths
 
 def standard_upload(proj, paths, recursive=False, limit=50, remotetree=None):
+    """Upload files to Materials Commons
+
+    Arguments
+    ---------
+    proj: mcapi.Project
+        Project instance with proj.local_path indicating local project location
+
+    paths: List of str
+        List of Materials Commons style paths (absolute path, not including project name directory)
+        to remove.
+
+    recursive: bool (optional, default=False)
+        If True, remove directories recursively. Otherwise, will not remove directories.
+
+    limit: int (optional, default=50)
+        The limit in MB on the size of the file allowed to be uploaded.
+
+    remotetree: RemoteTree object (optional, default=None)
+        A RemoteTree object stores remote file and directory information to minimize API calls and
+        data transfer. Will be used and updated if provided.
+
+    Returns
+    -------
+        (file_data, error_data):
+
+        file_data: dict of path: file
+            Successfully uploaded files
+
+        error_data: dict of path: str
+            Error messages for unsuccessful file uploads
+
+    """
 
     paths = make_paths_for_upload(proj.local_path, paths)
+    file_data = {}
+    error_data = {}
 
     for path in paths:
         local_abspath = filefuncs.make_local_abspath(proj.local_path, path)
         printpath = os.path.relpath(local_abspath)
+        parent_path = os.path.dirname(path)
+        parent = mkdir(proj, parent_path, remote_only=True, create_intermediates=True,
+            remotetree=remotetree)
+        if parent.path != parent_path:
+            msg = "Upload error: "
+            msg += " expected parent_path=" + os.path.dirname(path)
+            msg += " got parent_path=" + parent.path
+            raise cliexcept.MCCLIException(msg)
 
-        if os.path.isfile(local_abspath):
-            try:
-                # TODO: update file upload
-                # result = proj.remote.upload_file_by_local_path(proj.id, remote_path, local_abspath, verbose=True, limit=limit)
-                raise MCCLIException("upload_file must be implemented")
+        try:
+            if os.path.isfile(local_abspath):
+                if not parent:
+                    error_msg = printpath + ": parent=" + parent_path + " is not a directory on remote (not uploaded)"
+                    error_data[path] = error_msg
+                    print(error_msg)
+                    continue
+                file_size_mb = os.path.getsize(local_abspath) >> 20
+                if file_size_mb > limit:
+                    error_msg = printpath + ": file too large (size={1}MB, limit={0}MB) (not uploaded)".format(limit, file_size_mb)
+                    error_data[path] = error_msg
+                    print(error_msg)
+                    continue
+                result = proj.remote.upload_file(proj.id, parent.id, local_abspath)
+                if not filefuncs.isfile(result):
+                    error_msg = printpath + ": unknown error (not uploaded)"
+                    error_data[path] = error_msg
+                    print(error_msg)
+                    continue
+                result.path = path
+                file_data[path] = result
 
-            except Exception as e:
-                print("Could not upload:", printpath)
-                print("Error:")
-                print(e)
-                continue
+            elif os.path.isdir(local_abspath):
+                if recursive:
+                    child_paths = [os.path.join(path, name) for name in os.listdir(local_abspath)]
+                    file_data_tmp, error_data_tmp = standard_upload(
+                        proj, child_paths, recursive=recursive, limit=limit, remotetree=remotetree)
+                    for path in file_data_tmp:
+                        file_data[path] = file_data_tmp[path]
+                    for path in error_data_tmp:
+                        error_data[path] = error_data_tmp[path]
+                else:
+                    error_msg = printpath + ": is a directory (not uploaded)"
+                    error_data[path] = error_msg
+                    print(error_msg)
+                    continue
 
             if remotetree:
                 remotetree.connect()
-                remotetree.update(os.path.dirname(path), force=True)
+                remotetree.update(parent_path, force=True)
                 remotetree.close()
 
-        elif os.path.isdir(local_abspath):
-            if recursive:
-                # print("uploading:", printpath)
+        except Exception as e:
+            error_msg = printpath + ": " + str(e) + " (not uploaded)"
+            error_data[path] = error_msg
+            print(error_msg)
+            continue
 
-                # TODO: update add directory
-                # result is not used, error is dict of error messages, input_path:exception str
-                # result, error = proj.add_directory_tree_by_local_path(local_abspath, verbose=True, limit=limit)
-                raise MCCLIException("upload_directory_tree must be implemented")
-
-                if len(error):
-                    for file in error:
-                        print("Could not upload:", file)
-                        print("Error:")
-                        print(error[file])
-
-                if remotetree:
-                    remotetree.connect()
-                    remotetree.update(path, force=True)
-                    remotetree.close()
-
-            else:
-                print(printpath, ": is a directory (not uploaded)")
+    return (file_data, error_data)
 
 class _TreeCompare(object):
     """Helper for the treecompare function.
@@ -486,65 +538,18 @@ class _Mover(object):
         self.remotetree = remotetree
 
     def _move_remote_file(self, path, to_directory_path, to_directory_id, name=None):
+        file_id = self.files_data[path]['id']
         if os.path.dirname(path) != to_directory_path:
-            #move
-            params = {
-                "project_id": self.proj.id,
-                "from_directory_id": self.files_data[path]['parent_id'],
-                "to_directory_id": to_directory_id,
-                "file_id": self.files_data[path]['id']
-            }
-
-            try:
-                clifuncs.post_v3("moveFile", params=params, remote=self.proj.remote) #TODO
-            except requests.exceptions.HTTPError as e:
-                print(json.dumps(e.response.json(), indent=2))
-                raise e
-
+            self.proj.remote.move_file(self.proj.id, file_id, to_directory_id)
         if name:
-            #rename
-            params = {
-                "project_id": self.proj.id,
-                "file_id": self.files_data[path]['id'],
-                "name": name
-            }
-
-            try:
-                clifuncs.post_v3("renameFileInProject", params=params, remote=self.proj.remote) #TODO
-            except requests.exceptions.HTTPError as e:
-                print(json.dumps(e.response.json(), indent=2))
-                raise e
+            self.proj.remote.rename_file(self.proj.id, file_id, name)
 
     def _move_remote_directory(self, path, to_directory_path, to_directory_id, name=None):
+        directory_id = self.dirs_data[path]['id']
         if os.path.dirname(path) != to_directory_path:
-            #move
-            params = {
-                "project_id": self.proj.id,
-                "directory_id": self.dirs_data[path]['id'],
-                "to_directory_id": to_directory_id
-            }
-
-            try:
-                clifuncs.post_v3("moveDirectoryInProject", params=params, remote=self.proj.remote) #TODO
-            except requests.exceptions.HTTPError as e:
-                print(json.dumps(e.response.json(), indent=2))
-                raise e
-
+            self.proj.remote.move_directory(self.proj.id, directory_id, to_directory_id)
         if name:
-            #rename
-            params = {
-                "project_id": self.proj.id,
-                "directory_id": self.dirs_data[path]['id'],
-                "name": name
-            }
-
-            try:
-                clifuncs.post_v3("renameDirectoryInProject", params=params, remote=self.proj.remote) #TODO
-
-                # mc_raw_api.directory_rename(self.proj.id, self.dirs_data[path]['id'], name)
-            except requests.exceptions.HTTPError as e:
-                print(json.dumps(e.response.json(), indent=2))
-                raise e
+            self.proj.remote.rename_directory(self.proj.id, directory_id, name)
 
     def _move_remote(self, path, to_directory_path, to_directory_id, name=None):
         """ Move file or directory on remote
@@ -567,38 +572,59 @@ class _Mover(object):
         dest = filefuncs.make_local_abspath(self.proj.local_path, os.path.join(to_directory_path, name))
         shutil.move(src, dest)
 
-    def _validate_usage(self, paths):
+    def _validate_destination(self, paths):
         dest_path = paths[-1]
         dest_local_abspath = filefuncs.make_local_abspath(self.proj.local_path, dest_path)
         dest_printpath = os.path.relpath(dest_local_abspath)
 
-        dest_remote_type = None
+        # get type of remote destination
+        self.dest_remote_type = None
         if dest_path in self.files_data:
-            dest_remote_type = self.files_data[dest_path]['r_type']
+            self.dest_remote_type = self.files_data[dest_path]['r_type']
         elif dest_path in self.dirs_data:
-            dest_remote_type = self.dirs_data[dest_path]['r_type']
+            self.dest_remote_type = self.dirs_data[dest_path]['r_type']
 
-        # check that dest is not an existing file
-        if dest_remote_type == 'file':
+        # get type of local destination
+        self.dest_local_type = None
+        if dest_path in self.files_data:
+            self.dest_local_type = self.files_data[dest_path]['l_type']
+        elif dest_path in self.dirs_data:
+            self.dest_local_type = self.dirs_data[dest_path]['l_type']
+
+        valid_usage = True
+
+        # check remote dest type
+        if self.dest_remote_type == 'file':
             print(dest_printpath + ": is an existing file on remote (will not overwrite)")
-            return False
-        elif dest_remote_type is None:
+            valid_usage = False
+        elif self.dest_remote_type is None:
             # dest is non-existant on remote
             if len(paths) != 2:
-                print(dest_printpath + ": does not exist on remote (may not mv multiple src)")
-                return False
-        elif dest_remote_type != 'directory':
+                print(dest_printpath + ": does not exist on remote (may not rename multiple src)")
+                valid_usage = False
+        elif self.dest_remote_type != 'directory':
             raise cliexcept.MCCLIException("Error in mv: dest_path='" + dest_path + "', dest_remote_type='" + str(dest_remote_type) + "'")
 
-        # check that dest does not have a type mismatch
+        # check local dest type
         if not self.remote_only:
-            if is_type_mismatch(dest_path, self.files_data, self.dirs_data):
+            if self.dest_local_type == 'file':
+                print(dest_printpath + ": is an existing file locally (will not overwrite)")
+                valid_usage = False
+            elif self.dest_local_type is None:
+                # dest is non-existant on remote
+                if len(paths) != 2:
+                    print(dest_printpath + ": does not exist locally (may not rename multiple src)")
+                    valid_usage = False
+            elif self.dest_local_type != 'directory':
+                raise cliexcept.MCCLIException("Error in mv: dest_path='" + dest_path + "', dest_remote_type='" + str(dest_local_type) + "'")
+
+            if self.dest_remote_type != self.dest_local_type:
                 print(dest_printpath + ": local and remote types do not match")
-                return False
+                valid_usage = False
 
-        return True
+        return valid_usage
 
-    def _validate_move(self, path, to_directory_path, name=None):
+    def _validate_source(self, path, to_directory_path, name=None):
         if name is None:
             name = os.path.basename(path)
 
@@ -635,30 +661,41 @@ class _Mover(object):
 
         if not paths or len(paths) < 2:
             print("Expects 2 or more paths: `mc mv <src> <target>` or `mc mv <src> ... <directory>`")
-            exit(1)
+            return
 
         self.files_data, self.dirs_data, self.child_data, self.not_existing = treecompare(
             self.proj, paths, localtree=self.localtree, remotetree=self.remotetree)
 
-        if not self._validate_usage(paths):
+        if not self._validate_destination(paths):
             return
 
-        if dest_path in self.dirs_data and self.dirs_data[dest_path]['r_type'] == 'directory':
+        if self.dest_remote_type == 'directory':
             to_directory_path = dest_path
             to_directory_id = self.dirs_data[dest_path]['id']
             name = None
         else:
             to_directory_path = os.path.dirname(dest_path)
+            local_to_directory_abspath = filefuncs.make_local_abspath(self.proj.local_path, to_directory_path)
+            local_to_directory_printpath = os.path.relpath(local_to_directory_abspath)
+
+            # if destination name is different, must move then rename to `name`
             name = None
             if os.path.basename(paths[0]) != os.path.basename(dest_path):
                 name = os.path.basename(dest_path)
-            #TODO
-            to_directory_id = clifuncs.get_directory_id_by_path(self.proj.id, to_directory_path, remote=self.proj.remote)
+
+            to_directory = filefuncs.get_by_path_if_exists(self.proj.remote, self.proj.id, to_directory_path)
+            if not filefuncs.isdir(to_directory):
+                print(to_directory_path + ": not a directory on remote")
+                return
+            if not self.remote_only and not os.path.isdir(local_to_directory_abspath):
+                print(local_to_directory_printpath + ": not a directory locally")
+                return
+            to_directory_id = to_directory.id
 
         # move, and rename if necessary
         for p in paths[0:-1]:
 
-            if not self._validate_move(p, to_directory_path, name=name):
+            if not self._validate_source(p, to_directory_path, name=name):
                 continue
 
             self._move_remote(p, to_directory_path, to_directory_id, name=name)
@@ -738,13 +775,8 @@ class _Remover(object):
             return True
         else:
             print("rm remote:", path)
-            parent_id = record['parent_id']
-            files_and_dirs = [
-                {'id': record['id'], 'otype': 'file'}
-            ]
             try:
-                #TODO
-                clifuncs.delete_files_and_directories(self.proj, parent_id, files_and_dirs)
+                self.proj.delete_file(self.proj.id, record['id'])
                 return True
             except requests.exceptions.HTTPError as e:
                 try:
@@ -814,13 +846,8 @@ class _Remover(object):
             return True
         else:
             print("rm remote:", path)
-            parent_id = record['parent_id']
-            file_and_dirs = [
-                {'id': record['id'], 'otype': 'directory'}
-            ]
             try:
-                #TODO
-                clifuncs.delete_files_and_directories(self.proj, parent_id, file_and_dirs)
+                self.proj.delete_directory(self.proj.id, record['id'])
                 return True
             except requests.exceptions.HTTPError as e:
                 try:
@@ -990,46 +1017,55 @@ def mkdir(proj, path, remote_only=False, create_intermediates=False, remotetree=
 
     Returns
     -------
-    success: bool
-        True if successful, False otherwise
+    result: mcapi.File or None
+        mcapi.File object representing the created directory, if successful.
+
+    Raises
+    ------
+    Raises MCCLIException if unsuccessful with one of following messages:
+
+            - path + ": is a local file":
+                If attempting to create "/A/B/C" and any of "/A", "/A/B", or "/A/B/C" is an existing
+                file locally and remote_only==False.
+            - path + ": is a remote file":
+                If attempting to create "/A/B/C" and any of "/A", "/A/B", or "/A/B/C" is an existing
+                file on Materials Commons.
+            - parent_path + ": parent directory does not exist":
+                If attempting to create "/A/B/C" and the parent directory, "/A/B" does not exist
+                on Materials Commons and create_intermediates==False.
 
     """
-    local_abspath = filefuncs.make_local_abspath(self.proj.local_path, path)
-    parent_path = os.path.dirname(path)
-    parent = filefuncs.get_by_path_if_exists(proj.remote, proj.id, parent_path)
-
-    files_data, dirs_data, child_data, non_existing = treecompare(proj, [path], remotetree=remotetree)
-
+    local_abspath = filefuncs.make_local_abspath(proj.local_path, path)
     if not remote_only:
-        if is_type_mismatch(path, files_data, dirs_data):
-            print(path + ": local and remote type mismatch")
-            return False
-
-    if parent is None:
+        if os.path.isfile(local_abspath):
+            raise cliexcept.MCCLIException(path + ": is a local file")
+    result = filefuncs.get_by_path_if_exists(proj.remote, proj.id, path)
+    if filefuncs.isdir(result):
+        if not remote_only:
+            clifuncs.mkdir_if(local_abspath)
+        return result
+    elif filefuncs.isfile(result):
+        raise cliexcept.MCCLIException(path + ": is a remote file")
+    elif result is None:
+        parent_path = os.path.dirname(path)
         if create_intermediates:
-            if not mkdir(proj, parent_path, create_intermediates=True):
-                return False
-            parent = filefuncs.get_by_path_if_exists(proj.remote, proj.id, parent_path)
-            if parent is None:
-                raise cliexcept.MCCLIException("No such directory: " + parent_path)
+            parent = mkdir(proj, parent_path, remote_only=remote_only,
+                create_intermediates=create_intermediates, remotetree=remotetree)
+            result = proj.remote.create_directory(proj.id, os.path.basename(path), parent.id)
+            if remotetree:
+                remotetree.connect()
+                remotetree.update(parent_path, force=True)
+                remotetree.close()
+            if not remote_only:
+                clifuncs.mkdir_if(local_abspath)
+            return result
         else:
-            # raise No such directory
-            raise cliexcept.MCCLIException("No such directory: " + parent_path)
-
-    params = {
-        "project_id": proj.id,
-        "parent_directory_id": parent.id,
-        "path": os.path.basename(path)
-    }
-
-    result = proj.remote.create_directory(proj.id, os.path.basename(path), parent.id)
-
-    if remotetree:
-        remotetree.connect()
-        remotetree.update(parent_path, force=True)
-        remotetree.close()
-
-    if not remote_only:
-        os.mkdir(local_abspath)
-
-    return True
+            parent = filefuncs.get_by_path_if_exists(proj.remote, proj.id, parent_path)
+            if filefuncs.isfile(parent):
+                raise cliexcept.MCCLIException(parent_path + ": is a remote file")
+            if parent is None:
+                raise cliexcept.MCCLIException(parent_path + ": parent directory does not exist")
+            result = proj.remote.create_directory(proj.id, os.path.basename(path), parent.id)
+            if not remote_only:
+                clifuncs.mkdir_if(local_abspath)
+            return result
