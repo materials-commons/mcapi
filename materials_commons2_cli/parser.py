@@ -15,7 +15,7 @@ from .subcommands.clone import clone_subcommand
 # from .config import config_subcommand
 from .subcommands.dataset import DatasetSubcommand
 # from .diff import diff_subcommand
-# from .down import down_subcommand
+from .subcommands.down import down_subcommand
 from .subcommands.expt import ExptSubcommand
 # from .fetch import fetch_subcommand
 from .subcommands.init import init_subcommand
@@ -51,8 +51,8 @@ class CommonsCLIParser(object):
         {'name': 'mv', 'desc': 'Move files', 'subcommand': mv_subcommand},
         # {'name': 'diff', 'desc': 'Compare local and remote files', 'subcommand': diff_subcommand},
         # {'name': 'fetch', 'desc': 'Remote data fetching and configuration', 'subcommand': fetch_subcommand},
-        {'name': 'up', 'desc': 'Upload files', 'subcommand': up_subcommand}
-        # {'name': 'down', 'desc': 'Download files', 'subcommand': down_subcommand},
+        {'name': 'up', 'desc': 'Upload files', 'subcommand': up_subcommand},
+        {'name': 'down', 'desc': 'Download files', 'subcommand': down_subcommand}
         # {'name': 'versions', 'desc': 'List file versions', 'subcommand': versions_subcommand},
         # {'name': 'templates', 'desc': 'List process templates', 'subcommand': TemplatesSubcommand()},
         # {'name': 'proc', 'desc': 'List processes', 'subcommand': ProcSubcommand()},
