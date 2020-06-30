@@ -8,7 +8,7 @@ def from_list(cls, data):
 
 
 class Common(object):
-    def __init__(self, data, has_project_id=True):
+    def __init__(self, data):
         self._data = data.copy()
         self.id = data.get('id', None)
         self.uuid = data.get('uuid', None)
@@ -18,13 +18,14 @@ class Common(object):
         self.owner_id = data.get('owner_id', None)
         self.created_at = get_date('created_at', data)
         self.updated_at = get_date('updated_at', data)
-        if has_project_id:
-            self.project_id = data.get('project_id', None)
+        project_id = data.get('project_id', None)
+        if project_id:
+            self.project_id = project_id
 
 
 class Project(Common):
     def __init__(self, data={}):
-        super(Project, self).__init__(data, has_project_id=False)
+        super(Project, self).__init__(data)
         self.is_active = data.get('is_active', None)
         self.activities = Activity.from_list_attr(data)
         self.workflows = Workflow.from_list_attr(data)
@@ -120,6 +121,23 @@ class File(Common):
         self.directory_id = data.get('directory_id', None)
         self.size = data.get('size', None)
         self.checksum = data.get('checksum', None)
+        self.experiments_count = data.get('experiments_count', None)
+        self.activities_count = data.get('activities_count', None)
+        self.entities_count = data.get('entities_count', None)
+        self.entity_states_count = data.get('entity_states_count', None)
+        self.previous_versions_count = data.get('previous_versions_count', None)
+        directory = data.get('directory', None)
+        if directory:
+            self.directory = File(directory)
+            self._make_path()
+        else:
+            self.directory = None
+
+    def _make_path(self):
+        if self.directory.path == "/":
+            self.path = self.directory.path + self.name
+        else:
+            self.path = self.directory.path + "/" + self.name
 
     @staticmethod
     def from_list(data):
