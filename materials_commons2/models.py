@@ -120,6 +120,23 @@ class File(Common):
         self.directory_id = data.get('directory_id', None)
         self.size = data.get('size', None)
         self.checksum = data.get('checksum', None)
+        self.experiments_count = data.get('experiments_count', None)
+        self.activities_count = data.get('activities_count', None)
+        self.entities_count = data.get('entities_count', None)
+        self.entity_states_count = data.get('entity_states_count', None)
+        self.previous_versions_count = data.get('previous_versions_count', None)
+        directory = data.get('directory', None)
+        if directory:
+            self.directory = File(directory)
+            self._make_path()
+        else:
+            self.directory = None
+
+    def _make_path(self):
+        if self.directory.path == "/":
+            self.path = self.directory.path + self.name
+        else:
+            self.path = self.directory.path + "/" + self.name
 
     @staticmethod
     def from_list(data):
