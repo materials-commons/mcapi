@@ -316,14 +316,17 @@ class Client(object):
         form = merge_dicts({"project_id", project_id}, attrs.to_dict())
         return File(self.put("/files/" + str(file_id), form))
 
-    def delete_file(self, project_id, file_id):
+    def delete_file(self, project_id, file_id, force=False):
         """
         Delete a file in a project
         :param int project_id: The id of the project containing the file
         :param int file_id: The id of the file to delete
         :return: success or failure
         """
-        return self.delete("/projects/" + str(project_id) + "/files/" + str(file_id))
+        params = None
+        if force:
+            params = {"force": True}
+        return self.delete("/projects/" + str(project_id) + "/files/" + str(file_id), params=params)
 
     def move_file(self, project_id, file_id, to_directory_id):
         """
@@ -737,11 +740,11 @@ class Client(object):
         r = requests.put(url, json=data, verify=False, headers=self.headers)
         return self._handle_with_json(r)
 
-    def delete(self, urlpart):
+    def delete(self, urlpart, params=None):
         url = self.base_url + urlpart
         if self.log:
             print("DELETE:", url)
-        r = requests.delete(url, verify=False, headers=self.headers)
+        r = requests.delete(url, verify=False, params=params, headers=self.headers)
         self._handle(r)
 
     def delete_with_value(self, urlpart):
