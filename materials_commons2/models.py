@@ -8,7 +8,7 @@ def from_list(cls, data):
 
 
 class Common(object):
-    def __init__(self, data, has_project_id=True):
+    def __init__(self, data):
         self._data = data.copy()
         self.id = data.get('id', None)
         self.uuid = data.get('uuid', None)
@@ -18,13 +18,14 @@ class Common(object):
         self.owner_id = data.get('owner_id', None)
         self.created_at = get_date('created_at', data)
         self.updated_at = get_date('updated_at', data)
-        if has_project_id:
-            self.project_id = data.get('project_id', None)
+        project_id = data.get('project_id', None)
+        if project_id:
+            self.project_id = project_id
 
 
 class Project(Common):
     def __init__(self, data={}):
-        super(Project, self).__init__(data, has_project_id=False)
+        super(Project, self).__init__(data)
         self.is_active = data.get('is_active', None)
         self.activities = Activity.from_list_attr(data)
         self.workflows = Workflow.from_list_attr(data)
