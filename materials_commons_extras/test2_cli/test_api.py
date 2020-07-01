@@ -1,4 +1,6 @@
 import os
+import pytest
+import requests  # TODO: this should not be required eventually
 import time
 import unittest
 
@@ -162,6 +164,13 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(result.path, "/example_dir")
         example_dir_id = result.id
 
+        # create same directory
+        result = client.create_directory(proj.id, "example_dir", root_directory_id)
+        self.assertEqual(isdir(result), True)
+        self.assertEqual(result.name, "example_dir")
+        self.assertEqual(result.path, "/example_dir")
+        self.assertEqual(result.id, example_dir_id)
+
         # check list_directory w/ existing directory
         result = client.list_directory(proj.id, root_directory_id)
         self.assertEqual(isdir(result[0]), True)
@@ -255,7 +264,7 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(isfile(result), True)
         self.assertEqual(result.name, "file_A.txt")
         self.assertEqual(result.id, file_id)
-        self.assertEqual(result.path, None)
+        self.assertEqual(result.path, "/file_A.txt")
 
         # get file by path
         result = client.get_file_by_path(proj.id, "/file_A.txt")
@@ -324,9 +333,21 @@ class TestAPI(unittest.TestCase):
         result = client.list_directory(proj.id, example_dir_id)
         self.assertEqual(len(result), 1)
 
+        # delete directory containing a file (should fail and raise)
+        with pytest.raises(requests.exceptions.HTTPError) as e:
+            client.delete_directory(proj.id, example_dir_id)
+        assert "Bad Request" in str(e)
+        result = client.get_directory(proj.id, example_dir_id)
+        self.assertEqual(result.id, example_dir_id)
+
         # delete file
         client.delete_file(proj.id, file_id)
         result = client.list_directory(proj.id, example_dir_id)
+        self.assertEqual(len(result), 0)
+
+        # delete directory
+        client.delete_directory(proj.id, example_dir_id)
+        result = client.list_directory(proj.id, root_directory_id)
         self.assertEqual(len(result), 0)
 
         # clean up
