@@ -19,6 +19,12 @@ except ImportError:
     pass
 
 
+class MCAPIError(Exception):
+    def __init__(self, message, response):
+        super(MCAPIError, self).__init__(message)
+        self.response = response
+
+
 def merge_dicts(dict1, dict2):
     merged = dict1.copy()
     merged.update(dict2)
@@ -78,6 +84,7 @@ class Client(object):
         :param params:
         :return: List of projects
         :rtype Project[]
+        :raises MCAPIError
         """
         return Project.from_list(self.get("/projects", params))
 
@@ -88,6 +95,7 @@ class Client(object):
         :param CreateProjectRequest attrs: (optional) Additional attributes for the create request
         :return: The create project
         :rtype Project
+        :raises MCAPIError
         """
         if not attrs:
             attrs = CreateProjectRequest()
@@ -101,6 +109,7 @@ class Client(object):
         :param params:
         :return: The project
         :rtype Project
+        :raises MCAPIError
         """
         return Project(self.get("/projects/" + str(project_id), params))
 
@@ -108,7 +117,7 @@ class Client(object):
         """
         Deletes a project
         :param int project_id: id of project to delete
-        :raises Exception
+        :raises MCAPIError
         """
         self.delete("/projects/" + str(project_id))
 
@@ -119,13 +128,28 @@ class Client(object):
         :param UpdateProjectRequest attrs: The attributes to update on the project
         :return: The updated project
         :rtype Project
+        :raises MCAPIError
         """
         return Project(self.put("/projects/" + str(project_id), attrs.to_dict()))
 
     def add_user_to_project(self, project_id, user_id):
+        """
+        Adds user to project
+        :param int project_id: Id of project to add user to
+        :param int user_id: Id of user to add to project
+        :return: The updated project
+        :rtype Project
+        :raises MCAPIError
+        """
         return Project(self.put("/projects/" + str(project_id) + "/add-user/" + str(user_id), {}))
 
     def remove_user_from_project(self, project_id, user_id):
+        """
+        Remove user from project
+        :param int project_id: Id of project to add user to
+        :param int user_id: Id of user to add to project
+        :raises MCAPIError
+        """
         self.delete("/projects/" + str(project_id) + "/remove-user/" + str(user_id))
 
     # Experiments
@@ -136,6 +160,7 @@ class Client(object):
         :param params:
         :return: A list of experiments
         :rtype Experiment[]
+        :raises MCAPIError
         """
         return Experiment.from_list(self.get("/projects/" + str(project_id) + "/experiments", params))
 
@@ -146,6 +171,7 @@ class Client(object):
         :param params:
         :return: The experiment
         :rtype Experiment
+        :raises MCAPIError
         """
         return Experiment(self.get("/experiments/" + str(experiment_id), params))
 
@@ -156,6 +182,7 @@ class Client(object):
         :param UpdateExperimentRequest attrs: Attributes to update
         :return: The updated experiment
         :rtype Experiment
+        :raises MCAPIError
         """
         form = merge_dicts({"experiment_id": experiment_id}, attrs.to_dict())
         return Experiment(self.put("/experiments/" + str(experiment_id), form))
@@ -165,7 +192,7 @@ class Client(object):
         Delete experiment in project
         :param int project_id: The id of the project the experiment is in
         :param experiment_id: The experiment id
-        :raises Exception
+        :raises MCAPIError
         """
         self.delete("/projects/" + str(project_id) + "/experiments/" + str(experiment_id))
 
@@ -177,6 +204,7 @@ class Client(object):
         :param CreateExperimentRequest attrs: Additional attributes on the experiment
         :return: The created experiment
         :rtype Experiment
+        :raises MCAPIError
         """
         if not attrs:
             attrs = CreateExperimentRequest()
@@ -184,6 +212,15 @@ class Client(object):
         return Experiment(self.post("/experiments", form))
 
     def update_experiment_workflows(self, project_id, experiment_id, workflow_id):
+        """
+        Toggle whether an workflow is in the experiment
+        :param int project_id: Id of project containing the experiment and workflow
+        :param experiment_id: Id of experiment
+        :param workflow_id: Id of workflow
+        :return: The updated experiment
+        :rtype Experiment
+        :raises MCAPIError
+        """
         form = {"project_id": project_id, "workflow_id": workflow_id}
         return Experiment(self.put("/experiments/" + str(experiment_id) + "/workflows/selection", form))
 
@@ -196,6 +233,7 @@ class Client(object):
         :param params:
         :return: The directory
         :rtype File
+        :raises MCAPIError
         """
         return File(self.get("/projects/" + str(project_id) + "/directories/" + str(directory_id), params))
 
@@ -207,6 +245,7 @@ class Client(object):
         :param params:
         :return: A list of the files and directories in the given directory
         :rtype File[]
+        :raises MCAPIError
         """
         return File.from_list(
             self.get("/projects/" + str(project_id) + "/directories/" + str(directory_id) + "/list", params))
@@ -219,6 +258,7 @@ class Client(object):
         :param params:
         :return: A list of th efiles and directories in the given path
         :rtype File[]
+        :raises MCAPIError
         """
         path_param = {"path": path}
         return File.from_list(self.get("/projects/" + str(project_id) + "/directories_by_path", params, path_param))
@@ -232,6 +272,7 @@ class Client(object):
         :param CreateDirectoryRequest attrs: Additional attributes on the directory
         :return: The created directory
         :rtype File
+        :raises MCAPIError
         """
         if not attrs:
             attrs = CreateDirectoryRequest()
@@ -247,6 +288,7 @@ class Client(object):
         :param int to_directory_id: Id of the destination directory
         :return: The directory that was moved
         :rtype File
+        :raises MCAPIError
         """
         form = {"to_directory_id": to_directory_id, "project_id": project_id}
         return File(self.post("/directories/" + str(directory_id) + "/move", form))
@@ -259,6 +301,7 @@ class Client(object):
         :param name: The new name of the directory
         :return: The directory that was renamed
         :rtype File
+        :raises MCAPIError
         """
         form = {"name": name, "project_id": project_id}
         return File(self.post("/directories/" + str(directory_id) + "/rename", form))
@@ -268,7 +311,7 @@ class Client(object):
         Should not be used yet: Delete a directory only if the directory is empty
         :param int project_id: The project id containing the directory to delete
         :param int directory_id: The id of the directory to delete
-        :raises Exception
+        :raises MCAPIError
         """
         self.delete("/projects/" + str(project_id) + "/directories/" + str(directory_id))
 
@@ -280,6 +323,7 @@ class Client(object):
         :param attrs: Attributes to update
         :return: The updated directory
         :rtype File
+        :raises MCAPIError
         """
         form = merge_dicts({"project_id": project_id}, attrs.to_dict())
         return File(self.put("/directories/" + str(directory_id), form))
@@ -293,6 +337,7 @@ class Client(object):
         :param params:
         :return: The file
         :rtype File
+        :raises MCAPIError
         """
         return File(self.get("/projects/" + str(project_id) + "/files/" + str(file_id), params))
 
@@ -303,6 +348,7 @@ class Client(object):
         :param file_path: The path to the file
         :return: The file
         :rtype File
+        :raises MCAPIError
         """
         form = {"path": file_path, "project_id": project_id}
         return File(self.post("/files/by_path", form))
@@ -315,6 +361,7 @@ class Client(object):
         :param UpdateFileRequest attrs: Attributes to update
         :return: The updated file
         :rtype File
+        :raises MCAPIError
         """
         form = merge_dicts({"project_id", project_id}, attrs.to_dict())
         return File(self.put("/files/" + str(file_id), form))
@@ -324,7 +371,7 @@ class Client(object):
         Delete a file in a project
         :param int project_id: The id of the project containing the file
         :param int file_id: The id of the file to delete
-        :raises Exception
+        :raises MCAPIError
         """
         params = None
         if force:
@@ -339,6 +386,7 @@ class Client(object):
         :param int to_directory_id: The id of the destination directory
         :return: The moved file
         :rtype File
+        :raises MCAPIError
         """
         form = {"directory_id": to_directory_id, "project_id": project_id}
         return File(self.post("/files/" + str(file_id) + "/move", form))
@@ -351,6 +399,7 @@ class Client(object):
         :param str name: The files new name
         :return: The rename file
         :rtype File
+        :raises MCAPIError
         """
         form = {"name": name, "project_id": project_id}
         return File(self.post("/files/" + str(file_id) + "/rename", form))
@@ -361,6 +410,7 @@ class Client(object):
         :param int project_id: The project id containing the file to download
         :param int file_id: The id of the file to download
         :param str to: path including file name to download file to
+        :raises MCAPIError
         """
         self.download("/projects/" + str(project_id) + "/files/" + str(file_id) + "/download", to)
 
@@ -370,6 +420,7 @@ class Client(object):
         :param int project_id: The project id containing the file to download
         :param str path: The path in the project of the file
         :param str to: path including file name to download file to
+        :raises MCAPIError
         """
         file = self.get_file_by_path(project_id, path)
         self.download_file(project_id, file.id, to)
@@ -380,6 +431,9 @@ class Client(object):
         :param int project_id: The project to upload file to
         :param int directory_id: The directory in the project to upload the file into
         :param str file_path: path of file to upload
+        :return: The created file
+        :rtype File
+        :raises MCAPIError
         """
         files = File.from_list(
             self.upload("/projects/" + str(project_id) + "/files/" + str(directory_id) + "/upload", file_path))
@@ -393,6 +447,7 @@ class Client(object):
         :param params:
         :return: The list of entities
         :rtype Entity[]
+        :raises MCAPIError
         """
         return Entity.from_list(self.get("/projects/" + str(project_id) + "/entities", params))
 
@@ -404,6 +459,7 @@ class Client(object):
         :param params:
         :return: The entity
         :rtype Entity
+        :raises MCAPIError
         """
         return Entity(self.get("/projects/" + str(project_id) + "/entities/" + str(entity_id), params))
 
@@ -415,6 +471,7 @@ class Client(object):
         :param CreateEntityRequest attrs: Attributes of the entity
         :return: The created entity
         :rtype Entity
+        :raises MCAPIError
         """
         if not attrs:
             attrs = CreateEntityRequest()
@@ -426,7 +483,7 @@ class Client(object):
         Delete an entity
         :param int project_id: The id of the project containing the entity
         :param int entity_id: The entity id
-        :raises Exception
+        :raises MCAPIError
         """
         self.delete("/projects/" + str(project_id) + "/entities/" + str(entity_id))
 
@@ -438,6 +495,7 @@ class Client(object):
         :param params:
         :return: List of activities
         :rtype Activity[]
+        :raises MCAPIError
         """
         return Activity.from_list(self.get("/projects/" + str(project_id) + "/activities", params))
 
@@ -449,6 +507,7 @@ class Client(object):
         :param params:
         :return: The activity
         :rtype Activity
+        :raises MCAPIError
         """
         return Activity(self.get("/projects/" + str(project_id) + "/activies/" + str(activity_id), params))
 
@@ -460,6 +519,7 @@ class Client(object):
         :param CreateActivityRequest attrs: Attributes on the activity
         :return: The activity to create
         :rtype Activity
+        :raises MCAPIError
         """
         if not attrs:
             attrs = CreateActivityRequest()
@@ -471,7 +531,7 @@ class Client(object):
         Deletes an activity
         :param project_id: The id of the project containing the activity
         :param activity_id: The id of the activity to delete
-        :raises Exception
+        :raises MCAPIError
         """
         self.delete("/projects/" + str(project_id) + "/activies/" + str(activity_id))
 
@@ -483,6 +543,7 @@ class Client(object):
         :param params:
         :return: The list of datasets
         :rtype Dataset[]
+        :raises MCAPIError
         """
         return Dataset.from_list(self.get("/projects/" + str(project_id) + "/datasets", params))
 
@@ -492,6 +553,7 @@ class Client(object):
         :param params:
         :return: The list of published datasets
         :rtype Dataset[]
+        :raises MCAPIError
         """
         return Dataset.from_list(self.get("/datasets/published", params))
 
@@ -503,6 +565,7 @@ class Client(object):
         :param params:
         :return: The dataset
         :rtype Dataset
+        :raises MCAPIError
         """
         return Dataset(self.get("/projects/" + str(project_id) + "/datasets/" + str(dataset_id), params))
 
@@ -511,24 +574,60 @@ class Client(object):
         Delete an unpublished dataset
         :param int project_id: The project id containing the dataset
         :param int dataset_id: The id of the dataset
-        :raises Exception
+        :raises MCAPIError
         """
         self.delete("/projects/" + str(project_id) + "/datasets/" + str(dataset_id))
 
     def update_dataset_file_selection(self, project_id, dataset_id, file_selection):
+        """
+        Update the file selection for a dataset
+        :param int project_id: Project id containing dataset
+        :param int dataset_id: Id of dataset
+        :param file_selection: {"include_files": [], "exclude_files": [], "include_dirs": [], "exclude_dirs": []}
+        :return: The updated dataset
+        :rtype Dataset
+        :raises MCAPIError
+        """
         form = {"project_id": project_id}
         form = merge_dicts(form, file_selection)
         return Dataset(self.put("/datasets/" + str(dataset_id) + "/selection", form))
 
     def update_dataset_activities(self, project_id, dataset_id, activity_id):
+        """
+        Toggle whether an activity is in a dataset
+        :param int project_id: Project id containing dataset and activity
+        :param int dataset_id: Id of dataset
+        :param int activity_id: Id of activity
+        :return: The updated dataset
+        :rtype Dataset
+        :raises MCAPIError
+        """
         form = {"project_id": project_id, "activity_id": activity_id}
         return Dataset(self.put("/datasets/" + str(dataset_id) + "/activities/selection", form))
 
     def update_dataset_entities(self, project_id, dataset_id, entity_id):
+        """
+        Toggle whether an entity is in a dataset
+        :param int project_id: Project id containing dataset and entity
+        :param int dataset_id: Id of dataset
+        :param int entity_id: Id of entity
+        :return: The updated dataset
+        :rtype Dataset
+        :raises MCAPIError
+        """
         form = {"project_id": project_id, "entity_id": entity_id}
         return Dataset(self.put("/datasets/" + str(dataset_id) + "/entities", form))
 
     def update_dataset_workflows(self, project_id, dataset_id, workflow_id):
+        """
+        Toggle whether an workflow is in a dataset
+        :param int project_id: Project id containing dataset and workflow
+        :param int dataset_id: Id of dataset
+        :param int workflow_id: Id of workflow
+        :return: The updated dataset
+        :rtype Dataset
+        :raises MCAPIError
+        """
         form = {"project_id": project_id, "workflow_id": workflow_id}
         return Dataset(self.put("/datasets/" + str(dataset_id) + "/workflows", form))
 
@@ -539,6 +638,7 @@ class Client(object):
         :param int dataset_id: The dataset id
         :return: The dataset
         :rtype Dataset
+        :raises MCAPIError
         """
         form = {"project_id": project_id}
         return Dataset(self.put("/datasets/" + str(dataset_id) + "/publish", form))
@@ -550,6 +650,7 @@ class Client(object):
         :param int dataset_id: The dataset id
         :return: The dataset
         :rtype Dataset
+        :raises MCAPIError
         """
         form = {"project_id": project_id}
         return Dataset(self.put("/datasets/" + str(dataset_id) + "/unpublish", form))
@@ -562,6 +663,7 @@ class Client(object):
         :param CreateDatasetRequest attrs: Attributes of the dataset
         :return: The created dataset
         :rtype Dataset
+        :raises MCAPIError
         """
         if not attrs:
             attrs = CreateDatasetRequest()
@@ -577,6 +679,7 @@ class Client(object):
         :param UpdateDatasetRequest attrs: The attributes to update
         :return: The updated dataset
         :rtype Dataset
+        :raises MCAPIError
         """
         if not attrs:
             attrs = UpdateDatasetRequest()
@@ -588,6 +691,7 @@ class Client(object):
         Download the zipfile for a published dataset
         :param int dataset_id: The id of the published dataset
         :param str to: The path including the file name to write the download to
+        :raises MCAPIError
         """
         self.download("/datasets/" + str(dataset_id) + "/download_zipfile", to)
 
@@ -598,6 +702,7 @@ class Client(object):
         :param int dataset_id: dataset to check file_selection against
         :param int file_id: file to check
         :return: {'in_dataset': True} or {'in_dataset': False}
+        :raises MCAPIError
         """
         return self.get("/projects/" + str(project_id) + "/datasets/" + str(dataset_id) + "/files/" + str(
             file_id) + "/check_selection")
@@ -610,6 +715,7 @@ class Client(object):
         :param str file_path: file_path to check against dataset file_selection
         :return: {'in_dataset': True} or {'in_dataset': False}
         :exception if file_path doesn't exist in project
+        :raises MCAPIError
         """
         form = {"file_path": file_path}
         return self.post("/projects/" + str(project_id) + "/datasets/" + str(dataset_id) + "/check_select_by_path",
@@ -623,6 +729,7 @@ class Client(object):
         :param name: The name of the request
         :return: The globus request
         :rtype GlobusUpload
+        :raises MCAPIError
         """
         form = {"project_id": project_id, name: name}
         return GlobusUpload(self.post("/globus/uploads", form))
@@ -632,7 +739,7 @@ class Client(object):
         Delete an existing globus upload request
         :param int project_id:
         :param int globus_upload_id:
-        :raises Exception
+        :raises MCAPIError
         """
         self.delete("/projects/" + str(project_id) + "/globus/" + str(globus_upload_id) + "/uploads")
 
@@ -643,6 +750,7 @@ class Client(object):
         :param int globus_upload_id: The id of the globus upload
         :return: The globus upload
         :rtype GlobusUpload
+        :raises MCAPIError
         """
         form = {"project_id": project_id}
         return GlobusUpload(self.put("/globus/" + str(globus_upload_id) + "/uploads/complete", form))
@@ -653,6 +761,7 @@ class Client(object):
         :param int project_id: The project id
         :return: List of globus uploads
         :rtype GlobusUpload[]
+        :raises MCAPIError
         """
         return GlobusUpload.from_list(self.get("/projects/" + str(project_id) + "/globus/uploads"))
 
@@ -663,6 +772,7 @@ class Client(object):
         :param str name: The name of the download request
         :return: The globus download
         :rtype GlobusDownload
+        :raises MCAPIError
         """
         form = {"project_id": project_id, "name": name}
         return GlobusDownload(self.post("/globus/downloads", form))
@@ -672,7 +782,7 @@ class Client(object):
         Delete an existing globus download request
         :param int project_id: The id of the project containing the download request
         :param int globus_download_id: The id of the globus download to delete
-        :raises Exception
+        :raises MCAPIError
         """
         self.delete("/projects/" + str(project_id) + "/globus/" + str(globus_download_id) + "/downloads")
 
@@ -682,6 +792,7 @@ class Client(object):
         :param int project_id: The project
         :return: List of all globus downloads
         :rtype GlobusDownload[]
+        :raises MCAPIError
         """
         return GlobusDownload.from_list(self.get("/projects/" + str(project_id) + "/globus/downloads"))
 
@@ -692,14 +803,28 @@ class Client(object):
         :param int globus_download_id: The globus download id
         :return: The globus download
         :rtype GlobusDownload
+        :raises MCAPIError
         """
         return GlobusDownload(self.get("/projects/" + str(project_id) + "/globus/downloads/" + str(globus_download_id)))
 
     # Users
     def get_user_by_email(self, email):
+        """
+        Get a user by their email
+        :param string email: email address of user to lookup
+        :return: The user
+        :rtype User
+        :raises MCAPIError
+        """
         return User(self.get("/users/by-email/" + email))
 
     def list_users(self):
+        """
+        List users of Materials Commons
+        :return: List of users
+        :rtype User[]
+        :raises MCAPIError
+        """
         return User.from_list(self.get("/users"))
 
     # request calls
@@ -760,7 +885,10 @@ class Client(object):
     def _handle(self, r):
         self.r = r
         self._update_rate_limits_from_request(r)
-        r.raise_for_status()
+        try:
+            r.raise_for_status()
+        except requests.HTTPError as e:
+            raise MCAPIError(str(e), e.response)
 
     def _handle_with_json(self, r):
         self._handle(r)
