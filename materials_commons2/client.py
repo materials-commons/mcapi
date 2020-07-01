@@ -32,7 +32,10 @@ class Client(object):
         self.apikey = apikey
         self.base_url = base_url
         self.log = False
-        self.headers = {"Authorization": "Bearer " + self.apikey}
+        self.headers = {
+            "Authorization": "Bearer " + self.apikey,
+            "Accept": "application/json"
+        }
         self.rate_limit = 0
         self.rate_limit_remaining = 0
         self.rate_limit_reset = None
@@ -107,9 +110,9 @@ class Client(object):
         """
         Deletes a project
         :param int project_id: id of project to delete
-        :return: success or failure
+        :raises Exception
         """
-        return self.delete("/projects/" + str(project_id))
+        self.delete("/projects/" + str(project_id))
 
     def update_project(self, project_id, attrs):
         """
@@ -164,9 +167,9 @@ class Client(object):
         Delete experiment in project
         :param int project_id: The id of the project the experiment is in
         :param experiment_id: The experiment id
-        :return: success or failure
+        :raises Exception
         """
-        return self.delete("/projects/" + str(project_id) + "/experiments/" + str(experiment_id))
+        self.delete("/projects/" + str(project_id) + "/experiments/" + str(experiment_id))
 
     def create_experiment(self, project_id, name, attrs=None):
         """
@@ -267,9 +270,9 @@ class Client(object):
         Should not be used yet: Delete a directory only if the directory is empty
         :param int project_id: The project id containing the directory to delete
         :param int directory_id: The id of the directory to delete
-        :return: success or failure
+        :raises Exception
         """
-        return self.delete("/projects/" + str(project_id) + "/directories/" + str(directory_id))
+        self.delete("/projects/" + str(project_id) + "/directories/" + str(directory_id))
 
     def update_directory(self, project_id, directory_id, attrs):
         """
@@ -323,12 +326,12 @@ class Client(object):
         Delete a file in a project
         :param int project_id: The id of the project containing the file
         :param int file_id: The id of the file to delete
-        :return: success or failure
+        :raises Exception
         """
         params = None
         if force:
             params = {"force": True}
-        return self.delete("/projects/" + str(project_id) + "/files/" + str(file_id), params=params)
+        self.delete("/projects/" + str(project_id) + "/files/" + str(file_id), params=params)
 
     def move_file(self, project_id, file_id, to_directory_id):
         """
@@ -425,9 +428,9 @@ class Client(object):
         Delete an entity
         :param int project_id: The id of the project containing the entity
         :param int entity_id: The entity id
-        :return: success or failure
+        :raises Exception
         """
-        return self.delete("/projects/" + str(project_id) + "/entities/" + str(entity_id))
+        self.delete("/projects/" + str(project_id) + "/entities/" + str(entity_id))
 
     # Activities
     def get_all_activities(self, project_id, params=None):
@@ -470,9 +473,9 @@ class Client(object):
         Deletes an activity
         :param project_id: The id of the project containing the activity
         :param activity_id: The id of the activity to delete
-        :return: success or failure
+        :raises Exception
         """
-        return self.delete("/projects/" + str(project_id) + "/activies/" + str(activity_id))
+        self.delete("/projects/" + str(project_id) + "/activies/" + str(activity_id))
 
     # Datasets
     def get_all_datasets(self, project_id, params=None):
@@ -510,9 +513,9 @@ class Client(object):
         Delete an unpublished dataset
         :param int project_id: The project id containing the dataset
         :param int dataset_id: The id of the dataset
-        :return: success or failure
+        :raises Exception
         """
-        return self.delete("/projects/" + str(project_id) + "/datasets/" + str(dataset_id))
+        self.delete("/projects/" + str(project_id) + "/datasets/" + str(dataset_id))
 
     def update_dataset_file_selection(self, project_id, dataset_id, file_selection):
         form = {"project_id": project_id}
@@ -631,9 +634,9 @@ class Client(object):
         Delete an existing globus upload request
         :param int project_id:
         :param int globus_upload_id:
-        :return: success or failure
+        :raises Exception
         """
-        return self.delete("/projects/" + str(project_id) + "/globus/" + str(globus_upload_id) + "/uploads")
+        self.delete("/projects/" + str(project_id) + "/globus/" + str(globus_upload_id) + "/uploads")
 
     def finish_globus_upload_request(self, project_id, globus_upload_id):
         """
@@ -671,9 +674,9 @@ class Client(object):
         Delete an existing globus download request
         :param int project_id: The id of the project containing the download request
         :param int globus_download_id: The id of the globus download to delete
-        :return: success or failure
+        :raises Exception
         """
-        return self.delete("/projects/" + str(project_id) + "/globus/" + str(globus_download_id) + "/downloads")
+        self.delete("/projects/" + str(project_id) + "/globus/" + str(globus_download_id) + "/downloads")
 
     def get_all_globus_download_requests(self, project_id):
         """
