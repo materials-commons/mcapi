@@ -33,7 +33,6 @@ class Client(object):
         self.log = False
         self.headers = {
             "Authorization": "Bearer " + self.apikey,
-            "Content-Type": "application/json",
             "Accept": "application/json"
         }
         self.rate_limit = 0
