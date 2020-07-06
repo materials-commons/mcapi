@@ -28,6 +28,8 @@ def up_subcommand(argv=sys.argv):
                         help='Use globus to upload files.')
     parser.add_argument('--label', nargs=1, type=str,
                         help='Globus transfer label to make finding tasks simpler.')
+    parser.add_argument('--no-compare', action="store_true", default=False,
+                        help='Download remote without checking if local is equivalent.')
     # parser.add_argument('--batchsize', nargs=1, type=int, default=[50],
     #                     help='Maximum number of files per globus transfer. Default=0 (all files).')
 
@@ -53,6 +55,11 @@ def up_subcommand(argv=sys.argv):
         globus_ops.upload_v0(proj, paths, recursive=args.recursive, label=label)
 
     else:
-        treefuncs.standard_upload(proj, paths, recursive=args.recursive, limit=args.limit[0], remotetree=remotetree)
+        localtree = None
+        if not args.no_compare:
+            localtree = LocalTree(proj.local_path)
+
+        treefuncs.standard_upload(proj, paths, recursive=args.recursive, limit=args.limit[0],
+            no_compare=args.no_compare, localtree=localtree, remotetree=remotetree)
 
     return

@@ -1,6 +1,5 @@
 import os
 import pytest
-import requests  # TODO: this should not be required eventually
 import time
 import unittest
 
@@ -334,7 +333,7 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(len(result), 1)
 
         # delete directory containing a file (should fail and raise)
-        with pytest.raises(requests.exceptions.HTTPError) as e:
+        with pytest.raises(Exception) as e:
             client.delete_directory(proj.id, example_dir_id)
         assert "Bad Request" in str(e)
         result = client.get_directory(proj.id, example_dir_id)

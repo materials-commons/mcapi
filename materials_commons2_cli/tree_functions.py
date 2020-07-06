@@ -67,7 +67,7 @@ def make_paths_for_upload(proj_local_path, paths):
             _paths.append(path)
     return _paths
 
-def standard_upload(proj, paths, recursive=False, limit=50, remotetree=None):
+def standard_upload(proj, paths, recursive=False, limit=50, no_compare=False, localtree=None, remotetree=None):
     """Upload files to Materials Commons
 
     Arguments
@@ -85,28 +85,51 @@ def standard_upload(proj, paths, recursive=False, limit=50, remotetree=None):
     limit: int (optional, default=50)
         The limit in MB on the size of the file allowed to be uploaded.
 
+    no_compare: bool (optional, default=False)
+        By default, this function checks local and remote file checksum to avoid downloading files
+        that already exist. If no_compare is True, this check is skipped and all specified files are
+        downloaded, even if an equivalent file already exists locally.
+
+    localtree: LocalTree object (optional, default=None)
+        A LocalTree object stores local file checksums to avoid unnecessary hashing. Will be used
+        and updated if provided and checksum == True.
+
     remotetree: RemoteTree object (optional, default=None)
         A RemoteTree object stores remote file and directory information to minimize API calls and
         data transfer. Will be used and updated if provided.
 
     Returns
     -------
-        (file_data, error_data):
+        (file_results, error_results):
 
-        file_data: dict of path: file
+        file_results: dict of path: file
             Successfully uploaded files
 
-        error_data: dict of path: str
+        error_results: dict of path: str
             Error messages for unsuccessful file uploads
 
     """
     paths = make_paths_for_upload(proj.local_path, paths)
-    file_data = {}
-    error_data = {}
+    file_results = {}
+    error_results = {}
+
+    checksum = True
+    if no_compare:
+        checksum = False
+
+    files_data, dirs_data, child_data, non_existing = treecompare(
+        proj, paths, checksum=checksum, localtree=localtree, remotetree=remotetree)
 
     for path in paths:
         local_abspath = filefuncs.make_local_abspath(proj.local_path, path)
         printpath = os.path.relpath(local_abspath)
+
+        if os.path.isfile(local_abspath) and 'eq' in files_data[path] and files_data[path]['eq']:
+            print(printpath + ": local is equivalent to remote (skipping)")
+            file_results[path] = files_data[path]['r_obj']
+            file_results[path].path = path
+            continue
+
         parent_path = os.path.dirname(path)
         parent = mkdir(proj, parent_path, remote_only=True, create_intermediates=True,
             remotetree=remotetree)
@@ -120,37 +143,37 @@ def standard_upload(proj, paths, recursive=False, limit=50, remotetree=None):
             if os.path.isfile(local_abspath):
                 if not parent:
                     error_msg = printpath + ": parent=" + parent_path + " is not a directory on remote (not uploaded)"
-                    error_data[path] = error_msg
+                    error_results[path] = error_msg
                     print(error_msg)
                     continue
                 file_size_mb = os.path.getsize(local_abspath) >> 20
                 if file_size_mb > limit:
                     error_msg = printpath + ": file too large (size={1}MB, limit={0}MB) (not uploaded)".format(limit, file_size_mb)
-                    error_data[path] = error_msg
+                    error_results[path] = error_msg
                     print(error_msg)
                     continue
                 result = proj.remote.upload_file(proj.id, parent.id, local_abspath)
                 if not filefuncs.isfile(result):
                     error_msg = printpath + ": unknown error (not uploaded)"
-                    error_data[path] = error_msg
+                    error_results[path] = error_msg
                     print(error_msg)
                     continue
                 result.path = path
-                file_data[path] = result
+                file_results[path] = result
 
             elif os.path.isdir(local_abspath):
                 if recursive:
                     proj.remote.create_directory(proj.id, os.path.basename(path), parent.id)
                     child_paths = [os.path.join(path, name) for name in os.listdir(local_abspath)]
-                    file_data_tmp, error_data_tmp = standard_upload(
+                    file_results_tmp, error_results_tmp = standard_upload(
                         proj, child_paths, recursive=recursive, limit=limit, remotetree=remotetree)
-                    for path in file_data_tmp:
-                        file_data[path] = file_data_tmp[path]
-                    for path in error_data_tmp:
-                        error_data[path] = error_data_tmp[path]
+                    for path in file_results_tmp:
+                        file_results[path] = file_results_tmp[path]
+                    for path in error_results_tmp:
+                        error_results[path] = error_results_tmp[path]
                 else:
                     error_msg = printpath + ": is a directory (not uploaded)"
-                    error_data[path] = error_msg
+                    error_results[path] = error_msg
                     print(error_msg)
                     continue
 
@@ -161,11 +184,11 @@ def standard_upload(proj, paths, recursive=False, limit=50, remotetree=None):
 
         except Exception as e:
             error_msg = printpath + ": " + str(e) + " (not uploaded)"
-            error_data[path] = error_msg
+            error_results[path] = error_msg
             print(error_msg)
             continue
 
-    return (file_data, error_data)
+    return (file_results, error_results)
 
 class _TreeCompare(object):
     """Helper for the treecompare function.
@@ -774,12 +797,13 @@ class _Remover(object):
         else:
             print("rm remote:", path)
             try:
-                self.proj.delete_file(self.proj.id, record['id'])
+                self.proj.remote.delete_file(self.proj.id, record['id'])
                 return True
             except requests.exceptions.HTTPError as e:
                 try:
                     print(e.response.json()['error'])
                 except:
+                    print(e)
                     print("  FAILED, for unknown reason")
                 return False
 
@@ -845,11 +869,13 @@ class _Remover(object):
         else:
             print("rm remote:", path)
             try:
-                self.proj.delete_directory(self.proj.id, record['id'])
+                print("rm remote directory:", path)
+                self.proj.remote.delete_directory(self.proj.id, record['id'])
                 return True
             except requests.exceptions.HTTPError as e:
                 try:
-                    print(e.response.json()['error'])
+                    print(e)
+                    print(json.dumps(e.response.json(), indent=2))
                 except:
                     print("  FAILED, for unknown reason")
                 return False
