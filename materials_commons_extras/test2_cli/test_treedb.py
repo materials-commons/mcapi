@@ -48,8 +48,7 @@ class TestTreeTable(unittest.TestCase):
         localtree.connect()
         localtree.update("/", get_children=True, recurs=False)
         records = {record['path']:record for record in localtree.select_all()}
-        for name in records:
-            print(dict(records[name]))
+
         self.assertEqual(len(records), 4)
         self.assertEqual(records["/"]["name"], "/")
         self.assertEqual(records["/"]["path"], "/")
@@ -164,8 +163,7 @@ class TestTreeTable(unittest.TestCase):
         remotetree.connect()
         remotetree.update("/", get_children=True, recurs=False)
         records = {record['path']:record for record in remotetree.select_all()}
-        for name in records:
-            print(dict(records[name]))
+
         self.assertEqual(len(records), 4)
         self.assertEqual(records["/"]["name"], "/")
         self.assertEqual(records["/"]["path"], "/")

@@ -127,7 +127,6 @@ def standard_upload(proj, paths, recursive=False, limit=50, no_compare=False, lo
         if os.path.isfile(local_abspath) and 'eq' in files_data[path] and files_data[path]['eq']:
             print(printpath + ": local is equivalent to remote (skipping)")
             file_results[path] = files_data[path]['r_obj']
-            file_results[path].path = path
             continue
 
         parent_path = os.path.dirname(path)
@@ -158,7 +157,6 @@ def standard_upload(proj, paths, recursive=False, limit=50, no_compare=False, lo
                     error_results[path] = error_msg
                     print(error_msg)
                     continue
-                result.path = path
                 file_results[path] = result
 
             elif os.path.isdir(local_abspath):

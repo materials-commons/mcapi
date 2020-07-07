@@ -1,3 +1,4 @@
+import json
 import os
 import pytest
 import time
@@ -280,7 +281,13 @@ class TestAPI(unittest.TestCase):
         result = client.get_file(proj.id, file_id)
 
         self.assertEqual(os.path.exists(filepath), False)
-        client.download_file(proj.id, file_id, filepath)
+        try:
+            client.download_file(proj.id, file_id, filepath)
+        except mcapi.MCAPIError as e:
+            if e.response.status_code == 500:
+                msg = "download_file error: " + str(e) + "\nAborting: Please restart materialscommmons"
+                pytest.exit(msg)
+            raise e
         self.assertEqual(os.path.exists(filepath), True)
         self.assertEqual(os.path.isfile(filepath), True)
 
@@ -296,7 +303,7 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(isfile(result), True)
         self.assertEqual(result.name, "file_A_new_name.txt")
         self.assertEqual(result.id, file_id)
-        self.assertEqual(result.path, None)
+        self.assertEqual(result.path, "/file_A_new_name.txt")
 
         # download file by id (after renaming)
         orig_filepath = os.path.join(proj_path, "file_A.txt")
@@ -327,7 +334,7 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(isfile(result), True)
         self.assertEqual(result.name, "file_A_new_name.txt")
         self.assertEqual(result.id, file_id)
-        self.assertEqual(result.path, None)
+        self.assertEqual(result.path, "/file_A_new_name.txt")
         self.assertEqual(int(result.directory_id), example_dir_id) # TODO: no cast
         result = client.list_directory(proj.id, example_dir_id)
         self.assertEqual(len(result), 1)

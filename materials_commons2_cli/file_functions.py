@@ -44,7 +44,7 @@ def get_by_path_if_exists(client, project_id, file_path):
     """
     try:
         return client.get_file_by_path(project_id, file_path)
-    except requests.exceptions.HTTPError as e:
+    except mcapi.MCAPIError as e:
         if e.response.status_code == 404:
             return None
         raise e
