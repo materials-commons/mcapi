@@ -38,9 +38,13 @@ class ExptSubcommand(ListObjects):
         raise Exception("Experiments are not members of experiments")
 
     def get_all_from_project(self, proj):
+
+        users = proj.remote.list_users()
+        users_by_id = {u.id:u for u in users}
         all_project_experiments = proj.remote.get_all_experiments(proj.id)
         for expt in all_project_experiments:
             expt.project = proj
+            expt.owner = users_by_id[expt.owner_id]
         return all_project_experiments
 
     def list_data(self, obj):
@@ -54,7 +58,7 @@ class ExptSubcommand(ListObjects):
             'current': _is_current,
             'name': clifuncs.trunc(obj.name, 40),
             'description': clifuncs.trunc(obj.description, 100),
-            'owner': obj.owner_id,
+            'owner': clifuncs.trunc(obj.owner.email, 40),
             'id': obj.id,
             'uuid': obj.uuid,
             'mtime': clifuncs.format_time(obj.updated_at)

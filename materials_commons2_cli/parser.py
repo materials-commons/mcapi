@@ -12,7 +12,7 @@ from io import StringIO
 # import materials_commons.api as mcapi
 # from .actions import ActionsSubcommand
 from .subcommands.clone import clone_subcommand
-# from .config import config_subcommand
+from .subcommands.config import config_subcommand
 from .subcommands.dataset import DatasetSubcommand
 # from .diff import diff_subcommand
 from .subcommands.down import down_subcommand
@@ -52,12 +52,12 @@ class CommonsCLIParser(object):
         # {'name': 'diff', 'desc': 'Compare local and remote files', 'subcommand': diff_subcommand},
         # {'name': 'fetch', 'desc': 'Remote data fetching and configuration', 'subcommand': fetch_subcommand},
         {'name': 'up', 'desc': 'Upload files', 'subcommand': up_subcommand},
-        {'name': 'down', 'desc': 'Download files', 'subcommand': down_subcommand}
+        {'name': 'down', 'desc': 'Download files', 'subcommand': down_subcommand},
         # {'name': 'versions', 'desc': 'List file versions', 'subcommand': versions_subcommand},
         # {'name': 'templates', 'desc': 'List process templates', 'subcommand': TemplatesSubcommand()},
         # {'name': 'proc', 'desc': 'List processes', 'subcommand': ProcSubcommand()},
         # {'name': 'samp', 'desc': 'List samples', 'subcommand': SampSubcommand()},
-        # {'name': 'config', 'desc': 'Configure `mc`', 'subcommand': config_subcommand}
+        {'name': 'config', 'desc': 'Configure `mc`', 'subcommand': config_subcommand}
     ]
 
     developer_usage = [
@@ -137,7 +137,7 @@ def main(argv=None):
         cli = CommonsCLIParser(argv)
     except MissingRemoteException as e:
         print("Error:", e)
-        print_remote_help()
+        clifuncs.print_remote_help()
         exit(1)
     except MultipleRemoteException as e:
         print("Error:", e)
@@ -148,7 +148,7 @@ def main(argv=None):
         print("Error:", e)
         print("Set the default remote with:")
         print("    mc remote --set-default EMAIL URL")
-        print_remote_help()
+        clifuncs.print_remote_help()
         exit(1)
     except MCCLIException as e:
         print("Error:", e)

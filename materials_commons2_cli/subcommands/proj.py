@@ -28,7 +28,16 @@ class ProjSubcommand(ListObjects):
         raise MCCLIException("Projects are not members of projects")
 
     def get_all_from_remote(self, remote):
-        return remote.get_all_projects()
+        # # basic call, # TODO: return owner email in project data
+        # return remote.get_all_projects()
+
+        # add owner to project
+        users = remote.list_users()
+        users_by_id = {u.id:u for u in users}
+        projects = remote.get_all_projects()
+        for p in projects:
+            p.owner = users_by_id[p.owner_id]
+        return projects
 
     def list_data(self, obj):
         _is_current = ' '
@@ -38,7 +47,7 @@ class ProjSubcommand(ListObjects):
 
         return {
             'current': _is_current,
-            'owner': getit(obj, 'owner_id'),    # TODO: owner email
+            'owner': trunc(obj.owner.email, 40),    # TODO: owner email
             'name': trunc(getit(obj, 'name'), 40),
             'id': getit(obj, 'id'),
             'uuid': getit(obj, 'uuid'),

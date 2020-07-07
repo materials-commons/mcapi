@@ -307,6 +307,8 @@ def make_local_project(path=None, data=None):
 
     proj_path = project_path(path)
     if not proj_path:
+        if path is None:
+            path = os.getcwd()
         raise MCCLIException("No Materials Commons project found at " + path)
 
     project_config = read_project_config(path)
