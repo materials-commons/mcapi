@@ -188,6 +188,7 @@ class GlobusUpload(Common):
         self.globus_endpoint_id = data.get('globus_endpoint_id', None)
         self.globus_url = data.get('globus_url', None)
         self.globus_path = data.get('globus_path', None)
+        self.status = data.get('status', None)
 
     @staticmethod
     def from_list(data):

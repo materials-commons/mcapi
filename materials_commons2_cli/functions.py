@@ -80,6 +80,29 @@ def checksum(path):
     with open(path, 'rb') as f:
         return hashlib.md5(f.read()).hexdigest()
 
+def random_name(n=3, max_letters=6, sep='-'):
+    import random
+    word_file = "/usr/share/dict/words"
+    if os.path.exists(word_file):
+        WORDS = open(word_file).read().splitlines()
+    else:
+        import requests
+        word_site = "http://svnweb.freebsd.org/csrg/share/dict/words?view=co&content-type=text/plain"
+        response = requests.get(word_site)
+        WORDS = response.content.decode("utf-8").splitlines()
+    results=[]
+    count=0
+    while count<n:
+        word = WORDS[random.randint(0, len(WORDS)-1)]
+        if word[0].isupper():
+            continue
+        if len(word) > max_letters:
+            continue
+        results.append(word)
+        count += 1
+    return sep.join(results)
+
+
 def print_table(data, columns=[], headers=[], out=None):
     """Print table from list of dict
 
@@ -455,6 +478,8 @@ class ProjectConfig(object):
             "experiment_id": <id>,
             "experiment_uuid": <uuid>,
             "remote_updatetime": <number>
+            "globus_upload_id": <id>
+            "globus_download_id": <id>
         }
 
     Attributes
@@ -465,6 +490,8 @@ class ProjectConfig(object):
         experiment_uuid: str or None
         remote: RemoteConfig
         remote_updatetime: number or None
+        globus_upload_id: int or None
+        globus_download_id: int or None
 
     """
     def __init__(self, project_path):
@@ -496,6 +523,8 @@ class ProjectConfig(object):
         self.experiment_id = data.get('experiment_id', None)
         self.experiment_uuid = data.get('experiment_uuid', None)
         self.remote_updatetime = data.get('remote_updatetime', None)
+        self.globus_upload_id = data.get('globus_upload_id', None)
+        self.globus_download_id = data.get('globus_download_id', None)
 
     def to_dict(self):
         return {
@@ -507,7 +536,9 @@ class ProjectConfig(object):
             'project_uuid': self.project_uuid,
             'experiment_id': self.experiment_id,
             'experiment_uuid': self.experiment_uuid,
-            'remote_updatetime': self.remote_updatetime
+            'remote_updatetime': self.remote_updatetime,
+            'globus_upload_id': self.globus_upload_id,
+            'globus_download_id': self.globus_download_id,
         }
 
     def save(self):

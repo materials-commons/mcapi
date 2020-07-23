@@ -232,7 +232,7 @@ def down_subcommand(argv):
         exit(1)
 
     if args.globus:
-        raise cliexcept.MCCLIException("Globus uploads are not yet implemented") #TODO globus
+        raise cliexcept.MCCLIException("Globus downloads are not yet implemented") #TODO globus
         label = proj.name
         if args.label:
             label = args.label[0]

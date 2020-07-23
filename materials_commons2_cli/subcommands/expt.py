@@ -124,7 +124,7 @@ class ExptSubcommand(ListObjects):
     def set(self, objects, args, out=sys.stdout):
         if len(objects) != 1:
             out.write('set one current experiment at a time\n')
-            out.write('example: mc expt -s ExptName\n')
+            out.write('example: mc expt --set <name>\n')
             exit(1)
 
         for expt in objects:
