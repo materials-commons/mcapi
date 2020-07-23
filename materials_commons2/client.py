@@ -731,7 +731,7 @@ class Client(object):
         :rtype GlobusUpload
         :raises MCAPIError
         """
-        form = {"project_id": project_id, name: name}
+        form = {"project_id": project_id, "name": name}
         return GlobusUpload(self.post("/globus/uploads", form))
 
     def delete_globus_upload_request(self, project_id, globus_upload_id):
