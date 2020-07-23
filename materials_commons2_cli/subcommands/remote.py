@@ -13,7 +13,7 @@ def print_known_remotes():
     print("    https://materialscommons.org/api")
     # print("    https://lift.materialscommons.org/api") TODO: update with lift
 
-def remote_subcommand(argv=sys.argv):
+def remote_subcommand(argv):
     """
     Show / modify list of known Materials Commons accounts.
 
@@ -36,7 +36,7 @@ def remote_subcommand(argv=sys.argv):
     parser.add_argument('--set-default', nargs=2, metavar=('EMAIL', 'URL'), help='Set default remote to be used when not in a project.')
 
     # ignore 'mc remote'
-    args = parser.parse_args(argv[2:])
+    args = parser.parse_args(argv)
 
     if args.list:
         print_known_remotes()

@@ -26,8 +26,8 @@ class ExptSubcommand(ListObjects):
         super(ExptSubcommand, self).__init__(
             ["expt"], "Experiment", "Experiments",
             requires_project=True, proj_member=True, expt_member=False,
-            list_columns=['current', 'name', 'description', 'owner', 'id', 'uuid', 'mtime'],
-            headers=['', 'name', 'description', 'owner', 'id', 'uuid', 'mtime'],
+            list_columns=['current', 'name', 'description', 'owner', 'id', 'uuid', 'updated_at'],
+            headers=['', 'name', 'description', 'owner', 'id', 'uuid', 'updated_at'],
             creatable=True,
             deletable=True,
             custom_actions=['unset'],
@@ -61,7 +61,7 @@ class ExptSubcommand(ListObjects):
             'owner': clifuncs.trunc(obj.owner.email, 40),
             'id': obj.id,
             'uuid': obj.uuid,
-            'mtime': clifuncs.format_time(obj.updated_at)
+            'updated_at': clifuncs.format_time(obj.updated_at)
         }
 
     def print_details(self, obj, out=sys.stdout):
@@ -74,7 +74,7 @@ class ExptSubcommand(ListObjects):
             {"id": obj.id},
             {"uuid": obj.uuid},
             {"owner": obj.owner_id},
-            {"mtime": clifuncs.format_time(obj.updated_at)}
+            {"updated_at": clifuncs.format_time(obj.updated_at)}
         ]
         for d in data:
             out.write(yaml.dump(d, width=70, indent=4), end='')

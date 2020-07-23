@@ -2,7 +2,6 @@ import argparse
 import io
 import os
 import requests
-import sys
 import time
 
 import materials_commons2 as mcapi
@@ -192,7 +191,7 @@ def print_file(proj, path):
     print(printpath + ":")
     print(s, end='')
 
-def down_subcommand(argv=sys.argv):
+def down_subcommand(argv):
     """
     download files from Materials Commons
 
@@ -219,7 +218,7 @@ def down_subcommand(argv=sys.argv):
 
 
     # ignore 'mc down'
-    args = parser.parse_args(argv[2:])
+    args = parser.parse_args(argv)
 
     proj = clifuncs.make_local_project()
     paths = treefuncs.clipaths_to_mcpaths(proj.local_path, args.paths)

@@ -48,33 +48,33 @@ def getit(obj, name, default=None):
 def as_is(value):
     return value
 
-def epoch_time(mtime):
-    if isinstance(mtime, str): # expect ISO 8601 str
-        return time.mktime(dateutil.parser.parse(mtime).timetuple())
-    elif isinstance(mtime, (float, int)):
-        return mtime
-    elif isinstance(mtime, datetime.datetime):
-        return time.mktime(mtime.timetuple())
-    elif isinstance(mtime, dict) and ('epoch_time' in mtime):
-        return mtime['epoch_time']
-    elif mtime is None:
+def epoch_time(time_value):
+    if isinstance(time_value, str): # expect ISO 8601 str
+        return time.mktime(dateutil.parser.parse(time_value).timetuple())
+    elif isinstance(time_value, (float, int)):
+        return time_value
+    elif isinstance(time_value, datetime.datetime):
+        return time.mktime(time_value.timetuple())
+    elif isinstance(time_value, dict) and ('epoch_time' in time_value):
+        return time_value['epoch_time']
+    elif time_value is None:
         return None
     else:
-        return str(type(mtime))
+        return str(type(time_value))
 
-def format_time(mtime, fmt="%Y %b %d %H:%M:%S"):
-    if isinstance(mtime, str): # expect ISO 8601 str
-        return dateutil.parser.parse(mtime).strftime(fmt)
-    elif isinstance(mtime, (float, int)):
-        return time.strftime(fmt, time.localtime(mtime))
-    elif isinstance(mtime, datetime.datetime):
-        return mtime.strftime(fmt)
-    elif isinstance(mtime, dict) and ('epoch_time' in mtime):
-        return format_time(mtime['epoch_time'])
-    elif mtime is None:
+def format_time(time_value, fmt="%Y %b %d %H:%M:%S"):
+    if isinstance(time_value, str): # expect ISO 8601 str
+        return dateutil.parser.parse(time_value).strftime(fmt)
+    elif isinstance(time_value, (float, int)):
+        return time.strftime(fmt, time.localtime(time_value))
+    elif isinstance(time_value, datetime.datetime):
+        return time_value.strftime(fmt)
+    elif isinstance(time_value, dict) and ('epoch_time' in time_value):
+        return format_time(time_value['epoch_time'])
+    elif time_value is None:
         return '-'
     else:
-        return str(type(mtime))
+        return str(type(time_value))
 
 def checksum(path):
     with open(path, 'rb') as f:
@@ -118,11 +118,11 @@ def print_projects(projects, current=None):
             'owner': p.owner_id,    # TODO: owner email
             'id': p.id,
             'uuid': p.uuid,
-            'mtime': format_time(p.updated_at)
+            'modified_at': format_time(p.updated_at)
         })
 
-    columns=['current', 'name', 'owner', 'id', 'uuid', 'mtime']
-    headers=['', 'name', 'owner', 'id', 'uuid', 'mtime']
+    columns=['current', 'name', 'owner', 'id', 'uuid', 'modified_at']
+    headers=['', 'name', 'owner', 'id', 'uuid', 'modified_at']
     print_table(data, columns=columns, headers=headers)
 
 def print_remote_help():

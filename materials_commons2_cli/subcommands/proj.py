@@ -16,8 +16,8 @@ class ProjSubcommand(ListObjects):
             ["proj"], "Project", "Projects",
             requires_project=False, non_proj_member=True, proj_member=False, expt_member=False,
             remote_help='Remote to get projects from',
-            list_columns=['current', 'name', 'owner', 'id', 'uuid', 'mtime'],
-            headers=['', 'name', 'owner', 'id', 'uuid', 'mtime'],
+            list_columns=['current', 'name', 'owner', 'id', 'uuid', 'updated_at'],
+            headers=['', 'name', 'owner', 'id', 'uuid', 'updated_at'],
             deletable=True
         )
 
@@ -51,7 +51,7 @@ class ProjSubcommand(ListObjects):
             'name': trunc(getit(obj, 'name'), 40),
             'id': getit(obj, 'id'),
             'uuid': getit(obj, 'uuid'),
-            'mtime': format_time(getit(obj, 'updated_at'))
+            'updated_at': format_time(getit(obj, 'updated_at'))
         }
 
     def print_details(self, obj, out=sys.stdout):

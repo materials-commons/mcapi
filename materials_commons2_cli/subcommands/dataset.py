@@ -16,8 +16,7 @@ class DatasetSubcommand(ListObjects):
             ["dataset"], "Dataset", "Datasets", desc=self.desc,
             requires_project=False, non_proj_member=True, proj_member=True, expt_member=False,
             remote_help='Remote to get datasets from',
-            #list_columns=['name', 'owner', 'id', 'uuid', 'mtime', 'zip_size', 'published'], # TODO: zip_size and published info
-            list_columns=['name', 'owner', 'id', 'uuid', 'mtime'],
+            list_columns=['name', 'owner', 'id', 'uuid', 'updated_at', 'zipfile_size', 'published_at'],
             deletable=True,
             creatable=True,
             custom_selection_actions=['down', 'unpublish', 'publish', 'publish_private', 'clone'],
@@ -47,39 +46,31 @@ class DatasetSubcommand(ListObjects):
         return datasets
 
     def get_all_from_remote(self, remote):
-        # return mcapi.get_all_datasets_from_remote(remote)
-        raise MCCLIException("Get all datasets is not yet implemented") # TODO: need client call
+        users = remote.list_users()
+        users_by_id = {u.id:u for u in users}
+        datasets = remote.get_all_published_datasets()
+        for d in datasets:
+            d.owner = users_by_id[d.owner_id]
+        return datasets
 
     def list_data(self, obj):
 
-        # zip_size = '-'
-        # if isinstance(obj, dict):
-        #     if 'zip' in obj and 'size' in obj['zip']:
-        #         zip_size = clifuncs.humanize(obj['zip']['size'])
-        # else:
-        #     if obj.zip_status.size:
-        #         zip_size = clifuncs.humanize(obj.zip_status.size)
-        #
-        # published = "no"
-        # if isinstance(obj, dict):
-        #     if 'published' in obj and obj['published']:
-        #         published = "public"
-        #     if 'is_published_private' in obj and obj['is_published_private']:
-        #         published = "private"
-        # else:
-        #     if 'published' in obj.input_data and obj.input_data['published']:
-        #         published = "public"
-        #     if 'is_published_private' in obj.input_data and obj.input_data['is_published_private']:
-        #         published = "private"
+        zipfile_size = '-'
+        if obj.zipfile_size:
+            zipfile_size = clifuncs.humanize(obj.zipfile_size)
+
+        published_at = '-'
+        if obj.published_at:
+            published_at = clifuncs.format_time(obj.published_at)
 
         return {
             'name': clifuncs.trunc(clifuncs.getit(obj, 'name', '-'), 40),
             'owner': clifuncs.trunc(obj.owner.email, 40),
             'id': clifuncs.trunc(clifuncs.getit(obj, 'id', '-'), 40),
             'uuid': clifuncs.trunc(clifuncs.getit(obj, 'uuid', '-'), 40),
-            'mtime': clifuncs.format_time(clifuncs.getit(obj, 'updated_at', '-'))
-        #     'zip_size': zip_size,
-        #     'published': published
+            'updated_at': clifuncs.format_time(clifuncs.getit(obj, 'updated_at', '-')),
+            'zipfile_size': zipfile_size,
+            'published_at': published_at
         }
 
     def print_details(self, obj, out=sys.stdout):
@@ -87,12 +78,24 @@ class DatasetSubcommand(ListObjects):
         if obj.description:
             description = obj.description
 
+        zipfile_size = None
+        if obj.zipfile_size:
+            zipfile_size = clifuncs.humanize(obj.zipfile_size)
+
+        published_at = None
+        if obj.published_at:
+            published_at = clifuncs.format_time(obj.published_at)
+
         data = [
             {"name": obj.name},
+            # TODO: authors, summary
+            {"owner.name": obj.owner.name},
+            {"owner.email": obj.owner.email},
+            {"published_at": published_at},
             {"description": description},
             {"id": obj.id},
             {"uuid": obj.uuid},
-            {"owner": obj.owner_id}
+            {"zipfile_size": zipfile_size}
         ]
         # TODO: why quotes around description here, but not in `mc proj`?
         for d in data:

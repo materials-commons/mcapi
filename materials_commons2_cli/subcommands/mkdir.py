@@ -8,7 +8,7 @@ import materials_commons2_cli.tree_functions as treefuncs
 from materials_commons2_cli.treedb import RemoteTree
 
 
-def mkdir_subcommand(argv=sys.argv):
+def mkdir_subcommand(argv):
     """
     Make remote directories.
 
@@ -24,7 +24,7 @@ def mkdir_subcommand(argv=sys.argv):
                         help='Make remote directories only. Does not compare to local tree.')
 
     # ignore 'mc ls'
-    args = parser.parse_args(argv[2:])
+    args = parser.parse_args(argv)
 
     proj = clifuncs.make_local_project()
     pconfig = clifuncs.read_project_config()

@@ -27,6 +27,7 @@ from .subcommands.proj import ProjSubcommand
 from .subcommands.remote import remote_subcommand
 from .subcommands.rm import rm_subcommand
 # from .samp import SampSubcommand
+from .subcommands.globus import globus_subcommand
 # from .templates import TemplatesSubcommand
 from .subcommands.up import up_subcommand
 # from .versions import versions_subcommand
@@ -53,6 +54,7 @@ class CommonsCLIParser(object):
         # {'name': 'fetch', 'desc': 'Remote data fetching and configuration', 'subcommand': fetch_subcommand},
         {'name': 'up', 'desc': 'Upload files', 'subcommand': up_subcommand},
         {'name': 'down', 'desc': 'Download files', 'subcommand': down_subcommand},
+        {'name': 'globus', 'desc': 'Manage Globus uploads and downloads', 'subcommand': globus_subcommand},
         # {'name': 'versions', 'desc': 'List file versions', 'subcommand': versions_subcommand},
         # {'name': 'templates', 'desc': 'List process templates', 'subcommand': TemplatesSubcommand()},
         # {'name': 'proc', 'desc': 'List processes', 'subcommand': ProcSubcommand()},
@@ -108,9 +110,9 @@ class CommonsCLIParser(object):
         args = parser.parse_args(argv[1:2])
 
         if hasattr(self, args.command):
-            getattr(self, args.command)(argv)
+            getattr(self, args.command)(argv[2:])
         elif args.command in standard_interfaces:
-            standard_interfaces[args.command]['subcommand'](argv)
+            standard_interfaces[args.command]['subcommand'](argv[2:])
         elif args.command in custom_interfaces:
             # load module and run command
             modulename = custom_interfaces[args.command]['module']
@@ -118,12 +120,12 @@ class CommonsCLIParser(object):
             f, filename, description = imp.find_module(modulename)
             try:
                 module = imp.load_module(modulename, f, filename, description)
-                getattr(module, subcommandname)(argv)
+                getattr(module, subcommandname)(argv[2:])
             finally:
                 if f:
                     f.close()
         elif config.developer_mode and args.command in developer_interfaces:
-            developer_interfaces[args.command]['subcommand'](argv)
+            developer_interfaces[args.command]['subcommand'](argv[2:])
 
         else:
             print('Unrecognized command')

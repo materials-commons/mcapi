@@ -6,7 +6,7 @@ import materials_commons2_cli.functions as clifuncs
 import materials_commons2_cli.tree_functions as treefuncs
 from materials_commons2_cli.treedb import RemoteTree
 
-def mv_subcommand(argv=sys.argv):
+def mv_subcommand(argv):
     """
     Move files
 
@@ -25,7 +25,7 @@ def mv_subcommand(argv=sys.argv):
                         help='Move remote files only. Does not compare to local files.')
 
     # ignore 'mc ls'
-    args = parser.parse_args(argv[2:])
+    args = parser.parse_args(argv)
 
     if not args.paths or len(args.paths) < 2:
         print("Expects 2 or more paths: `mc mv <src> <target>` or `mc mv <src> ... <directory>`")

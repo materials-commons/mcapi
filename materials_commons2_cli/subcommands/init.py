@@ -80,7 +80,7 @@ def init_project(name, description="", prefix=None, remote_config=None):
 
     return proj
 
-def init_subcommand(argv=sys.argv):
+def init_subcommand(argv):
     """
     Initialize a new project
 
@@ -94,7 +94,7 @@ def init_subcommand(argv=sys.argv):
     parser.add_argument('--desc', type=str, default='', help='Project description')
 
     # ignore 'mc init'
-    args = parser.parse_args(argv[2:])
+    args = parser.parse_args(argv)
 
     # get remote, from command line option or default
     remote_config = clifuncs.optional_remote_config(args)

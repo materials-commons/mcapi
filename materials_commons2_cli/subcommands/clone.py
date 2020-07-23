@@ -6,7 +6,7 @@ import sys
 import materials_commons2 as mcapi
 import materials_commons2_cli.functions as clifuncs
 
-def clone_subcommand(argv=sys.argv):
+def clone_subcommand(argv):
     """
     'Clone' a project, i.e. set the local directory tree where files should
     be uploaded/downloaded. Creates a '.mc/config.json'.
@@ -21,7 +21,7 @@ def clone_subcommand(argv=sys.argv):
     clifuncs.add_remote_option(parser, 'Remote to clone project from')
 
     # ignore 'mc clone'
-    args = parser.parse_args(argv[2:])
+    args = parser.parse_args(argv)
 
     # get remote, from command line option or default
     remote_config = clifuncs.optional_remote_config(args)

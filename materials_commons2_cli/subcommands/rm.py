@@ -6,7 +6,7 @@ import materials_commons2_cli.functions as clifuncs
 import materials_commons2_cli.tree_functions as treefuncs
 from materials_commons2_cli.treedb import LocalTree, RemoteTree
 
-def rm_subcommand(argv=sys.argv):
+def rm_subcommand(argv):
     """
     Remove files and directories from Materials Commons and locally
 
@@ -29,7 +29,7 @@ def rm_subcommand(argv=sys.argv):
     #                     help='Show what would be removed, without actually removing.')
 
     # ignore 'mc rm'
-    args = parser.parse_args(argv[2:])
+    args = parser.parse_args(argv)
 
     proj = clifuncs.make_local_project()
     pconfig = clifuncs.read_project_config()

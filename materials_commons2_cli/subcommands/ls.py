@@ -112,8 +112,10 @@ def _ls_print(proj, data, refpath=None, printjson=False, checksum=False, checkds
 
     if checksum:
         columns = ['l_mtime', 'l_size', 'l_type', 'r_mtime', 'r_size', 'r_type', 'eq', 'name', 'id']
+        headers = ['l_updated_at', 'l_size', 'l_type', 'r_updated_at', 'r_size', 'r_type', 'eq', 'name', 'id']
     else:
         columns = ['l_mtime', 'l_size', 'l_type', 'r_mtime', 'r_size', 'r_type', 'name', 'id']
+        headers = ['l_updated_at', 'l_size', 'l_type', 'r_updated_at', 'r_size', 'r_type', 'name', 'id']
 
     if checkdset:
         columns += ['selected', 'selected_by']
@@ -127,14 +129,14 @@ def _ls_print(proj, data, refpath=None, printjson=False, checksum=False, checkds
         if len(path_data):
             if refpath:
                 print(os.path.relpath(refpath, os.getcwd()) + ":")
-            clifuncs.print_table(path_data, columns=columns, headers=columns)
+            clifuncs.print_table(path_data, columns=columns, headers=headers)
             print("")
         else:
             if refpath:
                 print(os.path.relpath(refpath, os.getcwd()) + ": no contents")
 
 
-def ls_subcommand(argv=sys.argv):
+def ls_subcommand(argv):
     """
     'ls' a project directory to see local and remote files and directories.
 
@@ -158,7 +160,7 @@ def ls_subcommand(argv=sys.argv):
     parser.add_argument('--clear', action="store_true", default=False, help='Clear files and directories from the include/exclude selection lists of the specified dataset. A file or directory may still be included in or excluded from the dataset afterwards if a higher level directory is included or excluded')
 
     # ignore 'mc ls'
-    args = parser.parse_args(argv[2:])
+    args = parser.parse_args(argv)
     updatetime = time.time()
 
     proj = clifuncs.make_local_project()

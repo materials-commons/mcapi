@@ -72,8 +72,8 @@ class ListObjects(object):
             requires_project: bool
                 If True and not in current project, raise MCCLIException
             non_proj_member: bool
-                Enable get_all_from_remote. If non_proj_member and proj_member, enable --proj
-                option to restrict queries to the current project.
+                Enable get_all_from_remote. If non_proj_member and proj_member, enable --all
+                option to query all projects.
             proj_member: bool
                 Enable get_all_from_project. Restrict queries to current project by default
             expt_member: bool
@@ -142,7 +142,7 @@ class ListObjects(object):
         regxsearch_help = 'use regular expression search instead of match'
         sort_by_help = 'columns to sort by'
         json_help = 'print JSON data'
-        proj_help = 'restrict to ' + self.typename_plural + ' in the current project'
+        all_help = 'list ' + self.typename_plural + ' from all projects'
         expt_help = 'restrict to ' + self.typename_plural + ' in the current experiment'
         dataset_help = 'restrict to ' + self.typename_plural + ' in the specified (by uuid) dataset'
         output_help = 'output to file'
@@ -178,7 +178,7 @@ class ListObjects(object):
         if self.non_proj_member:
             clifuncs.add_remote_option(parser, self.remote_help)
         if self.non_proj_member and self.proj_member:
-            parser.add_argument('--proj', action="store_true", default=False, help=proj_help)
+            parser.add_argument('--all', action="store_true", default=False, help=all_help)
         if self.expt_member:
             parser.add_argument('--expt', action="store_true", default=False, help=expt_help)
         if self.dataset_member:
@@ -196,7 +196,7 @@ class ListObjects(object):
             self.add_custom_options(parser)
 
         # ignore 'mc proc'
-        args = parser.parse_args(argv[2:])
+        args = parser.parse_args(argv)
         if not self.dry_runable:
             args.dry_run = False
         return args
@@ -205,7 +205,7 @@ class ListObjects(object):
         """
         Execute Materials Commons CLI command.
 
-        mc proc [--proj] [--expt] [--dataset] [--details | --json] [--id] [--uuid] [<name> ...]
+        mc proc [--all] [--expt] [--dataset] [--details | --json] [--id] [--uuid] [<name> ...]
 
         """
         args = self.parse_args(argv)
@@ -294,26 +294,7 @@ class ListObjects(object):
             if not len(data):
                 out.write("No " + self.typename_plural + " found in experiment\n")
                 return []
-        # elif hasattr(args, 'dataset') and args.dataset:
-        #     # if in project
-        #     if clifuncs.project_exists():
-        #         proj = clifuncs.make_local_project()
-        #         dataset = clifuncs.get_dataset(proj.id, args.dataset[0], remote=proj.remote)
-        #         data = self.get_all_from_dataset(dataset)
-        #     else:
-        #         remote = self.get_remote(args)
-        #         dataset = clifuncs.get_published_dataset(args.dataset[0], remote=remote)
-        #         data = self.get_all_from_dataset(dataset)
-        #     if not len(data):
-        #         out.write("No " + self.typename_plural + " found in dataset\n")
-        #         return []
-        elif hasattr(args, 'proj') and args.proj:
-            proj = clifuncs.make_local_project()
-            data = self.get_all_from_project(proj)
-            if not len(data):
-                out.write("No " + self.typename_plural + " found in project\n")
-                return []
-        elif self.non_proj_member:
+        elif (self.non_proj_member and not self.proj_member) or (hasattr(args, 'all') and args.all):
             remote = self.get_remote(args)
             data = self.get_all_from_remote(remote=remote)
             if not len(data):
