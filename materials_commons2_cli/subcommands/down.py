@@ -2,15 +2,40 @@ import argparse
 import io
 import os
 import requests
+import sys
 import time
 
 import materials_commons2 as mcapi
+import materials_commons2_cli.exceptions as cliexcept
 import materials_commons2_cli.functions as clifuncs
+import materials_commons2_cli.globus as cliglobus
 import materials_commons2_cli.tree_functions as treefuncs
 import materials_commons2_cli.file_functions as filefuncs
-# import materials_commons2_cli.globus as cliglobus
 from materials_commons2_cli.treedb import LocalTree, RemoteTree
 
+def _get_current_globus_download(pconfig, proj, verbose=True):
+    all_downloads = {download.id:download for download in proj.remote.get_all_globus_download_requests(proj.id)}
+
+    globus_download_id = None
+    if pconfig.globus_download_id:
+        globus_download_id = pconfig.globus_download_id
+        if globus_download_id not in all_downloads:
+            if verbose:
+                print("Current globus download (name=?, id=" + str(globus_download_id) + ") no longer exists.")
+            globus_download_id = None
+    if globus_download_id is None:
+        name = clifuncs.random_name()
+        download = proj.remote.create_globus_download_request(proj.id, name)
+        if verbose:
+            print("Created new globus download (name=" + download.name + ", id=" + str(download.id) + ").")
+        pconfig.globus_download_id = download.id
+        pconfig.save()
+    else:
+        download = all_downloads[globus_download_id]
+        if verbose:
+            print("Using current globus download (name=" + download.name + ", id=" + str(download.id) + ").")
+
+    return download
 
 def _check_download_file(proj_id, file_id, local_path, remote, force=False):
     """Prompt user for confirmation before overwriting an existing local file
@@ -210,7 +235,7 @@ def down_subcommand(argv):
                         help='Print file, do not write')
     parser.add_argument('-o', '--output', nargs=1, default=None, help='Download file name')
     parser.add_argument('-g', '--globus', action="store_true", default=False,
-                        help='Use globus to upload files.')
+                        help='Use globus to download files.')
     parser.add_argument('--label', nargs=1, type=str,
                         help='Globus transfer label to make finding tasks simpler.')
     parser.add_argument('--no-compare', action="store_true", default=False,
@@ -220,8 +245,17 @@ def down_subcommand(argv):
     # ignore 'mc down'
     args = parser.parse_args(argv)
 
+    pconfig = clifuncs.read_project_config()
     proj = clifuncs.make_local_project()
     paths = treefuncs.clipaths_to_mcpaths(proj.local_path, args.paths)
+
+    localtree = None
+    if not args.no_compare:
+        localtree = LocalTree(proj.local_path)
+
+    remotetree = None
+    if pconfig.remote_updatetime:
+        remotetree = RemoteTree(proj, pconfig.remote_updatetime)
 
     # validate
     if args.print and len(args.paths) != 1:
@@ -232,26 +266,47 @@ def down_subcommand(argv):
         exit(1)
 
     if args.globus:
-        raise cliexcept.MCCLIException("Globus downloads are not yet implemented") #TODO globus
-        label = proj.name
+        download = _get_current_globus_download(pconfig, proj)
+
+        if download.status != 0:    # TODO clean up status code / message
+
+            print("Checking if download is ready.", end='', flush=True)
+            count = 0
+            while download.status != 0 and count < 5:
+                time.sleep(2)
+                print(".", end='', flush=True)
+                download = _get_current_globus_download(pconfig, proj, verbose=False)
+                count += 1
+            print("", flush=True)
+
+        if download.status != 0:
+            print("Current Globus download (name=" + download.name + ", id=" + str(download.id) + ")"
+                + " not ready for downloading. Materials Commons is still preparing the project"
+                + " files for download. For large projects this may take some time.")
+            print("Use `mc globus download` to check when it is ready and try again.")
+            exit(1)
+
+        print("Download is ready.")
+
+        label = proj.name + "-" + download.name
         if args.label:
             label = args.label[0]
 
         globus_ops = cliglobus.GlobusOperations()
-        globus_ops.download_v0(proj, paths, recursive=args.recursive, label=label)
+        task_id = globus_ops.download_v0(proj, paths, download, recursive=args.recursive, label=label, localtree=localtree, remotetree=remotetree)
+
+        if task_id:
+            print("Globus transfer task initiated.")
+            print("Use `globus task list` to monitor task status.")
+            print("Use `mc globus download` to manage Globus downloads.")
+            print("Multiple transfer tasks may be initiated.")
+            print("When all tasks finish downloading, use `mc globus download --id " + str(download.id) +
+                " --finish` " + "to close the download.")
 
     elif args.print:
         print_file(proj, paths[0])
 
     else:
-        localtree = None
-        if not args.no_compare:
-            localtree = LocalTree(proj.local_path)
-
-        remotetree = None
-        pconfig = clifuncs.read_project_config()
-        if pconfig.remote_updatetime:
-            remotetree = RemoteTree(proj, pconfig.remote_updatetime)
 
         output=None
         if args.output:

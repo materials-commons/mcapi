@@ -66,28 +66,23 @@ def up_subcommand(argv):
             upload = all_uploads[globus_upload_id]
             print("Using current globus upload (name=" + upload.name + ", id=" + str(upload.id) + ").")
 
-        if upload is None:
-            raise MCCLIException("Current Globus upload (id=" + str(globus_upload_id) + ") not found. "
-              "Use `mc globus upload --set` to set the current Globus upload id.")
-
-        elif upload.status != 2:    # TODO clean up status code / message
-            raise MCCLIException("Current Globus upload (id=" + str(globus_upload_id) + ") not ready for uploading.")
+        if upload.status != 2:    # TODO clean up status code / message
+            raise cliexcept.MCCLIException("Current Globus upload (id=" + str(globus_upload_id) + ") not ready for uploading.")
 
         label = proj.name + "-" + upload.name
         if args.label:
             label = args.label[0]
 
-        print("label:", label)
-
         globus_ops = cliglobus.GlobusOperations()
-        globus_ops.upload_v0(proj, paths, upload, recursive=args.recursive, label=label)
+        task_id = globus_ops.upload_v0(proj, paths, upload, recursive=args.recursive, label=label)
 
-        print("Globus transfer task initiated.")
-        print("Use `globus task list` to monitor task status.")
-        print("Use `mc globus upload` to manage Globus uploads.")
-        print("Multiple transfer tasks may be initiated.")
-        print("When all tasks finish uploading, use `mc globus upload --id " + str(upload.id) +
-            " --finish` " + "to import all uploaded files into the Materials Commons project.")
+        if task_id:
+            print("Globus transfer task initiated.")
+            print("Use `globus task list` to monitor task status.")
+            print("Use `mc globus upload` to manage Globus uploads.")
+            print("Multiple transfer tasks may be initiated.")
+            print("When all tasks finish uploading, use `mc globus upload --id " + str(upload.id) +
+                " --finish` " + "to import all uploaded files into the Materials Commons project.")
 
     else:
         localtree = None

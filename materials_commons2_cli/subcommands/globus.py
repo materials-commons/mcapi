@@ -420,14 +420,10 @@ def globus_subcommand(argv):
         usage_help.write("  {:10} {:40}\n".format(interface['name'], interface['desc']))
     globus_interfaces = {d['name']: d for d in globus_interface_usage}
 
-    print(globus_interfaces)
-
     parser = argparse.ArgumentParser(
         description='Manage Globus transfers',
         usage=usage_help.getvalue())
     parser.add_argument('transfertype', help='Type of transfer to manage.')
-
-    print("argv:", argv)
 
     if len(argv) < 1:
         parser.print_help()
@@ -436,8 +432,6 @@ def globus_subcommand(argv):
     # parse_args defaults to [1:] for args, but you need to
     # exclude the rest of the args too, or validation will fail
     args = parser.parse_args([argv[0]])
-
-    print("args:", args)
 
     if args.transfertype in globus_interfaces:
         globus_interfaces[args.transfertype]['subcommand'](argv[1:])

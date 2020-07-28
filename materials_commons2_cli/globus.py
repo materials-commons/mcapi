@@ -243,7 +243,7 @@ class GlobusOperations(object):
         for p in paths:
 
             local_abspath = filefuncs.make_local_abspath(proj.local_path, p)
-            relpath = os.path.relpath(p, proj.local_path)
+            relpath = os.path.relpath(local_abspath, proj.local_path)
             remotepath = os.path.join(download.globus_path, relpath)
             printpath = os.path.relpath(local_abspath)
             if p in non_existing:

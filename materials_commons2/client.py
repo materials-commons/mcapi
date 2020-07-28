@@ -755,7 +755,7 @@ class Client(object):
         :raises MCAPIError
         """
         form = {"project_id": project_id}
-        return GlobusUpload.from_list(self.put("/globus/" + str(globus_upload_id) + "/uploads/complete", form))
+        return GlobusUpload(self.put("/globus/" + str(globus_upload_id) + "/uploads/complete", form))
 
     def get_all_globus_upload_requests(self, project_id):
         """
