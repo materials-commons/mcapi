@@ -18,7 +18,11 @@ class ProjSubcommand(ListObjects):
             remote_help='Remote to get projects from',
             list_columns=['current', 'name', 'owner', 'id', 'uuid', 'updated_at'],
             headers=['', 'name', 'owner', 'id', 'uuid', 'updated_at'],
-            deletable=True
+            deletable=True,
+            custom_selection_actions=['goto'],
+            request_confirmation_actions={
+                'goto': 'You want to goto these projects in a web browser?'
+            }
         )
 
     def get_all_from_experiment(self, expt):
@@ -87,3 +91,24 @@ class ProjSubcommand(ListObjects):
                     'local files.\n')
             except:
                 out.write('Delete of project failed: ' + obj.name + ' ' + str(obj.id) + '\n')
+
+    def add_custom_options(self, parser):
+
+        # --goto: go to project in web browser
+        parser.add_argument('--goto', action="store_true", default=False, help='Open selected projects in a web browser.')
+
+    def goto(self, objects, args, out=sys.stdout):
+        """Open selected projects in a web browser"""
+
+        for obj in objects:
+
+            url = "https://materialscommons.org/app/projects/" + str(obj.id)
+
+            try:
+                import webbrowser
+                webbrowser.open(url)
+            except:
+                out.write("Could not open a web browser.")
+                out.write("URL:", url)
+
+        return

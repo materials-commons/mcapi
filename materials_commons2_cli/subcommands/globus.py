@@ -7,6 +7,7 @@ from io import StringIO
 
 import materials_commons2 as mcapi
 import materials_commons2_cli.functions as clifuncs
+import materials_commons2_cli.globus as cliglobus
 from materials_commons2_cli.list_objects import ListObjects
 from materials_commons2_cli.exceptions import MCCLIException
 
@@ -40,9 +41,10 @@ class GlobusUploadTaskSubcommand(ListObjects):
             deletable=True,
             creatable=True,
             custom_actions=['unset'],
-            custom_selection_actions=['finish', 'set'],
+            custom_selection_actions=['finish', 'set', 'goto'],
             request_confirmation_actions={
-                'finish': 'Are you sure you want to finish these uploads and transfer files into your project?'
+                'finish': 'Are you sure you want to finish these uploads and transfer files into your project?',
+                'goto': 'You want to goto these uploads in a web browser?'
             }
         )
 
@@ -120,6 +122,9 @@ class GlobusUploadTaskSubcommand(ListObjects):
         # --finish: finish upload, adds uploaded files to the project
         parser.add_argument('--finish', action="store_true", default=False, help='Finish an upload. This closes the upload to new files and adds uploaded files to the project.')
 
+        # --goto: go to Globus File Manager in web browser
+        parser.add_argument('--goto', action="store_true", default=False, help='Open the Globus File Manager in a web browser.')
+
         # for --set and --unset, set/unset current globus upload id
         parser.add_argument('--set', action="store_true", default=False, help='Set the Globus upload used by `mc up --globus`.')
         parser.add_argument('--unset', action="store_true", default=False, help='Unset the Globus upload used by `mc up --globus`.')
@@ -143,6 +148,39 @@ class GlobusUploadTaskSubcommand(ListObjects):
             if obj.id == globus_upload_id:
                 set_current_globus_upload(proj.local_path, None)
                 out.write("Finished current Globus upload\n")
+
+        return
+
+    def goto(self, objects, args, out=sys.stdout):
+        """Open Globus File Manager in a web browser"""
+
+        proj = clifuncs.make_local_project()
+
+        origin_id = cliglobus.get_local_endpoint_id()
+        origin_path = proj.local_path
+
+        for obj in objects:
+
+            if obj.status_message != "Ready":
+                out.write("Globus upload (name=" + obj.name + ", id=" + str(obj.id) + \
+                    ") is not 'Ready'. Skipping...\n")
+                continue
+
+            destination_id = obj.globus_endpoint_id
+            destination_path = obj.globus_path
+
+            url = "https://app.globus.org/file-manager" \
+                + "?destination_id=" + destination_id \
+                + "&destination_path=" + destination_path \
+                + "&origin_id=" + origin_id \
+                + "&origin_path=" + origin_path
+
+            try:
+                import webbrowser
+                webbrowser.open(url)
+            except:
+                out.write("Could not open a web browser.")
+                out.write("URL:", url)
 
         return
 
@@ -238,7 +276,11 @@ class GlobusDownloadTaskSubcommand(ListObjects):
             list_columns=['current', 'project_name', 'project_id', 'type', 'name', 'id', 'uuid', 'created', 'status'],
             headers=['', 'project_name', 'project_id', 'type', 'name', 'id', 'uuid', 'created', 'status'],
             deletable=True,
-            creatable=True
+            creatable=True,
+            custom_selection_actions=['goto'],
+            request_confirmation_actions={
+                'goto': 'You want to goto these downloads in a web browser?'
+            }
         )
 
     def __update_download_object(self, download, proj):
@@ -314,6 +356,9 @@ class GlobusDownloadTaskSubcommand(ListObjects):
         # for --create, set globus upload name
         parser.add_argument('--name', type=str, default="", help='New download name, for use with --create. If not given, a random name will be generated.')
 
+        # --goto: go to Globus File Manager in web browser
+        parser.add_argument('--goto', action="store_true", default=False, help='Open the Globus File Manager in a web browser.')
+
         # for --set and --unset, set/unset current globus download id
         parser.add_argument('--set', action="store_true", default=False, help='Set the Globus download used by `mc down --globus`.')
         parser.add_argument('--unset', action="store_true", default=False, help='Unset the Globus download used by `mc down --globus`.')
@@ -379,6 +424,38 @@ class GlobusDownloadTaskSubcommand(ListObjects):
             if obj.id == globus_download_id:
                 set_current_globus_download(proj.local_path, None)
                 out.write("Deleted current Globus download\n")
+        return
+
+    def goto(self, objects, args, out=sys.stdout):
+        """Open Globus File Manager in a web browser"""
+
+        proj = clifuncs.make_local_project()
+        destination_id = cliglobus.get_local_endpoint_id()
+        destination_path = proj.local_path
+
+        for obj in objects:
+
+            if obj.status_message != "Ready":
+                out.write("Globus download (name=" + obj.name + ", id=" + str(obj.id) + \
+                    ") is not 'Ready'. Skipping...\n")
+                continue
+
+            origin_id = obj.globus_endpoint_id
+            origin_path = obj.globus_path
+
+            url = "https://app.globus.org/file-manager" \
+                + "?destination_id=" + destination_id \
+                + "&destination_path=" + destination_path \
+                + "&origin_id=" + origin_id \
+                + "&origin_path=" + origin_path
+
+            try:
+                import webbrowser
+                webbrowser.open(url)
+            except:
+                out.write("Could not open a web browser.")
+                out.write("URL:", url)
+
         return
 
     def set(self, objects, args, out=sys.stdout):

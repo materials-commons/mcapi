@@ -97,5 +97,5 @@ class TestMCProj(unittest.TestCase):
         self.assertEqual(headers[1], "owner")
         self.assertEqual(headers[2], "id")
         self.assertEqual(headers[3], "uuid")
-        self.assertEqual(headers[4], "mtime")
+        self.assertEqual(headers[4], "updated_at")
         self.assertEqual(len(headers), 5)
