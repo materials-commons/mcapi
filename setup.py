@@ -11,7 +11,7 @@ except IOError:
 
 
 setup(
-    name='materials-commons-api',
+    name='materials-commons',
     version=version,
     description='The Materials Commons tool set',
     long_description="""This package contains two modules:
