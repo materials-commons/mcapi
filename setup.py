@@ -1,17 +1,17 @@
 # build with: python setup.py install --user
 
-from setuptools import setup, find_packages
+from setuptools import setup, find_namespace_packages
 
 
 try:
-    with open('materials_commons2/VERSION.txt') as f:
+    with open('materials_commons/api/VERSION.txt') as f:
         version = f.read().strip()
 except IOError:
-    version = '0.9.0'
+    version = '2.0.0'
 
 
 setup(
-    name='materials_commons2',
+    name='materials-commons-api',
     version=version,
     description='The Materials Commons tool set',
     long_description="""This package contains two modules:
@@ -31,16 +31,13 @@ setup(
     license='MIT',
     package_data={'api': ['VERSION.txt']},
     include_package_data=True,
-    packages=find_packages(),
-    entry_points={
-        'console_scripts': ['mc=materials_commons2_cli.parser:main']
-    },
+    packages=find_namespace_packages(include=['materials_commons.*']),
     classifiers=[
         # How mature is this project? Common values are
         #   3 - Alpha
         #   4 - Beta
         #   5 - Production/Stable
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
 
         # Indicate who your project is intended for
         'Intended Audience :: Developers',
@@ -52,27 +49,12 @@ setup(
 
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate whether you support Python 2, Python 3 or both.
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.6'
+        'Programming Language :: Python :: 3.8'
     ],
-    keywords='materials science mc lift prisms',
+    keywords='materials science mc materials-commons prisms',
     install_requires=[
-        "python-dateutil",
-        "python-magic",
         "requests",
-        "pathlib>=1.0.1",
-        "pathlib",
-        "pathlib2",
-        "openpyxl",
-        "xlsxwriter",
         "urllib3",
-        "requests",
-        "tabulate>=0.8.1",
-        "sortedcontainers>=1.5.7",
-        "globus-sdk",
-        "globus-cli",
-        "pyyaml"
     ]
 )
