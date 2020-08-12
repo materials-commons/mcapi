@@ -1,3 +1,0 @@
-
-class MCCLITestException(BaseException):
-    pass
