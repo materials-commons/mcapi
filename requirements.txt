@@ -1,24 +1,2 @@
-python-dateutil
-python-magic
 requests
-pathlib2
-pathlib
-tabulate
-sortedcontainers
-openpyxl
-xlsxwriter
-urllib3==1.24.2
-# these are used in special cases:
-#   pypif - in the citrine example code
-#   pip - in the version test code
-#   globus* - for globus transfers
-pypif
-pip
-globus-cli
-globus-sdk
-pyyaml
-# these are for testing only
-pytest
-pytest-cov
-coverage
-mock
+urllib3
