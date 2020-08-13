@@ -11,27 +11,22 @@ except IOError:
 
 
 setup(
-    name='materials-commons',
+    name='materials_commons-api',
     version=version,
-    description='The Materials Commons tool set',
-    long_description="""This package contains two modules:
-    (1) materials_commons.api, the Materials Commons Python API, an interface
-    to the Materials Commons servers; and (2) materials_commons.cli, the
-    Material Commons command line interface which is built on the API and provides
-    command line access to the Materials Commons servers.
-    We assume you have used (or are otherwise familiar with) the Materials
+    description='API interface to Materials Commons',
+    long_description="""This package contains the materials_commons.api module. This module is an interface
+    to the Materials Commons project. We assume you have used (or are otherwise familiar with) the Materials
     Commons web site, https://materialscommons.org/, or a similar site based on the
-    materials commons code (https://github.com/materials-commons/materialscommons.org),
-    and intend to use these tools in that context. There are additional examples and code at
-    the github site shown above; these include demo_project.py a script that builds
-    a demo project in the materials-commons web site.""",
+    Materials Commons code (https://github.com/materials-commons/materialscommons), and intend to use these 
+    tools in that context.""",
     url='https://materials-commons.github.io/python-api/',
     author='Materials Commons development team',
     author_email='materials-commons-authors@umich.edu',
     license='MIT',
     package_data={'api': ['VERSION.txt']},
     include_package_data=True,
-    packages=find_namespace_packages(include=['materials_commons.*']),
+    packages=['materials_commons.api'],
+    zip_safe=False,
     classifiers=[
         # How mature is this project? Common values are
         #   3 - Alpha
