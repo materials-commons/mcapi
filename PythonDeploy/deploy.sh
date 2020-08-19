@@ -14,9 +14,10 @@ rm -rf ${VENV}
 mkdir ${VENV}
 cd ${VENV}
 
-virtualenv -p python3 forPyPiUpload
+python -m venv forPyPiUpload
 source forPyPiUpload/bin/activate
 pip install twine
+pip install wheel
 
 cd ${MCAPI_BASE}
 rm -rf build dist
