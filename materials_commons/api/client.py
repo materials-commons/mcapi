@@ -585,7 +585,16 @@ class Client(object):
         Update the file selection for a dataset
         :param int project_id: Project id containing dataset
         :param int dataset_id: Id of dataset
-        :param file_selection: {"include_files": [], "exclude_files": [], "include_dirs": [], "exclude_dirs": []}
+        :param file_selection: {
+            "include_file": str,
+            "remove_include_file": str,
+            "exclude_file": str,
+            "remove_exclude_file": str,
+            "include_dir": str,
+            "remove_include_dir": str,
+            "exclude_dir": str,
+            "remove_exclude_dir": str
+        }
         :return: The updated dataset
         :rtype Dataset
         :raises MCAPIError
