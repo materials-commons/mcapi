@@ -7,7 +7,7 @@ try:
     with open('materials_commons/api/VERSION.txt') as f:
         version = f.read().strip()
 except IOError:
-    version = '2.0b0'
+    version = '2.0b1'
 
 
 setup(
