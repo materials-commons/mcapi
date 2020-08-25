@@ -557,7 +557,54 @@ class Client(object):
         :rtype Dataset[]
         :raises MCAPIError
         """
-        return Dataset.from_list(self.get("/datasets/published", params))
+        return Dataset.from_list(self.get("/published/datasets", params))
+
+    def get_published_dataset(self, dataset_id, params=None):
+        """
+        Get published dataset
+        :param int dataset_id: The dataset id
+        :param params:
+        :return: The dataset
+        :rtype Dataset
+        :raises MCAPIError
+        """
+        return Dataset(self.get("/published/datasets/" + str(dataset_id), params))
+
+    def get_published_dataset_files(self, dataset_id, params=None):
+        """
+        Get files for a published dataset
+        :param int dataset_id: The dataset id
+        :param params:
+        :rtype: File[]
+        :return: The files
+        :raises MCAPIError
+        """
+        return File.from_list(
+            self.get("/published/datasets/" + str(dataset_id) + "/files", params))
+
+    def get_published_dataset_entities(self, dataset_id, params=None):
+        """
+        Get entities for a published dataset
+        :param int dataset_id: The dataset id
+        :param params:
+        :rtype: Entity[]
+        :return: The entities
+        :raises MCAPIError
+        """
+        return Entity.from_list(
+            self.get("/published/datasets/" + str(dataset_id) + "/entities", params))
+
+    def get_published_dataset_activities(self, dataset_id, params=None):
+        """
+        Get activities for a published dataset
+        :param int dataset_id: The dataset id
+        :param params:
+        :rtype: Activity[]
+        :return: The activities
+        :raises MCAPIError
+        """
+        return Activity.from_list(
+            self.get("/published/datasets/" + str(dataset_id) + "/activities", params))
 
     def get_dataset(self, project_id, dataset_id, params=None):
         """
@@ -570,6 +617,45 @@ class Client(object):
         :raises MCAPIError
         """
         return Dataset(self.get("/projects/" + str(project_id) + "/datasets/" + str(dataset_id), params))
+
+    def get_dataset_files(self, project_id, dataset_id, params=None):
+        """
+        Get files for a dataset
+        :param int project_id: The project id containing the dataset
+        :param int dataset_id: The dataset id
+        :param params:
+        :rtype: File[]
+        :return: The files
+        :raises MCAPIError
+        """
+        return File.from_list(
+            self.get("/projects/" + str(project_id) + "/datasets/" + str(dataset_id) + "/files", params))
+
+    def get_dataset_entities(self, project_id, dataset_id, params=None):
+        """
+        Get entities for a dataset
+        :param int project_id: The project id containing the dataset
+        :param int dataset_id: The dataset id
+        :param params:
+        :rtype: Entity[]
+        :return: The entities
+        :raises MCAPIError
+        """
+        return Entity.from_list(
+            self.get("/projects/" + str(project_id) + "/datasets/" + str(dataset_id) + "/entities", params))
+
+    def get_dataset_activities(self, project_id, dataset_id, params=None):
+        """
+        Get activities for a dataset
+        :param int project_id: The project id containing the dataset
+        :param int dataset_id: The dataset id
+        :param params:
+        :rtype: Activity[]
+        :return: The activities
+        :raises MCAPIError
+        """
+        return Activity.from_list(
+            self.get("/projects/" + str(project_id) + "/datasets/" + str(dataset_id) + "/activities", params))
 
     def delete_dataset(self, project_id, dataset_id):
         """
@@ -934,6 +1020,6 @@ class Client(object):
         self.retry_after = r.headers.get('retry-after', None)
 
         if self.rate_limit_remaining < 10:
-            self._throttle_s = 60./(self.rate_limit_remaining-1.)
+            self._throttle_s = 60. / (self.rate_limit_remaining - 1.)
         else:
             self._throttle_s = 0.0

@@ -69,6 +69,12 @@ class Dataset(Common):
         self.activities = Activity.from_list_attr(data)
         self.entities = Entity.from_list_attr(data)
         self.files = File.from_list_attr(data)
+        self.experiments_count = data.get('experiments_count', None)
+        self.files_count = data.get('files_count', None)
+        self.workflows_count = data.get('workflows_count', None)
+        self.activities_count = data.get('activities_count', None)
+        self.entities_count = data.get('entities_count', None)
+        self.comments_count = data.get('comments_count', None)
         self.published_at = get_date('published_at', data)
         self.zipfile_size = data.get('zipfile_size', None)
 
