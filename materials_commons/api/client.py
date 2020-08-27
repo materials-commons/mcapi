@@ -2,7 +2,8 @@ from collections import OrderedDict
 import requests
 import time
 import logging
-from .models import Project, Experiment, Dataset, Entity, Activity, Workflow, User, File, GlobusUpload, GlobusDownload
+from .models import Project, Experiment, Dataset, Entity, Activity, Workflow, User, File, GlobusUpload, GlobusDownload, \
+    Server
 from .query_params import QueryParams
 from .requests import *
 
@@ -78,6 +79,15 @@ class Client(object):
         requests_log = logging.getLogger("requests.packages.urllib3")
         requests_log.disabled = True
         requests_log.propagate = False
+
+    # Server
+    def get_server_info(self):
+        """
+        Gets information about the materials commons server
+        :return: server information
+        :rtype Server
+        """
+        return Server(self.get("/server/info"))
 
     # Projects
     def get_all_projects(self, params=None):

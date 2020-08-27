@@ -64,11 +64,18 @@ class Activity(Common):
 class Dataset(Common):
     def __init__(self, data={}):
         super(Dataset, self).__init__(data)
+        self.license = data.get('license', None)
+        self.license_link = data.get('license_link', None)
+        self.doi = data.get('doi', None)
+        self.authors = data.get('authors', None)
+        self.file_selection = data.get('file_selection', None)
         self.workflows = Workflow.from_list_attr(data)
         self.experiments = Experiment.from_list_attr(data)
         self.activities = Activity.from_list_attr(data)
         self.entities = Entity.from_list_attr(data)
         self.files = File.from_list_attr(data)
+        self.globus_path = data.get('globus_path', None)
+        self.globus_endpoint_id = data.get('globus_endpoint_id', None)
         self.experiments_count = data.get('experiments_count', None)
         self.files_count = data.get('files_count', None)
         self.workflows_count = data.get('workflows_count', None)
@@ -220,3 +227,17 @@ class GlobusDownload(Common):
     @staticmethod
     def from_list_attr(data, attr="globus_uploads"):
         return GlobusDownload.from_list(data.get(attr, []))
+
+
+class Server(object):
+    def __init__(self, data={}):
+        self._data = data.copy()
+        self.globus_endpoint_id = data.get('globus_endpoint_id', None)
+        self.institution = data.get('institution', None)
+        self.version = data.get('version', None)
+        self.last_updated_at = data.get('last_updated_at', data)
+        self.first_deployed_at = data.get('first_deployed_at', data)
+        self.contact = data.get('contact', None)
+        self.description = data.get('description', None)
+        self.name = data.get('name', None)
+        self.uuid = data.get('uuid', None)
