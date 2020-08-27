@@ -69,6 +69,8 @@ class Dataset(Common):
         self.doi = data.get('doi', None)
         self.authors = data.get('authors', None)
         self.file_selection = data.get('file_selection', None)
+        self.zipfile_size = data.get('zipfile_size', None)
+        self.zipfile_name = data.get('zipfile_name', None)
         self.workflows = Workflow.from_list_attr(data)
         self.experiments = Experiment.from_list_attr(data)
         self.activities = Activity.from_list_attr(data)
