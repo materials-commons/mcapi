@@ -451,6 +451,11 @@ class Client(object):
             self.upload("/projects/" + str(project_id) + "/files/" + str(directory_id) + "/upload", file_path))
         return files[0]
 
+    def upload_bytes(self, project_id, directory_id, name, f):
+        files = File.from_list(
+            self.upload_raw("/projects/" + str(project_id) + "/files/" + str(directory_id) + "/upload/" + str(name), f))
+        return files[0]
+
     # Entities
     def get_all_entities(self, project_id, params=None):
         """
@@ -956,6 +961,13 @@ class Client(object):
             files = [('files[]', f)]
             r = requests.post(url, verify=False, headers=self.headers, files=files)
             return self._handle_with_json(r)
+
+    def upload_raw(self, urlpart, f):
+        self._throttle()
+        url = self.base_url + urlpart
+        files = [('files[]', f)]
+        r = requests.post(url, verify=False, headers=self.headers, files=files)
+        return self._handle_with_json(r)
 
     def get(self, urlpart, params={}, other_params={}):
         self._throttle()
