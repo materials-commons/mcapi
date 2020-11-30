@@ -367,11 +367,11 @@ class Client(object):
 
     def set_as_active_file(self, project_id, file_id):
         """
-        Get versions for file in project
+        Set file as active version, changing current active file version to inactive
         :param int project_id: The id of the project containing the file
         :param int file_id: The id of the file
         :param params:
-        :return: File versions
+        :return: File
         :rtype File
         :raises MCAPIError
         """
@@ -821,6 +821,17 @@ class Client(object):
             attrs = UpdateDatasetRequest()
         form = merge_dicts({"name": name}, attrs.to_dict())
         return Dataset(self.put("/projects/" + str(project_id) + "/datasets/" + str(dataset_id), form))
+
+    def assign_doi_to_dataset(self, project_id, dataset_id):
+        """
+        Assign DOI to existing dataset
+        :param int project_id: The project to create the dataset in
+        :param int dataset_id: The id of the dataset
+        :return: The updated dataset with DOI
+        :rtype Dataset
+        :raises MCAPIError
+        """
+        return Dataset(self.put("/projects/" + str(project_id) + "/datasets/" + str(dataset_id)+"/assign_doi", {}))
 
     def download_dataset_zipfile(self, dataset_id, to):
         """
