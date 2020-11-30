@@ -353,6 +353,30 @@ class Client(object):
         """
         return File(self.get("/projects/" + str(project_id) + "/files/" + str(file_id), params))
 
+    def get_file_versions(self, project_id, file_id, params=None):
+        """
+        Get versions for file in project
+        :param int project_id: The id of the project containing the file
+        :param int file_id: The id of the file
+        :param params:
+        :return: File versions
+        :rtype File[]
+        :raises MCAPIError
+        """
+        return File.from_list(self.get("/projects/" + str(project_id) + "/files/" + str(file_id)+"/versions", params))
+
+    def set_as_active_file(self, project_id, file_id):
+        """
+        Get versions for file in project
+        :param int project_id: The id of the project containing the file
+        :param int file_id: The id of the file
+        :param params:
+        :return: File versions
+        :rtype File
+        :raises MCAPIError
+        """
+        return File(self.put("/projects/" + str(project_id) + "/files/" + str(file_id) + "/make_active", {}))
+
     def get_file_by_path(self, project_id, file_path):
         """
         Get file by path in project
