@@ -645,6 +645,18 @@ class Client(object):
         return Activity.from_list(
             self.get("/published/datasets/" + str(dataset_id) + "/activities", params))
 
+    def import_dataset(self, dataset_id, project_id, directory_name):
+        """
+        Launches a job to import a dataset into a project. The import will complete at some
+        point in the future. There isn't currently a way to query the import status.
+        :param int dataset_id: The dataset id to import
+        :param int project_id: A project id the user has access to
+        :param string directory_name: The top level directory to import the dataset into (will be created)
+        :raises MCAPIError
+        """
+        form = {"directory": directory_name}
+        self.post("/projects/" + str(project_id) + "/datasets/" + str(dataset_id) + "/import", form)
+
     def get_dataset(self, project_id, dataset_id, params=None):
         """
         Get dataset in a project
