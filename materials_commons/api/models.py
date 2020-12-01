@@ -32,6 +32,8 @@ class Project(Common):
         self.experiments = Experiment.from_list_attr(data)
         self.activities = Activity.from_list_attr(data)
         self.entities = Entity.from_list_attr(data)
+        self.members = User.from_list_attr(data, 'members')
+        self.admins = User.from_list_attr(data, 'admins')
         self.root_dir = None
         root_dir = data.get('rootDir', None)
         if root_dir:
