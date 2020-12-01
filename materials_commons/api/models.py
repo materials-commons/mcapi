@@ -21,6 +21,9 @@ class Common(object):
         project_id = data.get('project_id', None)
         if project_id:
             self.project_id = project_id
+        owner = data.get('owner', None)
+        if owner:
+            self.owner = User(owner)
 
 
 class Project(Common):
@@ -38,9 +41,6 @@ class Project(Common):
         root_dir = data.get('rootDir', None)
         if root_dir:
             self.root_dir = File(root_dir)
-        owner = data.get('owner', None)
-        if owner:
-            self.owner = User(owner)
 
     @staticmethod
     def from_list(data):
