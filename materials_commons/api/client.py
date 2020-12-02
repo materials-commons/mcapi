@@ -645,6 +645,15 @@ class Client(object):
         return Activity.from_list(
             self.get("/published/datasets/" + str(dataset_id) + "/activities", params))
 
+    def get_published_datasets_for_author(self, author):
+        pass
+
+    def get_published_datasets_for_tag(self, tag):
+        pass
+
+    def search_published_datasets(self, search_str):
+        pass
+
     def import_dataset(self, dataset_id, project_id, directory_name):
         """
         Launches a job to import a dataset into a project. The import will complete at some
@@ -985,6 +994,45 @@ class Client(object):
         :raises MCAPIError
         """
         return User.from_list(self.get("/users"))
+
+    # Communities
+    def get_all_public_communities(self):
+        pass
+
+    def get_all_my_communities(self):
+        pass
+
+    def get_community(self, community_id):
+        pass
+
+    def add_dataset_to_community(self, dataset_id, community_id):
+        pass
+
+    def delete_dataset_from_communit(self, dataset_id, community_id):
+        pass
+
+    def upload_file_to_community(self, file_path, community_id):
+        pass
+
+    def delete_file_from_community(self, file_id, community_id):
+        pass
+
+    def add_link_to_community(self, link, community_id):
+        pass
+
+    def delete_link_from_community(self, link_id, community_id):
+        pass
+
+    def list_tags_in_community(self, community_id):
+        pass
+
+    # Tags
+    def list_published_dataset_tags(self):
+        pass
+
+    # Authors
+    def list_published_authors(self):
+        pass
 
     def _throttle(self):
         if self._throttle_s:
