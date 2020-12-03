@@ -26,29 +26,21 @@ class Common(object):
             self.owner = User(owner)
 
 
-class Project(Common):
+class Community(Common):
     def __init__(self, data={}):
-        super(Project, self).__init__(data)
-        self.is_active = data.get('is_active', None)
-        self.activities = Activity.from_list_attr(data)
-        self.workflows = Workflow.from_list_attr(data)
-        self.experiments = Experiment.from_list_attr(data)
-        self.activities = Activity.from_list_attr(data)
-        self.entities = Entity.from_list_attr(data)
-        self.members = User.from_list_attr(data, 'members')
-        self.admins = User.from_list_attr(data, 'admins')
-        self.root_dir = None
-        root_dir = data.get('rootDir', None)
-        if root_dir:
-            self.root_dir = File(root_dir)
+        super(Community, self).__init__(data)
+        self.public = data.get('public', None)
+        self.files = File.from_list_attr(data)
+        self.links = Link.from_list_attr(data)
+        self.datasets = Dataset.from_list_attr(data)
 
     @staticmethod
     def from_list(data):
-        return from_list(Project, data)
+        return from_list(Community, data)
 
     @staticmethod
-    def from_list_attr(data, attr='projects'):
-        return Project.from_list(data.get(attr, []))
+    def from_list_attr(data, attr='communities'):
+        return Community.from_list(data.get(attr, []))
 
 
 class Activity(Common):
@@ -168,40 +160,6 @@ class File(Common):
         return File.from_list(data.get(attr, []))
 
 
-class User(object):
-    def __init__(self, data={}):
-        self._data = data.copy()
-        self.id = data.get('id', None)
-        self.uuid = data.get('uuid', None)
-        self.name = data.get('name', None)
-        self.email = data.get('email', None)
-        self.description = data.get('description', None)
-        self.affiliation = data.get('affiliation', None)
-        self.created_at = get_date('created_at', data)
-        self.updated_at = get_date('updated_at', data)
-
-    @staticmethod
-    def from_list(data):
-        return from_list(User, data)
-
-    @staticmethod
-    def from_list_attr(data, attr='users'):
-        return User.from_list(data.get(attr, []))
-
-
-class Workflow(Common):
-    def __init__(self, data={}):
-        super(Workflow, self).__init__(data)
-
-    @staticmethod
-    def from_list(data):
-        return from_list(Workflow, data)
-
-    @staticmethod
-    def from_list_attr(data, attr='workflows'):
-        return Workflow.from_list(data.get(attr, []))
-
-
 class GlobusUpload(Common):
     def __init__(self, data={}):
         super(GlobusUpload, self).__init__(data)
@@ -236,6 +194,45 @@ class GlobusDownload(Common):
         return GlobusDownload.from_list(data.get(attr, []))
 
 
+class Link(Common):
+    def __init__(self, data={}):
+        super(Link, self).__init__(data)
+        self.url = data.get('url', data)
+
+    @staticmethod
+    def from_list(data):
+        return from_list(Link, data)
+
+    @staticmethod
+    def from_list_attr(data, attr='links'):
+        return Link.from_list(data.get(attr, []))
+
+
+class Project(Common):
+    def __init__(self, data={}):
+        super(Project, self).__init__(data)
+        self.is_active = data.get('is_active', None)
+        self.activities = Activity.from_list_attr(data)
+        self.workflows = Workflow.from_list_attr(data)
+        self.experiments = Experiment.from_list_attr(data)
+        self.activities = Activity.from_list_attr(data)
+        self.entities = Entity.from_list_attr(data)
+        self.members = User.from_list_attr(data, 'members')
+        self.admins = User.from_list_attr(data, 'admins')
+        self.root_dir = None
+        root_dir = data.get('rootDir', None)
+        if root_dir:
+            self.root_dir = File(root_dir)
+
+    @staticmethod
+    def from_list(data):
+        return from_list(Project, data)
+
+    @staticmethod
+    def from_list_attr(data, attr='projects'):
+        return Project.from_list(data.get(attr, []))
+
+
 class Server(object):
     def __init__(self, data={}):
         self._data = data.copy()
@@ -248,3 +245,55 @@ class Server(object):
         self.description = data.get('description', None)
         self.name = data.get('name', None)
         self.uuid = data.get('uuid', None)
+
+
+class Tag(object):
+    def __init__(self, data={}):
+        self._data = data.copy()
+        self.id = data.get('id', None)
+        self.name = data.get('name', None)
+        self.slug = data.get('slug', None)
+        self.created_at = get_date('created_at', data)
+        self.updated_at = get_date('updated_at', data)
+
+    @staticmethod
+    def from_list(data):
+        return from_list(Tag, data)
+
+    @staticmethod
+    def from_list_attr(data, attr='tags'):
+        return Tag.from_list(data.get(attr, []))
+
+
+class User(object):
+    def __init__(self, data={}):
+        self._data = data.copy()
+        self.id = data.get('id', None)
+        self.uuid = data.get('uuid', None)
+        self.name = data.get('name', None)
+        self.email = data.get('email', None)
+        self.description = data.get('description', None)
+        self.affiliation = data.get('affiliation', None)
+        self.created_at = get_date('created_at', data)
+        self.updated_at = get_date('updated_at', data)
+
+    @staticmethod
+    def from_list(data):
+        return from_list(User, data)
+
+    @staticmethod
+    def from_list_attr(data, attr='users'):
+        return User.from_list(data.get(attr, []))
+
+
+class Workflow(Common):
+    def __init__(self, data={}):
+        super(Workflow, self).__init__(data)
+
+    @staticmethod
+    def from_list(data):
+        return from_list(Workflow, data)
+
+    @staticmethod
+    def from_list_attr(data, attr='workflows'):
+        return Workflow.from_list(data.get(attr, []))

@@ -99,3 +99,12 @@ class CreateActivityRequest(RequestCommon):
         super(CreateActivityRequest, self).__init__()
         self.description = description
         self.experiment_id = experiment_id
+
+
+# Community Requests
+class CreateCommunityRequest(RequestCommon):
+    def __init__(self, description=None, summary=None, public=False):
+        super(CreateCommunityRequest, self).__init__()
+        self.description = description
+        self.summary = summary
+        self.public = public

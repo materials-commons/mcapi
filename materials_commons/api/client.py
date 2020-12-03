@@ -2,8 +2,8 @@ from collections import OrderedDict
 import requests
 import time
 import logging
-from .models import Project, Experiment, Dataset, Entity, Activity, Workflow, User, File, GlobusUpload, GlobusDownload, \
-    Server
+from .models import Project, Experiment, Dataset, Entity, Activity, Workflow, User, File, GlobusUpload, \
+    GlobusDownload, Server, Community, Tag
 from .query_params import QueryParams
 from .requests import *
 
@@ -105,7 +105,7 @@ class Client(object):
         Creates a new project for the authenticated user. Project name must be unique
         :param str name: Name of project
         :param CreateProjectRequest attrs: (optional) Additional attributes for the create request
-        :return: The create project
+        :return: The created project
         :rtype Project
         :raises MCAPIError
         """
@@ -363,14 +363,13 @@ class Client(object):
         :rtype File[]
         :raises MCAPIError
         """
-        return File.from_list(self.get("/projects/" + str(project_id) + "/files/" + str(file_id)+"/versions", params))
+        return File.from_list(self.get("/projects/" + str(project_id) + "/files/" + str(file_id) + "/versions", params))
 
     def set_as_active_file(self, project_id, file_id):
         """
         Set file as active version, changing current active file version to inactive
         :param int project_id: The id of the project containing the file
         :param int file_id: The id of the file
-        :param params:
         :return: File
         :rtype File
         :raises MCAPIError
@@ -645,14 +644,40 @@ class Client(object):
         return Activity.from_list(
             self.get("/published/datasets/" + str(dataset_id) + "/activities", params))
 
-    def get_published_datasets_for_author(self, author):
-        pass
+    def get_published_datasets_for_author(self, author, params=None):
+        """
+        TODO: Implement
+        Get all published datasets for an author
+        :param str author: Author name string
+        :param params:
+        :return: List of datasets author is on
+        :rtype Dataset[]
+        :raises MCAPIError
+        """
+        return Dataset.from_list(self.get("/published/authors_datasets/" + str(author), params))
 
-    def get_published_datasets_for_tag(self, tag):
-        pass
+    def get_published_datasets_for_tag(self, tag, params=None):
+        """
+        TODO: Implement
+        Get all published datasets tagged with tag
+        :param str tag: tag to use
+        :param params:
+        :return: List of datasets tagged with tag
+        :rtype Dataset[]
+        :raises MCAPIError
+        """
+        return Dataset.from_list(self.get("/published/tags_datasets/" + str(tag), params))
 
-    def search_published_datasets(self, search_str):
-        pass
+    def search_published_datasets(self, search_str, params=None):
+        """
+        TODO: Implement
+        Search published datasets for matching string
+        :param str search_str: string to search on
+        :param params:
+        :return:
+        """
+        form = {"search": search_str}
+        return Dataset.from_list(self.post("/published/datasets/search", form))
 
     def import_dataset(self, dataset_id, project_id, directory_name):
         """
@@ -852,7 +877,7 @@ class Client(object):
         :rtype Dataset
         :raises MCAPIError
         """
-        return Dataset(self.put("/projects/" + str(project_id) + "/datasets/" + str(dataset_id)+"/assign_doi", {}))
+        return Dataset(self.put("/projects/" + str(project_id) + "/datasets/" + str(dataset_id) + "/assign_doi", {}))
 
     def download_dataset_zipfile(self, dataset_id, to):
         """
@@ -923,7 +948,7 @@ class Client(object):
         form = {"project_id": project_id}
         return GlobusUpload(self.put("/globus/" + str(globus_upload_id) + "/uploads/complete", form))
 
-    def get_all_globus_upload_requests(self, project_id):
+    def get_all_globus_upload_requests(self, project_id, params=None):
         """
         Get all globus uploads in a project
         :param int project_id: The project id
@@ -931,7 +956,7 @@ class Client(object):
         :rtype GlobusUpload[]
         :raises MCAPIError
         """
-        return GlobusUpload.from_list(self.get("/projects/" + str(project_id) + "/globus/uploads"))
+        return GlobusUpload.from_list(self.get("/projects/" + str(project_id) + "/globus/uploads", params))
 
     def create_globus_download_request(self, project_id, name):
         """
@@ -954,7 +979,7 @@ class Client(object):
         """
         self.delete("/projects/" + str(project_id) + "/globus/" + str(globus_download_id) + "/downloads")
 
-    def get_all_globus_download_requests(self, project_id):
+    def get_all_globus_download_requests(self, project_id, params=None):
         """
         Get all globus download requests for a project
         :param int project_id: The project
@@ -962,9 +987,9 @@ class Client(object):
         :rtype GlobusDownload[]
         :raises MCAPIError
         """
-        return GlobusDownload.from_list(self.get("/projects/" + str(project_id) + "/globus/downloads"))
+        return GlobusDownload.from_list(self.get("/projects/" + str(project_id) + "/globus/downloads", params))
 
-    def get_globus_download_request(self, project_id, globus_download_id):
+    def get_globus_download_request(self, project_id, globus_download_id, params=None):
         """
         Get a globus download
         :param int project_id: The id of the project containing the globus download
@@ -973,10 +998,11 @@ class Client(object):
         :rtype GlobusDownload
         :raises MCAPIError
         """
-        return GlobusDownload(self.get("/projects/" + str(project_id) + "/globus/downloads/" + str(globus_download_id)))
+        return GlobusDownload(
+            self.get("/projects/" + str(project_id) + "/globus/downloads/" + str(globus_download_id), params))
 
     # Users
-    def get_user_by_email(self, email):
+    def get_user_by_email(self, email, params=None):
         """
         Get a user by their email
         :param string email: email address of user to lookup
@@ -984,55 +1010,168 @@ class Client(object):
         :rtype User
         :raises MCAPIError
         """
-        return User(self.get("/users/by-email/" + email))
+        return User(self.get("/users/by-email/" + email, params))
 
-    def list_users(self):
+    def list_users(self, params=None):
         """
         List users of Materials Commons
         :return: List of users
         :rtype User[]
         :raises MCAPIError
         """
-        return User.from_list(self.get("/users"))
+        return User.from_list(self.get("/users", params))
 
     # Communities
-    def get_all_public_communities(self):
-        pass
+    def create_community(self, name, attrs={}):
+        """
+        TODO: Implement
+        Creates a new community owned by the user.
+        :param str name: Name of community
+        :param CreateCommunityRequest attrs: (optional) Additional attributes for the create request
+        :return: The created community
+        :rtype Community
+        :raises MCAPIError
+        """
+        if not attrs:
+            attrs = CreateCommunityRequest()
+        form = merge_dicts({"name": name}, attrs.to_dict())
+        return Community(self.post("/communities", form))
 
-    def get_all_my_communities(self):
-        pass
+    def get_all_public_communities(self, params=None):
+        """
+        TODO: Implement
+        Get all public communities
+        :rtype Community[]
+        :return: List of public communities
+        :raises MCAPIError
+        """
+        return Community.from_list(self.get('/communities/public', params))
 
-    def get_community(self, community_id):
-        pass
+    def get_all_my_communities(self, params=None):
+        """
+        TODO: Implement
+        Get all communities owned by user
+        :rtype Community[]
+        :return: List of communities
+        :raises MCAPIError
+        """
+        return Community.from_list(self.get('/communities', params))
+
+    def get_community(self, community_id, params=None):
+        """
+        TODO: Implement
+        Get a commmunity
+        :param int community_id: The id of the community to get
+        :param params: Query specific parameters
+        :rtype Community
+        :return: The Community
+        :raises MCAPIError
+        """
+        return Community(self.get("/communities" + str(community_id), params))
 
     def add_dataset_to_community(self, dataset_id, community_id):
-        pass
+        """
+        TODO: Implement
+        Add a dataset to a community. The dataset must have been published.
+        :param int dataset_id:
+        :param int community_id:
+        :rtype Community
+        :return: The community with the dataset
+        :raises MCAPIError
+        """
+        return Community(self.post("/communities/" + str(community_id) + "/datasets/" + str(dataset_id) + "/add"))
 
-    def delete_dataset_from_communit(self, dataset_id, community_id):
-        pass
+    def remove_dataset_from_community(self, dataset_id, community_id):
+        """
+        TODO: Implement
+        Remove a dataset from a community.
+        :param int dataset_id:
+        :param int community_id:
+        :raises MCAPIError
+        """
+        self.delete("/communities/" + str(community_id) + "/remove-dataset" + str(dataset_id))
 
     def upload_file_to_community(self, file_path, community_id):
-        pass
+        """
+        TODO: Implement
+        TODO: A file has other attributes such as description and summary
+        Uploads a file to a community
+        :param str file_path: path of file to upload
+        :param int community_id: The community to upload the file to
+        :return: The community
+        :rtype Community
+        :raises MCAPIError
+        """
+        return Community(self.upload("/communities/" + str(community_id) + "/upload", file_path))
 
     def delete_file_from_community(self, file_id, community_id):
-        pass
+        """
+        TODO: Implement
+        Deletes file from the community and deletes the file on the system.
+        :param int file_id: The file to delete
+        :param int community_id: The community to delete it from
+        :raises MCAPIError
+        """
+        self.delete("/communities/" + str(community_id) + "/file/" + str(file_id))
 
     def add_link_to_community(self, link, community_id):
-        pass
+        """
+        TODO: Implement
+        TODO: A link has other attributes such as description and summary
+        Adds a link to a community
+        :param str link: url to add
+        :param int community_id: The community to add the link to
+        :return: The community
+        :rtype Community
+        :raises MCAPIError
+        """
+        form = {"link": link}
+        return Community(self.post("/communities/" + str(community_id) + "/add-link", form))
 
     def delete_link_from_community(self, link_id, community_id):
-        pass
+        """
+        TODO: Implement
+        Delete a link from a community and remove it from the system.
+        :param int link_id: The link to remove
+        :param int community_id: The community to delete the link from
+        :raises MCAPIError
+        """
+        self.delete("/communities/" + str(community_id) + "/links/" + str(link_id))
 
     def list_tags_in_community(self, community_id):
-        pass
+        """
+        TODO: Implement
+        List all the unique tags across all the datasets in a community
+        :param int community_id: The community to list the tags for
+        :return: The list of tags
+        :rtype Tag[]
+        :raises MCAPIError
+        """
+        return self.get("/communities/" + str(community_id) + "/list-tags")
 
     # Tags
     def list_published_dataset_tags(self):
-        pass
+        """
+        TODO: Implement
+        List all tags used in published datasets
+        :return: List of tags
+        :rtype Tag[]
+        :raises MCAPIError
+        """
+        return Tag.from_list(self.get("/published/tags"))
 
     # Authors
     def list_published_authors(self):
-        pass
+        """
+        TODO: Implement
+        List all published authors
+        :return: List of authors
+        :rtype User[]
+        :raises MCAPIError
+        """
+        return User.from_list(self.get("/published/authors"))
+
+    # Internal
 
     def _throttle(self):
         if self._throttle_s:
