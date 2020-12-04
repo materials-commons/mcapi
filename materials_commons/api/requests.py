@@ -108,3 +108,11 @@ class CreateCommunityRequest(RequestCommon):
         self.description = description
         self.summary = summary
         self.public = public
+
+
+# Link Requests
+class CreateLinkRequest(RequestCommon):
+    def __init__(self, description=None, summary=None):
+        super(CreateLinkRequest, self).__init__()
+        self.description = description
+        self.summary = summary

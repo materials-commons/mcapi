@@ -1024,7 +1024,6 @@ class Client(object):
     # Communities
     def create_community(self, name, attrs={}):
         """
-        TODO: Implement
         Creates a new community owned by the user.
         :param str name: Name of community
         :param CreateCommunityRequest attrs: (optional) Additional attributes for the create request
@@ -1039,7 +1038,6 @@ class Client(object):
 
     def get_all_public_communities(self, params=None):
         """
-        TODO: Implement
         Get all public communities
         :rtype Community[]
         :return: List of public communities
@@ -1049,7 +1047,6 @@ class Client(object):
 
     def get_all_my_communities(self, params=None):
         """
-        TODO: Implement
         Get all communities owned by user
         :rtype Community[]
         :return: List of communities
@@ -1059,7 +1056,6 @@ class Client(object):
 
     def get_community(self, community_id, params=None):
         """
-        TODO: Implement
         Get a commmunity
         :param int community_id: The id of the community to get
         :param params: Query specific parameters
@@ -1067,11 +1063,10 @@ class Client(object):
         :return: The Community
         :raises MCAPIError
         """
-        return Community(self.get("/communities" + str(community_id), params))
+        return Community(self.get("/communities/" + str(community_id), params))
 
     def add_dataset_to_community(self, dataset_id, community_id):
         """
-        TODO: Implement
         Add a dataset to a community. The dataset must have been published.
         :param int dataset_id:
         :param int community_id:
@@ -1083,17 +1078,15 @@ class Client(object):
 
     def remove_dataset_from_community(self, dataset_id, community_id):
         """
-        TODO: Implement
         Remove a dataset from a community.
         :param int dataset_id:
         :param int community_id:
         :raises MCAPIError
         """
-        self.delete("/communities/" + str(community_id) + "/remove-dataset" + str(dataset_id))
+        self.delete("/communities/" + str(community_id) + "/datasets/" + str(dataset_id))
 
     def upload_file_to_community(self, file_path, community_id):
         """
-        TODO: Implement
         TODO: A file has other attributes such as description and summary
         Uploads a file to a community
         :param str file_path: path of file to upload
@@ -1106,27 +1099,29 @@ class Client(object):
 
     def delete_file_from_community(self, file_id, community_id):
         """
-        TODO: Implement
         Deletes file from the community and deletes the file on the system.
         :param int file_id: The file to delete
         :param int community_id: The community to delete it from
         :raises MCAPIError
         """
-        self.delete("/communities/" + str(community_id) + "/file/" + str(file_id))
+        self.delete("/communities/" + str(community_id) + "/files/" + str(file_id))
 
-    def add_link_to_community(self, link, community_id):
+    def create_link_in_community(self, community_id, name, url, attrs=None):
         """
         TODO: Implement
-        TODO: A link has other attributes such as description and summary
         Adds a link to a community
-        :param str link: url to add
         :param int community_id: The community to add the link to
+        :param str name: name to show for url
+        :param str url: url to add
+        :param CreateLinkRequest attrs: additional attrs
         :return: The community
         :rtype Community
         :raises MCAPIError
         """
-        form = {"link": link}
-        return Community(self.post("/communities/" + str(community_id) + "/add-link", form))
+        if not attrs:
+            attrs = CreateLinkRequest()
+        form = merge_dicts({"url": url, "name": name}, attrs.to_dict())
+        return Community(self.post("/communities/" + str(community_id) + "/links", form))
 
     def delete_link_from_community(self, link_id, community_id):
         """
