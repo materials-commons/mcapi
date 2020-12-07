@@ -1108,7 +1108,6 @@ class Client(object):
 
     def create_link_in_community(self, community_id, name, url, attrs=None):
         """
-        TODO: Implement
         Adds a link to a community
         :param int community_id: The community to add the link to
         :param str name: name to show for url
@@ -1125,7 +1124,6 @@ class Client(object):
 
     def delete_link_from_community(self, link_id, community_id):
         """
-        TODO: Implement
         Delete a link from a community and remove it from the system.
         :param int link_id: The link to remove
         :param int community_id: The community to delete the link from
@@ -1135,14 +1133,13 @@ class Client(object):
 
     def list_tags_in_community(self, community_id):
         """
-        TODO: Implement
         List all the unique tags across all the datasets in a community
         :param int community_id: The community to list the tags for
         :return: The list of tags
         :rtype Tag[]
         :raises MCAPIError
         """
-        return self.get("/communities/" + str(community_id) + "/list-tags")
+        return self.get("/communities/" + str(community_id) + "/tags")
 
     # Tags
     def list_published_dataset_tags(self):
