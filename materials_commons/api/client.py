@@ -1133,13 +1133,23 @@ class Client(object):
 
     def list_tags_in_community(self, community_id):
         """
-        List all the unique tags across all the datasets in a community
+        List all the unique tags across all the published datasets in a community
         :param int community_id: The community to list the tags for
         :return: The list of tags
         :rtype Tag[]
         :raises MCAPIError
         """
         return self.get("/communities/" + str(community_id) + "/tags")
+
+    def list_authors_in_community(self, community_id):
+        """
+        List all unique authors across all the published datasets in a community
+        :param int community_id: The community to list the authors for
+        :return: The list of authors
+        :rtype string[]
+        :raises MCAPIError
+        """
+        return self.get("/communities/" + str(community_id) + "/authors")
 
     # Tags
     def list_published_dataset_tags(self):
