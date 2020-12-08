@@ -1152,9 +1152,8 @@ class Client(object):
         return self.get("/communities/" + str(community_id) + "/authors")
 
     # Tags
-    def list_published_dataset_tags(self):
+    def list_tags_for_published_datasets(self):
         """
-        TODO: Implement
         List all tags used in published datasets
         :return: List of tags
         :rtype Tag[]
@@ -1165,13 +1164,12 @@ class Client(object):
     # Authors
     def list_published_authors(self):
         """
-        TODO: Implement
         List all published authors
         :return: List of authors
         :rtype User[]
         :raises MCAPIError
         """
-        return User.from_list(self.get("/published/authors"))
+        return self.get("/published/authors")
 
     # Internal
 
