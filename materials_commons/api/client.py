@@ -3,7 +3,7 @@ import requests
 import time
 import logging
 from .models import Project, Experiment, Dataset, Entity, Activity, Workflow, User, File, GlobusUpload, \
-    GlobusDownload, Server, Community, Tag
+    GlobusDownload, Server, Community, Tag, Searchable
 from .query_params import QueryParams
 from .requests import *
 
@@ -644,7 +644,7 @@ class Client(object):
         return Activity.from_list(
             self.get("/published/datasets/" + str(dataset_id) + "/activities", params))
 
-    def search_published_datasets(self, search_str):
+    def search_published_data(self, search_str):
         """
         TODO: Implement
         Search published datasets for matching string
@@ -653,7 +653,7 @@ class Client(object):
         :return:
         """
         form = {"search": search_str}
-        return Dataset.from_list(self.post("/published/datasets/search", form))
+        return Searchable.from_list(self.post("/published/data/search", form))
 
     def import_dataset(self, dataset_id, project_id, directory_name):
         """

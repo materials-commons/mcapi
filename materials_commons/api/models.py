@@ -286,6 +286,25 @@ class User(object):
         return User.from_list(data.get(attr, []))
 
 
+class Searchable(object):
+    def __init__(self, data={}):
+        self._data = data.copy()
+        self.title = data.get('title')
+        self.url = data.get('url')
+        self.type = data.get('type')
+        self._fill_item()
+
+    def _fill_item(self):
+        if self.type == "datasets":
+            self.item = Dataset(self._data["searchable"])
+        elif self.type == "communities":
+            self.item = Community(self._data["searchable"])
+
+    @staticmethod
+    def from_list(data):
+        return from_list(Searchable, data)
+
+
 class Workflow(Common):
     def __init__(self, data={}):
         super(Workflow, self).__init__(data)
