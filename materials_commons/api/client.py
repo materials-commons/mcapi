@@ -646,11 +646,11 @@ class Client(object):
 
     def search_published_data(self, search_str):
         """
-        TODO: Implement
         Search published datasets for matching string
         :param str search_str: string to search on
-        :param params:
-        :return:
+        :return: List of matches
+        :rtype: Searchable[]
+        :raises MCAPIError
         """
         form = {"search": search_str}
         return Searchable.from_list(self.post("/published/data/search", form))
