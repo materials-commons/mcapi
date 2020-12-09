@@ -1117,30 +1117,27 @@ class Client(object):
         """
         return self.get("/communities/" + str(community_id) + "/tags")
 
-    def get_published_datasets_for_author(self, author, params=None):
+    def get_published_datasets_for_author(self, author):
         """
-        TODO: Implement
         Get all published datasets for an author
         :param str author: Author name string
-        :param params:
         :return: List of datasets author is on
         :rtype Dataset[]
         :raises MCAPIError
         """
-        return Dataset.from_list(self.get("/published/authors/" + str(author) + "/authors", params))
+        form = {"author": author}
+        return Dataset.from_list(self.post("/published/authors/search", form))
 
-    def get_published_datasets_for_tag(self, tag, params=None):
+    def get_published_datasets_for_tag(self, tag):
         """
-        TODO: Implement
         Get all published datasets tagged with tag
         :param str tag: tag to use
-        :param params:
         :return: List of datasets tagged with tag
         :rtype Dataset[]
         :raises MCAPIError
         """
-        return Dataset.from_list(self.get("/published/tags/" + str(tag) + "/datasets", params))
-
+        form = {"tag": tag}
+        return Dataset.from_list(self.post("/published/tags/search", form))
 
     def list_authors_in_community(self, community_id):
         """
@@ -1175,6 +1172,8 @@ class Client(object):
     # Internal
 
     def _throttle(self):
+        if self._throttle_s < 0:
+            self._throttle_s = 0.0
         if self._throttle_s:
             time.sleep(self._throttle_s)
 
