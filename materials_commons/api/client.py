@@ -644,31 +644,7 @@ class Client(object):
         return Activity.from_list(
             self.get("/published/datasets/" + str(dataset_id) + "/activities", params))
 
-    def get_published_datasets_for_author(self, author, params=None):
-        """
-        TODO: Implement
-        Get all published datasets for an author
-        :param str author: Author name string
-        :param params:
-        :return: List of datasets author is on
-        :rtype Dataset[]
-        :raises MCAPIError
-        """
-        return Dataset.from_list(self.get("/published/authors_datasets/" + str(author), params))
-
-    def get_published_datasets_for_tag(self, tag, params=None):
-        """
-        TODO: Implement
-        Get all published datasets tagged with tag
-        :param str tag: tag to use
-        :param params:
-        :return: List of datasets tagged with tag
-        :rtype Dataset[]
-        :raises MCAPIError
-        """
-        return Dataset.from_list(self.get("/published/tags_datasets/" + str(tag), params))
-
-    def search_published_datasets(self, search_str, params=None):
+    def search_published_datasets(self, search_str):
         """
         TODO: Implement
         Search published datasets for matching string
@@ -1140,6 +1116,31 @@ class Client(object):
         :raises MCAPIError
         """
         return self.get("/communities/" + str(community_id) + "/tags")
+
+    def get_published_datasets_for_author(self, author, params=None):
+        """
+        TODO: Implement
+        Get all published datasets for an author
+        :param str author: Author name string
+        :param params:
+        :return: List of datasets author is on
+        :rtype Dataset[]
+        :raises MCAPIError
+        """
+        return Dataset.from_list(self.get("/published/authors/" + str(author) + "/authors", params))
+
+    def get_published_datasets_for_tag(self, tag, params=None):
+        """
+        TODO: Implement
+        Get all published datasets tagged with tag
+        :param str tag: tag to use
+        :param params:
+        :return: List of datasets tagged with tag
+        :rtype Dataset[]
+        :raises MCAPIError
+        """
+        return Dataset.from_list(self.get("/published/tags/" + str(tag) + "/datasets", params))
+
 
     def list_authors_in_community(self, community_id):
         """
