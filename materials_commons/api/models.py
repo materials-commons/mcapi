@@ -62,7 +62,7 @@ class Dataset(Common):
     def __init__(self, data={}):
         super(Dataset, self).__init__(data)
         self.license = data.get('license', None)
-        self.license_link = data.get('license_link', None)
+        self.license_link = self._get_license_link(data)
         self.doi = data.get('doi', None)
         self.authors = data.get('authors', None)
         self.file_selection = data.get('file_selection', None)
@@ -83,6 +83,22 @@ class Dataset(Common):
         self.comments_count = data.get('comments_count', None)
         self.published_at = get_date('published_at', data)
         self.zipfile_size = data.get('zipfile_size', None)
+
+    def _get_license_link(self, data):
+        if not self.license:
+            return None
+
+        license_link = data.get('license_link', None)
+        if license_link:
+            return license_link
+        if self.license == "Public Domain Dedication and License (PDDL)":
+            return "https://opendatacommons.org/licenses/pddl/summary"
+        elif self.license == "Attribution License (ODC-By)":
+            return "https://opendatacommons.org/licenses/by/summary"
+        elif self.license == "Open Database License (ODC-ODbL)":
+            return "https://opendatacommons.org/licenses/odbl/summary"
+        else:
+            return "https://opendatacommons.org"
 
     @staticmethod
     def from_list(data):
