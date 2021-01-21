@@ -83,6 +83,7 @@ class Dataset(Common):
         self.comments_count = data.get('comments_count', None)
         self.published_at = get_date('published_at', data)
         self.zipfile_size = data.get('zipfile_size', None)
+        self.tags = Tag.from_list_attr(data)
 
     def _get_license_link(self, data):
         if not self.license:
