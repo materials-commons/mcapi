@@ -211,6 +211,32 @@ class GlobusDownload(Common):
         return GlobusDownload.from_list(data.get(attr, []))
 
 
+class GlobusTransfer(object):
+    def __init__(self, data={}):
+        self._data = data.copy()
+        self.id = data.get('id', None)
+        self.uuid = data.get('uuid', None)
+        self.globus_endpoint_id = data.get('globus_endpoint_id', None)
+        self.globus_url = data.get('globus_url', None)
+        self.globus_path = data.get('globus_path', None)
+        self.status = data.get('state', None)
+        self.last_globus_transfer_id_completed = data.get('last_globus_transfer_id_completed', None)
+        self.latest_globus_transfer_completed_date = data.get('latest_globus_transfer_completed_date', None)
+        self.project_id = data.get('project_id', None)
+        self.owner_id = data.get('owner_id', None)
+        self.transfer_request_id = data.get('transfer_request_id', None)
+        self.created_at = get_date('created_at', data)
+        self.updated_at = get_date('updated_at', data)
+
+    @staticmethod
+    def from_list(data):
+        return from_list(GlobusTransfer, data)
+
+    @staticmethod
+    def from_list_attr(data, attr='globus_transfers'):
+        return GlobusTransfer.from_list(data.get(attr, []))
+
+
 class Link(Common):
     def __init__(self, data={}):
         super(Link, self).__init__(data)

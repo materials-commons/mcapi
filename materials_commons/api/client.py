@@ -3,7 +3,7 @@ import requests
 import time
 import logging
 from .models import Project, Experiment, Dataset, Entity, Activity, Workflow, User, File, GlobusUpload, \
-    GlobusDownload, Server, Community, Tag, Searchable
+    GlobusDownload, Server, Community, Tag, Searchable, GlobusTransfer
 from .query_params import QueryParams
 from .requests import *
 
@@ -977,6 +977,27 @@ class Client(object):
         return GlobusDownload(
             self.get("/projects/" + str(project_id) + "/globus/downloads/" + str(globus_download_id), params))
 
+    def open_globus_transfer(self, project_id, params=None):
+        """
+        Open a globus transfer request for current user in project. If one is already
+        active then it returns the already active request.
+        :param int project_id: The id of the project associated with this globus transfer
+        :return: The globus transfer
+        :rtype GlobusTransfer
+        :raises MCAPIError
+        """
+        return GlobusTransfer(self.get("/projects/" + str(project_id) + "/globus/open", params))
+
+    def close_globus_transfer(self, project_id):
+        """
+        Closes an existing globus transfer. If there isn't an open transfer for the user in project then
+        does nothing and returns success
+        :param int project_id: The id of the project to close globus transfer for the current user
+        :return: None
+        :raises MCAPIError
+        """
+        self.get_no_value("/projects/" + str(project_id) + "/globus/close")
+
     # Users
     def get_user_by_email(self, email, params=None):
         """
@@ -1211,6 +1232,14 @@ class Client(object):
         params_to_use = merge_dicts(QueryParams.to_query_args(params), other_params)
         r = requests.get(url, params=params_to_use, verify=False, headers=self.headers)
         return self._handle_with_json(r)
+
+    def get_no_value(self, urlpart):
+        self._throttle()
+        url = self.base_url + urlpart
+        if self.log:
+            print("GET:", url)
+        r = requests.get(url, verify=False, headers=self.headers)
+        return self._handle(r)
 
     def post(self, urlpart, data):
         self._throttle()
