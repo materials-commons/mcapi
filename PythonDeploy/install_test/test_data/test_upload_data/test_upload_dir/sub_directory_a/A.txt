@@ -1,1 +1,0 @@
-This is a file that lives in SubDirectoryA. That is: TestUploadDir/SubDirectoryA/A.txt

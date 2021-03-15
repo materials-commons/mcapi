@@ -1,2 +1,0 @@
-This is a file that lives in the top level directory; that is:
-TestUploadDir/TopLevel.txt
