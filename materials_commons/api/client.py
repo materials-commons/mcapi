@@ -35,10 +35,11 @@ def merge_dicts(dict1, dict2):
 
 class Client(object):
 
-    def __init__(self, apikey, base_url="https://materialscommons.org/api"):
+    def __init__(self, apikey, base_url="https://materialscommons.org/api", raise_exception=True):
         self.apikey = apikey
         self.base_url = base_url
         self.log = False
+        self.raise_exception = raise_exception
         self.headers = {
             "Authorization": "Bearer " + self.apikey,
             "Accept": "application/json"
@@ -1287,11 +1288,15 @@ class Client(object):
         self._update_rate_limits_from_request(r)
         try:
             r.raise_for_status()
+            return True
         except requests.HTTPError as e:
+            if not self.raise_exception:
+                return False
             raise MCAPIError(str(e), e.response)
 
     def _handle_with_json(self, r):
-        self._handle(r)
+        if not self._handle(r):
+            return None
         result = r.json()
         if "data" in result:
             return result["data"]
