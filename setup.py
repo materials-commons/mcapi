@@ -1,29 +1,26 @@
 # build with: python setup.py install --user
 
 from setuptools import setup, find_namespace_packages
-
-
-try:
-    with open('materials_commons/api/VERSION.txt') as f:
-        version = f.read().strip()
-except IOError:
-    version = '2.0b2'
+from materials_commons.api import __version__
 
 
 setup(
     name='materials_commons-api',
-    version=version,
+    version=__version__,
     description='API interface to Materials Commons',
     long_description="""This package contains the materials_commons.api module. This module is an interface
     to the Materials Commons project. We assume you have used (or are otherwise familiar with) the Materials
     Commons web site, https://materialscommons.org/, or a similar site based on the
-    Materials Commons code (https://github.com/materials-commons/materialscommons), and intend to use these 
+    Materials Commons code (https://github.com/materials-commons/materialscommons), and intend to use these
     tools in that context.""",
-    url='https://materials-commons.github.io/python-api/',
+    url='https://materials-commons.github.io/materials-commons-api/html/index.html',
     author='Materials Commons development team',
     author_email='materials-commons-authors@umich.edu',
     license='MIT',
-    package_data={'api': ['VERSION.txt']},
+    package_data={
+        # If any package contains *.txt files, include them:
+        "": ["*.txt"]
+    },
     include_package_data=True,
     packages=['materials_commons.api'],
     zip_safe=False,
