@@ -7,6 +7,21 @@ def from_list(cls, data):
     return [cls(d) for d in data]
 
 
+def pretty_print(clas, indent=0):
+    print(' ' * indent + type(clas).__name__ + ':')
+    indent += 4
+    for k, v in clas.__dict__.items():
+        if '__dict__' in dir(v):
+            pretty_print(v, indent)
+        elif isinstance(v, list):
+            print(' ' * indent + k + ': ')
+            for item in v:
+                pretty_print(item, indent + 4)
+        else:
+            if k != '_data':
+                print(' ' * indent + k + ': ' + str(v))
+
+
 class Common(object):
     def __init__(self, data):
         self._data = data.copy()
@@ -24,6 +39,9 @@ class Common(object):
         owner = data.get('owner', None)
         if owner:
             self.owner = User(owner)
+
+    def pretty_print(self):
+        pretty_print(self)
 
 
 class Community(Common):
@@ -228,6 +246,9 @@ class GlobusTransfer(object):
         self.created_at = get_date('created_at', data)
         self.updated_at = get_date('updated_at', data)
 
+    def pretty_print(self):
+        pretty_print(self)
+
     @staticmethod
     def from_list(data):
         return from_list(GlobusTransfer, data)
@@ -289,6 +310,9 @@ class Server(object):
         self.name = data.get('name', None)
         self.uuid = data.get('uuid', None)
 
+    def pretty_print(self):
+        pretty_print(self)
+
 
 class Tag(object):
     def __init__(self, data={}):
@@ -298,6 +322,9 @@ class Tag(object):
         self.slug = data.get('slug', None)
         self.created_at = get_date('created_at', data)
         self.updated_at = get_date('updated_at', data)
+
+    def pretty_print(self):
+        pretty_print(self)
 
     @staticmethod
     def from_list(data):
@@ -320,6 +347,9 @@ class User(object):
         self.created_at = get_date('created_at', data)
         self.updated_at = get_date('updated_at', data)
 
+    def pretty_print(self):
+        pretty_print(self)
+
     @staticmethod
     def from_list(data):
         return from_list(User, data)
@@ -336,6 +366,9 @@ class Searchable(object):
         self.url = data.get('url')
         self.type = data.get('type')
         self._fill_item()
+
+    def pretty_print(self):
+        pretty_print(self)
 
     def _fill_item(self):
         if self.type == "datasets":
