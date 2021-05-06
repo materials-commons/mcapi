@@ -8,6 +8,10 @@ def from_list(cls, data):
 
 
 def pretty_print(clas, indent=0):
+    """
+    Prints to stdout a formatted version of the object. This will recursively print sub-objects as well as iterate
+    over lists of objects maintaining proper indenting. Private attributes are ignored.
+    """
     print(' ' * indent + type(clas).__name__ + ':')
     indent += 4
     for k, v in clas.__dict__.items():
@@ -23,6 +27,39 @@ def pretty_print(clas, indent=0):
 
 
 class Common(object):
+    """
+    Base class for most models. Contains common attributes shared across most model objects.
+
+    Attributes
+    ----------
+    id : int
+        The id of the object.
+    uuid : str
+        The uuid of the object.
+    name : str
+        Name of model object.
+    description : str
+        Description of the model instance, for example a description of a project.
+    summary : str
+        A short description suitable for display in a table.
+    owner_id : int
+        The id of the owner of the model instance.
+    owner : mcapi.Owner
+        The full owner model associated with the owner_id.
+    created_at : str
+        Formatted string datetime when the object was created. String format is "%Y-%m-%dT%H:%M:%S.%fZ".
+    updated_at : str
+        Formatted string datetime when the object was last updated. String format is "%Y-%m-%dT%H:%M:%S.%fZ".
+    project_id : int
+        The project_id is an optional field that exists only if the underlying model has a project_id field. The
+        project_id is the id of the project the object is associated with.
+
+    Methods
+    -------
+    pretty_print()
+        Prints to stdout a formatted version of the object. This will recursively print sub-objects as well as iterate
+        over lists of objects maintaining proper indenting. Private attributes are ignored.
+    """
     def __init__(self, data):
         self._data = data.copy()
         self.id = data.get('id', None)
@@ -45,6 +82,22 @@ class Common(object):
 
 
 class Community(Common):
+    """
+    Community represents a Materials Commons Community of Practice. A Community of Practice is place to gather
+    similar published datasets together. In addition it contains links and files that are specific to a community. For
+    example it may contain a link to a forum associated with the community, or a file with suggested naming conventions.
+
+    Attributes:
+    -----------
+    public : bool
+        A flag that is true if this community is public and viewable by anyone.
+    files : list of mcapi.File
+        Files associated with the community.
+    links: list of mcapi.Link
+        Links associated with the community.
+    datasets: list of mcapi.Dataset
+        List of published datasets associated with the community.
+    """
     def __init__(self, data={}):
         super(Community, self).__init__(data)
         self.public = data.get('public', None)
@@ -62,6 +115,20 @@ class Community(Common):
 
 
 class Activity(Common):
+    """
+    An activity represents a step that operates on one or more Entities. For example an Entity maybe have been heat
+    treated. In that case an Activity representing the heat treatment step could be associated with the Entity. An
+    activity may also have files associated with it. These may represent files produced by that activity. For example
+    the images produced from running an SEM. All the files from the SEM will be associated with the activity. A subset
+    of these files may be represented with an Entity that the SEM operated on.
+
+    Attributes:
+    ----------
+    entities: list of mcapi.Entity
+        The list of entities associated with this activity.
+    files: list of mcapi.File
+        The list of files associated with this activity.
+    """
     def __init__(self, data={}):
         super(Activity, self).__init__(data)
         self.entities = Entity.from_list_attr(data)
@@ -77,6 +144,55 @@ class Activity(Common):
 
 
 class Dataset(Common):
+    """
+    A dataset represents a collection of files, activities and entities, along with other meta data such as authors,
+    papers, etc... that is meant to be shared as a whole. A dataset can be published, in which case the dataset is
+    available to the public, and its associated files can be downloaded.
+
+    Attributes:
+    -----------
+    license : str
+        The license (if any) associated with the dataset.
+    license_url : str
+        The url of the license associated with the dataset. Currently licenses all come from Open Data Commons.
+    doi : str
+        The DOI associated with the dataset.
+    authors : FIX THIS
+    file_selection : dict
+        The file_selection is a selection of files and directories to include/exclude in a dataset when it is published.
+        The file_selection has the following fields (each field is a list): include_files, exclude_files, include_dirs,
+        exclude_dirs.
+    zipfile_size : int
+        If a zipfile was built for this dataset then this is the size of the zipfile in bytes.
+    zipfile_name : str
+        If a zipfile was build for this dataset then this is the name of the zipfile.
+    workflows : list of mcapi.Workflow
+        The list of workflows associated with the dataset.
+    experiments : list of mcapi.Experiment
+        The list of experiments associated with the dataset.
+    activities: list of mcapi.Activity
+        The list of activities included with the dataset.
+    entities: list of mcapi.Entity
+        The list of entities included with the dataset.
+    files : list of mcapi.File
+        The list of files included with the dataset.
+    globus_path : str
+        The globus path for using globus to access the dataset files.
+    globus_endpoint_id : str
+        The globus endpoint the dataset files are stored on.
+    workflows_count : int
+        Count of workflows included with dataset.
+    activities_count : int
+        Count of activities included with dataset.
+    entities_count : int
+        Count of entities included with dataset.
+    comments_count : int
+        Count of comments associated with dataset.
+    published_at : str
+        The date the dataset was published on.
+    tags : list of mcapi.Tag
+        The tags associated with the dataset.
+    """
     def __init__(self, data={}):
         super(Dataset, self).__init__(data)
         self.license = data.get('license', None)
@@ -100,7 +216,6 @@ class Dataset(Common):
         self.entities_count = data.get('entities_count', None)
         self.comments_count = data.get('comments_count', None)
         self.published_at = get_date('published_at', data)
-        self.zipfile_size = data.get('zipfile_size', None)
         self.tags = Tag.from_list_attr(data)
 
     def _get_license_link(self, data):
@@ -129,6 +244,18 @@ class Dataset(Common):
 
 
 class Entity(Common):
+    """
+    An entity represent a virtual or physical specimen, sample or object. An entity is what is being measured or
+    transformed. An example of an entity would be a sheet of metal that is be tested. That sheet might be heated
+    (Activity), cut (Activity) then viewed on a SEM (Activity).
+
+    Attributes:
+    ----------
+    activities: list of mcapi.Activity
+        The list of activities associated with this entity.
+    files: list of mcapi.File
+        The list of files associated with this entity.
+    """
     def __init__(self, data={}):
         super(Entity, self).__init__(data)
         self.activities = Activity.from_list_attr(data)
@@ -144,6 +271,20 @@ class Entity(Common):
 
 
 class Experiment(Common):
+    """
+    An experiment is a container for entities, activities, and files.
+
+    Attributes:
+    -----------
+    workflows : list of mcapi.Workflow
+        The list of workflows used in the experiment.
+    activities : list of mcapi.Activity
+        The list of activities used in the experiment.
+    entities : list of mcapi.Entity
+        The list of entities used in the experiment.
+    files : list of mcapi.File
+        The list of files used in the experiment.
+    """
     def __init__(self, data={}):
         super(Experiment, self).__init__(data)
         self.workflows = Workflow.from_list_attr(data)
@@ -161,6 +302,23 @@ class Experiment(Common):
 
 
 class File(Common):
+    """
+    A file ...
+
+    Attributes:
+    -----------
+    mime_type : str
+    path : str
+    directory_id : int
+    size : int
+    checksum : str
+    experiments_count : int
+    activities_count : int
+    entities_count : int
+    entity_states_count : int
+    previous_versions_count : int
+    directory : mcapi.File
+    """
     def __init__(self, data={}):
         super(File, self).__init__(data)
         self.mime_type = data.get('mime_type', None)
@@ -230,6 +388,25 @@ class GlobusDownload(Common):
 
 
 class GlobusTransfer(object):
+    """
+    A GlobusTransfer
+
+    Attributes:
+    -----------
+    id : int
+    uuid : str
+    globus_endpoint_id : str
+    globus_url : str
+    globus_path : str
+    state : str
+    last_globus_transfer_id_completed : str
+    latest_globus_transfer_completed_date : str
+    project_id : int
+    owner_id : int
+    transfer_request_id : in
+    created_at : str
+    updated_at : str
+    """
     def __init__(self, data={}):
         self._data = data.copy()
         self.id = data.get('id', None)
@@ -237,7 +414,7 @@ class GlobusTransfer(object):
         self.globus_endpoint_id = data.get('globus_endpoint_id', None)
         self.globus_url = data.get('globus_url', None)
         self.globus_path = data.get('globus_path', None)
-        self.status = data.get('state', None)
+        self.state = data.get('state', None)
         self.last_globus_transfer_id_completed = data.get('last_globus_transfer_id_completed', None)
         self.latest_globus_transfer_completed_date = data.get('latest_globus_transfer_completed_date', None)
         self.project_id = data.get('project_id', None)
@@ -259,6 +436,13 @@ class GlobusTransfer(object):
 
 
 class Link(Common):
+    """
+    A Link...
+
+    Attributes:
+    -----------
+    url : str
+    """
     def __init__(self, data={}):
         super(Link, self).__init__(data)
         self.url = data.get('url', data)
@@ -273,6 +457,21 @@ class Link(Common):
 
 
 class Project(Common):
+    """
+    A project...
+
+    Attributes:
+    -----------
+    activities : list of mcapi.Activity
+    workflows : list of mcapi.Workflow
+    experiments : list of mcapi.Experiment
+    activities : list of mcapi.Activity
+    entities : list of mcapi.Entity
+    members : list of mcapi.User
+    admins : list of mcapi.User
+    root_dir : mcapi.File
+    """
+
     def __init__(self, data={}):
         super(Project, self).__init__(data)
         self.is_active = data.get('is_active', None)
@@ -298,6 +497,22 @@ class Project(Common):
 
 
 class Server(object):
+    """
+    A Server...
+
+    Attributes:
+    -----------
+    globus_endpoint_id : str
+    institution : str
+    version : str
+    last_updated_at : str
+    first_deployed_at : str
+    contact : str
+    description : str
+    name : str
+    uuid : str
+    """
+
     def __init__(self, data={}):
         self._data = data.copy()
         self.globus_endpoint_id = data.get('globus_endpoint_id', None)
@@ -315,6 +530,18 @@ class Server(object):
 
 
 class Tag(object):
+    """
+    A tag...
+
+    Attributes:
+    -----------
+    id : int
+    name : str
+    slug : str
+    created_at : str
+    updated_at : str
+    """
+
     def __init__(self, data={}):
         self._data = data.copy()
         self.id = data.get('id', None)
@@ -336,6 +563,21 @@ class Tag(object):
 
 
 class User(object):
+    """
+    A user...
+
+    Attributes:
+    -----------
+    id : int
+    uuid : str
+    name : str
+    email : str
+    description : str
+    affiliation : str
+    created_at : str
+    updated_at : str
+    """
+
     def __init__(self, data={}):
         self._data = data.copy()
         self.id = data.get('id', None)
@@ -360,6 +602,17 @@ class User(object):
 
 
 class Searchable(object):
+    """
+    A searchable
+
+    Attributes:
+    -----------
+    title : str
+    url : str
+    type : str "datasets" || "communities"
+    item : mcapi.Dataset or mcapi.Community depending on what type is
+    """
+
     def __init__(self, data={}):
         self._data = data.copy()
         self.title = data.get('title')
@@ -382,6 +635,9 @@ class Searchable(object):
 
 
 class Workflow(Common):
+    """
+    A workflow....
+    """
     def __init__(self, data={}):
         super(Workflow, self).__init__(data)
 

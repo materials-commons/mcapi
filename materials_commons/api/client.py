@@ -161,9 +161,33 @@ class Client(object):
         Remove user from project
         :param int project_id: Id of project to add user to
         :param int user_id: Id of user to add to project
+        :return: The updated project
+        :rtype Project
         :raises MCAPIError
         """
-        self.delete("/projects/" + str(project_id) + "/remove-user/" + str(user_id))
+        return Project(self.put("/projects/" + str(project_id) + "/remove-user/" + str(user_id), {}))
+
+    def add_admin_to_project(self, project_id, user_id):
+        """
+        Adds user as an admin to project
+        :param int project_id: Id of project to add user to
+        :param int user_id: Id of user to add to project
+        :return: The updated project
+        :rtype Project
+        :raises MCAPIError
+        """
+        return Project(self.put("/projects/" + str(project_id) + "/add-admin/" + str(user_id), {}))
+
+    def remove_admin_from_project(self, project_id, user_id):
+        """
+        Removes admin user from project
+        :param int project_id: Id of project to add user to
+        :param int user_id: Id of user to remove from project
+        :return: The updated project
+        :rtype Project
+        :raises MCAPIError
+        """
+        return Project(self.put("/projects/" + str(project_id) + "/remove-admin/" + str(user_id), {}))
 
     # Experiments
     def get_all_experiments(self, project_id, params=None):
@@ -856,14 +880,24 @@ class Client(object):
         """
         return Dataset(self.put("/projects/" + str(project_id) + "/datasets/" + str(dataset_id) + "/assign_doi", {}))
 
-    def download_dataset_zipfile(self, dataset_id, to):
+    def download_published_dataset_zipfile(self, dataset_id, to):
         """
         Download the zipfile for a published dataset
         :param int dataset_id: The id of the published dataset
         :param str to: The path including the file name to write the download to
         :raises MCAPIError
         """
-        self.download("/datasets/" + str(dataset_id) + "/download_zipfile", to)
+        self.download("/published/datasets/" + str(dataset_id) + "/download_zipfile", to)
+
+    def download_published_dataset_file(self, dataset_id, file_id, to):
+        """
+        Download file from a published dataset
+        :param int dataset_id: The id of the published dataset
+        :param int file_id: The id of the file in the dataset
+        :param str to: The path including the file name to write the download to
+        :raises MCAPIError
+        """
+        self.download("/published/datasets/" + str(dataset_id) + "/files/" + str(file_id) + "/download", to)
 
     def check_file_in_dataset(self, project_id, dataset_id, file_id):
         """
