@@ -10,6 +10,7 @@ The Materials Commons API
 
     overview
     install
+    manual/index
     ``materials_commons.api`` Reference <reference/materials_commons/modules>
     help
     license

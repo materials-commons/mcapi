@@ -610,7 +610,7 @@ class Searchable(object):
     title : str
     url : str
     type : str "datasets" || "communities"
-    item : mcapi.Dataset or mcapi.Community depending on what type is
+    item : mcapi.Dataset or mcapi.Community depending on what type is set to
     """
 
     def __init__(self, data={}):
