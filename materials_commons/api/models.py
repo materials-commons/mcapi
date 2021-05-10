@@ -303,7 +303,7 @@ class Experiment(Common):
 
 class File(Common):
     """
-    A file ...
+    A file is an uploaded file associated with a project in Materials Commons.
 
     Attributes:
     -----------
@@ -389,7 +389,7 @@ class GlobusDownload(Common):
 
 class GlobusTransfer(object):
     """
-    A GlobusTransfer
+    A GlobusTransfer represents a started globus transfer, whether its an upload or a download.
 
     Attributes:
     -----------
@@ -437,7 +437,7 @@ class GlobusTransfer(object):
 
 class Link(Common):
     """
-    A Link...
+    A Link represents a URL.
 
     Attributes:
     -----------
@@ -458,7 +458,7 @@ class Link(Common):
 
 class Project(Common):
     """
-    A project...
+    A project is the top level object that stores files and meta data about your research project.
 
     Attributes:
     -----------
@@ -498,7 +498,7 @@ class Project(Common):
 
 class Server(object):
     """
-    A Server...
+    A Server contains information about the Materials Commons server hosting the API.
 
     Attributes:
     -----------
@@ -531,7 +531,7 @@ class Server(object):
 
 class Tag(object):
     """
-    A tag...
+    A tag is an attribute that can be added to different objects in the system. Currently only datasets support tags.
 
     Attributes:
     -----------
@@ -564,7 +564,7 @@ class Tag(object):
 
 class User(object):
     """
-    A user...
+    A User represents a user account on Materials Commons.
 
     Attributes:
     -----------
@@ -603,7 +603,7 @@ class User(object):
 
 class Searchable(object):
     """
-    A searchable
+    A searchable represents the results of a search.
 
     Attributes:
     -----------
@@ -636,7 +636,7 @@ class Searchable(object):
 
 class Workflow(Common):
     """
-    A workflow....
+    A workflow is a graphical and textual representation a user created for an experimental workflow.
     """
     def __init__(self, data={}):
         super(Workflow, self).__init__(data)
