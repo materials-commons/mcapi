@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 # Install build and distribution requirements: pip install -r build_requirements.txt
 # Create a ~/.pypirc file with [pypi-mc] and/or [testpypi-mc] configured
 
