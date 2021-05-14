@@ -775,6 +775,29 @@ class Client(object):
         form = merge_dicts(form, file_selection)
         return Dataset(self.put("/datasets/" + str(dataset_id) + "/selection", form))
 
+    def change_dataset_file_selection(self, project_id, dataset_id, file_selection):
+        """
+        Change the file selection for a dataset to match the passed in dataset
+        :param int project_id: Project id containing dataset
+        :param int dataset_id: Id of dataset
+        :param file_selection: {
+            "include_files": array,
+            "exclude_files": array,
+            "include_dirs": array,
+            "exclude_dirs": array,
+        }
+        :return: The updated dataset
+        :rtype Dataset
+        :raises MCAPIError
+        :param project_id:
+        :param dataset_id:
+        :param file_selection:
+        :return:
+        """
+        return Dataset(
+            self.put("/projects/" + str(project_id) + "/datasets/" + str(dataset_id) + "/change_file_selection",
+                     file_selection))
+
     def update_dataset_activities(self, project_id, dataset_id, activity_id):
         """
         Toggle whether an activity is in a dataset
