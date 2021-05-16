@@ -380,7 +380,7 @@ class Client(object):
 
     def get_file_versions(self, project_id, file_id, params=None):
         """
-        Get versions for file in project
+        Get versions for file in project (does not include current file)
         :param int project_id: The id of the project containing the file
         :param int file_id: The id of the file
         :param params:
