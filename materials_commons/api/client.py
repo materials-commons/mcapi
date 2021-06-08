@@ -1248,6 +1248,16 @@ class Client(object):
         """
         return self.get("/published/authors")
 
+    # MQL
+    def mql_load_project(self, project_id):
+        self.post("/queries/" + str(project_id) + "/load-project", {})
+
+    def mql_reload_project(self, project_id):
+        self.post("/queries/" + str(project_id) + "/load-project", {})
+
+    def mql_execute_query(self, project_id, statement):
+        return self.post("/queries/" + str(project_id) + "/execute-query", statement)
+
     # Internal
 
     def _throttle(self):
@@ -1354,11 +1364,13 @@ class Client(object):
     def _handle_with_json(self, r):
         if not self._handle(r):
             return None
-        result = r.json()
-        if "data" in result:
-            return result["data"]
-        else:
-            return result
+        if r.headers.get('content-type') == 'application/json':
+            result = r.json()
+            if "data" in result:
+                return result["data"]
+            else:
+                return result
+        return None
 
     def _update_rate_limits_from_request(self, r):
         self.rate_limit = int(r.headers.get('x-ratelimit-limit', self.rate_limit))
