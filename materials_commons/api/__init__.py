@@ -4,3 +4,4 @@ from .models import Project, Activity, Dataset, Entity, Experiment, File, User, 
     GlobusDownload
 from .query_params import QueryParams, QueryField
 from .requests import *
+from .query import *
