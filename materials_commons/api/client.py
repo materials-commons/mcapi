@@ -1256,6 +1256,7 @@ class Client(object):
         self.post("/queries/" + str(project_id) + "/load-project", {})
 
     def mql_execute_query(self, project_id, statement):
+        self.mql_load_project(project_id)
         return self.post("/queries/" + str(project_id) + "/execute-query", statement)
 
     # Internal

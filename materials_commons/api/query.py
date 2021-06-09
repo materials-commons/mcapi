@@ -45,7 +45,7 @@ def q_process_attr_match(field, value, operation):
 
 def q_match(field, field_type, value, operation):
     return {
-        "field": field,
+        "field_name": field,
         "field_type": field_type,
         "value": value,
         "operation": operation
