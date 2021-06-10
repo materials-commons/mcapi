@@ -1255,9 +1255,14 @@ class Client(object):
     def mql_reload_project(self, project_id):
         self.post("/queries/" + str(project_id) + "/load-project", {})
 
-    def mql_execute_query(self, project_id, statement):
+    def mql_execute_query(self, project_id, statement, select_processes=True, select_samples=True):
         self.mql_load_project(project_id)
-        return self.post("/queries/" + str(project_id) + "/execute-query", statement)
+        form = {
+            "statement": statement,
+            "select_processes": select_processes,
+            "select_samples": select_samples
+        }
+        return self.post("/queries/" + str(project_id) + "/execute-query", form)
 
     # Internal
 
