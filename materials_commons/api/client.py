@@ -528,19 +528,28 @@ class Client(object):
         """
         return Entity(self.get("/projects/" + str(project_id) + "/entities/" + str(entity_id), params))
 
-    def create_entity(self, project_id, name, attrs=None):
+    def create_entity(self, project_id, name, activity_id, request=None, attrs=None):
         """
         Creates a new entity in the project
         :param project_id: The id of the project to create entity in
         :param str name: The entity name
-        :param CreateEntityRequest attrs: Attributes of the entity
+        :param activity_id: The activity to associated the samples as initially coming from
+        :param CreateEntityRequest request: Attributes of the entity
+        :param attrs: Array of dicts of the form {"name": "", "unit": "", value: dict | bool | int | float | str}
         :return: The created entity
         :rtype Entity
         :raises MCAPIError
         """
+        if not request:
+            request = CreateEntityRequest()
         if not attrs:
-            attrs = CreateEntityRequest()
-        form = merge_dicts({"name": name, "project_id": project_id}, attrs.to_dict())
+            attrs = []
+        form = merge_dicts({
+            "name": name,
+            "project_id": project_id,
+            "attributes": attrs,
+            "activity_id": activity_id,
+        }, request.to_dict())
         return Entity(self.post("/entities", form))
 
     def delete_entity(self, project_id, entity_id):
@@ -551,6 +560,23 @@ class Client(object):
         :raises MCAPIError
         """
         self.delete("/projects/" + str(project_id) + "/entities/" + str(entity_id))
+
+    def create_entity_state(self, project_id, entity_id, activity_id, current=True, attrs=None):
+        """
+        Adds a new state to an existing entity.
+        :param int project_id: The id of the project containing the entity
+        :param int entity_id: The id of the entity to associate the state with
+        :param in activity_id: The id of the activity that created the state
+        :param bool current: Whether to mark the state as the current state
+        :param attrs: Array of dicts of the form {"name": "", "unit": "", value: dict | bool | int | float | str}
+        :return: Entity
+        :raises MCAPIError
+        """
+        if not attrs:
+            attrs = []
+        form = {"current": current, "attributes": attrs}
+        return Entity(self.post("/projects/" + str(project_id) + "/entities/" + str(entity_id) + "/activities/" + str(
+            activity_id) + "/create-entity-state", form))
 
     # Activities
     def get_all_activities(self, project_id, params=None):
@@ -576,19 +602,22 @@ class Client(object):
         """
         return Activity(self.get("/projects/" + str(project_id) + "/activies/" + str(activity_id), params))
 
-    def create_activity(self, project_id, name, attrs=None):
+    def create_activity(self, project_id, name, request=None, attrs=None):
         """
         Create a new activity in the project
         :param project_id: The project to create the activity int
         :param str name: Name of activity
-        :param CreateActivityRequest attrs: Attributes on the activity
+        :param CreateActivityRequest request: Attributes on the activity
+        :param attrs: Array of dicts of the form {"name": "", "unit": "", value: dict | bool | int | float | str}
         :return: The activity to create
         :rtype Activity
         :raises MCAPIError
         """
+        if not request:
+            request = CreateActivityRequest()
         if not attrs:
-            attrs = CreateActivityRequest()
-        form = merge_dicts({"project_id": project_id, "name": name}, attrs.to_dict())
+            attrs = []
+        form = merge_dicts({"project_id": project_id, "name": name, "attributes": attrs}, request.to_dict())
         return Activity(self.post("/activies", form))
 
     def delete_activity(self, project_id, activity_id):
