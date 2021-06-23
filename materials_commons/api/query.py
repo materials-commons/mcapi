@@ -2,6 +2,8 @@ PROCESS_FIELD = 1
 SAMPLE_FIELD = 2
 PROCESS_ATTR_FIELD = 3
 SAMPLE_ATTR_FIELD = 4
+PROCESS_FUNC = 5
+SAMPLE_FUNC = 6
 
 OP_EQ = "="
 OP_NEQ = "<>"
@@ -27,6 +29,14 @@ def q_or(left, right):
     }
 
 
+def q_sample_has_process(process):
+    return q_sample_proc('has-process', process)
+
+
+def q_sample_proc(proc, value):
+    return q_match('', SAMPLE_FUNC, value, proc)
+
+
 def q_sample_match(field, value, operation):
     return q_match(field, SAMPLE_FIELD, value, operation)
 
@@ -50,22 +60,3 @@ def q_match(field, field_type, value, operation):
         "value": value,
         "operation": operation
     }
-
-
-def get_query_results(project_id, query):
-    return [], []
-
-
-q = q_and(
-    left=q_and(
-        left=q_process_attr_match("voltage", 5, OP_GTEQ),
-        right=q_process_attr_match("magnification", "5x", OP_EQ)
-    ),
-    right=q_or(
-        left=q_process_match("name", "SEM", OP_EQ),
-        right=q_process_match("name", "EBSD", OP_EQ)
-    )
-)
-
-
-results = get_query_results(77, q)
