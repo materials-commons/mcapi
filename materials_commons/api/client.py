@@ -297,7 +297,7 @@ class Client(object):
         :rtype File[]
         :raises MCAPIError
         """
-        path_param = {"path": path}
+        path_param = {"path": path.replace('\\', '/')}
         return File.from_list(self.get("/projects/" + str(project_id) + "/directories_by_path", params, path_param))
 
     def create_directory(self, project_id, name, parent_id, attrs=None):
@@ -410,7 +410,7 @@ class Client(object):
         :rtype File
         :raises MCAPIError
         """
-        form = {"path": file_path, "project_id": project_id}
+        form = {"path": file_path.replace('\\', '/'), "project_id": project_id}
         return File(self.post("/files/by_path", form))
 
     def update_file(self, project_id, file_id, attrs):
@@ -482,7 +482,7 @@ class Client(object):
         :param str to: path including file name to download file to
         :raises MCAPIError
         """
-        file = self.get_file_by_path(project_id, path)
+        file = self.get_file_by_path(project_id, path.replace('\\', '/'))
         self.download_file(project_id, file.id, to)
 
     def upload_file(self, project_id, directory_id, file_path):
@@ -973,7 +973,7 @@ class Client(object):
         :exception if file_path doesn't exist in project
         :raises MCAPIError
         """
-        form = {"file_path": file_path}
+        form = {"file_path": file_path.replace('\\', '/')}
         return self.post("/projects/" + str(project_id) + "/datasets/" + str(dataset_id) + "/check_select_by_path",
                          form)
 
