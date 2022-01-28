@@ -4,8 +4,8 @@
 # Create a ~/.pypirc file with [pypi-mc] and/or [testpypi-mc] configured
 
 rm -r build dist
-python setup.py sdist bdist_wheel --universal
-twine upload dist/* -r testpypi-mc
+python3 setup.py sdist bdist_wheel --universal
+twine upload dist/* -r pypi
 
 # Install from testpypi:
 # pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple materials-commons-cli
