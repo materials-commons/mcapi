@@ -308,16 +308,28 @@ class File(Common):
     Attributes:
     -----------
     mime_type : str
+        The mime_type. If File is a directory then mime_type will be set to 'directory'.
     path : str
+        The path. This is set for directories and derived for files by checking if the directory
+        is included, and if so updating the file path to be the directory path + the file name.
     directory_id : int
+        The id of the directory the file is in.
     size : int
+        The size of the file. Set to zero for directories.
     checksum : str
+        The checksum of the file. None for directories.
     experiments_count : int
+        The number of experiments the file is in. None if file is for a published dataset or a directory.
     activities_count : int
+        The number of activities that include the file. None if a directory.
     entities_count : int
+        The number of entities that include the file. None if a directory.
     entity_states_count : int
+        The number of entity states that include the file. None if a directory.
     previous_versions_count : int
+        Number of previous file versions. None if a directory.
     directory : mcapi.File
+        The directory object for the file. If the file is the root directory then this will be set to None.
     """
     def __init__(self, data={}):
         super(File, self).__init__(data)

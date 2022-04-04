@@ -293,7 +293,7 @@ class Client(object):
         :param int project_id: The id of the project the path is in
         :param str path:
         :param params:
-        :return: A list of th efiles and directories in the given path
+        :return: A list of the files and directories in the given path
         :rtype File[]
         :raises MCAPIError
         """
@@ -673,6 +673,44 @@ class Client(object):
         """
         return File.from_list(
             self.get("/published/datasets/" + str(dataset_id) + "/files", params))
+
+    def get_published_dataset_directory(self, dataset_id, directory_id, params=None):
+        """
+        Get a directory in a published dataset
+        :param int dataset_id: The id of the published dataset the directory is in
+        :param int directory_id: The directory id
+        :param params:
+        :return: The directory
+        :rtype File
+        :raises MCAPIError
+        """
+        return File(self.get("/published/datasets/" + str(dataset_id) + "/directories/" + str(directory_id), params))
+
+    def list_published_dataset_directory(self, dataset_id, directory_id, params=None):
+        """
+        Return a list of all the files and directories in a given published dataset directory
+        :param int dataset_id: The id of the dataset the directory is in
+        :param int directory_id: The directory id
+        :param params:
+        :return: A list of the files and directories in the given directory
+        :rtype File[]
+        :raises MCAPIError
+        """
+        return File.from_list(
+            self.get("/published/datasets/" + str(dataset_id) + "/directories/" + str(directory_id) + "/list", params))
+
+    def list_published_dataset_directory_by_path(self, dataset_id, path, params=None):
+        """
+        Return a list of all the files and directories at given path
+        :param int dataset_id: The id of the dataset the path is in
+        :param str path:
+        :param params:
+        :return: A list of the files and directories in the given path
+        :rtype File[]
+        :raises MCAPIError
+        """
+        path_param = {"path": path.replace('\\', '/')}
+        return File.from_list(self.get("/published/datasets/" + str(dataset_id) + "/directories_by_path", params, path_param))
 
     def get_published_dataset_entities(self, dataset_id, params=None):
         """
