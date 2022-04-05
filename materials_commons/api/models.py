@@ -217,6 +217,9 @@ class Dataset(Common):
         self.comments_count = data.get('comments_count', None)
         self.published_at = get_date('published_at', data)
         self.tags = Tag.from_list_attr(data)
+        root_dir = data.get('rootDir', None)
+        if root_dir:
+            self.root_dir = File(root_dir)
 
     def _get_license_link(self, data):
         if not self.license:
