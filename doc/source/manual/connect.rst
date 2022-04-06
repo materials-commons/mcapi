@@ -8,7 +8,7 @@ pass in your account email address and password, or use your API Token. The API 
 initialize the client. You can find your API Token by going to your account details screen on the Materials Commons
 website as shown here:
 
-.. image:: account-token.jpg
+.. image:: account-token.png
     :width: 300px
     :align: center
     :height: 200px
