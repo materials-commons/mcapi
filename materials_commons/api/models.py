@@ -157,7 +157,8 @@ class Dataset(Common):
         The url of the license associated with the dataset. Currently licenses all come from Open Data Commons.
     doi : str
         The DOI associated with the dataset.
-    authors : FIX THIS
+    authors : str
+        A semi-colon separated string of the authors for the dataset.
     file_selection : dict
         The file_selection is a selection of files and directories to include/exclude in a dataset when it is published.
         The file_selection has the following fields (each field is a list): include_files, exclude_files, include_dirs,
@@ -192,6 +193,8 @@ class Dataset(Common):
         The date the dataset was published on.
     tags : list of mcapi.Tag
         The tags associated with the dataset.
+    root_dir : mcapi.File
+        The root directory (/) for published datasets. Unpublished datasets do not have a root directory.
     """
     def __init__(self, data={}):
         super(Dataset, self).__init__(data)
@@ -409,18 +412,31 @@ class GlobusTransfer(object):
     Attributes:
     -----------
     id : int
+        The id of the object.
     uuid : str
+        The uuid of the object.
     globus_endpoint_id : str
+        The globus endpoint id.
     globus_url : str
+        The url for the globus endpoint.
     globus_path : str
+        The globus path.
     state : str
+        The state of the connection. One of 'open' (in use) or 'closed' (being cleaned up).
     last_globus_transfer_id_completed : str
+        Currently not used.
     latest_globus_transfer_completed_date : str
+        Currently not used.
     project_id : int
+        The id of the project this transfer is associated with.
     owner_id : int
-    transfer_request_id : in
+        The id of the user who started the transfer.
+    transfer_request_id : id
+        The id of the transfer request associated with this globus transfer.
     created_at : str
+        Formatted string datetime when the object was created. String format is "%Y-%m-%dT%H:%M:%S.%fZ".
     updated_at : str
+        Formatted string datetime when the object was last updated. String format is "%Y-%m-%dT%H:%M:%S.%fZ".
     """
     def __init__(self, data={}):
         self._data = data.copy()
@@ -457,6 +473,7 @@ class Link(Common):
     Attributes:
     -----------
     url : str
+        The url for the link.
     """
     def __init__(self, data={}):
         super(Link, self).__init__(data)
@@ -477,14 +494,20 @@ class Project(Common):
 
     Attributes:
     -----------
-    activities : list of mcapi.Activity
     workflows : list of mcapi.Workflow
+        Workflows in the project.
     experiments : list of mcapi.Experiment
+        Experiments in the project.
     activities : list of mcapi.Activity
+        Activities in the project.
     entities : list of mcapi.Entity
+        Entities in the project.
     members : list of mcapi.User
+        Project members.
     admins : list of mcapi.User
+        Project administrators
     root_dir : mcapi.File
+        The root directory (/) of the project.
     """
 
     def __init__(self, data={}):
@@ -518,14 +541,23 @@ class Server(object):
     Attributes:
     -----------
     globus_endpoint_id : str
+        The globus endpoint id for the server.
     institution : str
+        The institution running this server instance.
     version : str
+        Current version of the site.
     last_updated_at : str
+        The date the server was last updated.
     first_deployed_at : str
+        The date the server was first deployed.
     contact : str
+        Contact email for the server.
     description : str
+        A description of the server.
     name : str
+        The name for this server instance.
     uuid : str
+        A UUID that global identifies this server instance.
     """
 
     def __init__(self, data={}):
@@ -551,10 +583,15 @@ class Tag(object):
     Attributes:
     -----------
     id : int
+        The id of the tag object.
     name : str
+        The name of the tag.
     slug : str
+        The name as a slug.
     created_at : str
+        Formatted string datetime when the object was created. String format is "%Y-%m-%dT%H:%M:%S.%fZ".
     updated_at : str
+        Formatted string datetime when the object was last updated. String format is "%Y-%m-%dT%H:%M:%S.%fZ".
     """
 
     def __init__(self, data={}):
@@ -584,13 +621,21 @@ class User(object):
     Attributes:
     -----------
     id : int
+        The id of the object.
     uuid : str
+        The uuid of the object.
     name : str
+        The users name.
     email : str
+        The users email address.
     description : str
+        The description the user entered about themselves.
     affiliation : str
+        The affiliation the user entered.
     created_at : str
+        Formatted string datetime when the object was created. String format is "%Y-%m-%dT%H:%M:%S.%fZ".
     updated_at : str
+        Formatted string datetime when the object was last updated. String format is "%Y-%m-%dT%H:%M:%S.%fZ".
     """
 
     def __init__(self, data={}):
@@ -623,9 +668,13 @@ class Searchable(object):
     Attributes:
     -----------
     title : str
+        The title of the object (often the name).
     url : str
-    type : str "datasets" || "communities"
-    item : mcapi.Dataset or mcapi.Community depending on what type is set to
+        The url of the object.
+    type : str
+        The type of the object as a string - "datasets" || "communities"
+    item : mcapi.Dataset or mcapi.Community
+        Depending on what type field is set to the item will be one of the above types.
     """
 
     def __init__(self, data={}):
