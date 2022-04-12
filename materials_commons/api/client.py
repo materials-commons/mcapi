@@ -27,13 +27,23 @@ class MCAPIError(Exception):
         self.response = response
 
 
-def merge_dicts(dict1, dict2):
+def _merge_dicts(dict1, dict2):
     merged = dict1.copy()
     merged.update(dict2)
     return merged
 
 
 class Client(object):
+    """
+    The API Client instance for using the Materials Commons REST API.
+
+    apikey : str
+        The users apikey to use in API calls.
+    base_url : str
+        Optional, defaults to https://materialscommons.org/api. The server to make API calls to.
+    raise_exception: bool
+        Optional, defaults to True. Disable exceptions and instead let user explicitly check status.
+    """
 
     def __init__(self, apikey, base_url="https://materialscommons.org/api", raise_exception=True):
         self.apikey = apikey
@@ -53,6 +63,16 @@ class Client(object):
 
     @staticmethod
     def get_apikey(email, password, base_url="https://materialscommons.org/api"):
+        """
+        Retrieve the API Key for the given user.
+
+        :param str email: The users email address
+        :param str password: The password for the user
+        :param str base_url: Optional, defaults to https://materialscommns.org/api. Used to connect to a different server.
+        :return: The users apikey
+        :rtype: str
+        :raises MCAPIError:
+        """
         url = base_url + "/get_apitoken"
         form = {"email": email, "password": password}
         r = requests.post(url, json=form, verify=False)
@@ -61,11 +81,24 @@ class Client(object):
 
     @staticmethod
     def login(email, password, base_url="https://materialscommons.org/api"):
+        """
+        Creates a new instance of the Client by retrieving the given user's APIKey.
+
+        :param str email: The users email address
+        :param str password: The password for the user
+        :param str base_url: Optional, defaults to https://materialscommns.org/api. Used to connect to a different server.
+        :return: The users apikey
+        :rtype: str
+        :raises MCAPIError:
+        """
         apikey = Client.get_apikey(email, password, base_url)
         return Client(apikey, base_url)
 
     @staticmethod
     def set_debug_on():
+        """
+        Turns debug logging on for the API.
+        """
         http_client.HTTPConnection.debuglevel = 1
         logging.basicConfig()
         logging.getLogger().setLevel(logging.DEBUG)
@@ -75,6 +108,9 @@ class Client(object):
 
     @staticmethod
     def set_debug_off():
+        """
+        Turns debug logging off for the API.
+        """
         http_client.HTTPConnection.debuglevel = 0
         logging.disable()
         requests_log = logging.getLogger("requests.packages.urllib3")
@@ -115,7 +151,7 @@ class Client(object):
         """
         if not attrs:
             attrs = CreateProjectRequest()
-        form = merge_dicts({"name": name}, attrs.to_dict())
+        form = _merge_dicts({"name": name}, attrs.to_dict())
         return Project(self._post("/projects", form))
 
     def get_project(self, project_id, params=None):
@@ -234,7 +270,7 @@ class Client(object):
         :rtype: Experiment
         :raises MCAPIError:
         """
-        form = merge_dicts({"experiment_id": experiment_id}, attrs.to_dict())
+        form = _merge_dicts({"experiment_id": experiment_id}, attrs.to_dict())
         return Experiment(self._put("/experiments/" + str(experiment_id), form))
 
     def delete_experiment(self, project_id, experiment_id):
@@ -260,7 +296,7 @@ class Client(object):
         """
         if not attrs:
             attrs = CreateExperimentRequest()
-        form = merge_dicts({"project_id": project_id, "name": name}, attrs.to_dict())
+        form = _merge_dicts({"project_id": project_id, "name": name}, attrs.to_dict())
         return Experiment(self._post("/experiments", form))
 
     def update_experiment_workflows(self, project_id, experiment_id, workflow_id):
@@ -334,7 +370,7 @@ class Client(object):
         if not attrs:
             attrs = CreateDirectoryRequest()
         form = {"name": name, "directory_id": parent_id, "project_id": project_id}
-        form = merge_dicts(form, attrs.to_dict())
+        form = _merge_dicts(form, attrs.to_dict())
         return File(self._post("/directories", form))
 
     def move_directory(self, project_id, directory_id, to_directory_id):
@@ -386,7 +422,7 @@ class Client(object):
         :rtype: File
         :raises MCAPIError:
         """
-        form = merge_dicts({"project_id": project_id}, attrs.to_dict())
+        form = _merge_dicts({"project_id": project_id}, attrs.to_dict())
         return File(self._put("/directories/" + str(directory_id), form))
 
     # Files
@@ -453,7 +489,7 @@ class Client(object):
         :rtype: File
         :raises MCAPIError:
         """
-        form = merge_dicts({"project_id", project_id}, attrs.to_dict())
+        form = _merge_dicts({"project_id", project_id}, attrs.to_dict())
         return File(self._put("/files/" + str(file_id), form))
 
     def delete_file(self, project_id, file_id, force=False):
@@ -584,7 +620,7 @@ class Client(object):
             request = CreateEntityRequest()
         if not attrs:
             attrs = []
-        form = merge_dicts({
+        form = _merge_dicts({
             "name": name,
             "project_id": project_id,
             "attributes": attrs,
@@ -662,7 +698,7 @@ class Client(object):
             request = CreateActivityRequest()
         if not attrs:
             attrs = []
-        form = merge_dicts({"project_id": project_id, "name": name, "attributes": attrs}, request.to_dict())
+        form = _merge_dicts({"project_id": project_id, "name": name, "attributes": attrs}, request.to_dict())
         return Activity(self._post("/activities", form))
 
     def delete_activity(self, project_id, activity_id):
@@ -896,14 +932,13 @@ class Client(object):
             "include_dir": str,
             "remove_include_dir": str,
             "exclude_dir": str,
-            "remove_exclude_dir": str
-        }
+            "remove_exclude_dir": str}
         :return: The updated dataset
         :rtype: Dataset
         :raises MCAPIError:
         """
         form = {"project_id": project_id}
-        form = merge_dicts(form, file_selection)
+        form = _merge_dicts(form, file_selection)
         return Dataset(self._put("/datasets/" + str(dataset_id) + "/selection", form))
 
     def change_dataset_file_selection(self, project_id, dataset_id, file_selection):
@@ -1007,7 +1042,7 @@ class Client(object):
         """
         if not attrs:
             attrs = CreateDatasetRequest()
-        form = merge_dicts({"name": name}, attrs.to_dict())
+        form = _merge_dicts({"name": name}, attrs.to_dict())
         return Dataset(self._post("/projects/" + str(project_id) + "/datasets", form))
 
     def update_dataset(self, project_id, dataset_id, name, attrs=None):
@@ -1024,7 +1059,7 @@ class Client(object):
         """
         if not attrs:
             attrs = UpdateDatasetRequest()
-        form = merge_dicts({"name": name}, attrs.to_dict())
+        form = _merge_dicts({"name": name}, attrs.to_dict())
         return Dataset(self._put("/projects/" + str(project_id) + "/datasets/" + str(dataset_id), form))
 
     def assign_doi_to_dataset(self, project_id, dataset_id):
@@ -1240,7 +1275,7 @@ class Client(object):
         """
         if not attrs:
             attrs = CreateCommunityRequest()
-        form = merge_dicts({"name": name}, attrs.to_dict())
+        form = _merge_dicts({"name": name}, attrs.to_dict())
         return Community(self._post("/communities", form))
 
     def get_all_public_communities(self, params=None):
@@ -1334,7 +1369,7 @@ class Client(object):
         """
         if not attrs:
             attrs = CreateLinkRequest()
-        form = merge_dicts({"url": url, "name": name}, attrs.to_dict())
+        form = _merge_dicts({"url": url, "name": name}, attrs.to_dict())
         return Community(self._post("/communities/" + str(community_id) + "/links", form))
 
     def delete_link_from_community(self, link_id, community_id):
@@ -1470,7 +1505,7 @@ class Client(object):
         url = self.base_url + urlpart
         if self.log:
             print("GET:", url)
-        params_to_use = merge_dicts(QueryParams.to_query_args(params), other_params)
+        params_to_use = _merge_dicts(QueryParams.to_query_args(params), other_params)
         r = requests.get(url, params=params_to_use, verify=False, headers=self.headers)
         return self._handle_with_json(r)
 
