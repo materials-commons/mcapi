@@ -512,6 +512,7 @@ class Project(Common):
 
     def __init__(self, data={}):
         super(Project, self).__init__(data)
+        self.slug = data.get('slug', None)
         self.is_active = data.get('is_active', None)
         self.activities = Activity.from_list_attr(data)
         self.workflows = Workflow.from_list_attr(data)
@@ -646,6 +647,7 @@ class User(object):
         self.email = data.get('email', None)
         self.description = data.get('description', None)
         self.affiliation = data.get('affiliation', None)
+        self.slug = data.get('slug', None)
         self.created_at = get_date('created_at', data)
         self.updated_at = get_date('updated_at', data)
 
