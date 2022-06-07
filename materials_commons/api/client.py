@@ -577,6 +577,20 @@ class Client(object):
                              f))
         return files[0]
 
+    def list_files_changed_since(self, project_id, since):
+        """
+        Lists files changed (uploaded) in project since datetime in since
+
+        :param int project_id: The id of the project
+        :param str since: The datetime to get files changed since, form "YYYY-MM-DD HH:MM:SS"
+        :return: The list of files changed
+        :rtype: File[]
+        :raises MCAPIError:
+        """
+        form = {"since": since}
+        return File.from_list(
+            self._post("/projects/" + str(project_id) + "/file-changes-since", form))
+
     # Entities
     def get_all_entities(self, project_id, params=None):
         """
