@@ -3,7 +3,7 @@ import requests
 import time
 import logging
 from .models import Project, Experiment, Dataset, Entity, Activity, Workflow, User, File, GlobusUpload, \
-    GlobusDownload, Server, Community, Tag, Searchable, GlobusTransfer
+    GlobusDownload, Server, Community, Tag, Searchable, GlobusTransfer, Paged
 from .query_params import QueryParams
 from .requests import *
 
@@ -577,21 +577,25 @@ class Client(object):
                              f))
         return files[0]
 
-    def list_files_changed_since(self, project_id, since):
+    def list_files_changed_since(self, project_id, since, page=None):
         """
         Lists files changed (uploaded) in project since datetime in since
 
         :param int project_id: The id of the project
         :param str since: The datetime to get files changed since, form "YYYY-MM-DD HH:MM:SS"
+        :param int page: The page to retrieve
         :return: The list of files changed
-        :rtype: File[]
+        :rtype: Paged
         :raises MCAPIError:
         """
         form = {"since": since}
-        return File.from_list(
+
+        files = File.from_list(
             self._post("/projects/" + str(project_id) + "/file-changes-since", form))
+        return Paged(self.r.json(), files)
 
     # Entities
+
     def get_all_entities(self, project_id, params=None):
         """
         Get all entities in a project.

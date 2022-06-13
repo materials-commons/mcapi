@@ -26,6 +26,15 @@ def pretty_print(clas, indent=0):
                 print(' ' * indent + k + ': ' + str(v))
 
 
+class Paged(object):
+    def __init__(self, paged, data):
+        self.current_page = paged.get('current_page', None)
+        self.last_page = paged.get('last_page', None)
+        self.per_page = paged.get('per_page', None)
+        self.total = paged.get('total', None)
+        self.data = data
+
+
 class Common(object):
     """
     Base class for most models. Contains common attributes shared across most model objects.
