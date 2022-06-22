@@ -589,23 +589,23 @@ class Client(object):
         :rtype: Paged
         :raises MCAPIError:
         """
-        form = {"since": since}
+        params = {"since": since}
 
         if starting_page is not None:
-            form["page[number]"] = starting_page
+            params["page[number]"] = starting_page
 
         if page_size is not None:
-            form["page[size]"] = page_size
+            params["page[size]"] = page_size
 
         files = File.from_list(
-            self._get("/projects/" + str(project_id) + "/file-changes-since", form))
+            self._get("/projects/" + str(project_id) + "/file-changes-since", params))
         p = Paged(self.r.json(), files)
         first_page = p.current_page
         last_page = p.last_page
         yield p
         for page in range(first_page+1, last_page+1):
-            form["page[number]"] = page
-            files = File.from_list(self._get("/projects/" + str(project_id) + "/file-changes-since", form))
+            params["page[number]"] = page
+            files = File.from_list(self._get("/projects/" + str(project_id) + "/file-changes-since", params))
             yield Paged(self.r.json(), files)
 
     # Entities
