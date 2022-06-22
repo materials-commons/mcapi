@@ -577,22 +577,36 @@ class Client(object):
                              f))
         return files[0]
 
-    def list_files_changed_since(self, project_id, since, page=None):
+    def list_files_changed_since(self, project_id, since, starting_page=None, page_size=None):
         """
         Lists files changed (uploaded) in project since datetime in since
 
         :param int project_id: The id of the project
         :param str since: The datetime to get files changed since, form "YYYY-MM-DD HH:MM:SS"
-        :param int page: The page to retrieve
+        :param int starting_page: The starting page to retrieve
+        :param int page_size: Number of entries per page
         :return: The list of files changed
         :rtype: Paged
         :raises MCAPIError:
         """
         form = {"since": since}
 
+        if starting_page is not None:
+            form["page[number]"] = starting_page
+
+        if page_size is not None:
+            form["page[size]"] = page_size
+
         files = File.from_list(
-            self._post("/projects/" + str(project_id) + "/file-changes-since", form))
-        return Paged(self.r.json(), files)
+            self._get("/projects/" + str(project_id) + "/file-changes-since", form))
+        p = Paged(self.r.json(), files)
+        first_page = p.current_page
+        last_page = p.last_page
+        yield p
+        for page in range(first_page+1, last_page+1):
+            form["page[number]"] = page
+            files = File.from_list(self._get("/projects/" + str(project_id) + "/file-changes-since", form))
+            yield Paged(self.r.json(), files)
 
     # Entities
 
