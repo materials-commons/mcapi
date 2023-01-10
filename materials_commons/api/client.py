@@ -3,7 +3,7 @@ import requests
 import time
 import logging
 from .models import Project, Experiment, Dataset, Entity, Activity, Workflow, User, File, GlobusUpload, \
-    GlobusDownload, Server, Community, Tag, Searchable, GlobusTransfer, Paged
+    GlobusDownload, Server, Community, Tag, Searchable, GlobusTransfer, Paged, VASPInfo
 from .query_params import QueryParams
 from .requests import *
 
@@ -31,6 +31,16 @@ def _merge_dicts(dict1, dict2):
     merged = dict1.copy()
     merged.update(dict2)
     return merged
+
+
+def _set_paging_params(params, starting_page, page_size):
+    if starting_page is not None:
+        params["page[number]"] = starting_page
+
+    if page_size is not None:
+        params["page[size]"] = page_size
+
+    return params
 
 
 class Client(object):
@@ -138,6 +148,9 @@ class Client(object):
         :raises MCAPIError:
         """
         return Project.from_list(self._get("/projects", params))
+
+    def get_all_projects_vasp_info(self, starting_page=None, page_size=None):
+        return self._get_vasp_info("/projects/vasp/info", starting_page, page_size)
 
     def create_project(self, name, attrs=None):
         """
@@ -603,7 +616,7 @@ class Client(object):
         first_page = p.current_page
         last_page = p.last_page
         yield p
-        for page in range(first_page+1, last_page+1):
+        for page in range(first_page + 1, last_page + 1):
             params["page[number]"] = page
             files = File.from_list(self._get("/projects/" + str(project_id) + "/file-changes-since", params))
             yield Paged(self.r.json(), files)
@@ -871,6 +884,9 @@ class Client(object):
         """
         form = {"search": search_str}
         return Searchable.from_list(self._post("/published/data/search", form))
+
+    def get_all_published_datasets_vasp_info(self, starting_page=None, page_size=None):
+        return self._get_vasp_info("/publised/datasets/vasp/info", starting_page, page_size)
 
     def import_dataset(self, dataset_id, project_id, directory_name):
         """
@@ -1499,6 +1515,18 @@ class Client(object):
         return self._post("/queries/" + str(project_id) + "/execute-query", form)
 
     # Internal
+
+    def _get_vasp_info(self, url, starting_page, page_size):
+        params = _set_paging_params({}, starting_page, page_size)
+        vasp_info = VASPInfo.from_list(self._get(url, params))
+        p = Paged(self.r.json(), vasp_info)
+        first_page = p.current_page
+        last_page = p.last_page
+        yield p
+        for page in range(first_page + 1, last_page + 1):
+            params["page[number]"] = page
+            vasp_info = VASPInfo.from_list(self._get(url, params))
+            yield Paged(self.r.json(), vasp_info)
 
     def _throttle(self):
         if self._throttle_s < 0:

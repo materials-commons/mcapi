@@ -35,6 +35,26 @@ class Paged(object):
         self.data = data
 
 
+class VASPInfo(object):
+    def __init__(self, data):
+        self.dataset_id = data.get('dataset_id', None)
+        self.project_id = data.get('project_id', None)
+        self.directory_id = data.get('directory_id', None)
+        self.directory_path = data.get('directory_path', None)
+        self.filename = data.get('filename', None)
+
+    def pretty_print(self):
+        pretty_print(self)
+
+    @staticmethod
+    def from_list(data):
+        return from_list(VASPInfo, data)
+
+    @staticmethod
+    def from_list_attr(data, attr='info_list'):
+        return Community.from_list(data.get(attr, []))
+
+
 class Common(object):
     """
     Base class for most models. Contains common attributes shared across most model objects.
@@ -69,6 +89,7 @@ class Common(object):
         Prints to stdout a formatted version of the object. This will recursively print sub-objects as well as iterate
         over lists of objects maintaining proper indenting. Private attributes are ignored.
     """
+
     def __init__(self, data):
         self._data = data.copy()
         self.id = data.get('id', None)
@@ -107,6 +128,7 @@ class Community(Common):
     datasets: list of mcapi.Dataset
         List of published datasets associated with the community.
     """
+
     def __init__(self, data={}):
         super(Community, self).__init__(data)
         self.public = data.get('public', None)
@@ -138,6 +160,7 @@ class Activity(Common):
     files: list of mcapi.File
         The list of files associated with this activity.
     """
+
     def __init__(self, data={}):
         super(Activity, self).__init__(data)
         self.entities = Entity.from_list_attr(data)
@@ -205,6 +228,7 @@ class Dataset(Common):
     root_dir : mcapi.File
         The root directory (/) for published datasets. Unpublished datasets do not have a root directory.
     """
+
     def __init__(self, data={}):
         super(Dataset, self).__init__(data)
         self.license = data.get('license', None)
@@ -271,6 +295,7 @@ class Entity(Common):
     files: list of mcapi.File
         The list of files associated with this entity.
     """
+
     def __init__(self, data={}):
         super(Entity, self).__init__(data)
         self.activities = Activity.from_list_attr(data)
@@ -300,6 +325,7 @@ class Experiment(Common):
     files : list of mcapi.File
         The list of files used in the experiment.
     """
+
     def __init__(self, data={}):
         super(Experiment, self).__init__(data)
         self.workflows = Workflow.from_list_attr(data)
@@ -346,6 +372,7 @@ class File(Common):
     directory : mcapi.File
         The directory object for the file. If the file is the root directory then this will be set to None.
     """
+
     def __init__(self, data={}):
         super(File, self).__init__(data)
         self.mime_type = data.get('mime_type', None)
@@ -447,6 +474,7 @@ class GlobusTransfer(object):
     updated_at : str
         Formatted string datetime when the object was last updated. String format is "%Y-%m-%dT%H:%M:%S.%fZ".
     """
+
     def __init__(self, data={}):
         self._data = data.copy()
         self.id = data.get('id', None)
@@ -484,6 +512,7 @@ class Link(Common):
     url : str
         The url for the link.
     """
+
     def __init__(self, data={}):
         super(Link, self).__init__(data)
         self.url = data.get('url', data)
@@ -713,6 +742,7 @@ class Workflow(Common):
     """
     A workflow is a graphical and textual representation a user created for an experimental workflow.
     """
+
     def __init__(self, data={}):
         super(Workflow, self).__init__(data)
 
