@@ -1,4 +1,6 @@
 from .util import get_date
+from pathlib import Path
+import os
 
 
 def from_list(cls, data):
@@ -530,10 +532,29 @@ class Project(Common):
         self.entities = Entity.from_list_attr(data)
         self.members = User.from_list_attr(data, 'members')
         self.admins = User.from_list_attr(data, 'admins')
+        self.files = {}
+        self.client = None
         self.root_dir = None
         root_dir = data.get('rootDir', None)
         if root_dir:
             self.root_dir = File(root_dir)
+
+    def get_file(self, path):
+        if self.client is None:
+            raise Exception("client not set")
+        if path not in self.files:
+            self._download_file(path)
+        return self.files[path]
+
+    # download_file_by_path(self, project_id, path, to):
+    def _download_file(self, path):
+        download_dir = Path.home().joinpath(".mc", "file_cache", self.uuid)
+        path_dir = os.path.dirname(path)
+        file_dir = Path(download_dir).joinpath(path_dir[1:len(path_dir)])
+        os.makedirs(file_dir, exist_ok=True)
+        download_to = Path(download_dir).joinpath(path[1:len(path)])
+        self.client.download_file_by_path(self.id, path, str(download_to))
+        self.files[path] = download_to
 
     @staticmethod
     def from_list(data):
