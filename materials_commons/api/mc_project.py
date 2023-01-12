@@ -1,17 +1,11 @@
-import os
-
 from .config import *
-from .models import Project
+
 
 def mc_project(project_id):
-    client = make_client_and_login_if_necessary(prompt=False)
+    config = Config()
+    if not config.default_remote.mcurl or not config.default_remote.mcapikey:
+        raise Exception("Default remote not set")
+    client = config.default_remote.make_client()
     project = client.get_project(project_id)
     project.client = client
-
-
-class MCProject(Project):
-
-    def __init__(self, project_id):
-        self.project_id = project_id
-        self.client = make_client_and_login_if_necessary(prompt=False)
-        project = self.client.get_project(project_id)
+    return project

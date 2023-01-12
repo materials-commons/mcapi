@@ -195,6 +195,7 @@ def get_remote_config_and_login_if_necessary(email=None, mcurl=None, prompt=True
         for the provided URL and user account.
     """
     config = Config()
+    print(config)
     remote_config = RemoteConfig(mcurl=mcurl, email=email)
     if remote_config in config.remotes:
         return config.remotes[config.remotes.index(remote_config)]
