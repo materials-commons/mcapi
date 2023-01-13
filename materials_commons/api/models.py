@@ -567,7 +567,7 @@ class Project(Common):
 
     # download_file_by_path(self, project_id, path, to):
     def _download_file(self, path):
-        download_dir = Path.home().joinpath(".mc", "file_cache", self.uuid)
+        download_dir = Path.home().joinpath(".materialscommons", "file_cache", self.uuid)
         path_dir = os.path.dirname(path)
         file_dir = Path(download_dir).joinpath(path_dir[1:len(path_dir)])
         os.makedirs(file_dir, exist_ok=True)
@@ -580,7 +580,7 @@ class Project(Common):
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if self.client is not None and self.files is not None:
-            dir_to_delete = Path.home().joinpath(".mc", "file_cache", self.uuid)
+            dir_to_delete = Path.home().joinpath(".materialscommons", "file_cache", self.uuid)
             try:
                 shutil.rmtree(dir_to_delete)
             finally:
