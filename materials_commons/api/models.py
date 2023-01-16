@@ -39,6 +39,26 @@ class Paged(object):
         self.data = data
 
 
+class VASPInfo(object):
+    def __init__(self, data):
+        self.dataset_id = data.get('dataset_id', None)
+        self.project_id = data.get('project_id', None)
+        self.directory_id = data.get('directory_id', None)
+        self.directory_path = data.get('directory_path', None)
+        self.filename = data.get('filename', None)
+
+    def pretty_print(self):
+        pretty_print(self)
+
+    @staticmethod
+    def from_list(data):
+        return from_list(VASPInfo, data)
+
+    @staticmethod
+    def from_list_attr(data, attr='info_list'):
+        return Community.from_list(data.get(attr, []))
+
+
 class Common(object):
     """
     Base class for most models. Contains common attributes shared across most model objects.
