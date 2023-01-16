@@ -3,7 +3,7 @@ import requests
 import time
 import logging
 from .models import Project, Experiment, Dataset, Entity, Activity, Workflow, User, File, GlobusUpload, \
-    GlobusDownload, Server, Community, Tag, Searchable, GlobusTransfer, Paged, VASPInfo
+    GlobusDownload, Server, Community, Tag, Searchable, GlobusTransfer, Paged
 from .query_params import QueryParams
 from .requests import *
 
