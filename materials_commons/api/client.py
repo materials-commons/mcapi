@@ -149,8 +149,11 @@ class Client(object):
         """
         return Project.from_list(self._get("/projects", params))
 
-    def get_all_projects_vasp_info(self, starting_page=None, page_size=None):
-        return self._get_vasp_info("/projects/vasp/info", starting_page, page_size)
+    def get_all_project_files_matching(self, match, starting_page=None, page_size=None):
+        return self._get_files_matching("/projects/files/matching", match, starting_page, page_size)
+
+    def get_project_files_matching(self, project_id, match, starting_page=None, page_size=None):
+        return self._get_files_matching(f"/projects/{project_id}/files/matching", match, starting_page, page_size)
 
     def create_project(self, name, attrs=None):
         """
@@ -885,8 +888,12 @@ class Client(object):
         form = {"search": search_str}
         return Searchable.from_list(self._post("/published/data/search", form))
 
-    def get_all_published_datasets_vasp_info(self, starting_page=None, page_size=None):
-        return self._get_vasp_info("/publised/datasets/vasp/info", starting_page, page_size)
+    def get_all_published_dataset_files_matching(self, match, starting_page=None, page_size=None):
+        return self._get_files_matching("/published/datasets/files/matching", match, starting_page, page_size)
+
+    def get_published_dataset_files_matching(self, dataset_id, match, starting_page=None, page_size=None):
+        return self._get_files_matching(f"/published/datasets/{dataset_id}/files/matching", match, starting_page,
+                                        page_size)
 
     def import_dataset(self, dataset_id, project_id, directory_name):
         """
@@ -1516,17 +1523,26 @@ class Client(object):
 
     # Internal
 
-    def _get_vasp_info(self, url, starting_page, page_size):
+    def _get_files_matching(self, url, match, starting_page, page_size):
         params = _set_paging_params({}, starting_page, page_size)
-        vasp_info = VASPInfo.from_list(self._get(url, params))
-        p = Paged(self.r.json(), vasp_info)
+        form = {}
+
+        # API user can either send us a single string match, or an array of matches
+        # The api takes a list, so we need to convert a single item to an array.
+        if isinstance(match, list):
+            form["match"] = match
+        else:
+            form["match"] = [match]
+
+        files = File.from_list(self._post(url, form, params=params))
+        p = Paged(self.r.json(), files)
         first_page = p.current_page
         last_page = p.last_page
         yield p
         for page in range(first_page + 1, last_page + 1):
             params["page[number]"] = page
-            vasp_info = VASPInfo.from_list(self._get(url, params))
-            yield Paged(self.r.json(), vasp_info)
+            files = File.from_list(self._post(url, form, params=params))
+            yield Paged(self.r.json(), files)
 
     def _throttle(self):
         if self._throttle_s < 0:
@@ -1577,13 +1593,13 @@ class Client(object):
         r = requests.get(url, verify=False, headers=self.headers)
         return self._handle(r)
 
-    def _post(self, urlpart, data):
+    def _post(self, urlpart, data, params=None):
         self._throttle()
         url = self.base_url + urlpart
         if self.log:
             print("POST:", url)
         data = OrderedDict(data)
-        r = requests.post(url, json=data, verify=False, headers=self.headers)
+        r = requests.post(url, json=data, verify=False, headers=self.headers, params=params)
         return self._handle_with_json(r)
 
     def _put(self, urlpart, data):
