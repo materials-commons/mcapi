@@ -1,17 +1,21 @@
 #!/usr/bin/env python3
-
+import copy
 import os
-import sys
+import posixpath
+from urllib.parse import urlparse
+
+import OpenVisus as ov
+import numpy as np
+import yaml
+from OpenVisus.pyquery import PyQuery
+from matplotlib import pyplot as plt
+from slugify import slugify
 
 # import requests
 # from xml.etree import ElementTree
 import materials_commons.api as mcapi
-import yaml
-from urllib.parse import urlparse
-import posixpath
-import OpenVisus as ov
-from matplotlib import pyplot as plt
-from slugify import slugify
+
+PREVIEW_MAX_PIXELS = 1024 * 768
 
 
 def create_ds_name_from_url(url):
@@ -33,6 +37,81 @@ def create_ds_name_from_url(url):
             ds_name += f"-{name}"
         p = posixpath.dirname(p)
     return slugify(ds_name)
+
+
+def normalize_image(data):
+    assert (len(data.shape) == 2)
+    data = data.astype(np.float32)
+    m, M = np.min(data), np.max(data)
+    return (data - m) / (M - m)
+
+
+def create_ds_image(s3_url, ds_name):
+    db = ov.LoadDataset(s3_url)
+
+    access = db.createAccessForBlockQuery()
+    box = db.getLogicBox()
+    pdim = db.getPointDim()
+    center = [int(0.5 * (box[0][axis] + box[1][axis])) for axis in range(pdim)]
+    timestep = db.getTime()
+    for field in db.getFields():
+        query_boxes = []
+
+        # in 2D a single query for the whole bounding box is enough
+        if pdim == 2:
+            query_boxes = [(2, box)]
+
+        # in 3D I may want to create 3 queries, one for each direction
+        elif pdim == 3:
+            for axis in range(pdim):
+                p1, p2 = copy.deepcopy(box)
+                offset = center[axis]
+                p1[axis] = offset + 0
+                p2[axis] = offset + 1
+                query_boxes.append([axis, [p1, p2]])
+        else:
+            continue  # not support (ie, 4d,5d datasets)
+
+        for axis, query_box in query_boxes:
+            for data_box, data in PyQuery.read(db, access=access, timestep=timestep, field=field, logic_box=query_box,
+                                               num_refinements=1, max_pixels=PREVIEW_MAX_PIXELS):
+                # note PyQuery is already returning a 2d image  (height,width,[channel]*)
+                assert (len(data.shape) == 2 or len(data.shape) == 3)
+
+                # change filename as needed
+                filename = f'previews/preview.{int(timestep)}-{field}-{axis}.png'
+                print("Doing query", axis, "query_box", query_box, "filename", filename, "dtype", data.dtype, "shape",
+                      data.shape)
+
+                fig = plt.figure()
+
+                # special case: it's a multichannel image with only one channel: convert to single-channel
+                if len(data.shape) == 3 and data.shape[2] == 1:
+                    data = data[:, :, 0]
+
+                # single channel image, I can apply a colormap
+                if len(data.shape) == 2:
+                    data = normalize_image(data) if data.dtype != np.uint8 else data
+                    plt.imshow(data, cmap='viridis')
+                    plt.colorbar()
+
+                    # multiple channel image
+                elif len(data.shape) == 3:
+                    # I support uint8 or float32 imagres
+                    if data.dtype != np.uint8:
+                        for C in range(data.shape[2]):
+                            data[:, :, C] = normalize_image(data[:, :, C])
+
+                    # not sure if this works, in theory I can have 2,3,4,.... channels
+                    plt.imshow(data)
+                else:
+                    raise Exception("not supported")
+
+                # change as needed
+                plt.savefig(filename)
+
+    data = db.read()
+    plt.imsave(f"{ds_name}.png", data)
 
 
 if __name__ == "__main__":
@@ -61,6 +140,7 @@ if __name__ == "__main__":
                 profile = "sealstorage"
                 s3_url = f"https://maritime.sealstorage.io/api/v0/s3/{key}?profile={profile}"
                 print(f"s3_url = {s3_url}")
+                create_ds_image(s3_url, ds_name)
                 db = ov.LoadDataset(s3_url)
                 data = db.read()
                 # Remove idx file
