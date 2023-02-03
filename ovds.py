@@ -52,6 +52,7 @@ def create_ds_image(s3_url, ds_name):
     access = db.createAccessForBlockQuery()
     box = db.getLogicBox()
     pdim = db.getPointDim()
+    dimension_tag = f'{pdim}d'
     center = [int(0.5 * (box[0][axis] + box[1][axis])) for axis in range(pdim)]
     timestep = db.getTime()
     for field in db.getFields():
@@ -79,7 +80,7 @@ def create_ds_image(s3_url, ds_name):
                 assert (len(data.shape) == 2 or len(data.shape) == 3)
 
                 # change filename as needed
-                filename = f'previews/preview.{int(timestep)}-{field}-{axis}.png'
+                filename = f'{ds_name}.png'
                 print("Doing query", axis, "query_box", query_box, "filename", filename, "dtype", data.dtype, "shape",
                       data.shape)
 
@@ -109,15 +110,13 @@ def create_ds_image(s3_url, ds_name):
 
                 # change as needed
                 plt.savefig(filename)
-
-    data = db.read()
-    plt.imsave(f"{ds_name}.png", data)
+    return dimension_tag
 
 
 if __name__ == "__main__":
     c = mcapi.Client(os.getenv("MCAPI_KEY"), base_url="http://localhost:8000/api")
     proj = c.get_project(77)
-    c.set_debug_on()
+    # c.set_debug_on()
     with open('/home/gtarcea/Dropbox/transfers/datasets.yaml') as f:
         try:
             ds = yaml.safe_load(f)
@@ -130,38 +129,42 @@ if __name__ == "__main__":
                 if remote is None:
                     continue
 
-                with open("ov-template.ipynb", "r") as t:
-                    data = t.read()
-                    data = data.replace("{remote-here}", remote)
-                    with open("dataset.ipynb", "w") as out:
-                        out.write(data)
                 url = urlparse(remote)
                 key = remote[len("s3://"):]
                 profile = "sealstorage"
                 s3_url = f"https://maritime.sealstorage.io/api/v0/s3/{key}?profile={profile}"
                 print(f"s3_url = {s3_url}")
-                create_ds_image(s3_url, ds_name)
+
+                with open("ov-template.ipynb", "r") as t:
+                    data = t.read()
+                    data = data.replace("{ds-url-here}", s3_url)
+                    with open("dataset.ipynb", "w") as out:
+                        out.write(data)
+
+                ds_name = create_ds_name_from_url(url)
+                dimension_tag = create_ds_image(s3_url, ds_name)
                 db = ov.LoadDataset(s3_url)
                 data = db.read()
                 # Remove idx file
-                ds_name = create_ds_name_from_url(url)
-                plt.imsave(f"{ds_name}.png", data)
+
+                # plt.imsave(f"{ds_name}.png", data)
                 ds_dir = c.create_directory(77, ds_name, proj.root_dir.id)
-                c.upload_file(77, ds_dir.id, f"./{ds_name}.png")
+                overview_file = c.upload_file(77, ds_dir.id, f"./{ds_name}.png")
                 c.upload_file(77, ds_dir.id, "./dataset.ipynb")
                 description = f"OpenVisus Dataset\n"
                 for key, value in ds_entry.items():
-                    if key != "source" and key != "remote":
-                        if value is not dict:
-                            description += f"{key}: {value}\n"
-                        else:
-                            description += "{key}:\n"
-                            for k, v in value.items():
-                                description += f" {k}: {v}\n"
+                    if value is not dict:
+                        description += f"{key}: {value}\n"
+                    else:
+                        description += "{key}:\n"
+                        for k, v in value.items():
+                            description += f" {k}: {v}\n"
                 print(f"Creating dataset {ds_name}")
+                tags = [{"value": "OpenVisus"}, {"value": dimension_tag}]
                 ds_request = mcapi.CreateDatasetRequest(description=description,
-                                                        license="Open Database License (ODC-ODbL)")
-                # tags=[{"value": "OpenVisus"}])
+                                                        license="Open Database License (ODC-ODbL)",
+                                                        tags=tags,
+                                                        file1_id=overview_file.id)
                 created_ds = c.create_dataset(77, ds_name, ds_request)
                 file_selection = {
                     "include_files": [f"/{ds_name}/{ds_name}.png", f"/{ds_name}/dataset.ipynb"],
