@@ -1,3 +1,6 @@
+import json
+
+
 class RequestCommon(object):
     def to_dict(self):
         return {k: v for k, v in self.__dict__.items() if v is not None}
@@ -23,15 +26,29 @@ class UpdateProjectRequest(RequestCommon):
 # Dataset Requests
 class CreateDatasetRequest(RequestCommon):
     def __init__(self, description=None, summary=None, license=None, authors=None, experiments=None,
-                 communities=None, tags=None):
+                 communities=None, tags=None, file1_id=None, file2_id=None, file3_id=None, file4_id=None,
+                 file5_id=None):
         super(CreateDatasetRequest, self).__init__()
+
         self.description = description
         self.summary = summary
         self.license = license
-        self.authors = authors
         self.experiments = experiments
         self.communities = communities
+
+        self.ds_authors = authors
+        if self.ds_authors is not None:
+            self.ds_authors = json.dumps(self.ds_authors)
+
         self.tags = tags
+        if self.tags is not None:
+            self.tags = json.dumps(self.tags)
+
+        self.file1_id = file1_id
+        self.file2_id = file2_id
+        self.file3_id = file3_id
+        self.file4_id = file4_id
+        self.file5_id = file5_id
 
 
 class UpdateDatasetRequest(RequestCommon):
