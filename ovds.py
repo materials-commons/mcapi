@@ -2,6 +2,7 @@
 import copy
 import os
 import posixpath
+import time
 from urllib.parse import urlparse
 
 import OpenVisus as ov
@@ -73,43 +74,47 @@ def create_ds_image(s3_url, ds_name):
         else:
             continue  # not support (ie, 4d,5d datasets)
 
-        for axis, query_box in query_boxes:
-            for data_box, data in PyQuery.read(db, access=access, timestep=timestep, field=field, logic_box=query_box,
-                                               num_refinements=1, max_pixels=PREVIEW_MAX_PIXELS):
-                # note PyQuery is already returning a 2d image  (height,width,[channel]*)
-                assert (len(data.shape) == 2 or len(data.shape) == 3)
+        try:
+            for axis, query_box in query_boxes:
+                for data_box, data in PyQuery.read(db, access=access, timestep=timestep, field=field, logic_box=query_box,
+                                                   num_refinements=1, max_pixels=PREVIEW_MAX_PIXELS):
+                    # note PyQuery is already returning a 2d image  (height,width,[channel]*)
+                    assert (len(data.shape) == 2 or len(data.shape) == 3)
 
-                # change filename as needed
-                filename = f'{ds_name}.png'
-                print("Doing query", axis, "query_box", query_box, "filename", filename, "dtype", data.dtype, "shape",
-                      data.shape)
+                    # change filename as needed
+                    filename = f'{ds_name}.png'
+                    print("Doing query", axis, "query_box", query_box, "filename", filename, "dtype", data.dtype, "shape",
+                          data.shape)
 
-                fig = plt.figure()
+                    # fig = plt.figure()
 
-                # special case: it's a multichannel image with only one channel: convert to single-channel
-                if len(data.shape) == 3 and data.shape[2] == 1:
-                    data = data[:, :, 0]
+                    # special case: it's a multichannel image with only one channel: convert to single-channel
+                    if len(data.shape) == 3 and data.shape[2] == 1:
+                        data = data[:, :, 0]
 
-                # single channel image, I can apply a colormap
-                if len(data.shape) == 2:
-                    data = normalize_image(data) if data.dtype != np.uint8 else data
-                    plt.imshow(data, cmap='viridis')
-                    plt.colorbar()
+                    # single channel image, I can apply a colormap
+                    if len(data.shape) == 2:
+                        data = normalize_image(data) if data.dtype != np.uint8 else data
+                        plt.imshow(data, cmap='viridis')
+                        plt.colorbar()
 
-                    # multiple channel image
-                elif len(data.shape) == 3:
-                    # I support uint8 or float32 imagres
-                    if data.dtype != np.uint8:
-                        for C in range(data.shape[2]):
-                            data[:, :, C] = normalize_image(data[:, :, C])
+                        # multiple channel image
+                    elif len(data.shape) == 3:
+                        # I support uint8 or float32 imagres
+                        if data.dtype != np.uint8:
+                            for C in range(data.shape[2]):
+                                data[:, :, C] = normalize_image(data[:, :, C])
 
-                    # not sure if this works, in theory I can have 2,3,4,.... channels
-                    plt.imshow(data)
-                else:
-                    raise Exception("not supported")
+                        # not sure if this works, in theory I can have 2,3,4,.... channels
+                        plt.imshow(data)
+                    else:
+                        raise Exception("not supported")
 
-                # change as needed
-                plt.savefig(filename)
+                    # change as needed
+                    plt.savefig(filename)
+                    plt.close()
+        except:
+            return None
     return dimension_tag
 
 
@@ -117,13 +122,16 @@ if __name__ == "__main__":
     c = mcapi.Client(os.getenv("MCAPI_KEY"), base_url="http://localhost:8000/api")
     proj = c.get_project(77)
     # c.set_debug_on()
-    with open('/home/gtarcea/Dropbox/transfers/datasets.yaml') as f:
+    with open('/home/gtarcea/Dropbox/transfers/ds/datasets.yaml') as f:
         try:
             ds = yaml.safe_load(f)
             i = 0
             for ds_entry in ds:
-                if i == 1:
-                    break
+                if i == 20:
+                    time.sleep(5)
+                    i = 0
+                # if i == 1:
+                #     break
 
                 remote = ds_entry["remote"]
                 if remote is None:
@@ -135,6 +143,11 @@ if __name__ == "__main__":
                 s3_url = f"https://maritime.sealstorage.io/api/v0/s3/{key}?profile={profile}"
                 print(f"s3_url = {s3_url}")
 
+                # Some datasets are causing issues
+                if s3_url == "https://maritime.sealstorage.io/api/v0/s3/utah/openvisus-commons/1mb/visual-share/eberstrain/visus.idx?profile=sealstorage":
+                    continue
+
+                print(" ")
                 with open("ov-template.ipynb", "r") as t:
                     data = t.read()
                     data = data.replace("{ds-url-here}", s3_url)
@@ -143,14 +156,18 @@ if __name__ == "__main__":
 
                 ds_name = create_ds_name_from_url(url)
                 dimension_tag = create_ds_image(s3_url, ds_name)
-                db = ov.LoadDataset(s3_url)
-                data = db.read()
+                if dimension_tag is None:
+                    continue
+                # db = ov.LoadDataset(s3_url)
+                # data = db.read()
                 # Remove idx file
 
                 # plt.imsave(f"{ds_name}.png", data)
                 ds_dir = c.create_directory(77, ds_name, proj.root_dir.id)
                 overview_file = c.upload_file(77, ds_dir.id, f"./{ds_name}.png")
-                c.upload_file(77, ds_dir.id, "./dataset.ipynb")
+                # print(f"Uploaded image file {overview_file.id}")
+                jf = c.upload_file(77, ds_dir.id, "./dataset.ipynb")
+                # print(f"Uploaded jupyter file {jf.id}")
                 description = f"OpenVisus Dataset\n"
                 for key, value in ds_entry.items():
                     if value is not dict:
@@ -162,6 +179,7 @@ if __name__ == "__main__":
                 print(f"Creating dataset {ds_name}")
                 tags = [{"value": "OpenVisus"}, {"value": dimension_tag}]
                 ds_request = mcapi.CreateDatasetRequest(description=description,
+                                                        summary=f"OpenVisus {dimension_tag} dataset",
                                                         license="Open Database License (ODC-ODbL)",
                                                         tags=tags,
                                                         file1_id=overview_file.id)
@@ -173,8 +191,9 @@ if __name__ == "__main__":
                     "exclude_dirs": []
                 }
                 c.change_dataset_file_selection(77, created_ds.id, file_selection)
+                c.publish_dataset(77, created_ds.id)
                 os.remove(f"{ds_name}.png")
-                i = 1
+                i = i+1
         except yaml.YAMLError as e:
             print(e)
             i = 1
