@@ -37,7 +37,10 @@ def create_ds_name_from_url(url):
         else:
             ds_name += f"-{name}"
         p = posixpath.dirname(p)
-    return slugify(ds_name)
+    ds = slugify(ds_name)
+    if len(ds) > 80:
+        return ds[0:80]
+    return ds
 
 
 def normalize_image(data):
@@ -82,7 +85,7 @@ def create_ds_image(s3_url, ds_name):
                     assert (len(data.shape) == 2 or len(data.shape) == 3)
 
                     # change filename as needed
-                    filename = f'{ds_name}.png'
+                    filename = 'ds-overview.png'
                     print("Doing query", axis, "query_box", query_box, "filename", filename, "dtype", data.dtype, "shape",
                           data.shape)
 
@@ -141,13 +144,9 @@ if __name__ == "__main__":
                 key = remote[len("s3://"):]
                 profile = "sealstorage"
                 s3_url = f"https://maritime.sealstorage.io/api/v0/s3/{key}?profile={profile}"
+                print(" ")
                 print(f"s3_url = {s3_url}")
 
-                # Some datasets are causing issues
-                if s3_url == "https://maritime.sealstorage.io/api/v0/s3/utah/openvisus-commons/1mb/visual-share/eberstrain/visus.idx?profile=sealstorage":
-                    continue
-
-                print(" ")
                 with open("ov-template.ipynb", "r") as t:
                     data = t.read()
                     data = data.replace("{ds-url-here}", s3_url)
@@ -163,8 +162,10 @@ if __name__ == "__main__":
                 # Remove idx file
 
                 # plt.imsave(f"{ds_name}.png", data)
+                print(f"Creating directory '{ds_name}'")
+                print(f"project.root_dir.id = {proj.root_dir.id}")
                 ds_dir = c.create_directory(77, ds_name, proj.root_dir.id)
-                overview_file = c.upload_file(77, ds_dir.id, f"./{ds_name}.png")
+                overview_file = c.upload_file(77, ds_dir.id, "./ds-overview.png")
                 # print(f"Uploaded image file {overview_file.id}")
                 jf = c.upload_file(77, ds_dir.id, "./dataset.ipynb")
                 # print(f"Uploaded jupyter file {jf.id}")
@@ -185,14 +186,14 @@ if __name__ == "__main__":
                                                         file1_id=overview_file.id)
                 created_ds = c.create_dataset(77, ds_name, ds_request)
                 file_selection = {
-                    "include_files": [f"/{ds_name}/{ds_name}.png", f"/{ds_name}/dataset.ipynb"],
+                    "include_files": [f"/{ds_name}/ds-overview.png", f"/{ds_name}/dataset.ipynb"],
                     "exclude_files": [],
                     "include_dirs": [],
                     "exclude_dirs": []
                 }
                 c.change_dataset_file_selection(77, created_ds.id, file_selection)
                 c.publish_dataset(77, created_ds.id)
-                os.remove(f"{ds_name}.png")
+                os.remove("ds-overview.png")
                 i = i+1
         except yaml.YAMLError as e:
             print(e)
