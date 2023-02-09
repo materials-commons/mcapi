@@ -1,6 +1,8 @@
 # pycharm
 .idea/
 
+dataset.ipynb
+
 #pydoc
 *.html
 **/*.html
