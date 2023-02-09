@@ -144,6 +144,7 @@ if __name__ == "__main__":
 
                 url = urlparse(remote)
                 key = remote[len("s3://"):]
+                profile = "sealstorage"
                 s3_url = f"https://maritime.sealstorage.io/api/v0/s3/{key}"
                 print(" ")
                 print(f"s3_url = {s3_url}")
@@ -155,7 +156,8 @@ if __name__ == "__main__":
                         out.write(data)
 
                 ds_name = create_ds_name_from_url(url)
-                dimension_tag = create_ds_image(s3_url, ds_name)
+                s3_url_for_ov = f"{s3_url}?profile={profile}"
+                dimension_tag = create_ds_image(s3_url_for_ov, ds_name)
                 if dimension_tag is None:
                     continue
                 # db = ov.LoadDataset(s3_url)
