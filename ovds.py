@@ -11,6 +11,7 @@ import yaml
 from OpenVisus.pyquery import PyQuery
 from matplotlib import pyplot as plt
 from slugify import slugify
+import shutil
 
 # import requests
 # from xml.etree import ElementTree
@@ -125,6 +126,7 @@ if __name__ == "__main__":
     c = mcapi.Client(os.getenv("MCAPI_KEY"), base_url="http://localhost:8000/api")
     proj = c.get_project(77)
     # c.set_debug_on()
+    ov_cache_dir = ov.GetVisusCache()
     with open('/home/gtarcea/Dropbox/transfers/ds/datasets.yaml') as f:
         try:
             ds = yaml.safe_load(f)
@@ -142,8 +144,7 @@ if __name__ == "__main__":
 
                 url = urlparse(remote)
                 key = remote[len("s3://"):]
-                profile = "sealstorage"
-                s3_url = f"https://maritime.sealstorage.io/api/v0/s3/{key}?profile={profile}"
+                s3_url = f"https://maritime.sealstorage.io/api/v0/s3/{key}"
                 print(" ")
                 print(f"s3_url = {s3_url}")
 
@@ -194,6 +195,7 @@ if __name__ == "__main__":
                 c.change_dataset_file_selection(77, created_ds.id, file_selection)
                 c.publish_dataset(77, created_ds.id)
                 os.remove("ds-overview.png")
+                shutil.rmtree(ov_cache_dir, ignore_errors=True)
                 i = i+1
         except yaml.YAMLError as e:
             print(e)
