@@ -2,6 +2,7 @@
 import copy
 import os
 import posixpath
+import sys
 import time
 from urllib.parse import urlparse
 
@@ -52,6 +53,7 @@ def normalize_image(data):
 
 
 def create_ds_image(s3_url, ds_name):
+    print("...LoadDataset()")
     db = ov.LoadDataset(s3_url)
 
     access = db.createAccessForBlockQuery()
@@ -60,6 +62,7 @@ def create_ds_image(s3_url, ds_name):
     dimension_tag = f'{pdim}d'
     center = [int(0.5 * (box[0][axis] + box[1][axis])) for axis in range(pdim)]
     timestep = db.getTime()
+    print("...Looping through fields")
     for field in db.getFields():
         query_boxes = []
 
@@ -79,7 +82,9 @@ def create_ds_image(s3_url, ds_name):
             continue  # not support (ie, 4d,5d datasets)
 
         try:
+            print(".....Looping over query_boxes")
             for axis, query_box in query_boxes:
+                print(".......Looping over PyQuery.read()")
                 for data_box, data in PyQuery.read(db, access=access, timestep=timestep, field=field, logic_box=query_box,
                                                    num_refinements=1, max_pixels=PREVIEW_MAX_PIXELS):
                     # note PyQuery is already returning a 2d image  (height,width,[channel]*)
@@ -122,11 +127,25 @@ def create_ds_image(s3_url, ds_name):
     return dimension_tag
 
 
+def get_openvisus_community(c):
+    communities = c.get_all_public_communities()
+    for community in communities:
+        if community.name == "OpenVisus":
+            return community
+    return None
+
+
 if __name__ == "__main__":
     c = mcapi.Client(os.getenv("MCAPI_KEY"), base_url="http://localhost:8000/api")
     proj = c.get_project(77)
     # c.set_debug_on()
     ov_cache_dir = ov.GetVisusCache()
+
+    openvisus_community = get_openvisus_community(c)
+    if openvisus_community is None:
+        print("No 'OpenVisus' community found. Please create one before running this")
+        sys.exit(1)
+
     with open('/home/gtarcea/Dropbox/transfers/ds/datasets.yaml') as f:
         try:
             ds = yaml.safe_load(f)
@@ -196,6 +215,7 @@ if __name__ == "__main__":
                 }
                 c.change_dataset_file_selection(77, created_ds.id, file_selection)
                 c.publish_dataset(77, created_ds.id)
+                c.add_dataset_to_community(created_ds.id, openvisus_community.id)
                 os.remove("ds-overview.png")
                 shutil.rmtree(ov_cache_dir, ignore_errors=True)
                 i = i+1
