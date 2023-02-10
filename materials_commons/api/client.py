@@ -1595,7 +1595,7 @@ class Client(object):
         r = requests.get(url, verify=False, headers=self.headers)
         return self._handle(r)
 
-    def _post(self, urlpart, data, params=None):
+    def _post(self, urlpart, data={}, params=None):
         self._throttle()
         url = self.base_url + urlpart
         if self.log:
