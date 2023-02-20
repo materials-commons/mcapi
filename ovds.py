@@ -151,11 +151,11 @@ if __name__ == "__main__":
             ds = yaml.safe_load(f)
             i = 0
             for ds_entry in ds:
-                if i == 20:
-                    # time.sleep(5)
-                    i = 0
-                if i == 5:
-                    break
+                # if i == 20:
+                #     # time.sleep(5)
+                #     i = 0
+                # if i == 5:
+                #     break
 
                 remote = ds_entry["remote"]
                 if remote is None:
