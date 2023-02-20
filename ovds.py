@@ -152,10 +152,10 @@ if __name__ == "__main__":
             i = 0
             for ds_entry in ds:
                 if i == 20:
-                    time.sleep(5)
+                    # time.sleep(5)
                     i = 0
-                # if i == 1:
-                #     break
+                if i == 5:
+                    break
 
                 remote = ds_entry["remote"]
                 if remote is None:
@@ -165,6 +165,12 @@ if __name__ == "__main__":
                 key = remote[len("s3://"):]
                 profile = "sealstorage"
                 s3_url = f"https://maritime.sealstorage.io/api/v0/s3/{key}"
+                if s3_url == "https://maritime.sealstorage.io/api/v0/s3/utah/openvisus-commons/1mb/kflame/kflame-2ndcopy/visus.idx":
+                    continue
+
+                if s3_url == "https://maritime.sealstorage.io/api/v0/s3/utah/openvisus-commons/1mb/kflame/visus.idx":
+                    continue
+
                 print(" ")
                 print(f"s3_url = {s3_url}")
 
@@ -191,7 +197,9 @@ if __name__ == "__main__":
                 # print(f"Uploaded image file {overview_file.id}")
                 jf = c.upload_file(77, ds_dir.id, "./dataset.ipynb")
                 # print(f"Uploaded jupyter file {jf.id}")
-                description = f"OpenVisus Dataset\n"
+                description = f"OpenVisus Dataset\n\nThese datasets were imported as a part of CEDMAVs work.\n"
+                description += "If you would like to claim this dataset please send an email to Materials Commons help or"
+                description += " reach out to CEDMAV (http://cedmav.org).\n\n"
                 for key, value in ds_entry.items():
                     if value is not dict:
                         description += f"{key}: {value}\n"
@@ -200,7 +208,7 @@ if __name__ == "__main__":
                         for k, v in value.items():
                             description += f" {k}: {v}\n"
                 print(f"Creating dataset {ds_name}")
-                tags = [{"value": "OpenVisus"}, {"value": dimension_tag}]
+                tags = [{"value": "OpenVisus-Commons-Import"}, {"value": dimension_tag}, {"value": "OpenVisus"}]
                 ds_request = mcapi.CreateDatasetRequest(description=description,
                                                         summary=f"OpenVisus {dimension_tag} dataset",
                                                         license="Open Database License (ODC-ODbL)",
@@ -217,7 +225,7 @@ if __name__ == "__main__":
                 c.publish_dataset(77, created_ds.id)
                 c.add_dataset_to_community(created_ds.id, openvisus_community.id)
                 os.remove("ds-overview.png")
-                shutil.rmtree(ov_cache_dir, ignore_errors=True)
+                # shutil.rmtree(ov_cache_dir, ignore_errors=True)
                 i = i+1
         except yaml.YAMLError as e:
             print(e)
