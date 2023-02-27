@@ -52,7 +52,7 @@ def normalize_image(data):
     return (data - m) / (M - m)
 
 
-def create_ds_image(s3_url, ds_name):
+def create_ds_image(s3_url):
     print("...LoadDataset()")
     db = ov.LoadDataset(s3_url)
 
@@ -136,8 +136,10 @@ def get_openvisus_community(c):
 
 
 if __name__ == "__main__":
-    c = mcapi.Client(os.getenv("MCAPI_KEY"), base_url="http://localhost:8000/api")
-    proj = c.get_project(77)
+    # c = mcapi.Client(os.getenv("MCAPI_KEY"), base_url="http://localhost:8000/api")
+    c = mcapi.Client(os.getenv("MCAPI_KEY"))
+    # proj = c.get_project(77)
+    proj = c.get_project(772)
     # c.set_debug_on()
     ov_cache_dir = ov.GetVisusCache()
 
@@ -182,7 +184,7 @@ if __name__ == "__main__":
 
                 ds_name = create_ds_name_from_url(url)
                 s3_url_for_ov = f"{s3_url}?profile={profile}"
-                dimension_tag = create_ds_image(s3_url_for_ov, ds_name)
+                dimension_tag = create_ds_image(s3_url_for_ov)
                 if dimension_tag is None:
                     continue
                 # db = ov.LoadDataset(s3_url)
@@ -192,14 +194,14 @@ if __name__ == "__main__":
                 # plt.imsave(f"{ds_name}.png", data)
                 print(f"Creating directory '{ds_name}'")
                 print(f"project.root_dir.id = {proj.root_dir.id}")
-                ds_dir = c.create_directory(77, ds_name, proj.root_dir.id)
-                overview_file = c.upload_file(77, ds_dir.id, "./ds-overview.png")
+                ds_dir = c.create_directory(proj.id, ds_name, proj.root_dir.id)
+                overview_file = c.upload_file(proj.id, ds_dir.id, "./ds-overview.png")
                 # print(f"Uploaded image file {overview_file.id}")
-                jf = c.upload_file(77, ds_dir.id, "./dataset.ipynb")
+                jf = c.upload_file(proj.id, ds_dir.id, "./dataset.ipynb")
                 # print(f"Uploaded jupyter file {jf.id}")
                 description = f"OpenVisus Dataset\n\nThese datasets were imported as a part of CEDMAVs work.\n"
-                description += "If you would like to claim this dataset please send an email to Materials Commons help or"
-                description += " reach out to CEDMAV (http://cedmav.org).\n\n"
+                description += "If you would like to claim this dataset please send an email "
+                description += "to info@nationalsciencedatafabric.org.\n\n"
                 for key, value in ds_entry.items():
                     if value is not dict:
                         description += f"{key}: {value}\n"
@@ -214,15 +216,15 @@ if __name__ == "__main__":
                                                         license="Open Database License (ODC-ODbL)",
                                                         tags=tags,
                                                         file1_id=overview_file.id)
-                created_ds = c.create_dataset(77, ds_name, ds_request)
+                created_ds = c.create_dataset(proj.id, ds_name, ds_request)
                 file_selection = {
                     "include_files": [f"/{ds_name}/ds-overview.png", f"/{ds_name}/dataset.ipynb"],
                     "exclude_files": [],
                     "include_dirs": [],
                     "exclude_dirs": []
                 }
-                c.change_dataset_file_selection(77, created_ds.id, file_selection)
-                c.publish_dataset(77, created_ds.id)
+                c.change_dataset_file_selection(proj.id, created_ds.id, file_selection)
+                c.publish_dataset(proj.id, created_ds.id)
                 c.add_dataset_to_community(created_ds.id, openvisus_community.id)
                 os.remove("ds-overview.png")
                 # shutil.rmtree(ov_cache_dir, ignore_errors=True)
