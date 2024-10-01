@@ -108,6 +108,7 @@ class CreateEntityRequest(RequestCommon):
         self.description = description
         self.summary = summary
         self.experiment_id = experiment_id
+        self.category = "experimental"
 
 
 # Activity Requests
