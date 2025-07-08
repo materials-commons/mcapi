@@ -574,6 +574,20 @@ class Client(object):
         file = self.get_file_by_path(project_id, path.replace('\\', '/'))
         self.download_file(project_id, file.id, to)
 
+    def upload_file_to_path(self, project_id, file_path, dest_path):
+        """
+        Uploads a file to dest_path in project.
+
+        :param int project_id: The project to upload file to
+        :param str file_path: path of file to upload
+        :param str dest_path: path to upload file to
+        :return: The created file
+        :rtype: File
+        :raises MCAPIError:
+        """
+        upload_url = "/projects/" + str(project_id) + "/files/upload-to-path"
+        return File(self._upload_to_path(upload_url, file_path, dest_path))
+
     def upload_file(self, project_id, directory_id, file_path):
         """
         Uploads a file to a project.
@@ -1500,7 +1514,7 @@ class Client(object):
     def list_published_authors(self):
         """
         List all published authors.
-        
+
         :return: List of authors
         :rtype: User[]
         :raises MCAPIError:
@@ -1562,6 +1576,15 @@ class Client(object):
                 for chunk in r.iter_content(chunk_size=8192):
                     if chunk:
                         f.write(chunk)
+
+    def _upload_to_path(self, urlpart, file_path, dest_path):
+        self._throttle()
+        url = self.base_url + urlpart
+        form = {'path': dest_path}
+        with open(file_path, 'rb') as f:
+            files = {'file': f}
+            r = requests.post(url, files=files, verify=False, headers=self.headers, data=form)
+            return self._handle_with_json(r)
 
     def _upload(self, urlpart, file_path):
         self._throttle()
