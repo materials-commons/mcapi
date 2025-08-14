@@ -5,7 +5,7 @@ from materials_commons.api import __version__
 
 
 setup(
-    name='materials_commons-api',
+    name='materials_commons_api',
     version=__version__,
     description='API interface to Materials Commons',
     long_description="""This package contains the materials_commons.api module. This module is an interface
