@@ -48,5 +48,6 @@ setup(
     install_requires=[
         "requests",
         "urllib3",
+        "tuspy",
     ]
 )

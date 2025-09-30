@@ -1,4 +1,5 @@
 import logging
+import os
 import time
 from collections import OrderedDict
 
@@ -8,6 +9,7 @@ from .models import Project, Experiment, Dataset, Entity, Activity, User, File, 
     GlobusDownload, Server, Community, Tag, Searchable, GlobusTransfer, Paged
 from .query_params import QueryParams
 from .requests import *
+from tusclient import client as tus_client
 
 try:
     import http.client as http_client
@@ -21,6 +23,8 @@ try:
     urllib3.disable_warnings()
 except ImportError:
     pass
+
+_100MB = 100 * 1024 * 1024
 
 
 class MCAPIError(Exception):
@@ -57,7 +61,8 @@ class Client(object):
         Optional, defaults to True. Disable exceptions and instead let user explicitly check status.
     """
 
-    def __init__(self, apikey, base_url="https://materialscommons.org/api", raise_exception=True):
+    def __init__(self, apikey, base_url="https://materialscommons.org/api", raise_exception=True, user_id=None,
+                 tus_chunk_size=_100MB):
         self.apikey = apikey
         self.base_url = base_url
         self.log = False
@@ -72,6 +77,9 @@ class Client(object):
         self.retry_after = None
         self.r = None
         self._throttle_s = 0.0
+        self._tus_client = tus_client.TusClient(base_url + "/_tus/files", headers=self.headers)
+        self._tus_chunk_size = tus_chunk_size
+        self._user_id = user_id
 
     @staticmethod
     def get_apikey(email, password, base_url="https://materialscommons.org/api"):
@@ -587,6 +595,33 @@ class Client(object):
         """
         upload_url = "/projects/" + str(project_id) + "/files/upload-to-path"
         return File(self._upload_to_path(upload_url, file_path, dest_path))
+
+    def upload_file2(self, project_id, directory_id, file_path):
+        """
+        Uploads a file to a project.
+
+        :param int project_id: The project to upload file to
+        :param int directory_id: The directory in the project to upload the file into
+        :param str file_path: path of file to upload
+        :return: The created file
+        :rtype: File
+        :raises MCAPIError:
+        """
+
+        if self._user_id is None:
+            current_user = self.get_current_user()
+            self._user_id = current_user.id
+
+        metadata = {
+            "project_id": f"{project_id}",
+            "directory_id": f"{directory_id}",
+            "user_id": f"{self._user_id}",
+            "filename": os.path.basename(file_path),
+        }
+        uploader = self._tus_client.uploader(file_path=file_path, chunk_size=self._tus_chunk_size, retries=5,
+                                             retry_delay=5, metadata=metadata)
+        uploader.upload()
+        return uploader.url
 
     def upload_file(self, project_id, directory_id, file_path):
         """
@@ -1322,6 +1357,12 @@ class Client(object):
         :raises MCAPIError:
         """
         return User(self._get("/users/by-email/" + email, params))
+
+    def get_current_user(self, params=None):
+        """
+        Get the current user.
+        """
+        return User(self._get("/users/by-apikey/" + self.apikey, params))
 
     def list_users(self, params=None):
         """
