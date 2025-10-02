@@ -10,6 +10,7 @@ from .models import Project, Experiment, Dataset, Entity, Activity, User, File, 
 from .query_params import QueryParams
 from .requests import *
 from tusclient import client as tus_client
+from urllib.parse import urlparse
 
 try:
     import http.client as http_client
@@ -48,6 +49,11 @@ def _set_paging_params(params, starting_page, page_size):
 
     return params
 
+def _origin(url):
+    p = urlparse(url)
+    # p.netloc may already include the port; keep it if present
+    return f"{p.scheme}://{p.netloc}"
+
 
 class Client(object):
     """
@@ -61,7 +67,7 @@ class Client(object):
         Optional, defaults to True. Disable exceptions and instead let user explicitly check status.
     """
 
-    def __init__(self, apikey, base_url="https://materialscommons.org/api", raise_exception=True, user_id=None,
+    def __init__(self, apikey, base_url="https://materialscommons.org/api", raise_exception=True,
                  tus_chunk_size=_100MB):
         self.apikey = apikey
         self.base_url = base_url
@@ -77,9 +83,9 @@ class Client(object):
         self.retry_after = None
         self.r = None
         self._throttle_s = 0.0
-        self._tus_client = tus_client.TusClient(base_url + "/_tus/files", headers=self.headers)
+        base_url_without_path = _origin(base_url)
+        self._tus_client = tus_client.TusClient(base_url_without_path + "/files", headers=self.headers)
         self._tus_chunk_size = tus_chunk_size
-        self._user_id = user_id
 
     @staticmethod
     def get_apikey(email, password, base_url="https://materialscommons.org/api"):
@@ -596,26 +602,21 @@ class Client(object):
         upload_url = "/projects/" + str(project_id) + "/files/upload-to-path"
         return File(self._upload_to_path(upload_url, file_path, dest_path))
 
-    def upload_file2(self, project_id, directory_id, file_path):
+    def resumable_upload_file(self, project_id, project_directory_path, file_path):
         """
-        Uploads a file to a project.
+        Uploads a file to a project. There is no size limit for the file.
 
-        :param int project_id: The project to upload file to
-        :param int directory_id: The directory in the project to upload the file into
-        :param str file_path: path of file to upload
-        :return: The created file
-        :rtype: File
+        :param int project_id: The project to upload the file to.
+        :param str project_directory_path: The path on the server to upload the file to.
+        :param str file_path: The full path to the file to upload.
+        :return: The TUS upload URL
+        :rtype: str
         :raises MCAPIError:
         """
 
-        if self._user_id is None:
-            current_user = self.get_current_user()
-            self._user_id = current_user.id
-
         metadata = {
             "project_id": f"{project_id}",
-            "directory_id": f"{directory_id}",
-            "user_id": f"{self._user_id}",
+            "directory_path": f"{project_directory_path}",
             "filename": os.path.basename(file_path),
         }
         uploader = self._tus_client.uploader(file_path=file_path, chunk_size=self._tus_chunk_size, retries=5,

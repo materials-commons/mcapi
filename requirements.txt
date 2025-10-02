@@ -1,2 +1,3 @@
+tuspy
 requests
 urllib3
