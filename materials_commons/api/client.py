@@ -86,6 +86,11 @@ class Client(object):
         base_url_without_path = _origin(base_url)
         self._tus_client = tus_client.TusClient(base_url_without_path + "/files", headers=self.headers)
         self._tus_chunk_size = tus_chunk_size
+        tls_cert = os.getenv("MC_VERIFY_TLS_CERT")
+        if tls_cert.lower() == "false" or tls_cert.lower() == "no":
+            self._verify_tls_cert = False
+        else:
+            self._verify_tls_cert = True
 
     @staticmethod
     def get_apikey(email, password, base_url="https://materialscommons.org/api"):
@@ -602,7 +607,7 @@ class Client(object):
         upload_url = "/projects/" + str(project_id) + "/files/upload-to-path"
         return File(self._upload_to_path(upload_url, file_path, dest_path))
 
-    def resumable_upload_file(self, project_id, project_directory_path, file_path):
+    def resumable_upload_file_to_path(self, project_id, project_directory_path, file_path):
         """
         Uploads a file to a project. There is no size limit for the file.
 
@@ -619,10 +624,44 @@ class Client(object):
             "directory_path": f"{project_directory_path}",
             "filename": os.path.basename(file_path),
         }
-        uploader = self._tus_client.uploader(file_path=file_path, chunk_size=self._tus_chunk_size, retries=5,
-                                             retry_delay=5, metadata=metadata)
+
+        uploader = self._create_tus_uploader(file_path, metadata)
         uploader.upload()
+
         return uploader.url
+
+    def resumable_upload_file(self, project_id, directory_id, file_path):
+        """
+        Uploads a file to a specific directory in a project using a resumable upload approach.
+        This method handles large files by uploading them in chunks to ensure reliability
+        and to allow resumption of uploads in case of interruption.
+
+        :param int project_id: The project to upload the file to
+        :param int directory_id: The directory in the project to upload the file into
+        :param str file_path: The full path to the file to upload
+        :return: The TUS upload URL
+        :rtype: str
+        :raises MCAPIError:
+        """
+
+        metadata = {
+            "project_id": f"{project_id}",
+            "directory_id": f"{directory_id}",
+            "filename": os.path.basename(file_path),
+        }
+
+        uploader = self._create_tus_uploader(file_path, metadata)
+        uploader.upload()
+
+        return uploader.url
+
+    def _create_tus_uploader(self, file_path, metadata):
+        if self._verify_tls_cert:
+            return self._tus_client.uploader(file_path=file_path, chunk_size=self._tus_chunk_size, retries=5,
+                                             retry_delay=5, metadata=metadata)
+        else:
+            return self._tus_client.uploader(file_path=file_path, chunk_size=self._tus_chunk_size, retries=5,
+                                             retry_delay=5, metadata=metadata, verify_tls_cert=False)
 
     def upload_file(self, project_id, directory_id, file_path):
         """
@@ -1612,7 +1651,7 @@ class Client(object):
     def _download(self, urlpart, to):
         self._throttle()
         url = self.base_url + urlpart
-        with requests.get(url, stream=True, verify=False, headers=self.headers) as r:
+        with requests.get(url, stream=True, verify=self._verify_tls_cert, headers=self.headers) as r:
             self._handle(r)
             with open(to, 'wb') as f:
                 for chunk in r.iter_content(chunk_size=8192):
@@ -1625,7 +1664,7 @@ class Client(object):
         form = {'path': dest_path}
         with open(file_path, 'rb') as f:
             files = {'file': f}
-            r = requests.post(url, files=files, verify=False, headers=self.headers, data=form)
+            r = requests.post(url, files=files, verify=self._verify_tls_cert, headers=self.headers, data=form)
             return self._handle_with_json(r)
 
     def _upload(self, urlpart, file_path):
@@ -1633,14 +1672,14 @@ class Client(object):
         url = self.base_url + urlpart
         with open(file_path, 'rb') as f:
             files = [('files[]', f)]
-            r = requests.post(url, verify=False, headers=self.headers, files=files)
+            r = requests.post(url, verify=self._verify_tls_cert, headers=self.headers, files=files)
             return self._handle_with_json(r)
 
     def _upload_raw(self, urlpart, f):
         self._throttle()
         url = self.base_url + urlpart
         files = [('files[]', f)]
-        r = requests.post(url, verify=False, headers=self.headers, files=files)
+        r = requests.post(url, verify=self._verify_tls_cert, headers=self.headers, files=files)
         return self._handle_with_json(r)
 
     def _get(self, urlpart, params={}, other_params={}):
@@ -1649,7 +1688,7 @@ class Client(object):
         if self.log:
             print("GET:", url)
         params_to_use = _merge_dicts(QueryParams.to_query_args(params), other_params)
-        r = requests.get(url, params=params_to_use, verify=False, headers=self.headers)
+        r = requests.get(url, params=params_to_use, verify=self._verify_tls_cert, headers=self.headers)
         return self._handle_with_json(r)
 
     def _get_no_value(self, urlpart):
@@ -1657,7 +1696,7 @@ class Client(object):
         url = self.base_url + urlpart
         if self.log:
             print("GET:", url)
-        r = requests.get(url, verify=False, headers=self.headers)
+        r = requests.get(url, verify=self._verify_tls_cert, headers=self.headers)
         return self._handle(r)
 
     def _post(self, urlpart, data={}, params=None):
@@ -1666,7 +1705,7 @@ class Client(object):
         if self.log:
             print("POST:", url)
         data = OrderedDict(data)
-        r = requests.post(url, json=data, verify=False, headers=self.headers, params=params)
+        r = requests.post(url, json=data, verify=self._verify_tls_cert, headers=self.headers, params=params)
         return self._handle_with_json(r)
 
     def _put(self, urlpart, data):
@@ -1675,7 +1714,7 @@ class Client(object):
         if self.log:
             print("PUT:", url)
         data = OrderedDict(data)
-        r = requests.put(url, json=data, verify=False, headers=self.headers)
+        r = requests.put(url, json=data, verify=self._verify_tls_cert, headers=self.headers)
         return self._handle_with_json(r)
 
     def _delete(self, urlpart, params=None):
@@ -1683,7 +1722,7 @@ class Client(object):
         url = self.base_url + urlpart
         if self.log:
             print("DELETE:", url)
-        r = requests.delete(url, verify=False, params=params, headers=self.headers)
+        r = requests.delete(url, verify=self._verify_tls_cert, params=params, headers=self.headers)
         self._handle(r)
 
     def _delete_with_value(self, urlpart):
@@ -1691,7 +1730,7 @@ class Client(object):
         url = self.base_url + urlpart
         if self.log:
             print("DELETE:", url)
-        r = requests.delete(url, verify=False, headers=self.headers)
+        r = requests.delete(url, verify=self._verify_tls_cert, headers=self.headers)
         return self._handle_with_json(r)
 
     def _handle(self, r):
