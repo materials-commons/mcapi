@@ -50,6 +50,7 @@ def _set_paging_params(params, starting_page, page_size):
 
     return params
 
+
 def _origin(url):
     p = urlparse(url)
     # p.netloc may already include the port; keep it if present
@@ -632,7 +633,7 @@ class Client(object):
 
         return uploader.url
 
-    def resumable_upload_file(self, project_id, directory_id, file_path, show_progress = False, url = None):
+    def resumable_upload_file(self, project_id, directory_id, file_path, show_progress=False, url=None):
         """
         Uploads a file to a specific directory in a project using a resumable upload approach.
         This method handles large files by uploading them in chunks to ensure reliability
@@ -641,27 +642,30 @@ class Client(object):
         :param int project_id: The project to upload the file to
         :param int directory_id: The directory in the project to upload the file into
         :param str file_path: The full path to the file to upload
+        :param bool show_progress: If True, shows a progress bar
+        :param str url: The URL to use for uploading. If None, the URL will be generated automatically
         :return: The TUS upload URL
         :rtype: str
         :raises MCAPIError:
         """
+        filename = os.path.basename(file_path)
         metadata = {
             "project_id": f"{project_id}",
             "directory_id": f"{directory_id}",
-            "filename": os.path.basename(file_path),
+            "filename": filename,
         }
 
-        uploader = self._tus_client.uploader(file_path=file_path, chunk_size=self._tus_chunk_size, retries=5, url = url,
+        uploader = self._tus_client.uploader(file_path=file_path, chunk_size=self._tus_chunk_size, retries=5, url=url,
                                              retry_delay=5, metadata=metadata, verify_tls_cert=self._verify_tls_cert)
 
         if show_progress:
-            pass
+            self._upload_to_tus_with_progress(uploader, filename)
         else:
             uploader.upload()
 
         return uploader.url
 
-    def resumable_upload_file_stream(self, project_id, directory_id, filename, file_stream):
+    def resumable_upload_file_stream(self, project_id, directory_id, filename, file_stream, show_progress=False, url=None):
         """
         Uploads a file to a specific directory in a project using a resumable upload approach.
         This method handles large files by uploading them in chunks to ensure reliability
@@ -671,6 +675,8 @@ class Client(object):
         :param int directory_id: The directory in the project to upload the file into
         :param str filename: The name of the file to upload
         :param obj file_stream: The file stream to upload
+        :param bool show_progress: If True, shows a progress bar
+        :param str url: The URL to use for uploading. If None, the URL will be generated automatically
         :return: The TUS upload URL
         :rtype: str
         :raises MCAPIError:
@@ -683,17 +689,45 @@ class Client(object):
 
         uploader = self._tus_client.uploader(file_stream=file_stream, chunk_size=self._tus_chunk_size, retries=5,
                                              retry_delay=5, metadata=metadata, verify_tls_cert=self._verify_tls_cert)
-        uploader.upload()
+        if show_progress:
+            self._upload_to_tus_with_progress(uploader, filename)
+        else:
+            uploader.upload()
 
         return uploader.url
 
-    def _upload_to_tus_with_progress(self, uploader):
+    def _upload_to_tus_with_progress(self, uploader, filename):
         """
         Uploads a file to a project using TUS protocol with progress reporting.
         """
 
-        progress_thread = threading.Thread()
+        progress_thread = threading.Thread(target=self._progress_bar_thread, args=(uploader.url, filename), daemon=True)
+        progress_thread.start()
         uploader.upload()
+        progress_thread.join()
+        return uploader.url
+
+    def _progress_bar_thread(self, url, filename):
+        """
+        Updates the progress bar with the current upload progress.
+        """
+        resp = requests.head(url, verify=self._verify_tls_cert)
+        resp.raise_for_status()
+        total = int(resp.headers["Upload-Length"])
+        pbar = tqdm(total=total, unit="KB", desc=f"Uploading {filename}")
+        last = 0
+        try:
+            while True:
+                resp = requests.head(url, verify=self._verify_tls_cert)
+                resp.raise_for_status()
+                offset = int(resp.headers["Upload-Offset"])
+                pbar.update(max(0, offset - last))
+                last = offset
+                if offset >= total:
+                    break
+                time.sleep(0.5)
+        finally:
+            pbar.close()
 
     def upload_file(self, project_id, directory_id, file_path):
         """
