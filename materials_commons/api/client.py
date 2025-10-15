@@ -12,6 +12,8 @@ from .requests import *
 from tusclient import client as tus_client
 from urllib.parse import urlparse
 import sys
+from tqdm import tqdm
+import threading
 
 try:
     import http.client as http_client
@@ -630,7 +632,7 @@ class Client(object):
 
         return uploader.url
 
-    def resumable_upload_file(self, project_id, directory_id, file_path):
+    def resumable_upload_file(self, project_id, directory_id, file_path, show_progress = False, url = None):
         """
         Uploads a file to a specific directory in a project using a resumable upload approach.
         This method handles large files by uploading them in chunks to ensure reliability
@@ -649,9 +651,13 @@ class Client(object):
             "filename": os.path.basename(file_path),
         }
 
-        uploader = self._tus_client.uploader(file_path=file_path, chunk_size=self._tus_chunk_size, retries=5,
+        uploader = self._tus_client.uploader(file_path=file_path, chunk_size=self._tus_chunk_size, retries=5, url = url,
                                              retry_delay=5, metadata=metadata, verify_tls_cert=self._verify_tls_cert)
-        uploader.upload()
+
+        if show_progress:
+            pass
+        else:
+            uploader.upload()
 
         return uploader.url
 
@@ -680,6 +686,14 @@ class Client(object):
         uploader.upload()
 
         return uploader.url
+
+    def _upload_to_tus_with_progress(self, uploader):
+        """
+        Uploads a file to a project using TUS protocol with progress reporting.
+        """
+
+        progress_thread = threading.Thread()
+        uploader.upload()
 
     def upload_file(self, project_id, directory_id, file_path):
         """
