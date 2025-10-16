@@ -47,7 +47,6 @@ setup(
     keywords='materials science mc materials-commons prisms',
     install_requires=[
         "requests>=2.32.5",
-        "urllib3>=2.5.0",
         "tuspy>=1.1.0",
     ]
 )
