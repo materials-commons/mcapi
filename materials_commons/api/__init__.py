@@ -1,4 +1,4 @@
-__version__ = '2.1.0'
+__version__ = '2.1.1'
 from .client import Client, MCAPIError
 from .models import Project, Activity, Dataset, Entity, Experiment, File, User, Workflow, GlobusTransfer, GlobusUpload, \
     GlobusDownload, Paged

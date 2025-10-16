@@ -12,7 +12,6 @@ from .requests import *
 from tusclient import client as tus_client
 from urllib.parse import urlparse
 import sys
-from tqdm import tqdm
 import threading
 
 try:
@@ -701,33 +700,30 @@ class Client(object):
         Uploads a file to a project using TUS protocol with progress reporting.
         """
 
-        progress_thread = threading.Thread(target=self._progress_bar_thread, args=(uploader.url, filename), daemon=True)
+        stop_event = threading.Event()
+        progress_thread = threading.Thread(target=self._dot_printer_thread, args=(uploader, stop_event), daemon=True)
         progress_thread.start()
+        print(f"Uploading: {filename} ", end='', flush=True)
         uploader.upload()
+        stop_event.set()
         progress_thread.join()
+        print()  # Print newline after dots
         return uploader.url
 
-    def _progress_bar_thread(self, url, filename):
+    def _dot_printer_thread(self, uploader, stop_event):
         """
-        Updates the progress bar with the current upload progress.
+        Prints dots while upload is in progress.
         """
-        resp = requests.head(url, verify=self._verify_tls_cert)
-        resp.raise_for_status()
-        total = int(resp.headers["Upload-Length"])
-        pbar = tqdm(total=total, unit="KB", desc=f"Uploading {filename}")
-        last = 0
-        try:
-            while True:
-                resp = requests.head(url, verify=self._verify_tls_cert)
-                resp.raise_for_status()
-                offset = int(resp.headers["Upload-Offset"])
-                pbar.update(max(0, offset - last))
-                last = offset
-                if offset >= total:
-                    break
-                time.sleep(0.5)
-        finally:
-            pbar.close()
+
+        while uploader.url is None and not stop_event.is_set():
+            time.sleep(0.1)
+
+        if stop_event.is_set():
+            return
+
+        while not stop_event.is_set():
+            print('.', end='', flush=True)
+            time.sleep(2)
 
     def upload_file(self, project_id, directory_id, file_path):
         """

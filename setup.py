@@ -49,6 +49,5 @@ setup(
         "requests>=2.32.5",
         "urllib3>=2.5.0",
         "tuspy>=1.1.0",
-        "tqdm>=4.67.1",
     ]
 )
