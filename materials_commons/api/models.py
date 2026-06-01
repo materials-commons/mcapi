@@ -552,7 +552,9 @@ class Project(Common):
 
     @staticmethod
     def from_list(data):
-        return from_list(Project, data)
+        if data:
+            return from_list(Project, data)
+        return None
 
     @staticmethod
     def from_list_attr(data, attr='projects'):

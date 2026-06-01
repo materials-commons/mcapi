@@ -2,6 +2,7 @@ import logging
 import os
 import time
 from collections import OrderedDict
+from urllib.parse import urlparse
 
 import requests
 
@@ -9,10 +10,6 @@ from .models import Project, Experiment, Dataset, Entity, Activity, User, File, 
     GlobusDownload, Server, Community, Tag, Searchable, GlobusTransfer, Paged
 from .query_params import QueryParams
 from .requests import *
-from tusclient import client as tus_client
-from urllib.parse import urlparse
-import sys
-import threading
 
 try:
     import http.client as http_client
@@ -56,6 +53,12 @@ def _origin(url):
     return f"{p.scheme}://{p.netloc}"
 
 
+def _model_or_none(cls, data):
+    if data:
+        return cls(data)
+    return None
+
+
 class Client(object):
     """
     The API Client instance for using the Materials Commons REST API.
@@ -68,8 +71,7 @@ class Client(object):
         Optional, defaults to True. Disable exceptions and instead let user explicitly check status.
     """
 
-    def __init__(self, apikey, base_url="https://materialscommons.org/api", raise_exception=True,
-                 tus_chunk_size=sys.maxsize):
+    def __init__(self, apikey, base_url="https://materialscommons.org/api", raise_exception=True):
         self.apikey = apikey
         self.base_url = base_url
         self.log = False
@@ -84,9 +86,6 @@ class Client(object):
         self.retry_after = None
         self.r = None
         self._throttle_s = 0.0
-        base_url_without_path = _origin(base_url)
-        self._tus_client = tus_client.TusClient(base_url_without_path + "/files", headers=self.headers)
-        self._tus_chunk_size = tus_chunk_size
         tls_cert = os.getenv("MC_VERIFY_TLS_CERT")
         if tls_cert is None or tls_cert.lower() == "false" or tls_cert.lower() == "no":
             self._verify_tls_cert = False
@@ -157,7 +156,7 @@ class Client(object):
         :return: server information
         :rtype: Server
         """
-        return Server(self._get("/server/info"))
+        return _model_or_none(Server, self._get("/server/info"))
 
     # Projects
     def get_all_projects(self, params=None):
@@ -190,7 +189,7 @@ class Client(object):
         if not attrs:
             attrs = CreateProjectRequest()
         form = _merge_dicts({"name": name}, attrs.to_dict())
-        return Project(self._post("/projects", form))
+        return _model_or_none(Project, self._post("/projects", form))
 
     def get_project(self, project_id, params=None):
         """
@@ -202,7 +201,7 @@ class Client(object):
         :rtype: Project
         :raises MCAPIError:
         """
-        return Project(self._get("/projects/" + str(project_id), params))
+        return _model_or_none(Project, self._get("/projects/" + str(project_id), params))
 
     def delete_project(self, project_id):
         """
@@ -223,7 +222,7 @@ class Client(object):
         :rtype: Project
         :raises MCAPIError:
         """
-        return Project(self._put("/projects/" + str(project_id), attrs.to_dict()))
+        return _model_or_none(Project, self._put("/projects/" + str(project_id), attrs.to_dict()))
 
     def add_user_to_project(self, project_id, user_id):
         """
@@ -235,7 +234,7 @@ class Client(object):
         :rtype: Project
         :raises MCAPIError:
         """
-        return Project(self._put("/projects/" + str(project_id) + "/add-user/" + str(user_id), {}))
+        return _model_or_none(Project, self._put("/projects/" + str(project_id) + "/add-user/" + str(user_id), {}))
 
     def remove_user_from_project(self, project_id, user_id):
         """
@@ -247,7 +246,7 @@ class Client(object):
         :rtype: Project
         :raises MCAPIError:
         """
-        return Project(self._put("/projects/" + str(project_id) + "/remove-user/" + str(user_id), {}))
+        return _model_or_none(Project, self._put("/projects/" + str(project_id) + "/remove-user/" + str(user_id), {}))
 
     def add_admin_to_project(self, project_id, user_id):
         """
@@ -259,7 +258,7 @@ class Client(object):
         :rtype: Project
         :raises MCAPIError:
         """
-        return Project(self._put("/projects/" + str(project_id) + "/add-admin/" + str(user_id), {}))
+        return _model_or_none(Project, self._put("/projects/" + str(project_id) + "/add-admin/" + str(user_id), {}))
 
     def remove_admin_from_project(self, project_id, user_id):
         """
@@ -271,7 +270,7 @@ class Client(object):
         :rtype: Project
         :raises MCAPIError:
         """
-        return Project(self._put("/projects/" + str(project_id) + "/remove-admin/" + str(user_id), {}))
+        return _model_or_none(Project, self._put("/projects/" + str(project_id) + "/remove-admin/" + str(user_id), {}))
 
     # Experiments
     def get_all_experiments(self, project_id, params=None):
@@ -296,7 +295,7 @@ class Client(object):
         :rtype: Experiment
         :raises MCAPIError:
         """
-        return Experiment(self._get("/experiments/" + str(experiment_id), params))
+        return _model_or_none(Experiment, self._get("/experiments/" + str(experiment_id), params))
 
     def update_experiment(self, experiment_id, attrs):
         """
@@ -309,7 +308,7 @@ class Client(object):
         :raises MCAPIError:
         """
         form = _merge_dicts({"experiment_id": experiment_id}, attrs.to_dict())
-        return Experiment(self._put("/experiments/" + str(experiment_id), form))
+        return _model_or_none(Experiment, self._put("/experiments/" + str(experiment_id), form))
 
     def delete_experiment(self, project_id, experiment_id):
         """
@@ -335,7 +334,7 @@ class Client(object):
         if not attrs:
             attrs = CreateExperimentRequest()
         form = _merge_dicts({"project_id": project_id, "name": name}, attrs.to_dict())
-        return Experiment(self._post("/experiments", form))
+        return _model_or_none(Experiment, self._post("/experiments", form))
 
     def update_experiment_workflows(self, project_id, experiment_id, workflow_id):
         """
@@ -349,7 +348,8 @@ class Client(object):
         :raises MCAPIError:
         """
         form = {"project_id": project_id, "workflow_id": workflow_id}
-        return Experiment(self._put("/experiments/" + str(experiment_id) + "/workflows/selection", form))
+        return _model_or_none(Experiment,
+                              self._put("/experiments/" + str(experiment_id) + "/workflows/selection", form))
 
     # Directories
     def get_directory(self, project_id, directory_id, params=None):
@@ -363,7 +363,8 @@ class Client(object):
         :rtype: File
         :raises MCAPIError:
         """
-        return File(self._get("/projects/" + str(project_id) + "/directories/" + str(directory_id), params))
+        return _model_or_none(File,
+                              self._get("/projects/" + str(project_id) + "/directories/" + str(directory_id), params))
 
     def list_directory(self, project_id, directory_id, params=None):
         """
@@ -409,7 +410,7 @@ class Client(object):
             attrs = CreateDirectoryRequest()
         form = {"name": name, "directory_id": parent_id, "project_id": project_id}
         form = _merge_dicts(form, attrs.to_dict())
-        return File(self._post("/directories", form))
+        return _model_or_none(File, self._post("/directories", form))
 
     def move_directory(self, project_id, directory_id, to_directory_id):
         """
@@ -423,7 +424,7 @@ class Client(object):
         :raises MCAPIError:
         """
         form = {"to_directory_id": to_directory_id, "project_id": project_id}
-        return File(self._post("/directories/" + str(directory_id) + "/move", form))
+        return _model_or_none(File, self._post("/directories/" + str(directory_id) + "/move", form))
 
     def rename_directory(self, project_id, directory_id, name):
         """
@@ -437,7 +438,7 @@ class Client(object):
         :raises MCAPIError:
         """
         form = {"name": name, "project_id": project_id}
-        return File(self._post("/directories/" + str(directory_id) + "/rename", form))
+        return _model_or_none(File, self._post("/directories/" + str(directory_id) + "/rename", form))
 
     def delete_directory(self, project_id, directory_id):
         """
@@ -461,7 +462,7 @@ class Client(object):
         :raises MCAPIError:
         """
         form = _merge_dicts({"project_id": project_id}, attrs.to_dict())
-        return File(self._put("/directories/" + str(directory_id), form))
+        return _model_or_none(File, self._put("/directories/" + str(directory_id), form))
 
     # Files
     def get_file(self, project_id, file_id, params=None):
@@ -475,7 +476,7 @@ class Client(object):
         :rtype: File
         :raises MCAPIError:
         """
-        return File(self._get("/projects/" + str(project_id) + "/files/" + str(file_id), params))
+        return _model_or_none(File, self._get("/projects/" + str(project_id) + "/files/" + str(file_id), params))
 
     def get_file_versions(self, project_id, file_id, params=None):
         """
@@ -501,7 +502,8 @@ class Client(object):
         :rtype: File
         :raises MCAPIError:
         """
-        return File(self._put("/projects/" + str(project_id) + "/files/" + str(file_id) + "/make_active", {}))
+        return _model_or_none(File,
+                              self._put("/projects/" + str(project_id) + "/files/" + str(file_id) + "/make_active", {}))
 
     def get_file_by_path(self, project_id, file_path):
         """
@@ -514,7 +516,7 @@ class Client(object):
         :raises MCAPIError:
         """
         form = {"path": file_path.replace('\\', '/'), "project_id": project_id}
-        return File(self._post("/files/by_path", form))
+        return _model_or_none(File, self._post("/files/by_path", form))
 
     def update_file(self, project_id, file_id, attrs):
         """
@@ -528,7 +530,7 @@ class Client(object):
         :raises MCAPIError:
         """
         form = _merge_dicts({"project_id", project_id}, attrs.to_dict())
-        return File(self._put("/files/" + str(file_id), form))
+        return _model_or_none(File, self._put("/files/" + str(file_id), form))
 
     def delete_file(self, project_id, file_id, force=False):
         """
@@ -555,7 +557,7 @@ class Client(object):
         :raises MCAPIError:
         """
         form = {"directory_id": to_directory_id, "project_id": project_id}
-        return File(self._post("/files/" + str(file_id) + "/move", form))
+        return _model_or_none(File, self._post("/files/" + str(file_id) + "/move", form))
 
     def rename_file(self, project_id, file_id, name):
         """
@@ -569,7 +571,7 @@ class Client(object):
         :raises MCAPIError:
         """
         form = {"name": name, "project_id": project_id}
-        return File(self._post("/files/" + str(file_id) + "/rename", form))
+        return _model_or_none(File, self._post("/files/" + str(file_id) + "/rename", form))
 
     def download_file(self, project_id, file_id, to):
         """
@@ -606,124 +608,7 @@ class Client(object):
         :raises MCAPIError:
         """
         upload_url = "/projects/" + str(project_id) + "/files/upload-to-path"
-        return File(self._upload_to_path(upload_url, file_path, dest_path))
-
-    def resumable_upload_file_to_path(self, project_id, project_directory_path, file_path):
-        """
-        Uploads a file to a project. There is no size limit for the file.
-
-        :param int project_id: The project to upload the file to.
-        :param str project_directory_path: The path on the server to upload the file to.
-        :param str file_path: The full path to the file to upload.
-        :return: The TUS upload URL
-        :rtype: str
-        :raises MCAPIError:
-        """
-
-        metadata = {
-            "project_id": f"{project_id}",
-            "directory_path": f"{project_directory_path}",
-            "filename": os.path.basename(file_path),
-        }
-
-        uploader = self._tus_client.uploader(file_path=file_path, chunk_size=self._tus_chunk_size, retries=5,
-                                             retry_delay=5, metadata=metadata, verify_tls_cert=self._verify_tls_cert)
-        uploader.upload()
-
-        return uploader.url
-
-    def resumable_upload_file(self, project_id, directory_id, file_path, show_progress=False, url=None):
-        """
-        Uploads a file to a specific directory in a project using a resumable upload approach.
-        This method handles large files by uploading them in chunks to ensure reliability
-        and to allow resumption of uploads in case of interruption.
-
-        :param int project_id: The project to upload the file to
-        :param int directory_id: The directory in the project to upload the file into
-        :param str file_path: The full path to the file to upload
-        :param bool show_progress: If True, shows a progress bar
-        :param str url: The URL to use for uploading. If None, the URL will be generated automatically
-        :return: The TUS upload URL
-        :rtype: str
-        :raises MCAPIError:
-        """
-        filename = os.path.basename(file_path)
-        metadata = {
-            "project_id": f"{project_id}",
-            "directory_id": f"{directory_id}",
-            "filename": filename,
-        }
-
-        uploader = self._tus_client.uploader(file_path=file_path, chunk_size=self._tus_chunk_size, retries=5, url=url,
-                                             retry_delay=5, metadata=metadata, verify_tls_cert=self._verify_tls_cert)
-
-        if show_progress:
-            self._upload_to_tus_with_progress(uploader, filename)
-        else:
-            uploader.upload()
-
-        return uploader.url
-
-    def resumable_upload_file_stream(self, project_id, directory_id, filename, file_stream, show_progress=False, url=None):
-        """
-        Uploads a file to a specific directory in a project using a resumable upload approach.
-        This method handles large files by uploading them in chunks to ensure reliability
-        and to allow resumption of uploads in case of interruption.
-
-        :param int project_id: The project to upload the file to
-        :param int directory_id: The directory in the project to upload the file into
-        :param str filename: The name of the file to upload
-        :param obj file_stream: The file stream to upload
-        :param bool show_progress: If True, shows a progress bar
-        :param str url: The URL to use for uploading. If None, the URL will be generated automatically
-        :return: The TUS upload URL
-        :rtype: str
-        :raises MCAPIError:
-        """
-        metadata = {
-            "project_id": f"{project_id}",
-            "directory_id": f"{directory_id}",
-            "filename": filename,
-        }
-
-        uploader = self._tus_client.uploader(file_stream=file_stream, chunk_size=self._tus_chunk_size, retries=5,
-                                             retry_delay=5, metadata=metadata, verify_tls_cert=self._verify_tls_cert)
-        if show_progress:
-            self._upload_to_tus_with_progress(uploader, filename)
-        else:
-            uploader.upload()
-
-        return uploader.url
-
-    def _upload_to_tus_with_progress(self, uploader, filename):
-        """
-        Uploads a file to a project using TUS protocol with progress reporting.
-        """
-
-        stop_event = threading.Event()
-        progress_thread = threading.Thread(target=self._dot_printer_thread, args=(uploader, stop_event), daemon=True)
-        progress_thread.start()
-        print(f"Uploading: {filename} ", end='', flush=True)
-        uploader.upload()
-        stop_event.set()
-        progress_thread.join()
-        print()  # Print newline after dots
-        return uploader.url
-
-    def _dot_printer_thread(self, uploader, stop_event):
-        """
-        Prints dots while upload is in progress.
-        """
-
-        while uploader.url is None and not stop_event.is_set():
-            time.sleep(0.1)
-
-        if stop_event.is_set():
-            return
-
-        while not stop_event.is_set():
-            print('.', end='', flush=True)
-            time.sleep(2)
+        return _model_or_none(File, self._upload_to_path(upload_url, file_path, dest_path))
 
     def upload_file(self, project_id, directory_id, file_path):
         """
@@ -738,13 +623,17 @@ class Client(object):
         """
         files = File.from_list(
             self._upload("/projects/" + str(project_id) + "/files/" + str(directory_id) + "/upload", file_path))
-        return files[0]
+        if files:
+            return files[0]
+        return None
 
     def upload_bytes(self, project_id, directory_id, name, f):
         files = File.from_list(
             self._upload_raw("/projects/" + str(project_id) + "/files/" + str(directory_id) + "/upload/" + str(name),
                              f))
-        return files[0]
+        if files:
+            return files[0]
+        return None
 
     def list_files_changed_since(self, project_id, since, starting_page=None, page_size=None):
         """
@@ -802,7 +691,7 @@ class Client(object):
         :rtype: Entity
         :raises MCAPIError:
         """
-        return Entity(self._get("/projects/" + str(project_id) + "/entities/" + str(entity_id), params))
+        return _model_or_none(Entity, self._get("/projects/" + str(project_id) + "/entities/" + str(entity_id), params))
 
     def create_entity(self, project_id, name, activity_id, request=None, attrs=None):
         """
@@ -827,7 +716,7 @@ class Client(object):
             "attributes": attrs,
             "activity_id": activity_id,
         }, request.to_dict())
-        return Entity(self._post("/entities", form))
+        return _model_or_none(Entity, self._post("/entities", form))
 
     def delete_entity(self, project_id, entity_id):
         """
@@ -854,8 +743,9 @@ class Client(object):
         if not attrs:
             attrs = []
         form = {"current": current, "attributes": attrs}
-        return Entity(self._post("/projects/" + str(project_id) + "/entities/" + str(entity_id) + "/activities/" + str(
-            activity_id) + "/create-entity-state", form))
+        return _model_or_none(Entity, self._post(
+            "/projects/" + str(project_id) + "/entities/" + str(entity_id) + "/activities/" + str(
+                activity_id) + "/create-entity-state", form))
 
     # Activities
     def get_all_activities(self, project_id, params=None):
@@ -881,7 +771,8 @@ class Client(object):
         :rtype: Activity
         :raises MCAPIError:
         """
-        return Activity(self._get("/projects/" + str(project_id) + "/activities/" + str(activity_id), params))
+        return _model_or_none(Activity,
+                              self._get("/projects/" + str(project_id) + "/activities/" + str(activity_id), params))
 
     def create_activity(self, project_id, name, request=None, attrs=None):
         """
@@ -900,7 +791,7 @@ class Client(object):
         if not attrs:
             attrs = []
         form = _merge_dicts({"project_id": project_id, "name": name, "attributes": attrs}, request.to_dict())
-        return Activity(self._post("/activities", form))
+        return _model_or_none(Activity, self._post("/activities", form))
 
     def delete_activity(self, project_id, activity_id):
         """
@@ -972,7 +863,9 @@ class Client(object):
         :rtype: File
         :raises MCAPIError:
         """
-        return File(self._get("/published/datasets/" + str(dataset_id) + "/directories/" + str(directory_id), params))
+        return _model_or_none(File,
+                              self._get("/published/datasets/" + str(dataset_id) + "/directories/" + str(directory_id),
+                                        params))
 
     def list_published_dataset_directory(self, dataset_id, directory_id, params=None):
         """
@@ -1072,7 +965,8 @@ class Client(object):
         :rtype: Dataset
         :raises MCAPIError:
         """
-        return Dataset(self._get("/projects/" + str(project_id) + "/datasets/" + str(dataset_id), params))
+        return _model_or_none(Dataset,
+                              self._get("/projects/" + str(project_id) + "/datasets/" + str(dataset_id), params))
 
     def get_dataset_files(self, project_id, dataset_id, params=None):
         """
@@ -1147,7 +1041,7 @@ class Client(object):
         """
         form = {"project_id": project_id}
         form = _merge_dicts(form, file_selection)
-        return Dataset(self._put("/datasets/" + str(dataset_id) + "/selection", form))
+        return _model_or_none(Dataset, self._put("/datasets/" + str(dataset_id) + "/selection", form))
 
     def change_dataset_file_selection(self, project_id, dataset_id, file_selection):
         """
@@ -1165,7 +1059,8 @@ class Client(object):
         :raises MCAPIError:
         :return: The updated Dataset
         """
-        return Dataset(
+        return _model_or_none(
+            Dataset,
             self._put("/projects/" + str(project_id) + "/datasets/" + str(dataset_id) + "/change_file_selection",
                       file_selection))
 
@@ -1181,7 +1076,7 @@ class Client(object):
         :raises MCAPIError:
         """
         form = {"project_id": project_id, "activity_id": activity_id}
-        return Dataset(self._put("/datasets/" + str(dataset_id) + "/activities/selection", form))
+        return _model_or_none(Dataset, self._put("/datasets/" + str(dataset_id) + "/activities/selection", form))
 
     def update_dataset_entities(self, project_id, dataset_id, entity_id):
         """
@@ -1195,7 +1090,7 @@ class Client(object):
         :raises MCAPIError:
         """
         form = {"project_id": project_id, "entity_id": entity_id}
-        return Dataset(self._put("/datasets/" + str(dataset_id) + "/entities", form))
+        return _model_or_none(Dataset, self._put("/datasets/" + str(dataset_id) + "/entities", form))
 
     def update_dataset_workflows(self, project_id, dataset_id, workflow_id):
         """
@@ -1209,7 +1104,7 @@ class Client(object):
         :raises MCAPIError:
         """
         form = {"project_id": project_id, "workflow_id": workflow_id}
-        return Dataset(self._put("/datasets/" + str(dataset_id) + "/workflows", form))
+        return _model_or_none(Dataset, self._put("/datasets/" + str(dataset_id) + "/workflows", form))
 
     def publish_dataset(self, project_id, dataset_id):
         """
@@ -1222,7 +1117,7 @@ class Client(object):
         :raises MCAPIError:
         """
         form = {"project_id": project_id}
-        return Dataset(self._put("/datasets/" + str(dataset_id) + "/publish", form))
+        return _model_or_none(Dataset, self._put("/datasets/" + str(dataset_id) + "/publish", form))
 
     def unpublish_dataset(self, project_id, dataset_id):
         """
@@ -1235,7 +1130,7 @@ class Client(object):
         :raises MCAPIError:
         """
         form = {"project_id": project_id}
-        return Dataset(self._put("/datasets/" + str(dataset_id) + "/unpublish", form))
+        return _model_or_none(Dataset, self._put("/datasets/" + str(dataset_id) + "/unpublish", form))
 
     def create_dataset(self, project_id, name, attrs=None):
         """
@@ -1251,7 +1146,7 @@ class Client(object):
         if not attrs:
             attrs = CreateDatasetRequest()
         form = _merge_dicts({"name": name}, attrs.to_dict())
-        return Dataset(self._post("/projects/" + str(project_id) + "/datasets", form))
+        return _model_or_none(Dataset, self._post("/projects/" + str(project_id) + "/datasets", form))
 
     def update_dataset(self, project_id, dataset_id, name, attrs=None):
         """
@@ -1268,7 +1163,7 @@ class Client(object):
         if not attrs:
             attrs = UpdateDatasetRequest()
         form = _merge_dicts({"name": name}, attrs.to_dict())
-        return Dataset(self._put("/projects/" + str(project_id) + "/datasets/" + str(dataset_id), form))
+        return _model_or_none(Dataset, self._put("/projects/" + str(project_id) + "/datasets/" + str(dataset_id), form))
 
     def assign_doi_to_dataset(self, project_id, dataset_id):
         """
@@ -1280,7 +1175,9 @@ class Client(object):
         :rtype: Dataset
         :raises MCAPIError:
         """
-        return Dataset(self._put("/projects/" + str(project_id) + "/datasets/" + str(dataset_id) + "/assign_doi", {}))
+        return _model_or_none(Dataset,
+                              self._put("/projects/" + str(project_id) + "/datasets/" + str(dataset_id) + "/assign_doi",
+                                        {}))
 
     def download_published_dataset_zipfile(self, dataset_id, to):
         """
@@ -1342,7 +1239,7 @@ class Client(object):
         :raises MCAPIError:
         """
         form = {"project_id": project_id, "name": name}
-        return GlobusUpload(self._post("/globus/uploads", form))
+        return _model_or_none(GlobusUpload, self._post("/globus/uploads", form))
 
     def delete_globus_upload_request(self, project_id, globus_upload_id):
         """
@@ -1365,7 +1262,7 @@ class Client(object):
         :raises MCAPIError:
         """
         form = {"project_id": project_id}
-        return GlobusUpload(self._put("/globus/" + str(globus_upload_id) + "/uploads/complete", form))
+        return _model_or_none(GlobusUpload, self._put("/globus/" + str(globus_upload_id) + "/uploads/complete", form))
 
     def get_all_globus_upload_requests(self, project_id, params=None):
         """
@@ -1389,7 +1286,7 @@ class Client(object):
         :raises MCAPIError:
         """
         form = {"project_id": project_id, "name": name}
-        return GlobusDownload(self._post("/globus/downloads", form))
+        return _model_or_none(GlobusDownload, self._post("/globus/downloads", form))
 
     def delete_globus_download_request(self, project_id, globus_download_id):
         """
@@ -1422,7 +1319,8 @@ class Client(object):
         :rtype: GlobusDownload
         :raises MCAPIError:
         """
-        return GlobusDownload(
+        return _model_or_none(
+            GlobusDownload,
             self._get("/projects/" + str(project_id) + "/globus/downloads/" + str(globus_download_id), params))
 
     def open_globus_transfer(self, project_id, params=None):
@@ -1435,7 +1333,7 @@ class Client(object):
         :rtype: GlobusTransfer
         :raises MCAPIError:
         """
-        return GlobusTransfer(self._get("/projects/" + str(project_id) + "/globus/open", params))
+        return _model_or_none(GlobusTransfer, self._get("/projects/" + str(project_id) + "/globus/open", params))
 
     def close_globus_transfer(self, project_id):
         """
@@ -1458,13 +1356,13 @@ class Client(object):
         :rtype: User
         :raises MCAPIError:
         """
-        return User(self._get("/users/by-email/" + email, params))
+        return _model_or_none(User, self._get("/users/by-email/" + email, params))
 
     def get_current_user(self, params=None):
         """
         Get the current user.
         """
-        return User(self._get("/users/by-apikey/" + self.apikey, params))
+        return _model_or_none(User, self._get("/users/by-apikey/" + self.apikey, params))
 
     def list_users(self, params=None):
         """
@@ -1490,7 +1388,7 @@ class Client(object):
         if not attrs:
             attrs = CreateCommunityRequest()
         form = _merge_dicts({"name": name}, attrs.to_dict())
-        return Community(self._post("/communities", form))
+        return _model_or_none(Community, self._post("/communities", form))
 
     def get_all_public_communities(self, params=None):
         """
@@ -1522,7 +1420,7 @@ class Client(object):
         :return: The Community
         :raises MCAPIError:
         """
-        return Community(self._get("/communities/" + str(community_id), params))
+        return _model_or_none(Community, self._get("/communities/" + str(community_id), params))
 
     def add_dataset_to_community(self, dataset_id, community_id):
         """
@@ -1534,7 +1432,8 @@ class Client(object):
         :return: The community with the dataset
         :raises MCAPIError:
         """
-        return Community(self._post("/communities/" + str(community_id) + "/datasets/" + str(dataset_id) + "/add"))
+        return _model_or_none(Community,
+                              self._post("/communities/" + str(community_id) + "/datasets/" + str(dataset_id) + "/add"))
 
     def remove_dataset_from_community(self, dataset_id, community_id):
         """
@@ -1557,7 +1456,7 @@ class Client(object):
         :rtype: Community
         :raises MCAPIError:
         """
-        return Community(self._upload("/communities/" + str(community_id) + "/upload", file_path))
+        return _model_or_none(Community, self._upload("/communities/" + str(community_id) + "/upload", file_path))
 
     def delete_file_from_community(self, file_id, community_id):
         """
@@ -1584,7 +1483,7 @@ class Client(object):
         if not attrs:
             attrs = CreateLinkRequest()
         form = _merge_dicts({"url": url, "name": name}, attrs.to_dict())
-        return Community(self._post("/communities/" + str(community_id) + "/links", form))
+        return _model_or_none(Community, self._post("/communities/" + str(community_id) + "/links", form))
 
     def delete_link_from_community(self, link_id, community_id):
         """
