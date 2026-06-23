@@ -3,6 +3,9 @@
 
 dataset.ipynb
 
+# Testing
+set_env.sh
+
 #pydoc
 *.html
 **/*.html

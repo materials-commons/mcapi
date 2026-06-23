@@ -58,6 +58,18 @@ def _model_or_none(cls, data):
         return cls(data)
     return None
 
+def _decode_response(data, decoder):
+    if data is None:
+        return None
+    if decoder is None:
+        return data
+    return decoder(data)
+
+def _first_or_none(values):
+    if values:
+        return values[0]
+    return None
+
 
 class Client(object):
     """
@@ -1580,6 +1592,8 @@ class Client(object):
         return self._post("/queries/" + str(project_id) + "/execute-query", form)
 
     # Internal
+
+
 
     def _get_files_matching(self, url, match, starting_page, page_size):
         params = _set_paging_params({}, starting_page, page_size)
