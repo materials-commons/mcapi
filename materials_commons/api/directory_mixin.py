@@ -1,32 +1,53 @@
 from .client_base import merge_dicts
 from .decoder import decode_file, decode_file_list
 from .requests import CreateDirectoryRequest, UpdateDirectoryRequest
+from .models2 import File
 
 
 class DirectoryMixin:
-    def get_directory(self, project_id, directory_id, params=None):
+    def get_directory(self, project_id: int, directory_id: int, params=None) -> File:
         """
-        Get a directory in the project.
+        Fetches the details of a specific directory within a given project.
 
-        :param int project_id: The id of the project the directory is in
-        :param int directory_id: The directory id
-        :param params:
-        :return: The directory
-        :rtype: File
-        :raises MCAPIError:
+        This method retrieves information about a directory identified by its
+        `directory_id` within the project specified by `project_id`. Optional
+        query parameters can be provided to refine or customize the request.
+
+        Args:
+            project_id: A string representing the unique identifier of the project.
+            directory_id: A string representing the unique identifier of the directory
+                within the project.
+            params: An optional dictionary containing query parameters to be appended
+                to the request.
+
+        Returns:
+            The details of the requested directory, decoded using the specified
+            decoder function.
+
+        Raises:
+            Any exception related to the HTTP request or response handling.
         """
         return self._get(f"/projects/{project_id}/directories/{directory_id}", params, decoder=decode_file)
 
     def list_directory(self, project_id, directory_id, params=None):
         """
-        Return a list of all the files and directories in a given directory.
+        Retrieves a list of files within a specified directory of a project.
 
-        :param int project_id: The id of the project the directory is in
-        :param int directory_id: The directory id
-        :param params:
-        :return: A list of the files and directories in the given directory
-        :rtype: File[]
-        :raises MCAPIError:
+        This method communicates with the API to fetch the list of files located in
+        a specific directory within a given project. The response is processed using a
+        custom decoder for file lists.
+
+        Arguments:
+        project_id: str
+            The unique identifier of the project.
+        directory_id: str
+            The unique identifier of the directory within the project.
+        params: Optional[dict]
+            Additional query parameters to refine the API request. Default is None.
+
+        Returns:
+        list
+            A list of files retrieved from the specified directory.
         """
         return self._get(f"/projects/{project_id}/directories/{directory_id}/list", params, decoder=decode_file_list)
 
